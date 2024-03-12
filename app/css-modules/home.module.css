@@ -1,0 +1,46 @@
+.btn1 {
+    border-radius: 6px;
+    padding: 10px 23px;
+    color: white;
+    background-color: rgb(15 23 42);
+    border: 1px solid rgb(15 23 42);
+    transition: .3s ease-in-out ;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    -ms-border-radius: 6px;
+    -o-border-radius: 6px;
+    -webkit-transition: .3s ease-in-out ;
+    -moz-transition: .3s ease-in-out ;
+    -ms-transition: .3s ease-in-out ;
+    -o-transition: .3s ease-in-out ;
+}
+.btn2 {
+    border: 1px solid rgb(15 23 42);
+    border-radius: 6px;
+    padding: 10px 23px;
+    color: rgb(15 23 42);
+    background-color: white;
+    transition: .3s ease-in-out ;
+}
+
+.btn1:hover {
+    color: rgb(15 23 42);
+    background-color: white;
+    transition: .3s ease-in-out ;
+}
+.btn2:hover {
+    color: white;
+    background-color: rgb(15 23 42);
+    transition: .3s ease-in-out ;    
+}
+
+@media (max-width: 768px) {
+    .btn1 {
+        padding: 8px 17px;
+        font-size: 14px;
+    }
+    .btn2 {
+        padding: 8px 17px;
+        font-size: 14px;
+    }
+}

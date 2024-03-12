@@ -1,0 +1,90 @@
+.aside {
+    display: none;
+}
+.activeAside {
+    display: none;
+}
+.overlayActive {
+    display: none;
+}
+.overlay {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .activeAside {
+        translate: 0; 
+        display: block;
+        position: fixed;
+        z-index: 3000;
+        top: 0;
+        right: 0;
+        width: 200px;
+        height: 100%;
+        padding: 0 20px;
+        background-color: #272e3c;
+        box-shadow: 0 0 20px rgb(0 0 0 / 70%);
+        transition: 0.3s all ease-in-out;
+        -webkit-transition: 0.3s all ease-in-out;
+        -moz-transition: 0.3s all ease-in-out;
+        -ms-transition: 0.3s all ease-in-out;
+        -o-transition: 0.3s all ease-in-out;
+    }
+    .aside {
+        display: block;
+        position: fixed;
+        z-index: 3000;
+        top: 0;
+        right: 0;
+        width: 200px;
+        height: 100%;
+        padding: 0 20px;
+        background-color: #272e3c;
+        box-shadow: 0 0 20px rgb(0 0 0 / 70%);
+        translate: 100% 0; 
+        transition: 0.3s all ease-in-out;
+        -webkit-transition: 0.3s all ease-in-out;
+        -moz-transition: 0.3s all ease-in-out;
+        -ms-transition: 0.3s all ease-in-out;
+        -o-transition: 0.3s all ease-in-out;
+    }
+
+    .overlay{
+        display: block;
+        position: fixed;
+        z-index: 3000;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background: rgb(27, 32, 44 / 70%);
+        visibility: hidden;
+        opacity: 0;
+        backdrop-filter: blur(0px);
+        transition: all ease-in-out 0.3s;
+        -webkit-transition: all ease-in-out 0.3s;
+        -moz-transition: all ease-in-out 0.3s;
+        -ms-transition: all ease-in-out 0.3s;
+        -o-transition: all ease-in-out 0.3s;
+    }
+    .overlayActive {
+        display: block;
+        position: fixed;
+        z-index: 3000;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background-color: rgba(27, 32, 44, 0.521);
+        visibility: visible;
+        backdrop-filter: blur(6px);
+        opacity: 1;
+        transition: all ease-in-out 0.3s;
+        -webkit-transition: all ease-in-out 0.3s;
+        -moz-transition: all ease-in-out 0.3s;
+        -ms-transition: all ease-in-out 0.3s;
+        -o-transition: all ease-in-out 0.3s;
+    }
+}
+
+
