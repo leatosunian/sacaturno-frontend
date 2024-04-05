@@ -1,0 +1,178 @@
+.btn1 {
+  border-radius: 6px;
+  padding: 10px 23px;
+  color: white;
+  background-color: rgb(15 23 42);
+  border: 1px solid rgb(15 23 42);
+  transition: 0.3s ease-in-out;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  -ms-border-radius: 6px;
+  -o-border-radius: 6px;
+  -webkit-transition: 0.3s ease-in-out;
+  -moz-transition: 0.3s ease-in-out;
+  -ms-transition: 0.3s ease-in-out;
+  -o-transition: 0.3s ease-in-out;
+}
+.btn2 {
+  border: 1px solid rgb(15 23 42);
+  border-radius: 6px;
+  padding: 10px 23px;
+  color: rgb(15 23 42);
+  background-color: white;
+  transition: 0.3s ease-in-out;
+}
+
+.btn1:hover {
+  color: rgb(15 23 42);
+  background-color: white;
+  transition: 0.3s ease-in-out;
+}
+.btn2:hover {
+  color: white;
+  background-color: rgb(15 23 42);
+  transition: 0.3s ease-in-out;
+}
+
+.buttonsCont {
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column;
+  align-items: center;
+  align-self: center;
+  padding: 16px 16px;
+  height: fit-content;
+  min-width: 420px;
+  /* background-color: rgba(0, 0, 0, 0.116);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.068); */
+  color: white;
+  /* box-shadow: -10px 10px 25px 1px rgba(0, 0, 0, 0.3);
+  -webkit-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.3);
+  border-radius: 15px;
+  -webkit-border-radius: 15px;
+  -moz-border-radius: 15px;
+  -ms-border-radius: 15px;
+  -o-border-radius: 15px; */
+}
+
+.backgroundImage {
+
+  background-image: url(../../public/zoe-BVoTTLwXvMQ-unsplash.jpg);
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.pricingCont {
+  display: flex;
+  width: 100%;
+  height: 100vw;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  height: 100vh;
+}
+
+.pricingCardCont {
+  width: fit-content;
+  gap: 35px;
+  height: fit-content;
+  display: flex;
+  padding: 35px 85px;
+  border: 1px solid gray;
+  border-radius: 15px;
+  background-color: rgba(0, 0, 0, 0.116);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(156, 156, 156, 0.1);
+  box-shadow: -10px 10px 25px 1px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.2);
+  -webkit-border-radius: 15px;
+  -moz-border-radius: 15px;
+  -ms-border-radius: 15px;
+  -o-border-radius: 15px;
+}
+
+.pricingCard {
+  width: 360px;
+  height: 100%;
+  border: 1px solid gray;
+  border-radius: 15px;
+  padding: 30px ;
+  background-color: rgba(0, 0, 0, 0.116);
+  backdrop-filter: blur(30px);
+  border: 1px solid rgba(156, 156, 156, 0.1);
+  box-shadow: -10px 10px 25px 1px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.2);
+  -webkit-border-radius: 15px;
+  -webkit-backdrop-filter: blur(30px);
+  -moz-border-radius: 15px;
+  -ms-border-radius: 15px;
+  -o-border-radius: 15px;
+}
+
+.mainSectionCont {
+  background-color: rgba(0, 0, 0, 0.316);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(156, 156, 156, 0.1);
+  box-shadow: -10px 10px 25px 1px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.2);
+  -webkit-border-radius: 15px;
+  -webkit-backdrop-filter: blur(8px);
+  -moz-border-radius: 15px;
+  -ms-border-radius: 15px;
+  -o-border-radius: 15px;
+}
+
+
+@media (max-width: 1024px){
+  .pricingCardCont {
+    padding: 10px;
+    gap: 10px;
+  }
+  .pricingCard {
+    width: 370px;
+    padding: 24px ;
+  }
+  .pricingCont {
+    align-items: baseline;
+    height: fit-content;
+  }
+  .mainSectionCont {
+    height: calc(100vh - 122px);
+  }
+}
+
+@media (max-width: 768px) {
+  .pricingCard {
+    /* width: 320px; */
+    width: 100%;
+    padding: 24px ;
+
+  }
+  .pricingCardCont {
+    flex-direction: column;
+    align-items: center;
+    width: 90%;
+    padding: 20px;
+    gap: 25px;
+  }
+
+  .btn1 {
+    padding: 8px 17px;
+    font-size: 14px;
+  }
+  .btn2 {
+    padding: 8px 17px;
+    font-size: 14px;
+  }
+
+  .buttonsCont {
+    width: 90%;
+    min-width: 240px;
+    padding: 30px 20px;
+  }
+}

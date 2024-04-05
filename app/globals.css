@@ -1,0 +1,312 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* INPUT NUMBER ARROWS HIDDEN */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.rbc-event, .rbc-day-slot .rbc-background-event {
+  border: none;
+  background-color: rgba(255, 255, 255, 0) !important;
+}
+
+.inputFileFormProfile {
+  width: 240px;
+  height: 240px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.inputFileFormProfile img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.inputFileFormProfile img:hover {
+  backdrop-filter: opacity(10%);
+}
+
+.inputFileForm img:hover {
+  backdrop-filter: opacity(10%);
+}
+
+.inputFileForm {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.inputFileForm img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+/* CALENDAR STYLES */
+
+.rbc-button-link {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.rbc-time-content > .rbc-day-slot {
+  border-left: 1px solid #80808058;
+}
+
+.rbc-time-column .rbc-timeslot-group {
+  flex: 1;
+  border: 1px solid #80808045;
+}
+
+.rbc-day-slot .rbc-event-label {
+  display: none !important;
+}
+
+.rbc-day-slot .rbc-event-content {
+  align-items: center;
+  display: flex;
+  padding: 0;
+}
+
+.rbc-event{
+  width: fit-content !important;
+  padding: 0 10px !important;
+}
+
+.rbc-event,
+.rbc-day-slot .rbc-background-event {
+  /* background-color: #111a30 !important; */
+  padding: 0px !important;
+}
+
+.rbc-time-view .rbc-allday-cell {
+  display: none !important;
+}
+
+.rbc-background-event {
+  /* background-color: #111a30 !important; */
+  padding: 0px !important;
+}
+
+.rbc-event.rbc-selected,
+.rbc-day-slot .rbc-selected.rbc-background-event {
+  background-color: #000000 !important;
+}
+
+/* .rbc-timeslot-group {
+  height: 20px !important;
+}
+
+.rbc-timeslot {
+  height: 20px !important;
+} */
+
+/* ROUNDED BORDER SHADOW */
+
+.borderShadow {
+  border: 1px solid rgba(134, 134, 134, 0.2);
+  box-shadow: -10px 10px 25px 1px rgba(0, 0, 0, 0.16);
+  -webkit-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.16);
+  -moz-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.16);
+  border-radius: 15px;
+  -webkit-border-radius: 15px;
+}
+
+/* ALERT STYLES */
+
+.notificationContainer {
+  transition: all ease-in-out 0.3s;
+  position: fixed;
+  z-index: 99999;
+  height: fit-content;
+  width: fit-content;
+  padding: 15px 20px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  background-color: rgb(231, 231, 231);
+  border: 1px solid rgba(80, 80, 80, 0.374);
+  box-shadow: 5px 5px 8px hsla(0, 0%, 12%, 0.15);
+  border-radius: 8px;
+  bottom: -400px;
+  color: black;
+  font-weight: 600;
+  -webkit-transition: all ease-in-out 0.3s;
+  -moz-transition: all ease-in-out 0.3s;
+  -ms-transition: all ease-in-out 0.3s;
+  -o-transition: all ease-in-out 0.3s;
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  -ms-border-radius: 8px;
+  -o-border-radius: 8px;
+}
+
+.notificationImage {
+  width: 30px;
+  height: 30px;
+}
+
+.notificationImgCont {
+  display: flex;
+  justify-content: center;
+  height: 70%;
+  align-items: center;
+  gap: 20px;
+}
+
+.actived {
+  transition: all ease-in-out 0.3s;
+  bottom: 60px;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+.modalCont {
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 10000;
+  width: 100%;
+  height: calc(100% - 64px);
+  backdrop-filter: blur(8px);
+}
+
+.rbc-today {
+  background-color: #00000018 !important;
+}
+
+.rbc-time-content > .rbc-day-slot {
+  border: 1px solid #00000000 !important;
+}
+
+.rbc-time-column .rbc-timeslot-group {
+  border: 1px solid #00000014 !important;
+}
+
+/* calendar header border */
+.rbc-time-column .rbc-timeslot-group {
+  border: none !important;
+}
+
+.rbc-active {
+  background: #111a30 !important;
+  color: white !important;
+}
+
+.rbc-btn-group > button:first-child:not(:last-child) {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.rbc-btn-group > button:last-child:not(:first-child) {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.rbc-day-slot .rbc-event,
+.rbc-day-slot .rbc-background-event {
+  border: 1px solid rgb(255, 255, 255) !important;
+}
+
+.calendarComponent {
+  width: 87vw !important;
+  height: 77vh !important;
+}
+
+@media (max-width: 768px) {
+  .notificationContainer {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 14px;
+    white-space: nowrap;
+    width: max-content;
+  }
+
+  .inputFileFormProfile {
+    width: 150px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  .inputFileFormProfile {
+    width: 150px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  .notificationImage {
+    width: 20px;
+    height: 20px;
+  }
+  .notificationImgCont {
+    display: flex;
+    justify-content: center;
+    height: 70%;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .calendarComponent {
+    width: 100vw !important;
+    height: 90vh !important;
+  }
+
+  .rbc-label {
+    padding: 0 5px;
+    font-size: 14px;
+}
+}
+
+@media (max-width: 450px) {
+  .notificationContainer {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 14px;
+  }
+}

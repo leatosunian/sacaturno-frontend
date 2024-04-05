@@ -1,0 +1,175 @@
+"use client";
+
+import axiosReq from "@/config/axios";
+import { IAppointment } from "@/interfaces/appointment.interface";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import styles from "@/app/css-modules/miempresa.module.css";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { FieldValues, useForm } from "react-hook-form";
+import { bookAppointmentSchema } from "@/app/schemas/bookAppointmentSchema";
+import { IoMdClose } from "react-icons/io";
+
+interface eventType2 {
+  start: string;
+  end: string;
+  title: string | undefined;
+  clientID: string | "" | undefined;
+  _id?: string | undefined;
+  status?: "booked" | "unbooked" | undefined;
+}
+
+interface props {
+  appointmentData: eventType2 | undefined;
+  closeModalF: () => void;
+}
+
+interface formInputs {
+  name: string;
+  phone: number;
+  email: string;
+}
+
+const BookAppointmentModal: React.FC<props> = ({
+  appointmentData,
+  closeModalF,
+}) => {
+  /*console.log(appointmentData);*/
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<formInputs>({
+    resolver: zodResolver(bookAppointmentSchema),
+  });
+  const router = useRouter();
+
+  const bookAppointment = async (formData: FieldValues) => {
+    console.log(formData);
+
+    const token = localStorage.getItem("sacaturno_token");
+    const userID = localStorage.getItem("sacaturno_userID");
+    const authHeader = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        "Cache-Control": "no-store",
+      },
+    };
+    const getClientData = await axiosReq.get("/user/get/" + userID, authHeader);
+    const clientData = getClientData.data.response_data;
+
+    const bookingData = {
+      _id: appointmentData?._id,
+      status: "booked",
+      clientID: userID,
+      email: formData.email,
+      phone: formData.phone,
+      name: formData.name,
+      title: `${clientData.surname}, ${clientData.name}`,
+    };
+    const bookedAppointment = await axiosReq.put(
+      "/appointment/book",
+      bookingData,
+      authHeader
+    );
+    console.log(bookedAppointment);
+    router.refresh();
+  };
+
+  const closeModal = () => {
+    closeModalF();
+  };
+
+  const handleSubmitClick = () => {
+    const fileInput = document.querySelector(
+      ".inputSubmitField"
+    ) as HTMLElement;
+    if (fileInput != null) {
+      fileInput.click();
+    }
+  };
+
+  return (
+    <>
+      <div className="absolute flex items-center justify-center modalCont">
+        
+        <div className="flex flex-col bg-white w-80 md:w-96 p-7 h-fit borderShadow">
+          <IoMdClose
+            className={styles.closeModal}
+            onClick={closeModal}
+            size={22}
+          />
+          <h4 className="mb-6 text-2xl font-semibold text-center">
+            Reservar turno
+          </h4>
+
+          {/* <span>Hacé click en un turno para ver los detalles</span> */}
+          <div className="flex flex-col w-full gap-4 h-fit">
+            <div className="flex flex-col w-fit h-fit">
+              <label className="font-semibold text-md">Fecha y hora</label>
+              <span className="text-sm">
+                {appointmentData?.start}
+                {appointmentData?.end}
+              </span>
+            </div>
+
+            <form
+              onSubmit={handleSubmit((formData) => {
+                bookAppointment(formData);
+              })}
+              className="flex flex-col justify-between w-full gap-4 "
+            >
+              <div className={styles.formInput}>
+                <span className="text-sm font-semibold ">
+                  Nombre y apellido
+                </span>
+                <input type="text" maxLength={30} {...register("name")} />
+                {errors.name?.message && (
+                  <span className="text-xs font-semibold text-red-600">
+                    {" "}
+                    {errors.name.message}{" "}
+                  </span>
+                )}
+              </div>
+              <div className={styles.formInput}>
+                <span className="text-sm font-semibold ">Teléfono</span>
+                <input type="number" maxLength={20} {...register("phone")} />
+                {errors.phone?.message && (
+                  <span className="text-xs font-semibold text-red-600">
+                    {" "}
+                    {errors.phone?.message}{" "}
+                  </span>
+                )}
+              </div>
+              <div className={styles.formInput}>
+                <span className="text-sm font-semibold ">Email</span>
+                <input type="email" {...register("email")} maxLength={40} />
+                {errors.email?.message && (
+                  <span className="text-xs font-semibold text-red-600">
+                    {" "}
+                    {errors.email?.message}{" "}
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={handleSubmitClick}
+                className={"inputSubmitField hidden "}
+              />
+            </form>
+          </div>
+
+          <div className="flex justify-center w-full mt-5 align-middle h-fit">
+            <button className={styles.button} onClick={handleSubmitClick}>
+              Reservar turno
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default BookAppointmentModal;
