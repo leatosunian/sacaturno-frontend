@@ -12,6 +12,7 @@ interface Props {
 
 /*export const getServerSideProps: GetServerSideProps = async (context) => {
   const { params } = context
+  
 
   // Make the data available to the page component
   return {

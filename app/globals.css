@@ -310,3 +310,23 @@ input[type="number"] {
     padding: 10px 14px;
   }
 }
+
+
+/* 
+.rbc-time-view {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    width: 100%;
+    border: 1px solid #ffffff0f;
+    min-height: 0;
+    border-radius: 10px;
+    color: white;
+    background: #00000036;
+    font-size: 15px;
+    backdrop-filter: blur(6px);
+}
+
+
+
+*/
