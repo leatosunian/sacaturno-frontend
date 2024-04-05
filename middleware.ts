@@ -5,7 +5,7 @@ export interface NextRequestPathname extends NextRequest {
   pathname: string;
 }
 
-export const middleware = async (req: NextRequestPathname) => {
+export const middleware = async (req: NextRequestPathname, res: NextResponse) => {
   const userID = req.cookies.get("sacaturno_userID");
   const token = req.cookies.get("sacaturno_token");
 
