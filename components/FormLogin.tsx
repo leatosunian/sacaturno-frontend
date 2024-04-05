@@ -57,7 +57,7 @@ const FormLogin = () => {
         localStorage.setItem("sacaturno_token", login.data.response_data.token);
 
         try {
-          const res = await fetch( `${process.env.FRONTEND_URL}/api/login`, {
+          const res = await fetch( '/api/login', {
             method: "POST",
             body: JSON.stringify({
               token: login.data.response_data.token,
