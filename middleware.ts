@@ -8,7 +8,8 @@ export interface NextRequestPathname extends NextRequest {
 export const middleware = async (req: NextRequestPathname, res: NextResponse) => {
   const userID = req.cookies.get("sacaturno_userID");
   const token = req.cookies.get("sacaturno_token");
-
+  console.log('pathname ', req.nextUrl.pathname);
+  
   /** no token cookie */
   if (req.nextUrl.pathname !== "/login") {
     if (!token) {
@@ -31,6 +32,8 @@ export const middleware = async (req: NextRequestPathname, res: NextResponse) =>
       method: "POST",
     });
     const data = await validUser.json();
+    console.log('validUser ', data);
+    
     if (data.userId === userID.value) {
       /** redirect to dashboard if login page is visited logged in */
       if (req.nextUrl.pathname === "/login") {
