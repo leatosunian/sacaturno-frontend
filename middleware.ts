@@ -23,7 +23,7 @@ export const middleware = async (req: NextRequestPathname, res: NextResponse) =>
   }
   /** verify token */
   if (token && userID) {
-    const validUser = await fetch("http://localhost:3000/api/checkauth", {
+    const validUser = await fetch("/api/checkauth", {
       headers: {
         "Content-Type": "application/json",
       },
