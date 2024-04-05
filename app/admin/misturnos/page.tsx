@@ -36,7 +36,7 @@ const getAppointments = async () => {
   return { appointments: appointments.data, businessData };
 };
 
-const MisTurnos: React.FC<Props> = async () => {
+const MisTurnos: React.FC = async () => {
   const data = await getAppointments();
 
   return (
