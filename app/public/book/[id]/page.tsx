@@ -1,4 +1,4 @@
-import axiosReq from "@/config/axios";
+/*import axiosReq from "@/config/axios";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import { IBusiness } from "@/interfaces/business.interface";
 import { cookies } from "next/headers";
@@ -10,7 +10,7 @@ interface Props {
   businessData: IBusiness;
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+/*export const getServerSideProps: GetServerSideProps = async (context) => {
   const { params } = context
 
   // Make the data available to the page component
@@ -53,4 +53,4 @@ const BookAppointment: React.FC<propsComponent> = async (paramss) => {
   );
 };
 
-export default BookAppointment;
+export default BookAppointment;*/
