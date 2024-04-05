@@ -7,7 +7,6 @@ import { cookies } from "next/headers";
 import Image from "next/image";
 import BusinessSkImg from "@/public/business.png";
 import Link from "next/link";
-import data from "../../../../shop-coding-test/server/src/data/data";
 
 interface Props {}
 export const metadata: Metadata = {
@@ -48,7 +47,7 @@ const MiEmpresa: NextPage<Props> = async ({}) => {
   return (
     <>
       <header className="flex justify-center w-full mt-8 mb-5 md:mt-7 md:mb-7 h-fit">
-        <h4 className="text-2xl font-bold  uppercase">Mi Empresa</h4>
+        <h4 className="text-2xl font-bold uppercase">Mi Empresa</h4>
       </header>
       <div className="flex justify-center w-screen mt-5 h-fit">
         {typeof data !== "string" && (
