@@ -16,6 +16,7 @@ export const middleware = async (req: NextRequestPathname, res: NextResponse) =>
       return NextResponse.redirect(new URL("/login", req.url));
     }
   }
+  
   /** prevent login page redirect loop */
   if (!token) {
     if (req.nextUrl.pathname === "/login") {
