@@ -373,7 +373,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
             onSelectEvent={(event) => {
               handleSelectEvent(event);
             }}
-            longPressThreshold={10}
+            longPressThreshold={250}
           />
         </div>
       </div>
