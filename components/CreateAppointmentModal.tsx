@@ -2,10 +2,8 @@
 
 import axiosReq from "@/config/axios";
 import { IAppointment } from "@/interfaces/appointment.interface";
-import { IUser } from "@/interfaces/user.interface";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import styles from "@/app/css-modules/miempresa.module.css"
 import { IoMdClose } from "react-icons/io";
 
@@ -17,6 +15,7 @@ interface props {
 const CreateAppointmentModal: React.FC<props> = ({appointmentData, closeModalF}) => {
   const router = useRouter()
   const saveAppointment = async () => {
+    closeModal()
     const token = localStorage.getItem("sacaturno_token");
     const authHeader = {
       headers: {
@@ -43,12 +42,12 @@ const CreateAppointmentModal: React.FC<props> = ({appointmentData, closeModalF})
   return (
     <>
       <div className="absolute flex items-center justify-center text-black modalCont" >
-        <div className="flex flex-col bg-white sm:w-5/6 min-w-32 md:4/5 lg:w-2/4 xl:w-80 p-7 h-fit borderShadow">
-        <IoMdClose
-            className={styles.closeModal}
-            onClick={closeModal}
-            size={22}
-          />
+        <div className="flex flex-col bg-white w-80 md:w-96 px-7 py-9 h-fit borderShadow">
+          <IoMdClose
+              className={styles.closeModal}
+              onClick={closeModal}
+              size={22}
+            />
           <h4 className="mb-6 text-2xl font-semibold text-center">
             Nuevo turno
           </h4>

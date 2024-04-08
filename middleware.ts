@@ -33,8 +33,16 @@ export const middleware = async (req: NextRequestPathname, res: NextResponse) =>
       method: "POST",
     });
     const data = await validUser.json();
+    /*console.log('validUser ', data);
+    const validUser = await fetch("http://127.0.0.1:3000/api/checkauth", {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(token.value),
+      method: "POST",
+    });
+    const data = await validUser.json();*/
     console.log('validUser ', data);
-    
     if (data.userId === userID.value) {
       /** redirect to dashboard if login page is visited logged in */
       if (req.nextUrl.pathname === "/login") {
