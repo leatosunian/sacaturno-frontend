@@ -3,7 +3,7 @@ import { verify } from "jsonwebtoken";
 import { log } from "console";
 const jwt_secret = process.env.JWT_SECRET || "A";
 
-export async function POST(req: Request, res: NextResponse) {
+export async function POST(req: NextRequest, res: NextResponse) {
   const token = await req.json();
 
   if (token) {
