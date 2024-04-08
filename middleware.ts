@@ -25,7 +25,7 @@ export const middleware = async (req: NextRequestPathname, res: NextResponse) =>
   }
   /** verify token */
   if (token && userID) {
-    const validUser = await fetch("/api/checkauth", {
+    const validUser = await fetch("https://sacaturno.netlify.app/api/checkauth", {
       headers: {
         "Content-Type": "application/json",
       },
