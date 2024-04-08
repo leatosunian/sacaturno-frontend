@@ -3,8 +3,6 @@ import { FormEventHandler, useState, useEffect } from "react";
 import styles from "../app/css-modules/login.module.css";
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
-import Alert from "./Alert";
-import { redirect } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
@@ -47,7 +45,8 @@ const FormLogin = () => {
   const handleLogin = async (data: FieldValues) => {
     if (data) {
       const login = await axiosReq.post(`/user/login`, data);
-      console.log(login);
+      
+      console.log('login: ', login);
 
       if (typeof login.data.response_data === "object") {
         localStorage.setItem(
