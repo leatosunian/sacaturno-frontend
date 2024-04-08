@@ -219,7 +219,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
         return (
           <>
             <div
-              className="w-fit h-full px-2 py-1 "
+              className="h-full px-2 py-1 w-fit "
               style={{ backgroundColor: "rgb(203 137 121)" }}
             >
               <span className="text-sm">{event.name} </span>
@@ -373,6 +373,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
             onSelectEvent={(event) => {
               handleSelectEvent(event);
             }}
+            longPressThreshold={10}
           />
         </div>
       </div>
