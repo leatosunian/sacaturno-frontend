@@ -364,13 +364,17 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
             max={new Date(0, 0, 0, Number(businessData.dayEnd), 0, 0)}
             timeslots={1}
             step={Number(businessData.appointmentDuration)}
-            onSelectSlot={({ start, end }) => {
-              saveNewAppointment({ start, end });
+            onSelectSlot={({ action, start, end }) => {
+              if(action === 'doubleClick'){
+                saveNewAppointment({ start, end });
+
+              }
             }}
             toolbar={false}
             selectable
             defaultView="day"
             onSelectEvent={(event) => {
+              
               handleSelectEvent(event);
             }}
             longPressThreshold={1}
