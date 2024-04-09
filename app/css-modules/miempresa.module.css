@@ -226,12 +226,12 @@
 .closeModal {
     color: red;
     cursor: pointer;
-    transform: translate(310px, -15px);
+    transform: translate(310px, -25px);
     position: absolute;
-    -webkit-transform: translate(310px, -15px);
-    -moz-transform: translate(310px, -15px);
-    -ms-transform: translate(310px, -15px);
-    -o-transform: translate(310px, -15px);
+    -webkit-transform: translate(310px, -25px);
+    -moz-transform: translate(310px, -25px);
+    -ms-transform: translate(310px, -25px);
+    -o-transform: translate(310px, -25px);
 }
 
 @media (max-width: 1300px) {
