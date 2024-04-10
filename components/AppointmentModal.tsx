@@ -75,7 +75,7 @@ const AppointmentModal: React.FC<props> = ({ appointment, closeModalF }) => {
         className="absolute flex items-center justify-center modalCont"
         onClick={closeModal}
       >
-        <div className="flex flex-col bg-white sm:w-5/6 md:4/5 lg:w-2/4 xl:w-fit p-7 h-fit borderShadow">
+        <div className="flex flex-col text-black bg-white sm:w-5/6 md:4/5 lg:w-2/4 xl:w-fit p-7 h-fit borderShadow">
           <h4 className="mb-6 text-2xl font-semibold text-center">
             Datos del turno
           </h4>

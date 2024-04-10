@@ -365,7 +365,9 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
             timeslots={1}
             step={Number(businessData.appointmentDuration)}
             onSelectSlot={({ action, start, end }) => {
-              if(action === 'doubleClick'){
+              console.log(action);
+              
+              if(action === 'select' || 'click'){
                 saveNewAppointment({ start, end });
 
               }
@@ -377,7 +379,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
               
               handleSelectEvent(event);
             }}
-            /*longPressThreshold={1}*/
+            longPressThreshold={1}
           />
         </div>
       </div>
