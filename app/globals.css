@@ -116,6 +116,7 @@ input[type="number"] {
 .rbc-event{
   width: fit-content !important;
   padding: 0 10px !important;
+  z-index: 20;
 }
 
 .rbc-event,
