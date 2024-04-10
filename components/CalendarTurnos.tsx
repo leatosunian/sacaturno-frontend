@@ -376,10 +376,11 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
             selectable
             defaultView="day"
             onSelectEvent={(event) => {
+              console.log(event);
               
               handleSelectEvent(event);
             }}
-            longPressThreshold={1}
+            longPressThreshold={30}
           />
         </div>
       </div>
