@@ -107,32 +107,33 @@ const LoggedInHeader: NextPage<Props> = ({}) => {
           </div>
           <Link
             onClick={closeNavMenu}
-            className="flex items-center h-12 uppercase text-sm font-medium"
+            className="flex items-center h-12 text-xs font-medium uppercase"
             href="/business/search"
           >
             Sacar turno
           </Link>
           <Link
             onClick={closeNavMenu}
-            className="flex items-center h-12 uppercase text-sm font-medium"
+            className="flex items-center h-12 text-xs font-medium uppercase"
             href="/admin/miempresa"
           >
             Mi empresa
           </Link>
           <Link
             onClick={closeNavMenu}
-            className="flex items-center h-12 uppercase text-sm font-medium"
+            className="flex items-center h-12 text-xs font-medium uppercase"
             href="/admin/misturnos"
           >
             Mis turnos
           </Link>
           <Link
             onClick={closeNavMenu}
-            className="flex items-center h-12 uppercase text-sm font-medium"
+            className="flex items-center h-12 text-xs font-medium uppercase"
             href="/admin/perfil"
           >
             Mi perfil
           </Link>
+          <span onClick={logOut} className="flex items-center h-12 text-xs font-medium uppercase" >Cerrar sesión</span>
         </aside>
       </div>
     </>
