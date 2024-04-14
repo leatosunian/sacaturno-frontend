@@ -1,6 +1,6 @@
 "use client";
 import { NextPage } from "next";
-import styles from "../app/css-modules/miempresa.module.css";
+import styles from "../app/css-modules/FormMiEmpresa.module.css";
 import Image from "next/image";
 import { durationOptions, timeOptions } from "@/helpers/timeOptions";
 import { IBusiness } from "../interfaces/business.interface";

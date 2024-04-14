@@ -19,7 +19,7 @@ import timezone from "dayjs/plugin/timezone";
 import advanced from "dayjs/plugin/advancedFormat";
 import ObjectId, { Types } from "mongoose";
 import { useRouter } from "next/navigation";
-import styles from "@/app/css-modules/calendar.module.css";
+import styles from "@/app/css-modules/CalendarBookAppointment.module.css";
 import BookAppointmentModal from "./BookAppointmentModal";
 
 dayjs.locale("es-mx");

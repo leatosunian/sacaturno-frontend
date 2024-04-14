@@ -1,8 +1,4 @@
 import AlertInterface from "../interfaces/alert.interface";
-import correct from "../public/correct.png";
-import remove from "../public/remove.png";
-import { useEffect } from "react";
-import Image from "next/image";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { FaRegCircleCheck } from "react-icons/fa6";
 

@@ -2,8 +2,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { NextPage } from "next";
-import { FcCalendar } from "react-icons/fc";
-import { IoIosLogOut } from "react-icons/io";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { RxCross2 } from "react-icons/rx";
 import styles from "../app/css-modules/header.module.css";

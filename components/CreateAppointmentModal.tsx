@@ -4,7 +4,7 @@ import axiosReq from "@/config/axios";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
-import styles from "@/app/css-modules/miempresa.module.css"
+import styles from "@/app/css-modules/CreateAppointmentModal.module.css"
 import { IoMdClose } from "react-icons/io";
 
 interface props {

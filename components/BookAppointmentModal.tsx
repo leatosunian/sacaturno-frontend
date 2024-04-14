@@ -4,7 +4,7 @@ import axiosReq from "@/config/axios";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import styles from "@/app/css-modules/miempresa.module.css";
+import styles from "@/app/css-modules/BookAppointmentModal.module.css";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldValues, useForm } from "react-hook-form";
 import { bookAppointmentSchema } from "@/app/schemas/bookAppointmentSchema";

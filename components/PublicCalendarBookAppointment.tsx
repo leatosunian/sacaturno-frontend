@@ -1,5 +1,4 @@
 "use client";
-import { NextPage } from "next";
 import {
   Calendar,
   EventProps,
@@ -13,13 +12,12 @@ import { IAppointment } from "@/interfaces/appointment.interface";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import AppointmentModal from "./AppointmentModal";
 import { IBusiness } from "@/interfaces/business.interface";
-import axiosReq from "@/config/axios";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import advanced from "dayjs/plugin/advancedFormat";
 import ObjectId, { Types } from "mongoose";
 import { useRouter } from "next/navigation";
-import styles from "@/app/css-modules/calendar.module.css";
+import styles from "@/app/css-modules/PublicCalendarBookAppointment.module.css";
 import BookAppointmentModal from "./BookAppointmentModal";
 
 dayjs.locale("es-mx");

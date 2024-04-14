@@ -3,7 +3,7 @@
 import axiosReq from "@/config/axios";
 import { IUser } from "@/interfaces/user.interface";
 import { useEffect, useState } from "react";
-import styles from "@/app/css-modules/miempresa.module.css";
+import styles from "@/app/css-modules/AppointmentModal.module.css";
 import { useRouter } from "next/navigation";
 
 interface eventType2 {

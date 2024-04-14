@@ -1,0 +1,29 @@
+.buttonDelete {
+    width: fit-content;
+    height: fit-content;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 12px;
+    align-self: center;
+    border: 1px solid rgba(128, 128, 128, 0.445);
+    background-color: #6d0b0b;
+    color: white;
+    border-radius: 7px;
+    font-size: 14px;
+    transition: all .3s ease-in-out;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    -ms-border-radius: 7px;
+    -o-border-radius: 7px;
+}
+
+.buttonDelete:hover {
+    background-color:#c41313;;
+    transition: all .3s ease-in-out;
+    -webkit-transition: all .3s ease-in-out;
+    -moz-transition: all .3s ease-in-out;
+    -ms-transition: all .3s ease-in-out;
+    -o-transition: all .3s ease-in-out;
+}

@@ -1,6 +1,6 @@
 "use client";
 import { NextPage } from "next";
-import styles from "../app/css-modules/miempresa.module.css";
+import styles from "../app/css-modules/FormMiPerfil.module.css";
 import Image from "next/image";
 import defaultImg from "/public/user.png";
 import { IUser } from "@/interfaces/user.interface";

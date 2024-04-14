@@ -1,0 +1,21 @@
+.closeModal {
+  color: red;
+  cursor: pointer;
+  transform: translate(310px, -25px);
+  position: absolute;
+  -webkit-transform: translate(310px, -25px);
+  -moz-transform: translate(310px, -25px);
+  -ms-transform: translate(310px, -25px);
+  -o-transform: translate(310px, -25px);
+}
+
+@media (max-width: 768px) {
+  .closeModal {
+    transform: translate(250px, -7px);
+    position: absolute;
+    -webkit-transform: translate(250px, -7px);
+    -moz-transform: translate(250px, -7px);
+    -ms-transform: translate(250px, -7px);
+    -o-transform: translate(250px, -7px);
+  }
+}

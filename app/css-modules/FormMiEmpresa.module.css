@@ -1,0 +1,188 @@
+.businessForm {
+    width: 100%;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    gap: 20px;
+}
+
+.formInput {
+    width: 100%;
+    height: fit-content;
+    display: flex;
+    gap: 3px;
+    flex-direction: column;
+}
+
+.formInputOpening {
+    width: fit-content;
+    height: fit-content;
+    display: flex;
+    gap: 3px;
+    flex-direction: column;
+}
+
+
+
+.formInputAppDuration select {
+    width: 240px;
+    height: fit-content;
+    display: flex;
+    gap: 3px;
+    flex-direction: column;
+    border-radius: 7px;
+    font-size: 13px;
+    height: 25px;
+    background-color: rgb(235, 235, 235);
+    border: 1px solid rgba(95, 95, 95, 0.267);
+    padding: 0 10px;
+    -webkit-border-radius: 7px;
+}
+
+.formInput .formInputOpening input {
+    background-color: rgb(235, 235, 235);
+    height: 30px;
+    width: 100%;
+    border: 1px solid rgba(95, 95, 95, 0.267);
+    border-radius: 7px;
+    font-size: 13px;
+    padding: 0 10px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    -ms-border-radius: 7px;
+    -o-border-radius: 7px;
+}
+
+.formInput .formInputOpening select {
+    background-color: rgb(235, 235, 235);
+    height: 25px;
+    border: 1px solid rgba(95, 95, 95, 0.267);
+    border-radius: 7px;
+    font-size: 13px;
+    padding: 0 10px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    -ms-border-radius: 7px;
+    -o-border-radius: 7px;
+}
+
+.formInput  input {
+    background-color: rgb(235, 235, 235);
+    height: 30px;
+    width: 100%;
+    border: 1px solid rgba(95, 95, 95, 0.267);
+    border-radius: 7px;
+    font-size: 13px;
+    padding: 0 10px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    -ms-border-radius: 7px;
+    -o-border-radius: 7px;
+}
+
+.formInput  select {
+    background-color: rgb(235, 235, 235);
+    height: 25px;
+    border: 1px solid rgba(95, 95, 95, 0.267);
+    border-radius: 7px;
+    font-size: 13px;
+    padding: 0 10px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    -ms-border-radius: 7px;
+    -o-border-radius: 7px;
+}
+
+.button {
+    width: fit-content;
+    height: fit-content;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 12px;
+    align-self: center;
+    border: 1px solid rgba(128, 128, 128, 0.445);
+    background-color: #dd4924;
+    color: white;
+    border-radius: 7px;
+    font-size: 14px;
+    transition: all .3s ease-in-out;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    -ms-border-radius: 7px;
+    -o-border-radius: 7px;
+}
+
+
+
+.button:hover {
+    color: #d92f04;
+    border: 1px solid #d92f04;
+    background-color: white; 
+    transition: all .3s ease-in-out;
+    -webkit-transition: all .3s ease-in-out;
+    -moz-transition: all .3s ease-in-out;
+    -ms-transition: all .3s ease-in-out;
+    -o-transition: all .3s ease-in-out;
+}
+
+
+.btn2 {
+    width: fit-content;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    height: fit-content;
+    padding: 5px 12px;
+    align-self: center;
+    color: #060606;
+    border: 1px solid #060606;
+    background-color: white;
+    border-radius: 7px;
+    font-size: 14px;
+    transition: all .3s ease-in-out;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    -ms-border-radius: 7px;
+    -o-border-radius: 7px;
+}
+
+.btn2:hover {
+    color: white;
+    color: #d92f04;
+    border: 1px solid #d92f04;
+    transition: all .3s ease-in-out;
+    -webkit-transition: all .3s ease-in-out;
+    -moz-transition: all .3s ease-in-out;
+    -ms-transition: all .3s ease-in-out;
+    -o-transition: all .3s ease-in-out;
+}
+
+@media (max-width: 768px) {
+    .cont {
+        width: 90%;
+        padding: 25px 20px ;
+    }
+    .form {
+        width: 100%;
+        height: fit-content;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .businessForm {
+        gap: 0px;
+    }
+    .closeModal {
+        transform: translate(250px, -7px);
+        position: absolute;
+        -webkit-transform: translate(250px, -7px);
+        -moz-transform: translate(250px, -7px);
+        -ms-transform: translate(250px, -7px);
+        -o-transform: translate(250px, -7px);
+}
+}
