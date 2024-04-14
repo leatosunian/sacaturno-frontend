@@ -44,7 +44,8 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-.rbc-event, .rbc-day-slot .rbc-background-event {
+.rbc-event,
+.rbc-day-slot .rbc-background-event {
   border: none;
   background-color: rgba(255, 255, 255, 0) !important;
 }
@@ -113,7 +114,7 @@ input[type="number"] {
   padding: 0;
 }
 
-.rbc-event{
+.rbc-event {
   width: fit-content !important;
   padding: 0 10px !important;
   z-index: 20;
@@ -256,7 +257,38 @@ input[type="number"] {
   height: 77vh !important;
 }
 
+.perfilPageCont {
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column;
+  align-items: center;
+  align-self: center;
+  padding: 35px 25px;
+  height: fit-content;
+  width: 55vw;
+  background-color: rgb(255, 255, 255);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: -10px 10px 25px 1px rgba(0, 0, 0, 0.3);
+  -webkit-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.3);
+  border-radius: 15px;
+  -webkit-border-radius: 15px;
+  -moz-border-radius: 15px;
+  -ms-border-radius: 15px;
+  -o-border-radius: 15px;
+}
+
+@media (max-width: 1300px) {
+  .perfilPageCont {
+    width: 70%;
+  }
+}
+
 @media (max-width: 768px) {
+  .perfilPageCont {
+    width: 90%;
+    padding: 25px 20px;
+  }
   .notificationContainer {
     font-size: 13px;
     font-weight: 500;
@@ -301,7 +333,7 @@ input[type="number"] {
   .rbc-label {
     padding: 0 5px;
     font-size: 14px;
-}
+  }
 }
 
 @media (max-width: 450px) {
