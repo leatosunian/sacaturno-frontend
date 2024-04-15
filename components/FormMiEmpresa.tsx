@@ -180,7 +180,7 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
   };
 
   const myLoader = ({ src }: { src: string }) => {
-    return `${process.env.BACKEND_URL}/api/user/getprofilepic/${business?.image}`;
+    return `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${business?.image}`;
   };
 
   return (
@@ -203,7 +203,7 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
               height={64}
               className="w-16 rounded-full"
               src={
-                `${process.env.BACKEND_URL}/api/user/getprofilepic/` +
+                `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/` +
                 business?.image
               }
               alt=""
