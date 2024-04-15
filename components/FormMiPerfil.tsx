@@ -117,7 +117,7 @@ const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
   };
 
   const myLoader = ({ src }: { src: string }) => {
-    return `${process.env.BACKEND_URL}/api/user/getprofilepic/${profile?.profileImage}`;
+    return `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${profile?.profileImage}`;
   };
 
   const updateProfileImage = async (image: File) => {
@@ -137,7 +137,12 @@ const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
       formData,
       authHeader
     );
-    console.log(updatedImage.data);
+    setAlert({
+      msg: "Imagen cambiada",
+      error: true,
+      alertType: "OK_ALERT",
+    });
+    hideAlert();
     router.refresh();
   };
 
@@ -158,7 +163,7 @@ const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
             height={64}
             className="w-16 rounded-full"
             src={
-              `${process.env.BACKEND_URL}/api/user/getprofilepic/` +
+              `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/` +
               profile?.profileImage
             }
             alt=""
