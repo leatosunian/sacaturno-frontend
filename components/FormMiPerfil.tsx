@@ -98,9 +98,9 @@ const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
         Authorization: `Bearer ${token}`,
       },
     };
-        
+
     if (data) {
-      data._id = userID
+      data._id = userID;
       const updatedUser = await axiosReq.put(
         "/user/editprofile",
         data,
@@ -121,29 +121,38 @@ const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
   };
 
   const updateProfileImage = async (image: File) => {
-    const token = localStorage.getItem("sacaturno_token");
-    const authHeader = {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`,
-      },
-    };
+    try {
+      const token = localStorage.getItem("sacaturno_token");
+      const authHeader = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      };
 
-    let formData = new FormData();
-    formData.append("profile_image", image);
+      let formData = new FormData();
+      formData.append("profile_image", image);
 
-    const updatedImage = await axiosReq.post(
-      "/user/updateimage/",
-      formData,
-      authHeader
-    );
-    setAlert({
-      msg: "Imagen cambiada",
-      error: true,
-      alertType: "OK_ALERT",
-    });
-    hideAlert();
-    router.refresh();
+      const updatedImage = await axiosReq.post(
+        "/user/updateimage",
+        formData,
+        authHeader
+      );
+      setAlert({
+        msg: "Imagen cambiada",
+        error: true,
+        alertType: "OK_ALERT",
+      });
+      hideAlert();
+      router.refresh();
+    } catch (error) {
+      setAlert({
+        msg: "Error al cambiar imagen",
+        error: true,
+        alertType: "ERROR_ALERT",
+      });
+      hideAlert();
+    }
   };
 
   return (
