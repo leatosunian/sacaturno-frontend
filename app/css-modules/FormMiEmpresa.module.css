@@ -11,7 +11,7 @@
     width: 100%;
     height: fit-content;
     display: flex;
-    gap: 3px;
+    gap: 1px;
     flex-direction: column;
 }
 
@@ -21,23 +21,6 @@
     display: flex;
     gap: 3px;
     flex-direction: column;
-}
-
-
-
-.formInputAppDuration select {
-    width: 240px;
-    height: fit-content;
-    display: flex;
-    gap: 3px;
-    flex-direction: column;
-    border-radius: 7px;
-    font-size: 13px;
-    height: 25px;
-    background-color: rgb(235, 235, 235);
-    border: 1px solid rgba(95, 95, 95, 0.267);
-    padding: 0 10px;
-    -webkit-border-radius: 7px;
 }
 
 .formInput .formInputOpening input {
@@ -55,6 +38,64 @@
 }
 
 .formInput .formInputOpening select {
+    background-color: rgb(235, 235, 235);
+    height: 25px;
+    border: 1px solid rgba(95, 95, 95, 0.267);
+    border-radius: 7px;
+    font-size: 13px;
+    padding: 0 10px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    -ms-border-radius: 7px;
+    -o-border-radius: 7px;
+}   
+
+.formInput  input {
+    background-color: rgb(235, 235, 235);
+    height: 30px;
+    width: 100%;
+    border: 1px solid rgba(95, 95, 95, 0.267);
+    border-radius: 7px;
+    font-size: 13px;
+    padding: 0 10px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    -ms-border-radius: 7px;
+    -o-border-radius: 7px;
+}
+
+.formInput  select {
+    background-color: rgb(235, 235, 235);
+    height: 25px;
+    border: 1px solid rgba(95, 95, 95, 0.267);
+    border-radius: 7px;
+    font-size: 13px;
+    padding: 0 10px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    -ms-border-radius: 7px;
+    -o-border-radius: 7px;
+}
+
+
+.formInputAppDuration select {
+    width: 240px;
+    height: fit-content;
+    display: flex;
+    gap: 3px;
+    flex-direction: column;
+    border-radius: 7px;
+    font-size: 13px;
+    height: 25px;
+    background-color: rgb(235, 235, 235);
+    border: 1px solid rgba(95, 95, 95, 0.267);
+    padding: 0 10px;
+    -webkit-border-radius: 7px;
+}
+
+
+
+.formInputOpening select {
     background-color: rgb(235, 235, 235);
     height: 25px;
     border: 1px solid rgba(95, 95, 95, 0.267);
@@ -107,7 +148,8 @@
     background-color: #dd4924;
     color: white;
     border-radius: 7px;
-    font-size: 14px;
+    font-size: 12px;
+    text-transform: uppercase;
     transition: all .3s ease-in-out;
     -webkit-border-radius: 7px;
     -moz-border-radius: 7px;
@@ -142,7 +184,8 @@
     border: 1px solid #060606;
     background-color: white;
     border-radius: 7px;
-    font-size: 14px;
+    font-size: 12px;
+    text-transform: uppercase;
     transition: all .3s ease-in-out;
     -webkit-border-radius: 7px;
     -moz-border-radius: 7px;

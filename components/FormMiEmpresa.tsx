@@ -154,7 +154,6 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
   };
 
   const saveChanges = async (data: FieldValues) => {
-    
     try {
       const token = localStorage.getItem("sacaturno_token");
       const authHeader = {
@@ -226,36 +225,33 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
 
           <div className="flex flex-col justify-between w-full gap-4 md:w-1/2 ">
             <div className={styles.formInput}>
-              <span className="text-sm font-semibold ">
+              <span style={{fontSize:'12px'}} className="font-bold uppercase ">
                 Nombre de la empresa
               </span>
               <input type="text" maxLength={30} {...register("name")} />
               {errors.name?.message && (
                 <span className="text-xs font-semibold text-red-600">
-                  {" "}
-                  {errors.name.message}{" "}
+                  {errors.name.message}
                 </span>
               )}
             </div>
             <div className={styles.formInput}>
-              <span className="text-sm font-semibold ">Rubro principal</span>
+              <span style={{fontSize:'12px'}} className="font-bold uppercase ">Rubro principal</span>
               <input type="text" maxLength={20} {...register("businessType")} />
               {errors.businessType?.message && (
                 <span className="text-xs font-semibold text-red-600">
-                  {" "}
-                  {errors.businessType.message}{" "}
+                  {errors.businessType.message}
                 </span>
               )}
             </div>
             <div className={styles.formInput}>
-              <span className="text-sm font-semibold ">
+              <span style={{fontSize:'12px'}} className="font-bold uppercase ">
                 Domicilio de sucursal
               </span>
               <input type="text" {...register("address")} maxLength={40} />
               {errors.address?.message && (
                 <span className="text-xs font-semibold text-red-600">
-                  {" "}
-                  {errors.address.message}{" "}
+                  {errors.address.message}
                 </span>
               )}
             </div>
@@ -264,7 +260,7 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
 
         <div className="flex flex-col items-start w-full gap-5 mt-4 lg:justify-center md:items-center md:flex-row">
           <div className={styles.formInputAppDuration}>
-            <span className="text-sm font-semibold ">
+            <span style={{fontSize:'12px'}} className="font-bold uppercase ">
               Duración de cada turno
             </span>
             {/* <Select onChange={} options={durationOptions} /> */}
@@ -285,17 +281,16 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
             </select>
             {errors.appointmentDuration?.message && (
               <span className="text-xs font-semibold text-red-600">
-                {" "}
-                {errors.appointmentDuration.message}{" "}
+                {errors.appointmentDuration.message}
               </span>
             )}
           </div>
 
           <div className={styles.formInputOpening}>
-            <span className="text-sm font-semibold ">Horario de atención</span>
+            <span style={{fontSize:'12px'}} className="font-bold uppercase ">Horario de atención</span>
             <div className="flex items-end gap-3">
               <div className="flex items-end gap-2">
-                <span className="text-xs font-semibold md:text-sm">Desde:</span>
+                <span style={{fontSize:'12px'}} className="font-bold uppercase">Desde:</span>
                 <select
                   defaultValue={business?.dayStart}
                   {...register("dayStart")}
@@ -303,21 +298,19 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
                 >
                   {timeOptions.map((time) => (
                     <option value={time.value} key={time.label}>
-                      {" "}
-                      {time.label}{" "}
+                      {time.label}
                     </option>
                   ))}
                 </select>
                 {errors.dayStart?.message && (
                   <span className="text-xs font-semibold text-red-600">
-                    {" "}
-                    {errors.dayStart.message}{" "}
+                    {errors.dayStart.message}
                   </span>
                 )}
               </div>
 
               <div className="flex items-end gap-2">
-                <span className="text-xs font-semibold md:text-sm">Hasta:</span>
+                <span style={{fontSize:'12px'}} className="font-bold uppercase">Hasta:</span>
                 <select
                   defaultValue={business?.dayEnd}
                   {...register("dayEnd")}
@@ -325,15 +318,13 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
                 >
                   {timeOptions.map((time) => (
                     <option value={time.value} key={time.label}>
-                      {" "}
-                      {time.label}{" "}
+                      {time.label}
                     </option>
                   ))}
                 </select>
                 {errors.dayEnd?.message && (
                   <span className="text-xs font-semibold text-red-600">
-                    {" "}
-                    {errors.dayEnd.message}{" "}
+                    {errors.dayEnd.message}
                   </span>
                 )}
               </div>
@@ -346,14 +337,14 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
         />
       </form>
 
-      <div className="flex flex-col gap-4 mt-9 md:flex-row">
+      <div className="flex gap-4 mt-9 ">
         <button onClick={handleSubmitClick} className={styles.button}>
           <LuSave size={18} />
           Guardar cambios
         </button>
         <button className={styles.btn2}>
           <AiOutlineSchedule size={18} />
-          Ir a mis turnos
+          Turnos
         </button>
       </div>
 

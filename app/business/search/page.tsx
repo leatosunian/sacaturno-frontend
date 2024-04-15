@@ -64,13 +64,13 @@ const SearchBusiness: React.FC = () => {
   return (
     <>
       <header className="flex justify-center w-full mt-8 mb-5 md:mt-7 md:mb-7 h-fit">
-        <h4 className="text-2xl font-bold  uppercase">sacar turno</h4>
+        <h4 style={{fontSize:'22px'}} className="font-bold uppercase ">sacar turno</h4>
       </header>
 
       <div className="flex flex-col items-center w-full h-fit">
         <div className="w-80">
           <div className={styles.formInput}>
-            <span className="text-xs font-semibold uppercase">Nombre de la empresa</span>
+            <span className="text-xs font-bold uppercase">Nombre de la empresa</span>
             <input
               value={searchField}
               onChange={handleChange}

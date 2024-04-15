@@ -11,7 +11,7 @@
   width: 100%;
   height: fit-content;
   display: flex;
-  gap: 3px;
+  gap: 1px;
   flex-direction: column;
 }
 
@@ -73,6 +73,8 @@
   -ms-border-radius: 7px;
   -o-border-radius: 7px;
 }
+
+
 
 @media (max-width: 768px) {
   .form {

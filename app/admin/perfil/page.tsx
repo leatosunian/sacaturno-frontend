@@ -30,8 +30,8 @@ const MiPerifl = async () => {
   const data = await getUser();
   return (
     <>
-      <header className="flex justify-center w-full mt-8 mb-5 md:mt-7 md:mb-7 h-fit">
-        <h4 className="text-2xl font-bold uppercase">Mi Perfil</h4>
+      <header className="flex justify-center w-full mt-5 mb-5 md:mt-7 md:mb-7 h-fit">
+        <h4 style={{fontSize:'22px'}} className="font-bold uppercase ">Mi Perfil</h4>
       </header>
 
       <div className="flex justify-center w-screen mt-5 h-fit">

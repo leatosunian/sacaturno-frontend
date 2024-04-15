@@ -285,8 +285,8 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
       )}
 
       <div className="flex flex-col w-full h-fit ">
-        <header className="flex justify-center w-full mt-8 mb-5 md:mt-7 md:mb-7 h-fit">
-          <h4 className="text-2xl font-bold uppercase">
+        <header className="flex justify-center w-full mt-5 mb-3 md:mt-7 md:mb-7 h-fit">
+          <h4 style={{fontSize:'22px'}} className="font-bold uppercase ">
             Mis Turnos
           </h4>
         </header>

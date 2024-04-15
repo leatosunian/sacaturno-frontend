@@ -350,21 +350,20 @@ html {
   background-color: white;
 }
 
-/* 
+
 .rbc-time-view {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    width: 100%;
-    border: 1px solid #ffffff0f;
-    min-height: 0;
-    border-radius: 10px;
-    color: white;
-    background: #00000036;
-    font-size: 15px;
-    backdrop-filter: blur(6px);
+  border-radius: 8px ;
+  -webkit-border-radius: 8px ;
+  -moz-border-radius: 8px ;
+  -ms-border-radius: 8px ;
+  -o-border-radius: 8px ;
 }
 
+.rbc-timeslot-group {
+  padding: 0px 8px;
+}
 
-
-*/
+.rbc-time-content > .rbc-day-slot {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}

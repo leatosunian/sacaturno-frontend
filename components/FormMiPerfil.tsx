@@ -187,28 +187,28 @@ const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
         </div>
         <div className="flex flex-col justify-between w-full gap-5 md:w-1/2 md:gap-3">
           <div className={styles.formInput}>
-            <span className="text-sm font-semibold">Nombre</span>
+            <span style={{fontSize:'12px'}} className="font-bold uppercase ">Nombre</span>
             <input type="text" {...register("name")} maxLength={30} />
             {/* {
                   errors.name?.message && <span className='text-xs font-semibold text-red-600'> {errors.name.message} </span>
                 } */}
           </div>
           <div className={styles.formInput}>
-            <span className="text-sm font-semibold">Apellido</span>
+            <span style={{fontSize:'12px'}} className="font-bold uppercase ">Apellido</span>
             <input type="text" {...register("surname")} maxLength={30} />
             {/* {
                   errors.surname?.message && <span className='text-xs font-semibold text-red-600'> {errors.surname.message} </span>
                 }    */}
           </div>
           <div className={styles.formInput}>
-            <span className="text-sm font-semibold">Email</span>
+            <span style={{fontSize:'12px'}} className="font-bold uppercase ">Email</span>
             <input type="email" {...register("email")} maxLength={40} />
             {/* {
                   errors.email?.message && <span className='text-xs font-semibold text-red-600'> {errors.email.message} </span>
                 }    */}
           </div>
           <div className={styles.formInput}>
-            <span className="text-sm font-semibold">Número de teléfono</span>
+            <span style={{fontSize:'12px'}} className="font-bold uppercase ">Número de teléfono</span>
             <input
               type="number"
               {...register("phone")}
