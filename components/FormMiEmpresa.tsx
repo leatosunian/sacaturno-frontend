@@ -136,14 +136,16 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
         formData,
         authHeader
       );
+      console.log(updatedImage);
+      
       router.refresh();
-    
+      /*
       setAlert({
         msg: "Error al cambiar imagen",
         error: true,
         alertType: "ERROR_ALERT",
       });
-      hideAlert();
+      hideAlert();*/
     
   };
 
