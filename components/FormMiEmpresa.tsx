@@ -121,7 +121,7 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
   };
 
   const updateProfileImage = async (image: File) => {
-    try {
+    
       const token = localStorage.getItem("sacaturno_token");
       const authHeader = {
         headers: {
@@ -137,17 +137,18 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
         authHeader
       );
       router.refresh();
-    } catch (error) {
+    
       setAlert({
         msg: "Error al cambiar imagen",
         error: true,
         alertType: "ERROR_ALERT",
       });
       hideAlert();
-    }
+    
   };
 
   const saveChanges = async (data: FieldValues) => {
+
     try {
       const token = localStorage.getItem("sacaturno_token");
       const authHeader = {
