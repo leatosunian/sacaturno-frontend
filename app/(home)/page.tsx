@@ -14,9 +14,8 @@ import HeaderPublic from "@/components/HeaderPublic";
 export default function Home() {
   return (
     <>
-      
-      <div className={`${homeStyles.pricingCont} md:mt-0`}>
       <HeaderPublic />
+      <div className={`${homeStyles.pricingCont} md:mt-0`}>
         <div
           className={`mt-24 lg:mt-0 flex flex-col w-11/12 h-fit lg:flex-row items-center ${homeStyles.mainSectionCont}`}
         >
@@ -71,7 +70,7 @@ export default function Home() {
 
           <div className="flex flex-col items-start justify-center w-full px-8 text-white py-14 md:py-28 h-fit lg:h-full lg:w-full">
             <div className="flex flex-col w-full mb-10 h-fit">
-              <h5 className="mb-10 text-5xl font-bold">
+              <h5 style={{fontSize:'42px', lineHeight:'50px'}} className="mb-10 font-bold uppercase">
                 Digitalizá la gestión de tu negocio
               </h5>
               <p className="mb-3 font-thin text-md">

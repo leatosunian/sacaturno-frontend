@@ -39,12 +39,12 @@ const HeaderPublic: NextPage<Props> = ({}) => {
         className={`fixed lg:hidden flex justify-between w-full h-16 px-6 text-white md:px-0 md:justify-around position-absolute border-bottom-2 `}
         style={{
           zIndex: "99999",
-          background: "rgba(0, 0, 0, 0.316)",
           backdropFilter: "blur(6px)",
+          background: "rgba(0, 0, 0, 0.316)",
           borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
         }}
       >
-        <div className="flex items-center justify-center h-full gap-1 w-fit ">
+        <div className="flex items-center j ustify-center h-full gap-1 w-fit ">
           {/* <FcCalendar size={34} />
           <h1 className="text-md">SacaTurno</h1> */}
           <Image className="w-28" src={sacaturno_logo} alt="SacaTurno" />
@@ -88,31 +88,24 @@ const HeaderPublic: NextPage<Props> = ({}) => {
           </div>
           <Link
             onClick={closeNavMenu}
-            className="flex items-center h-12"
+            className="flex items-center h-12 text-xs font-medium uppercase"
             href="/business/search"
           >
             Sacar turno
           </Link>
           <Link
             onClick={closeNavMenu}
-            className="flex items-center h-12"
+            className="flex items-center h-12 text-xs font-medium uppercase"
             href="/admin/miempresa"
           >
-            Mi empresa
+            Iniciar sesión
           </Link>
           <Link
             onClick={closeNavMenu}
-            className="flex items-center h-12"
+            className="flex items-center h-12 text-xs font-medium uppercase"
             href="/admin/misturnos"
           >
-            Mis turnos
-          </Link>
-          <Link
-            onClick={closeNavMenu}
-            className="flex items-center h-12"
-            href="/admin/perfil"
-          >
-            Mi perfil
+            Registrarme
           </Link>
         </aside>
       </div>
