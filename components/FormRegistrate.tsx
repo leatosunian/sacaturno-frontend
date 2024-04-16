@@ -81,7 +81,7 @@ const FormRegistrate = () => {
         className={styles.loginForm}
       >
         <div className={styles.loginFormInput}>
-          <span className="text-sm">Nombre</span>
+          <span style={{fontSize:'12px'}} className="font-medium uppercase ">Nombre</span>
           <input type="text" {...register("name")} />
           {errors.name?.message && (
             <>
@@ -94,7 +94,7 @@ const FormRegistrate = () => {
         </div>
 
         <div className={styles.loginFormInput}>
-          <span className="text-sm">Correo electrónico</span>
+          <span style={{fontSize:'12px'}} className="font-medium uppercase ">Correo electrónico</span>
           <input type="email" {...register("email")} />
           {errors.email?.message && (
             <>
@@ -107,7 +107,7 @@ const FormRegistrate = () => {
         </div>
 
         <div className={styles.loginFormInput}>
-          <span className="text-sm">Teléfono</span>
+          <span style={{fontSize:'12px'}} className="font-medium uppercase ">Teléfono</span>
           <input type="number" {...register("phone")} />
           {errors.phone?.message && (
             <>
@@ -120,7 +120,7 @@ const FormRegistrate = () => {
         </div>
 
         <div className={styles.loginFormInput}>
-          <span className="text-sm">Contraseña</span>
+          <span style={{fontSize:'12px'}} className="font-medium uppercase ">Contraseña</span>
           <input type="password" {...register("password")} />
           {errors.password?.message && (
             <>

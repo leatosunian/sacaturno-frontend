@@ -11,13 +11,15 @@ import sacaturno_logo from "@/public/st_logo_white.png";
 import LoginRegisterFooter from "@/components/FooterLoginRegister";
 import { IoIosSearch } from "react-icons/io";
 import Link from "next/link";
+import HeaderPublic from "@/components/HeaderPublic";
 
 export default function Register() {
   return (
     <>
+      <HeaderPublic />
       <div>
         <div className="flex flex-col w-full h-screen lg:flex-row">
-          <div className="flex flex-col items-center justify-center w-full py-12 h-fit lg:h-full lg:w-1/2">
+          <div className="lg:flex hidden flex-col items-center justify-center w-full py-12 h-fit lg:h-full lg:w-1/2">
             <Image
               className="w-48 lg:mt-0 lg:w-96"
               alt=""
@@ -28,25 +30,25 @@ export default function Register() {
             </span>
             <div className="hidden mt-10 lg:block">
               <Link
-              href="/public/search"
+                href="/public/search"
                 type="submit"
-                className={`${styles.translucentBtn2} font-thin`}
-                style={{padding:' 10px 15px '}}
+                className={`${styles.translucentBtn2} font-light uppercase`}
+                style={{ padding: " 12px 16px ", fontSize: "13px" }}
               >
-                <IoIosSearch size={24}/>
+                <IoIosSearch size={24} />
                 Buscar empresa
               </Link>
             </div>
           </div>
 
-          <div className="flex justify-center w-full align-middle lg:mt-0 h-fit lg:h-full lg:w-1/2">
+          <div className="pt-28 flex justify-center w-full align-middle lg:mt-0 h-fit lg:h-full lg:w-1/2">
             <div className={styles.loginCont}>
               <div className={styles.loginHeader}>
-                <h3 className="mb-3 text-2xl font-semibold lg:text-4xl ">
+                <h3 className="mb-3 text-3xl font-semibold lg:text-3xl uppercase">
                   Registrate
                 </h3>
-                <span className="text-xs text-center lg:text-sm">
-                  ¡Creá tu cuenta y cargá tus turnos!
+                <span className="text-xs text-left lg:text-sm">
+                  ¡Creá tu cuenta y comenzá a gestionar tus turnos!
                 </span>
               </div>
               <FormRegistrate />
@@ -54,8 +56,6 @@ export default function Register() {
           </div>
         </div>
       </div>
-
-      <LoginRegisterFooter />
     </>
   );
 }

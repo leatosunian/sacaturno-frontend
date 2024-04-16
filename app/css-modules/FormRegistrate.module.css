@@ -9,15 +9,43 @@
 .loginForm button {
   width: fit-content;
   height: fit-content;
-  padding: 5px 17px;
+  padding: 7px 20px;
   align-self: center;
   margin-top: 4px;
   border: 1px solid rgba(255, 255, 255, 0.144);
   background-color: #272e3c;
   color: white;
   border-radius: 7px;
-  font-size: 14px;
+  text-transform: uppercase;
+  font-size: 12px;
   transition: all 0.3s ease-in-out;
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
+  -ms-border-radius: 7px;
+  -o-border-radius: 7px;
+}
+
+.translucentBtn {
+  background-color: rgba(0, 0, 0, 0.082) !important;
+
+}
+
+.translucentBtn2 {
+  background-color: rgba(0, 0, 0, 0.082) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: fit-content;
+  height: fit-content;
+  text-transform: uppercase;
+  color: white;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 12px;
+  align-self: center;
+  border-radius: 7px;
+  font-size: 12px;
+  transition: all ease-in-out 0.2s;
   -webkit-border-radius: 7px;
   -moz-border-radius: 7px;
   -ms-border-radius: 7px;

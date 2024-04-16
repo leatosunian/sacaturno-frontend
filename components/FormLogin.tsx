@@ -112,7 +112,7 @@ const FormLogin = () => {
         className={styles.loginForm}
       >
         <div className={styles.loginFormInput}>
-          <span className="text-sm">Correo electrónico</span>
+          <span style={{fontSize:'12px'}} className="font-medium uppercase ">Correo electrónico</span>
           <input type="email" {...register("email")} />
           {errors.email?.message && (
             <>
@@ -124,7 +124,7 @@ const FormLogin = () => {
           )}
         </div>
         <div className={styles.loginFormInput}>
-          <span className="text-sm">Contraseña</span>
+          <span style={{fontSize:'12px'}} className="font-medium uppercase ">Contraseña</span>
           <input type="password" {...register("password")} />
           {errors.password?.message && (
             <>
