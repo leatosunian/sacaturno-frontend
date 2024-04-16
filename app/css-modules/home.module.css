@@ -142,7 +142,8 @@
     height: fit-content;
   }
   .mainSectionCont {
-    height: calc(100vh - 122px);
+    /* height: calc(100vh - 172px); */
+    height: fit-content;
   }
 }
 
