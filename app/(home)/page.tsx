@@ -37,8 +37,8 @@ export default function Home() {
                   <Link
                     href="/public/search"
                     type="submit"
-                    className={`${styles.translucentBtn2} font-thin`}
-                    style={{ padding: " 10px 15px " }}
+                    className={`${styles.translucentBtn2} font-light uppercase`}
+                    style={{ padding: " 12px 16px ", fontSize: "13px" }}
                   >
                     <IoIosSearch size={24} />
                     Reservar turno
@@ -48,8 +48,8 @@ export default function Home() {
                   <Link
                     href="/login"
                     type="submit"
-                    className={`${styles.translucentBtn2} font-thin`}
-                    style={{ padding: " 10px 15px " }}
+                    className={`${styles.translucentBtn2} font-light uppercase`}
+                    style={{ padding: " 12px 16px ", fontSize: "13px" }}
                   >
                     <CiLogin size={24} />
                     Iniciar sesión
@@ -68,28 +68,31 @@ export default function Home() {
             className="hidden lg:block"
           ></div>
 
-          <div className="flex flex-col items-start justify-center w-full px-8 text-white py-14 md:py-28 h-fit lg:h-full lg:w-full">
+          <div className="flex flex-col items-start justify-center w-full px-8 text-white py-14 md:py-20 h-fit lg:h-full lg:w-full">
             <div className="flex flex-col w-full mb-10 h-fit">
-              <h5 style={{fontSize:'42px', lineHeight:'50px'}} className="mb-10 font-bold uppercase">
+              <h5
+                style={{ fontSize: "42px", lineHeight: "50px" }}
+                className="mb-10 font-bold uppercase"
+              >
                 Digitalizá la gestión de tu negocio
               </h5>
-              <p className="mb-3 font-thin text-md">
-                Con SacaTurno tenés un potente administrador de turnos, y tu
-                propio sitio web sin competidores a la vista y estética adaptada
-                a tu negocio.
+              <p className="mb-3 font-extralight text-md">
+                Tu solución integral para la gestión de turnos. Simplificá tu
+                día a día, maximizá la eficiencia y ofrecé una experiencia
+                excepcional a tus clientes.
               </p>
-              <p className="font-thin text-md">
-                Para iniciar tu prueba gratuita por 30 dias hacé click en el
-                boton de abajo, registrate, creá tu empresa y comenzá a
-                gestionar tus turnos
+              <p className="font-extralight text-md">
+                ¡Regístrate hoy mismo para obtener una prueba gratuita de 30
+                días! hacé click en el boton de abajo, registrate, creá tu
+                empresa y comenzá a gestionar tus turnos
               </p>
             </div>
             <div className="">
               <Link
                 href="/login"
                 type="submit"
-                className={`${styles.translucentBtn2} font-thin`}
-                style={{ padding: " 10px 15px " }}
+                className={`${styles.translucentBtn2} font-light uppercase`}
+                style={{ padding: " 12px 16px ", fontSize: "13px" }}
               >
                 <CiLogin size={24} />
                 Iniciar prueba
@@ -102,8 +105,8 @@ export default function Home() {
           <Link
             href="/login"
             type="submit"
-            className={`${styles.translucentBtn2} font-thin`}
-            style={{ padding: " 10px 15px " }}
+            className={`${styles.translucentBtn2} font-light uppercase`}
+            style={{ padding: " 10px 16px ", fontSize: "13px" }}
           >
             <FaArrowDown size={13} />
             Ver planes

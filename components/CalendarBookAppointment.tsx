@@ -76,7 +76,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
   const [view, setView] = useState<(typeof Views)[Keys]>(Views.DAY);
   const [date, setDate] = useState<Date>(now.toDate());
   console.log(appointments);
-  
+
   const router = useRouter();
   useEffect(() => {
     setAppointmentsData(appointments);
@@ -89,7 +89,6 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
     parseAppointments(appointmentsData);
     return;
   }, [appointmentsData]);
-
 
   const parseAppointments = (appointments: IAppointment[] | undefined) => {
     dayjs.extend(timezone);
@@ -110,7 +109,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
           businessID,
           _id,
         };
-        if(appointmentObj.status === 'unbooked'){
+        if (appointmentObj.status === "unbooked") {
           appointmentsList.push(appointmentObj);
         }
       }
@@ -121,7 +120,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
   const handleSelectEvent = (event: eventType) => {
     const eventDataObj: eventType2 = {
       _id: event._id,
-      start: dayjs(event.start).format("D [de] MMMM [|] HH:mm [hs]"),
+      start: dayjs(event.start).format("D [de] MMMM [|] HH:mm [hs] "),
       end: dayjs(event.end).format("[-] HH:mm [hs]"),
       clientID: event.clientID,
       title: event.title,
@@ -136,8 +135,8 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
         return (
           <>
             <div
-              className="w-full h-full px-2 py-1 "
-              style={{ backgroundColor: "#f10606" }}
+              className="h-full px-2 py-1 w-fit "
+              style={{ backgroundColor: "rgb(203 137 121)" }}
             >
               <span className="text-sm">Reservado </span>
             </div>
@@ -149,7 +148,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
           <>
             <div
               className="w-full h-full px-2 py-1 "
-              style={{ backgroundColor: "#111a30" }}
+              style={{ backgroundColor: "#dd4924" }}
             >
               <span className="text-sm">{event.title} </span>
             </div>
@@ -196,7 +195,6 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
       )}
 
       <div className="flex flex-col w-full h-fit ">
-
         <header className="flex flex-col items-center justify-center w-full mt-5 mb-5 md:mt-7 md:mb-7 h-fit">
           <h4 className="text-2xl font-bold md:text-3xl">{business?.name}</h4>
           <span>Reservar turno</span>

@@ -11,8 +11,9 @@
   background-color: #dd4924;
   color: white;
   border-radius: 7px;
-  font-size: 14px;
-  transition: all 0.3s ease-in-out;
+  font-size: 12px;
+  text-transform: uppercase;
+  transition: all .3s ease-in-out;
   -webkit-border-radius: 7px;
   -moz-border-radius: 7px;
   -ms-border-radius: 7px;
@@ -22,32 +23,33 @@
 .button:hover {
   color: #d92f04;
   border: 1px solid #d92f04;
-  background-color: white;
-  transition: all 0.3s ease-in-out;
-  -webkit-transition: all 0.3s ease-in-out;
-  -moz-transition: all 0.3s ease-in-out;
-  -ms-transition: all 0.3s ease-in-out;
-  -o-transition: all 0.3s ease-in-out;
+  background-color: white; 
+  transition: all .3s ease-in-out;
+  -webkit-transition: all .3s ease-in-out;
+  -moz-transition: all .3s ease-in-out;
+  -ms-transition: all .3s ease-in-out;
+  -o-transition: all .3s ease-in-out;
 }
+
 
 .closeModal {
   color: red;
   cursor: pointer;
-  transform: translate(310px, -25px);
+  transform: translate(310px, -15px);
   position: absolute;
-  -webkit-transform: translate(310px, -25px);
-  -moz-transform: translate(310px, -25px);
-  -ms-transform: translate(310px, -25px);
-  -o-transform: translate(310px, -25px);
+  -webkit-transform: translate(310px, -15px);
+  -moz-transform: translate(310px, -15px);
+  -ms-transform: translate(310px, -15px);
+  -o-transform: translate(310px, -15px);
 }
 
 @media (max-width: 768px) {
   .closeModal {
-    transform: translate(250px, -7px);
+    transform: translate(250px, -18px);
     position: absolute;
-    -webkit-transform: translate(250px, -7px);
-    -moz-transform: translate(250px, -7px);
-    -ms-transform: translate(250px, -7px);
-    -o-transform: translate(250px, -7px);
-  }
+    -webkit-transform: translate(250px, -18px);
+    -moz-transform: translate(250px, -18px);
+    -ms-transform: translate(250px, -18px);
+    -o-transform: translate(250px, -18px);
+}
 }

@@ -48,21 +48,21 @@ const CreateAppointmentModal: React.FC<props> = ({appointmentData, closeModalF})
               onClick={closeModal}
               size={22}
             />
-          <h4 className="mb-6 text-2xl font-semibold text-center">
+          <h4 className="mb-6 text-2xl font-bold text-center uppercase">
             Nuevo turno
           </h4>
           {/* <span>Hacé click en un turno para ver los detalles</span> */}
           <div className="flex flex-col w-full gap-4 h-fit">
 
             <div className="flex flex-col w-fit h-fit">
-              <label className="font-semibold text-md">Fecha</label>
+              <label style={{fontSize:'12px'}} className="font-bold uppercase ">Fecha</label>
               <span className="text-sm">
                 {dayjs(appointmentData?.start).format('dddd DD/MM ')}{" "}
               </span>
             </div>
 
             <div className="flex flex-col w-fit h-fit">
-              <label className="font-semibold text-md">Hora</label>
+              <label style={{fontSize:'12px'}} className="font-bold uppercase ">Hora</label>
               <span className="text-sm">
                 {dayjs(appointmentData?.start).format('HH:mm [hs] ')}{" "}
                 {dayjs(appointmentData?.end).format('[a] HH:mm [hs]')}

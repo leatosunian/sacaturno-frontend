@@ -25,7 +25,7 @@ interface props {
 
 const AppointmentModal: React.FC<props> = ({ appointment, closeModalF }) => {
   console.log(appointment);
-  
+
   const [isBooked, setIsBooked] = useState(false);
   const [clientData, setClientData] = useState<IUser>();
   const router = useRouter();
@@ -75,42 +75,65 @@ const AppointmentModal: React.FC<props> = ({ appointment, closeModalF }) => {
         className="absolute flex items-center justify-center modalCont"
         onClick={closeModal}
       >
-        <div className="flex flex-col text-black bg-white sm:w-5/6 md:4/5 lg:w-2/4 xl:w-fit p-7 h-fit borderShadow">
-          <h4 className="mb-6 text-2xl font-semibold text-center">
+        <div className="flex flex-col text-black bg-white w-80 md:w-96 p-7 h-fit borderShadow">
+          <h4 className="mb-6 text-xl font-bold text-center uppercase">
             Datos del turno
           </h4>
           {/* <span>Hacé click en un turno para ver los detalles</span> */}
           <div className="flex flex-col gap-4 mb-7 w-fit h-fit">
             <div className="flex flex-col w-fit h-fit">
-              <label className="font-semibold text-md">Estado</label>
-              {!isBooked && (
-                <span className="text-sm">{appointment?.title}</span>
-              )}
-              {isBooked && <span>Reservado</span>}
-            </div>
-            <div className="flex flex-col w-fit h-fit">
-              <label className="font-semibold text-md">Fecha y hora</label>
+              <label
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Fecha y hora
+              </label>
               <span className="text-sm">
                 {appointment?.start} {appointment?.end}
               </span>
+            </div>
+            <div className="flex flex-col w-fit h-fit">
+              <label
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Estado del turno
+              </label>
+              {!isBooked && (
+                <span className="text-sm">{appointment?.title}</span>
+              )}
+              {isBooked && <span className="text-sm">Reservado</span>}
             </div>
 
             {isBooked && (
               <>
                 <div className="flex flex-col w-fit h-fit">
-                  <label className="font-semibold text-md">
+                  <label
+                    style={{ fontSize: "12px" }}
+                    className="font-bold uppercase "
+                  >
                     Nombre del cliente
                   </label>
                   <span className="text-sm">{appointment?.name} </span>
                 </div>
 
                 <div className="flex flex-col w-fit h-fit">
-                  <label className="font-semibold text-md">Teléfono</label>
+                  <label
+                    style={{ fontSize: "12px" }}
+                    className="font-bold uppercase "
+                  >
+                    Teléfono
+                  </label>
                   <span className="text-sm">+{appointment?.phone}</span>
                 </div>
 
                 <div className="flex flex-col w-fit h-fit">
-                  <label className="font-semibold text-md">Email</label>
+                  <label
+                    style={{ fontSize: "12px" }}
+                    className="font-bold uppercase "
+                  >
+                    Email
+                  </label>
                   <span className="text-sm">{appointment?.email} </span>
                 </div>
               </>

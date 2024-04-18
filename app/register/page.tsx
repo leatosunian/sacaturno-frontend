@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import styles from "@/app/css-modules/login.module.css";
-import FormLogin from "@/components/FormLogin";
 import FormRegistrate from "@/components/FormRegistrate";
 import Image from "next/image";
 export const metadata: Metadata = {
@@ -19,7 +18,7 @@ export default function Register() {
       <HeaderPublic />
       <div>
         <div className="flex flex-col w-full h-screen lg:flex-row">
-          <div className="lg:flex hidden flex-col items-center justify-center w-full py-12 h-fit lg:h-full lg:w-1/2">
+          <div className="flex-col items-center justify-center hidden w-full py-12 lg:flex h-fit lg:h-full lg:w-1/2">
             <Image
               className="w-48 lg:mt-0 lg:w-96"
               alt=""
@@ -41,10 +40,10 @@ export default function Register() {
             </div>
           </div>
 
-          <div className="pt-28 flex justify-center w-full align-middle lg:mt-0 h-fit lg:h-full lg:w-1/2">
+          <div className="flex justify-center w-full align-middle pt-28 lg:mt-0 h-fit lg:h-full lg:w-1/2">
             <div className={styles.loginCont}>
               <div className={styles.loginHeader}>
-                <h3 className="mb-3 text-3xl font-semibold lg:text-3xl uppercase">
+                <h3 className="mb-3 text-3xl font-semibold uppercase lg:text-3xl">
                   Registrate
                 </h3>
                 <span className="text-xs text-left lg:text-sm">

@@ -1,7 +1,5 @@
 "use client";
-
 import axiosReq from "@/config/axios";
-import { IAppointment } from "@/interfaces/appointment.interface";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import styles from "@/app/css-modules/BookAppointmentModal.module.css";
@@ -95,23 +93,27 @@ const BookAppointmentModal: React.FC<props> = ({
   return (
     <>
       <div className="absolute flex items-center justify-center modalCont">
-        
         <div className="flex flex-col bg-white w-80 md:w-96 p-7 h-fit borderShadow">
           <IoMdClose
             className={styles.closeModal}
             onClick={closeModal}
             size={22}
           />
-          <h4 className="mb-6 text-2xl font-semibold text-center">
+          <h4 className="mb-6 text-xl font-bold text-center uppercase ">
             Reservar turno
           </h4>
 
           {/* <span>Hacé click en un turno para ver los detalles</span> */}
           <div className="flex flex-col w-full gap-4 h-fit">
             <div className="flex flex-col w-fit h-fit">
-              <label className="font-semibold text-md">Fecha y hora</label>
+              <label
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Fecha y hora
+              </label>
               <span className="text-sm">
-                {appointmentData?.start}
+                {appointmentData?.start} 
                 {appointmentData?.end}
               </span>
             </div>
@@ -123,7 +125,10 @@ const BookAppointmentModal: React.FC<props> = ({
               className="flex flex-col justify-between w-full gap-4 "
             >
               <div className={styles.formInput}>
-                <span className="text-sm font-semibold ">
+                <span
+                  style={{ fontSize: "12px" }}
+                  className="font-bold uppercase "
+                >
                   Nombre y apellido
                 </span>
                 <input type="text" maxLength={30} {...register("name")} />
@@ -135,7 +140,12 @@ const BookAppointmentModal: React.FC<props> = ({
                 )}
               </div>
               <div className={styles.formInput}>
-                <span className="text-sm font-semibold ">Teléfono</span>
+                <span
+                  style={{ fontSize: "12px" }}
+                  className="font-bold uppercase "
+                >
+                  Teléfono
+                </span>
                 <input type="number" maxLength={20} {...register("phone")} />
                 {errors.phone?.message && (
                   <span className="text-xs font-semibold text-red-600">
@@ -145,7 +155,12 @@ const BookAppointmentModal: React.FC<props> = ({
                 )}
               </div>
               <div className={styles.formInput}>
-                <span className="text-sm font-semibold ">Email</span>
+                <span
+                  style={{ fontSize: "12px" }}
+                  className="font-bold uppercase "
+                >
+                  Email
+                </span>
                 <input type="email" {...register("email")} maxLength={40} />
                 {errors.email?.message && (
                   <span className="text-xs font-semibold text-red-600">

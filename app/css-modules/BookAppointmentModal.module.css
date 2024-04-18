@@ -1,21 +1,119 @@
 .closeModal {
   color: red;
   cursor: pointer;
-  transform: translate(310px, -25px);
+  transform: translate(310px, -10px);
   position: absolute;
-  -webkit-transform: translate(310px, -25px);
-  -moz-transform: translate(310px, -25px);
-  -ms-transform: translate(310px, -25px);
-  -o-transform: translate(310px, -25px);
+  -webkit-transform: translate(310px, -10px);
+  -moz-transform: translate(310px, -10px);
+  -ms-transform: translate(310px, -10px);
+  -o-transform: translate(310px, -10px);
 }
+
+.formInput {
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  gap: 1px;
+  flex-direction: column;
+} 
+
+.formInput  input {
+  background-color: rgb(235, 235, 235);
+  height: 30px;
+  width: 100%;
+  border: 1px solid rgba(95, 95, 95, 0.267);
+  border-radius: 7px;
+  font-size: 13px;
+  padding: 0 10px;
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
+  -ms-border-radius: 7px;
+  -o-border-radius: 7px;
+}
+
+.formInput  select {
+  background-color: rgb(235, 235, 235);
+  height: 25px;
+  border: 1px solid rgba(95, 95, 95, 0.267);
+  border-radius: 7px;
+  font-size: 13px;
+  padding: 0 10px;
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
+  -ms-border-radius: 7px;
+  -o-border-radius: 7px;
+}
+
+.formInput  input {
+  background-color: rgb(235, 235, 235);
+  height: 30px;
+  width: 100%;
+  border: 1px solid rgba(95, 95, 95, 0.267);
+  border-radius: 7px;
+  font-size: 13px;
+  padding: 0 10px;
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
+  -ms-border-radius: 7px;
+  -o-border-radius: 7px;
+}
+
+.formInput  select {
+  background-color: rgb(235, 235, 235);
+  height: 25px;
+  border: 1px solid rgba(95, 95, 95, 0.267);
+  border-radius: 7px;
+  font-size: 13px;
+  padding: 0 10px;
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
+  -ms-border-radius: 7px;
+  -o-border-radius: 7px;
+}
+
+.button {
+  width: fit-content;
+  height: fit-content;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 12px;
+  align-self: center;
+  border: 1px solid rgba(128, 128, 128, 0.445);
+  background-color: #dd4924;
+  color: white;
+  border-radius: 7px;
+  font-size: 12px;
+  text-transform: uppercase;
+  transition: all .3s ease-in-out;
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
+  -ms-border-radius: 7px;
+  -o-border-radius: 7px;
+}
+
+
+
+.button:hover {
+  color: #d92f04;
+  border: 1px solid #d92f04;
+  background-color: white; 
+  transition: all .3s ease-in-out;
+  -webkit-transition: all .3s ease-in-out;
+  -moz-transition: all .3s ease-in-out;
+  -ms-transition: all .3s ease-in-out;
+  -o-transition: all .3s ease-in-out;
+}
+
 
 @media (max-width: 768px) {
   .closeModal {
-    transform: translate(250px, -7px);
+    transform: translate(250px, -12px);
     position: absolute;
-    -webkit-transform: translate(250px, -7px);
-    -moz-transform: translate(250px, -7px);
-    -ms-transform: translate(250px, -7px);
-    -o-transform: translate(250px, -7px);
-  }
+    -webkit-transform: translate(250px, -12px);
+    -moz-transform: translate(250px, -12px);
+    -ms-transform: translate(250px, -12px);
+    -o-transform: translate(250px, -12px);
+}
 }
