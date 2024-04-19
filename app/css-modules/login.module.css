@@ -98,10 +98,11 @@
   gap: 8px;
   justify-content: center;
   align-items: center;
-  padding: 5px 12px;
+  padding: 6px 13px;
   align-self: center;
   border-radius: 7px;
-  font-size: 14px;
+  font-size: 12px;
+  text-transform: uppercase;
   transition: all ease-in-out 0.2s;
   -webkit-border-radius: 7px;
   -moz-border-radius: 7px;

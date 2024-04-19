@@ -44,7 +44,7 @@ const HeaderPublic: NextPage<Props> = ({}) => {
           borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
         }}
       >
-        <div className="flex items-center j ustify-center h-full gap-1 w-fit ">
+        <div className="flex items-center h-full gap-1 j ustify-center w-fit ">
           {/* <FcCalendar size={34} />
           <h1 className="text-md">SacaTurno</h1> */}
           <Image className="w-28" src={sacaturno_logo} alt="SacaTurno" />
@@ -89,7 +89,7 @@ const HeaderPublic: NextPage<Props> = ({}) => {
           <Link
             onClick={closeNavMenu}
             className="flex items-center h-12 text-xs font-medium uppercase"
-            href="/business/search"
+            href="/public/search"
           >
             reservar turno
           </Link>

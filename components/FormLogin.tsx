@@ -116,7 +116,7 @@ const FormLogin = () => {
           <input type="email" {...register("email")} />
           {errors.email?.message && (
             <>
-              <div className="flex items-center justify-center gap-1 w-fit h-fit">
+              <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
                 <AiOutlineExclamationCircle color="red" />
                 <span className="text-xs "> {errors.email.message} </span>
               </div>
@@ -128,7 +128,7 @@ const FormLogin = () => {
           <input type="password" {...register("password")} />
           {errors.password?.message && (
             <>
-              <div className="flex items-center justify-center gap-1 w-fit h-fit">
+              <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
                 <AiOutlineExclamationCircle color="red" />
                 <span className="text-xs "> {errors.password.message} </span>
               </div>

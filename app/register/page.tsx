@@ -40,10 +40,10 @@ export default function Register() {
             </div>
           </div>
 
-          <div className="flex justify-center w-full align-middle pt-28 lg:mt-0 h-fit lg:h-full lg:w-1/2">
+          <div className="flex justify-center w-full pt-24 align-middle lg:mt-0 h-fit lg:h-full lg:w-1/2">
             <div className={styles.loginCont}>
               <div className={styles.loginHeader}>
-                <h3 className="mb-3 text-3xl font-semibold uppercase lg:text-3xl">
+                <h3 className="mb-3 text-2xl font-semibold uppercase lg:text-3xl">
                   Registrate
                 </h3>
                 <span className="text-xs text-left lg:text-sm">

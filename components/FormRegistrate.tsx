@@ -85,7 +85,7 @@ const FormRegistrate = () => {
           <input type="text" {...register("name")} />
           {errors.name?.message && (
             <>
-              <div className="flex items-center justify-center gap-1 w-fit h-fit">
+              <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
                 <AiOutlineExclamationCircle color="red" />
                 <span className="text-xs "> {errors.name.message} </span>
               </div>
@@ -98,7 +98,7 @@ const FormRegistrate = () => {
           <input type="email" {...register("email")} />
           {errors.email?.message && (
             <>
-              <div className="flex items-center justify-center gap-1 w-fit h-fit">
+              <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
                 <AiOutlineExclamationCircle color="red" />
                 <span className="text-xs "> {errors.email.message} </span>
               </div>
@@ -111,7 +111,7 @@ const FormRegistrate = () => {
           <input type="number" {...register("phone")} />
           {errors.phone?.message && (
             <>
-              <div className="flex items-center justify-center gap-1 w-fit h-fit">
+              <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
                 <AiOutlineExclamationCircle color="red" />
                 <span className="text-xs "> {errors.phone.message} </span>
               </div>
@@ -124,7 +124,7 @@ const FormRegistrate = () => {
           <input type="password" {...register("password")} />
           {errors.password?.message && (
             <>
-              <div className="flex items-center justify-center gap-1 w-fit h-fit">
+              <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
                 <AiOutlineExclamationCircle color="red" />
                 <span className="text-xs "> {errors.password.message} </span>
               </div>

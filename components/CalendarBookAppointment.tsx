@@ -219,7 +219,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
               className={
                 view !== Views.WEEK
                   ? styles.btnWeek
-                  : `${styles.btnSelected} ${styles.btnWeek} `
+                  : `${styles.btnSelected} ${styles.btnWeek}  uppercase`
               }
               onClick={() => setView(Views.WEEK)}
             >
@@ -229,7 +229,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
               className={
                 view !== Views.DAY
                   ? styles.btnDay
-                  : `${styles.btnSelected} ${styles.btnDay} `
+                  : `${styles.btnSelected} ${styles.btnDay} uppercase `
               }
               onClick={() => setView(Views.DAY)}
             >

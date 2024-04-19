@@ -1,5 +1,4 @@
 "use client";
-import styles from "@/app/css-modules/miempresa.module.css";
 import { HiSearch } from "react-icons/hi";
 import Image from "next/image";
 import { ChangeEventHandler, useState } from "react";
@@ -11,6 +10,7 @@ import { GrTableAdd } from "react-icons/gr";
 import { useRouter } from "next/navigation";
 import stylesLogin from "@/app/css-modules/login.module.css";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
+import HeaderPublic from "@/components/HeaderPublic";
 
 const SearchBusiness: React.FC = () => {
   const [searchField, setSearchField] = useState<string>("");
@@ -65,17 +65,18 @@ const SearchBusiness: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-col items-center w-full mt-10 text-white h-fit">
+      <HeaderPublic />
+      <div className="flex flex-col items-center w-full pt-24 text-white h-fit">
         <div className={`${stylesLogin.loginCont2}`}>
           <header className="flex justify-center w-full mb-5 md:mb-10 h-fit">
-            <h4 className="text-2xl font-semibold text-white md:text-3xl">
+            <h4  style={{fontSize:'22px'}} className="font-bold uppercase ">
               Reservar turno
             </h4>
           </header>
 
           <div className="w-80">
             <div className={stylesLogin.loginFormInput}>
-              <span className="text-sm font-normal">Nombre de la empresa</span>
+              <span className="text-xs font-semibold uppercase">Nombre de la empresa</span>
               <input
                 value={searchField}
                 onChange={handleChange}
@@ -104,7 +105,7 @@ const SearchBusiness: React.FC = () => {
           </div>
 
           {searchResults.length > 0 && (
-            <div className="flex justify-center w-full mt-10 h-fit">
+            <div className="flex justify-center w-full mt-6 mb-3 h-fit">
               <div className="h-14 w-80 ">
                 {searchResults.map((business) => (
                   <>

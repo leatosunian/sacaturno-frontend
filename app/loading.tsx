@@ -1,7 +1,9 @@
 export default function Loading() {
-    return (
-        <>
-            <h1>loading</h1>
-        </>
-    )
+  return (
+    <>
+      <div className="flex items-center justify-center w-full h-full bg-white">
+        <div className="loader"></div>
+      </div>
+    </>
+  );
 }

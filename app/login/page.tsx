@@ -18,7 +18,7 @@ export default function Login() {
       <HeaderPublic />
       <div>
         <div className="flex flex-col w-full h-screen lg:flex-row ">
-          <div className="lg:flex hidden flex-col items-center justify-center w-full pt-24 pb-14 h-fit lg:h-full lg:w-1/2">
+          <div className="flex-col items-center justify-center hidden w-full pt-24 lg:flex pb-14 h-fit lg:h-full lg:w-1/2">
             <Image
               className="w-48 lg:mt-0 lg:w-96"
               alt=""
@@ -39,10 +39,10 @@ export default function Login() {
               </Link>
             </div>
           </div>
-          <div className="pt-28 flex justify-center w-full align-middle lg:mt-0 h-fit lg:h-full lg:w-1/2">
+          <div className="flex justify-center w-full pt-24 align-middle lg:mt-0 h-fit lg:h-full lg:w-1/2">
             <div className={styles.loginCont}>
               <div className={styles.loginHeader}>
-                <h3 className="mb-3 text-2xl font-semibold lg:text-3xl uppercase">
+                <h3 className="mb-3 text-2xl font-semibold uppercase lg:text-3xl">
                   Iniciar Sesión
                 </h3>
                 <span className="text-xs text-center lg:text-sm">

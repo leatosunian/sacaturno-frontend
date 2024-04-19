@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import styles from '@/app/css-modules/login.module.css'
+import LoggedInHeader from "@/components/LoggedInHeader";
+
 
 export const metadata: Metadata = {
   title: "Sacar turno - SacaTurno",
@@ -13,7 +14,8 @@ export default function Layout({
 }>) {
   return (
       <>
-        <div className={`${styles.publicBgImage} h-screen`}>
+        <div className="h-screen">
+          <LoggedInHeader/>
           {children}
         </div> 
       </>
