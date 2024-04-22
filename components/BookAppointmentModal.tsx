@@ -20,6 +20,7 @@ interface eventType2 {
 interface props {
   appointmentData: eventType2 | undefined;
   closeModalF: () => void;
+  onBooked: () => void;
 }
 
 interface formInputs {
@@ -31,6 +32,7 @@ interface formInputs {
 const BookAppointmentModal: React.FC<props> = ({
   appointmentData,
   closeModalF,
+  onBooked
 }) => {
   /*console.log(appointmentData);*/
   const {
@@ -73,7 +75,8 @@ const BookAppointmentModal: React.FC<props> = ({
       bookingData,
       authHeader
     );
-    console.log(bookedAppointment);
+    onBooked()
+    closeModal()
     router.refresh();
   };
 
@@ -176,7 +179,7 @@ const BookAppointmentModal: React.FC<props> = ({
             </form>
           </div>
 
-          <div className="flex justify-center w-full mt-5 align-middle h-fit">
+          <div className="flex justify-center w-full align-middle mt-7 h-fit">
             <button className={styles.button} onClick={handleSubmitClick}>
               Reservar turno
             </button>

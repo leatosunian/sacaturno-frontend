@@ -40,7 +40,7 @@ const BookAppointment: React.FC<propsComponent> = async ({params}) => {
   return (
     <>
       <div className="flex flex-col justify-center gap-10 md:flex-row">
-        <div className="flex justify-center w-full h-full md:w-fit">
+        <div className="flex justify-center w-full h-full mt-16 md:w-fit">
           { data.appointments.length > 0 &&
           <CalendarBookAppointment
             appointments={data.appointments}

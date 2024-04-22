@@ -6,6 +6,7 @@ import {
   Views,
   dayjsLocalizer,
 } from "react-big-calendar";
+
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import dayjs from "dayjs";
 import "dayjs/locale/es-mx";
@@ -21,6 +22,7 @@ import ObjectId, { Types } from "mongoose";
 import { useRouter } from "next/navigation";
 import styles from "@/app/css-modules/CalendarBookAppointment.module.css";
 import BookAppointmentModal from "./BookAppointmentModal";
+import AlertInterface from "@/interfaces/alert.interface";
 
 dayjs.locale("es-mx");
 const localizer = dayjsLocalizer(dayjs);
@@ -75,6 +77,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
     useState<IAppointment>();
   const [view, setView] = useState<(typeof Views)[Keys]>(Views.DAY);
   const [date, setDate] = useState<Date>(now.toDate());
+  const [alert, setAlert] = useState<AlertInterface>();
   console.log(appointments);
 
   const router = useRouter();
@@ -91,6 +94,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
   }, [appointmentsData]);
 
   const parseAppointments = (appointments: IAppointment[] | undefined) => {
+    
     dayjs.extend(timezone);
     dayjs.extend(utc);
     dayjs.extend(advanced);
@@ -116,6 +120,13 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
     );
     return appointmentsList;
   };
+
+  const hideAlert = () => {
+    setTimeout(() => {
+      setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
+    }, 3000);
+  };
+
 
   const handleSelectEvent = (event: eventType) => {
     const eventDataObj: eventType2 = {
@@ -185,12 +196,22 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
     }
   }, [view, date]);
 
+  const bookedNotification = () => {
+    setAlert({
+      msg: "Turno reservado!",
+      error: true,
+      alertType: "OK_ALERT",
+    });
+    hideAlert()
+  }
+
   return (
     <>
       {bookAppointmentModal && (
         <BookAppointmentModal
           appointmentData={eventData}
           closeModalF={() => setBookAppointmentModal(false)}
+          onBooked = {() => bookedNotification()}
         />
       )}
 

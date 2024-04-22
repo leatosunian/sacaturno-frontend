@@ -180,7 +180,7 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
       setAlert({
         msg: "Error al actualizar perfil",
         error: true,
-        alertType: "OK_ALERT",
+        alertType: "ERROR_ALERT",
       });
     }
   };

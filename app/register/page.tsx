@@ -18,7 +18,7 @@ export default function Register() {
       <HeaderPublic />
       <div>
         <div className="flex flex-col w-full h-screen lg:flex-row">
-          <div className="flex-col items-center justify-center hidden w-full py-12 lg:flex h-fit lg:h-full lg:w-1/2">
+          <div className="flex-col items-center justify-center hidden w-full py-12 md:py-0 lg:flex h-fit lg:h-full lg:w-1/2">
             <Image
               className="w-48 lg:mt-0 lg:w-96"
               alt=""
@@ -40,7 +40,7 @@ export default function Register() {
             </div>
           </div>
 
-          <div className="flex justify-center w-full pt-24 align-middle lg:mt-0 h-fit lg:h-full lg:w-1/2">
+          <div className="flex justify-center w-full pt-24 align-middle lg:pt-0 h-fit lg:h-full lg:w-1/2">
             <div className={styles.loginCont}>
               <div className={styles.loginHeader}>
                 <h3 className="mb-3 text-2xl font-semibold uppercase lg:text-3xl">
