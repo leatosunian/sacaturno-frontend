@@ -190,6 +190,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
         <BookAppointmentModal
           appointmentData={eventData}
           closeModalF={() => setBookAppointmentModal(false)}
+          onBooked={()=> {}}
         />
       )}
 
