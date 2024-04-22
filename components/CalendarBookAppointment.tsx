@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import styles from "@/app/css-modules/CalendarBookAppointment.module.css";
 import BookAppointmentModal from "./BookAppointmentModal";
 import AlertInterface from "@/interfaces/alert.interface";
+import Alert from "./Alert";
 
 dayjs.locale("es-mx");
 const localizer = dayjsLocalizer(dayjs);
@@ -304,6 +305,16 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
           />
         </div>
       </div>
+      {/* ALERT */}
+      {alert?.error && (
+        <div className="flex justify-center w-full h-fit">
+          <Alert
+            error={alert?.error}
+            msg={alert?.msg}
+            alertType={alert?.alertType}
+          />
+        </div>
+      )}
     </>
   );
 };
