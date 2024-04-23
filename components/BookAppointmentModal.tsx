@@ -50,7 +50,7 @@ const BookAppointmentModal: React.FC<props> = ({
 
   const bookAppointment = async (formData: FieldValues) => {
     setSpinner(true)
-    const token = localStorage.getItem("sacaturno_token");
+    /*const token = localStorage.getItem("sacaturno_token");
     const userID = localStorage.getItem("sacaturno_userID");
     const authHeader = {
       headers: {
@@ -60,21 +60,20 @@ const BookAppointmentModal: React.FC<props> = ({
       },
     };
     const getClientData = await axiosReq.get("/user/get/" + userID, authHeader);
-    const clientData = getClientData.data.response_data;
+    const clientData = getClientData.data.response_data;*/
 
     const bookingData = {
       _id: appointmentData?._id,
       status: "booked",
-      clientID: userID,
+      clientID: '',
       email: formData.email,
       phone: formData.phone,
       name: formData.name,
-      title: `${clientData.surname}, ${clientData.name}`,
+      title: `${formData.surname}, ${formData.name}`,
     };
     const bookedAppointment = await axiosReq.put(
       "/appointment/book",
-      bookingData,
-      authHeader
+      bookingData
     );
     onBooked();
     setSpinner(false)
