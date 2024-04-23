@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldValues, useForm } from "react-hook-form";
 import { bookAppointmentSchema } from "@/app/schemas/bookAppointmentSchema";
 import { IoMdClose } from "react-icons/io";
-import Spinner from "../../chat-typescript/frontend/src/components/Spinner";
 
 interface eventType2 {
   start: string;
