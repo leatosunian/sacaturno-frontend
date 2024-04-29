@@ -152,6 +152,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
       businessID: business?._id,
       start: startDate,
       end: endDate,
+      service: ''
     };
     console.log("clicked");
 

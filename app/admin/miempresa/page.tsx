@@ -59,7 +59,7 @@ async function getServicesData() {
       },
     };
     const allServices = await axiosReq.get(
-      `/business/service/get/user/${ownerID?.value}`,
+      `/business/service/get/65dff25919510fb34119e502`,
       authHeader
     );
     console.log('desde page:' , allServices);
