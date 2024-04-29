@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import Image from "next/image";
 import BusinessSkImg from "@/public/business.png";
 import Link from "next/link";
+import { IService } from "@/interfaces/service.interface";
 
 interface Props {}
 export const metadata: Metadata = {
@@ -19,13 +20,18 @@ async function getBusinessData() {
   const token = cookieStore.get("sacaturno_token");
   const ownerID = cookieStore.get("sacaturno_userID");
   try {
-    const res = await axiosReq.get(`/business/get/${ownerID?.value}`, {
+    const authHeader = {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token?.value}`,
-        "Cache-Control": "no-store",
+        Authorization: `Bearer ${token}`,
       },
-    });
+    };
+
+    const res = await axiosReq.get(
+      `/business/get/${ownerID?.value}`,
+      authHeader
+    );
+
     return res.data;
   } catch (error: any) {
     const response_data = {
@@ -41,18 +47,49 @@ async function getBusinessData() {
   }
 }
 
+async function getServicesData() {
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("sacaturno_token");
+    const ownerID = cookieStore.get("sacaturno_userID");
+    const authHeader = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const allServices = await axiosReq.get(
+      `/business/service/get/user/${ownerID?.value}`,
+      authHeader
+    );
+    console.log('desde page:' , allServices);
+    return allServices.data;
+  } catch (error) {
+    const response_data = {
+      _id: "",
+      name: "",
+      businessID: "",
+      owner: "",
+    };
+    return { response_data };
+  }
+}
+
 const MiEmpresa: NextPage<Props> = async ({}) => {
+  const services: IService = await getServicesData();
   const data: IBusiness = await getBusinessData();
 
   return (
     <>
       <header className="flex justify-center w-full mt-5 mb-5 md:mt-7 md:mb-7 h-fit">
-        <h4 style={{fontSize:'22px'}} className="font-bold uppercase ">Mi Empresa</h4>
+        <h4 style={{ fontSize: "22px" }} className="font-bold uppercase ">
+          Mi Empresa
+        </h4>
       </header>
-      <div className="flex justify-center w-screen mt-5 h-fit">
+      <div className="flex justify-center w-full mt-5 h-fit">
         {typeof data !== "string" && (
-          <div className={styles.cont}>
-            <FormMiEmpresa businessData={data} />
+          <div className={`${styles.cont} mb-5`}>
+            <FormMiEmpresa businessData={data} servicesData={services} />
           </div>
         )}
 

@@ -15,9 +15,14 @@ import { AiOutlineSchedule } from "react-icons/ai";
 import Alert from "./Alert";
 import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
+import { IoMdAdd } from "react-icons/io";
+import { FaEdit } from "react-icons/fa";
+import { RxCross2 } from "react-icons/rx";
+import { IService } from "@/interfaces/service.interface";
 
 interface props {
   businessData: IBusiness;
+  servicesData: IService;
 }
 
 interface formInputs {
@@ -29,7 +34,13 @@ interface formInputs {
   dayEnd: string;
 }
 
-const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
+const FormMiEmpresa = ({
+  businessData,
+  servicesData,
+}: {
+  businessData: IBusiness;
+  servicesData: IService;
+}) => {
   const {
     register,
     handleSubmit,
@@ -39,9 +50,13 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
   } = useForm<formInputs>({
     resolver: zodResolver(businessSchema),
   });
+
   const [alert, setAlert] = useState<AlertInterface>();
   const [business, setBusiness] = useState<IBusiness>();
   const [isBusiness, setIsBusiness] = useState(false);
+  const [newService, setNewService] = useState("");
+  const [services, setServices] = useState<IService[]>([]);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -53,7 +68,6 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
     } else {
       setIsBusiness(true);
     }
-
     setBusiness(businessData);
     setValue("name", businessData.name);
     setValue("address", businessData.address);
@@ -63,6 +77,10 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
     setValue("appointmentDuration", businessData.appointmentDuration);
     return;
   }, [businessData]);
+
+  useEffect(() => {
+    console.log(servicesData);
+  }, [servicesData]);
 
   useEffect(() => {
     if (business) {
@@ -185,6 +203,37 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
     }
   };
 
+  const handleAddService = async () => {
+    try {
+      const token = localStorage.getItem("sacaturno_token");
+      const authHeader = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      if (newService !== "") {
+        const createService = await axiosReq.post(
+          "/business/service/create",
+          newService,
+          authHeader
+        );
+        setAlert({
+          msg: "Servicio añadido correctamente",
+          error: true,
+          alertType: "OK_ALERT",
+        });
+        hideAlert();
+      } else return;
+    } catch (error) {
+      setAlert({
+        msg: "Error al crear servicio",
+        error: true,
+        alertType: "ERROR_ALERT",
+      });
+    }
+  };
+
   const myLoader = ({ src }: { src: string }) => {
     return `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${business?.image}`;
   };
@@ -197,6 +246,10 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
         })}
         className={styles.businessForm}
       >
+        <div className="flex justify-center w-full mb-5 h-fit">
+          <h3 className="text-xl font-bold uppercase ">Datos de la empresa</h3>
+        </div>
+
         <div className="flex flex-col items-center justify-center w-full gap-10 md:gap-5 md:justify-around md:flex-row">
           <div
             onClick={handleClick}
@@ -225,8 +278,11 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
 
           <div className="flex flex-col justify-between w-full gap-4 md:w-1/2 ">
             <div className={styles.formInput}>
-              <span style={{fontSize:'12px'}} className="font-bold uppercase ">
-                Nombre de la empresa
+              <span
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Nombre
               </span>
               <input type="text" maxLength={30} {...register("name")} />
               {errors.name?.message && (
@@ -236,7 +292,12 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
               )}
             </div>
             <div className={styles.formInput}>
-              <span style={{fontSize:'12px'}} className="font-bold uppercase ">Rubro principal</span>
+              <span
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Rubro principal
+              </span>
               <input type="text" maxLength={20} {...register("businessType")} />
               {errors.businessType?.message && (
                 <span className="text-xs font-semibold text-red-600">
@@ -245,7 +306,10 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
               )}
             </div>
             <div className={styles.formInput}>
-              <span style={{fontSize:'12px'}} className="font-bold uppercase ">
+              <span
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
                 Domicilio de sucursal
               </span>
               <input type="text" {...register("address")} maxLength={40} />
@@ -258,9 +322,25 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
           </div>
         </div>
 
-        <div className="flex flex-col items-start w-full gap-5 mt-4 lg:justify-center md:items-center md:flex-row">
+        <div className="flex justify-center w-full h-fit lg:my-7 my-11">
+          <div
+            style={{
+              width: "80%",
+              height: "1px",
+              background: "rgba(0, 0, 0, 0.2)",
+            }}
+          ></div>
+        </div>
+
+        <div className="flex justify-center w-full h-fit">
+          <h3 className="text-xl font-bold uppercase ">
+            Configuración de turnos
+          </h3>
+        </div>
+
+        <div className="flex flex-col items-start w-full gap-5 mt-4 lg:justify-center md:items-center lg:flex-row">
           <div className={styles.formInputAppDuration}>
-            <span style={{fontSize:'12px'}} className="font-bold uppercase ">
+            <span style={{ fontSize: "12px" }} className="font-bold uppercase ">
               Duración de cada turno
             </span>
             {/* <Select onChange={} options={durationOptions} /> */}
@@ -287,10 +367,17 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
           </div>
 
           <div className={styles.formInputOpening}>
-            <span style={{fontSize:'12px'}} className="font-bold uppercase ">Horario de atención</span>
+            <span style={{ fontSize: "12px" }} className="font-bold uppercase ">
+              Horario de atención
+            </span>
             <div className="flex items-end gap-3">
               <div className="flex items-end gap-2">
-                <span style={{fontSize:'12px'}} className="font-bold uppercase">Desde:</span>
+                <span
+                  style={{ fontSize: "12px" }}
+                  className="font-bold uppercase"
+                >
+                  Desde:
+                </span>
                 <select
                   defaultValue={business?.dayStart}
                   {...register("dayStart")}
@@ -310,7 +397,12 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
               </div>
 
               <div className="flex items-end gap-2">
-                <span style={{fontSize:'12px'}} className="font-bold uppercase">Hasta:</span>
+                <span
+                  style={{ fontSize: "12px" }}
+                  className="font-bold uppercase"
+                >
+                  Hasta:
+                </span>
                 <select
                   defaultValue={business?.dayEnd}
                   {...register("dayEnd")}
@@ -331,6 +423,98 @@ const FormMiEmpresa = ({ businessData }: { businessData: IBusiness }) => {
             </div>
           </div>
         </div>
+
+        <div className="flex justify-center w-full h-fit lg:my-7 my-11">
+          <div
+            style={{
+              width: "80%",
+              height: "1px",
+              background: "rgba(0, 0, 0, 0.2)",
+            }}
+          ></div>
+        </div>
+
+        <div className="flex justify-center w-full h-fit">
+          <h3 className="text-xl font-bold uppercase ">Servicios</h3>
+        </div>
+
+        <div className="flex flex-col items-center justify-center w-full gap-10 mt-6 lg:flex-row lg:mt-4 md:gap-16 ">
+          <div className={styles.formInputAppDuration}>
+            <div className={styles.formInput}>
+              <span
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                añadir servicio
+              </span>
+              <div className="flex items-center gap-3 w-fit h-fit">
+                <input
+                  placeholder="Nombre del servicio"
+                  type="text"
+                  maxLength={30}
+                />
+                <button onClick={handleAddService} className={styles.button}>
+                  <IoMdAdd size={17} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {services?.length === 0 && (
+            <div className="flex items-center justify-center h-16 w-fit">
+              <span className="text-sm font-semibold uppercase">
+                Aún no tenés servicios creados.
+              </span>
+            </div>
+          )}
+
+          {services?.length > 0 && (
+            <div className="flex flex-col gap-2 w-fit h-fit">
+              <div className={styles.formInputAppDuration}>
+                <div
+                  style={{
+                    padding: "22px 16px",
+                    border: "1px solid rgba(95, 95, 95, 0.267)",
+                    borderRadius: "8px",
+                  }}
+                  className="flex items-center h-8 gap-1 w-fit"
+                >
+                  <span className="mr-4 text-xs font-semibold uppercase">
+                    Corte de pelo
+                  </span>
+                  <button onClick={handleAddService} className={styles.button}>
+                    <FaEdit size={12} />
+                  </button>
+                  <button onClick={handleAddService} className={styles.button}>
+                    <RxCross2 size={12} />
+                  </button>
+                </div>
+              </div>
+    
+              <div className={styles.formInputAppDuration}>
+                <div
+                  style={{
+                    padding: "22px 16px",
+                    border: "1px solid rgba(95, 95, 95, 0.267)",
+                    borderRadius: "8px",
+                  }}
+                  className="flex items-center h-8 gap-1 w-fit"
+                >
+                  <span className="mr-4 text-xs font-semibold uppercase">
+                    Corte de pelo
+                  </span>
+                  <button onClick={handleAddService} className={styles.button}>
+                    <FaEdit size={12} />
+                  </button>
+                  <button onClick={handleAddService} className={styles.button}>
+                    <RxCross2 size={12} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
         <button
           onClick={handleSubmitClick}
           className={"inputSubmitField hidden "}
