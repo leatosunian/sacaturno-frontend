@@ -31,6 +31,22 @@
   -o-transition: all .3s ease-in-out;
 }
 
+.formInputAppDuration select {
+  width: 240px;
+  height: fit-content;
+  display: flex;
+  gap: 3px;
+  flex-direction: column;
+  border-radius: 7px;
+  font-size: 13px;
+  height: 25px;
+  background-color: rgb(235, 235, 235);
+  border: 1px solid rgba(95, 95, 95, 0.267);
+  padding: 0 10px;
+  -webkit-border-radius: 7px;
+}
+
+
 
 .closeModal {
   color: red;

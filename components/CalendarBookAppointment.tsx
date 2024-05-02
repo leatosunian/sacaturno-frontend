@@ -24,6 +24,7 @@ import styles from "@/app/css-modules/CalendarBookAppointment.module.css";
 import BookAppointmentModal from "./BookAppointmentModal";
 import AlertInterface from "@/interfaces/alert.interface";
 import Alert from "./Alert";
+import { IService } from "@/interfaces/service.interface";
 
 dayjs.locale("es-mx");
 const localizer = dayjsLocalizer(dayjs);
@@ -31,6 +32,7 @@ const localizer = dayjsLocalizer(dayjs);
 interface Props {
   appointments: IAppointment[];
   businessData: IBusiness;
+  servicesData: IService[];
 }
 
 interface eventType {
@@ -40,6 +42,7 @@ interface eventType {
   businessID?: string | undefined;
   clientID: string | "" | undefined;
   _id?: string | undefined;
+  service: string | undefined;
   status?: "booked" | "unbooked" | undefined;
 }
 
@@ -49,6 +52,7 @@ interface eventType2 {
   title: string | undefined;
   clientID: string | "" | undefined;
   _id?: string | undefined;
+  service: string | undefined;
   status?: "booked" | "unbooked" | undefined;
 }
 
@@ -66,7 +70,7 @@ const messages = {
   time: "Hora",
 };
 
-const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
+const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesData }) => {
   var now = dayjs();
   const localizer = dayjsLocalizer(dayjs);
   const [appointmentsData, setAppointmentsData] = useState<IAppointment[]>();
@@ -79,7 +83,6 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
   const [view, setView] = useState<(typeof Views)[Keys]>(Views.DAY);
   const [date, setDate] = useState<Date>(now.toDate());
   const [alert, setAlert] = useState<AlertInterface>();
-  console.log(appointments);
 
   const router = useRouter();
   useEffect(() => {
@@ -103,7 +106,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
     let appointmentsList: eventType[] = [];
 
     appointments?.map(
-      ({ start, end, title, clientID, businessID, _id, status }) => {
+      ({ start, end, title, clientID, businessID, _id, status, service }) => {
         let appointmentObj: eventType;
         appointmentObj = {
           start: dayjs(start).tz("America/Argentina/Buenos_Aires").toDate(),
@@ -113,6 +116,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
           status,
           businessID,
           _id,
+          service
         };
         if (appointmentObj.status === "unbooked") {
           appointmentsList.push(appointmentObj);
@@ -131,11 +135,12 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
 
   const handleSelectEvent = (event: eventType) => {
     const eventDataObj: eventType2 = {
+      service: event.service,
       _id: event._id,
       start: dayjs(event.start).format("D [de] MMMM [|] HH:mm [hs] "),
       end: dayjs(event.end).format("[-] HH:mm [hs]"),
       clientID: event.clientID,
-      title: event.title,
+      title: event.title
     };
     setEventData(eventDataObj);
     setBookAppointmentModal(true);
@@ -159,10 +164,11 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
         return (
           <>
             <div
-              className="w-full h-full px-2 py-1 "
+              className="w-full h-full flex flex-col px-2 py-1 gap-1"
               style={{ backgroundColor: "#dd4924" }}
             >
-              <span className="text-sm">{event.title} </span>
+              <span className="text-sm font-semibold">{event.title} </span>
+              <span style={{fontSize:'10px'}}>{event.service} </span>
             </div>
           </>
         );
@@ -199,7 +205,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
 
   const bookedNotification = () => {
     setAlert({
-      msg: "Turno reservado!",
+      msg: "Turno reservado! Revisa tu correo para mas información",
       error: true,
       alertType: "OK_ALERT",
     });

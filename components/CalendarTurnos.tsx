@@ -13,7 +13,6 @@ import { IAppointment } from "@/interfaces/appointment.interface";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import AppointmentModal from "./AppointmentModal";
 import { IBusiness } from "@/interfaces/business.interface";
-import axiosReq from "@/config/axios";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import advanced from "dayjs/plugin/advancedFormat";
@@ -21,6 +20,7 @@ import ObjectId, { Types } from "mongoose";
 import { useRouter } from "next/navigation";
 import styles from "@/app/css-modules/CalendarTurnos.module.css";
 import CreateAppointmentModal from "./CreateAppointmentModal";
+import { IService } from "@/interfaces/service.interface";
 
 dayjs.locale("es-mx");
 const localizer = dayjsLocalizer(dayjs);
@@ -28,6 +28,7 @@ const localizer = dayjsLocalizer(dayjs);
 interface Props {
   appointments: IAppointment[];
   businessData: IBusiness;
+  servicesData: IService[];
 }
 
 interface eventType {
@@ -40,6 +41,7 @@ interface eventType {
   name: string | undefined;
   email: string | undefined;
   phone: number | undefined;
+  service: string | undefined;
   status?: "booked" | "unbooked" | undefined;
 }
 
@@ -52,6 +54,7 @@ interface eventType2 {
   name: string | undefined;
   email: string | undefined;
   phone: number | undefined;
+  service: string | undefined;
   status?: "booked" | "unbooked" | undefined;
 }
 
@@ -97,11 +100,12 @@ const messages = {
   time: "Hora",
 };
 
-const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
+const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesData }) => {
   var now = dayjs();
   const localizer = dayjsLocalizer(dayjs);
   const [appointmentsData, setAppointmentsData] = useState<IAppointment[]>();
   const [business, setBusiness] = useState<IBusiness>();
+  const [services, setServices] = useState<IService[]>();
   const [eventModal, setEventModal] = useState(false);
   const [eventData, setEventData] = useState<eventType2 | undefined>();
   const [createAppointmentModal, setCreateAppointmentModal] = useState(false);
@@ -115,9 +119,10 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
   useEffect(() => {
     setAppointmentsData(appointments);
     setBusiness(businessData);
+    setServices(servicesData);
     parseAppointments(appointments);
     return;
-  }, [appointments, businessData]);
+  }, [appointments, businessData, services]);
 
   useEffect(() => {
     parseAppointments(appointmentsData);
@@ -152,7 +157,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
       businessID: business?._id,
       start: startDate,
       end: endDate,
-      service: ''
+      service: "",
     };
     console.log("clicked");
 
@@ -179,6 +184,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
         name,
         email,
         phone,
+        service
       }) => {
         let appointmentObj: eventType;
         appointmentObj = {
@@ -192,6 +198,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
           name,
           email,
           phone,
+          service
         };
         appointmentsList.push(appointmentObj);
       }
@@ -209,6 +216,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
       name: event.name,
       phone: event.phone,
       email: event.email,
+      service: event.service
     };
     setEventData(eventDataObj);
     setEventModal(true);
@@ -220,10 +228,11 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
         return (
           <>
             <div
-              className="h-full px-2 py-1 w-fit "
+              className="h-full px-2 py-1 w-fit flex flex-col gap-1"
               style={{ backgroundColor: "rgb(203 137 121)" }}
             >
               <span className="text-sm">{event.name} </span>
+              <span style={{fontSize:'11px'}}>{event.service} </span>
             </div>
           </>
         );
@@ -232,10 +241,11 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
         return (
           <>
             <div
-              className="w-full h-full px-2 py-1 "
+              className="w-full h-full px-2 py-1 flex flex-col gap-1"
               style={{ backgroundColor: "#dd4924" }}
             >
-              <span className="text-sm">{event.title} </span>
+              <span className="text-sm font-semibold ">{event.title} </span>
+              <span style={{fontSize:'11px'}}>{event.service} </span>
             </div>
           </>
         );
@@ -281,13 +291,14 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
       {createAppointmentModal && (
         <CreateAppointmentModal
           appointmentData={createAppointmentData}
+          servicesData={services}
           closeModalF={() => setCreateAppointmentModal(false)}
         />
       )}
 
       <div className="flex flex-col w-full h-fit ">
         <header className="flex justify-center w-full mt-5 mb-3 md:mt-7 md:mb-7 h-fit">
-          <h4 style={{fontSize:'22px'}} className="font-bold uppercase ">
+          <h4 style={{ fontSize: "22px" }} className="font-bold uppercase ">
             Mis Turnos
           </h4>
         </header>
@@ -366,19 +377,14 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
             timeslots={1}
             step={Number(businessData.appointmentDuration)}
             onSelectSlot={({ action, start, end }) => {
-              console.log(action);
-              
-              if(action === 'select' || 'click'){
+              if (action === "select" || "click") {
                 saveNewAppointment({ start, end });
-
               }
             }}
             toolbar={false}
             selectable
             defaultView="day"
             onSelectEvent={(event) => {
-              console.log(event);
-              
               handleSelectEvent(event);
             }}
             longPressThreshold={250}

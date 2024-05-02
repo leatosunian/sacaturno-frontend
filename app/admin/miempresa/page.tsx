@@ -23,7 +23,7 @@ async function getBusinessData() {
     const authHeader = {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token?.value}`,
       },
     };
 
@@ -55,14 +55,15 @@ async function getServicesData() {
     const authHeader = {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token?.value}`,
       },
     };
+    console.log(ownerID);
+    
     const allServices = await axiosReq.get(
-      `/business/service/get/65dff25919510fb34119e502`,
+      `/business/service/get/user/${ownerID?.value}`,
       authHeader
     );
-    console.log('desde page:' , allServices);
     return allServices.data;
   } catch (error) {
     const response_data = {
@@ -76,7 +77,7 @@ async function getServicesData() {
 }
 
 const MiEmpresa: NextPage<Props> = async ({}) => {
-  const services: IService = await getServicesData();
+  const services: IService[] = await getServicesData();
   const data: IBusiness = await getBusinessData();
 
   return (

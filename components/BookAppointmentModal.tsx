@@ -14,6 +14,7 @@ interface eventType2 {
   title: string | undefined;
   clientID: string | "" | undefined;
   _id?: string | undefined;
+  service: string | undefined;
   status?: "booked" | "unbooked" | undefined;
 }
 
@@ -36,7 +37,6 @@ const BookAppointmentModal: React.FC<props> = ({
 }) => {
 
   const [spinner, setSpinner] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -129,6 +129,18 @@ const BookAppointmentModal: React.FC<props> = ({
                   <span className="text-sm">
                     {appointmentData?.start}
                     {appointmentData?.end}
+                  </span>
+                </div>
+
+                <div className="flex flex-col w-fit h-fit">
+                  <label
+                    style={{ fontSize: "12px" }}
+                    className="font-bold uppercase "
+                  >
+                    Servicio
+                  </label>
+                  <span className="text-sm">
+                    {appointmentData?.service}
                   </span>
                 </div>
 

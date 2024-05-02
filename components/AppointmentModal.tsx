@@ -15,6 +15,7 @@ interface eventType2 {
   name: string | undefined;
   email: string | undefined;
   phone: number | undefined;
+  service: string | undefined
   status?: "booked" | "unbooked" | undefined;
 }
 
@@ -24,7 +25,6 @@ interface props {
 }
 
 const AppointmentModal: React.FC<props> = ({ appointment, closeModalF }) => {
-  console.log(appointment);
 
   const [isBooked, setIsBooked] = useState(false);
   const [clientData, setClientData] = useState<IUser>();
@@ -103,6 +103,17 @@ const AppointmentModal: React.FC<props> = ({ appointment, closeModalF }) => {
                 <span className="text-sm">{appointment?.title}</span>
               )}
               {isBooked && <span className="text-sm">Reservado</span>}
+            </div>
+            <div className="flex flex-col w-fit h-fit">
+              <label
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Servicio a prestar
+              </label>
+              <span className="text-sm">
+                {appointment?.service}
+              </span>
             </div>
 
             {isBooked && (

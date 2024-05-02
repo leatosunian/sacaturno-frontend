@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import AppointmentModal from "../../../components/AppointmentModal";
 import { cookies } from "next/headers";
 import { IBusiness } from "@/interfaces/business.interface";
+import { IService } from "@/interfaces/service.interface";
 
 interface Props {
   appointments: IAppointment[];
@@ -20,7 +21,7 @@ const getAppointments = async () => {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token?.value}`,
-      'Cache-Control': 'no-store'
+      "Cache-Control": "no-store",
     },
   };
 
@@ -29,16 +30,22 @@ const getAppointments = async () => {
     authHeader
   );
   const businessData: IBusiness = businessFetch.data;
-  const appointments = await axiosReq.get(
+
+  const appointmentsFetch = await axiosReq.get(
     `/appointment/get/${businessData._id}`,
     authHeader
   );
-  return { appointments: appointments.data, businessData };
+
+  const servicesFetch = await axiosReq.get(
+    `/business/service/get/${businessData._id}`,
+    authHeader
+  );
+  const services: IService[] = servicesFetch.data;
+  return { appointments: appointmentsFetch.data, businessData, services };
 };
 
 const MisTurnos: React.FC = async () => {
   const data = await getAppointments();
-
   return (
     <>
       <div className="flex flex-col justify-center gap-10 md:flex-row">
@@ -46,6 +53,7 @@ const MisTurnos: React.FC = async () => {
           <CalendarTurnos
             appointments={data.appointments}
             businessData={data.businessData}
+            servicesData={data.services}
           />
         </div>
       </div>

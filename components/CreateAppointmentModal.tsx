@@ -4,18 +4,39 @@ import axiosReq from "@/config/axios";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
-import styles from "@/app/css-modules/CreateAppointmentModal.module.css"
+import styles from "@/app/css-modules/CreateAppointmentModal.module.css";
 import { IoMdClose } from "react-icons/io";
+import { IService } from "@/interfaces/service.interface";
+import { useEffect, useState } from "react";
 
 interface props {
   appointmentData: IAppointment | undefined;
-  closeModalF: () => void
+  servicesData: IService[] | undefined;
+  closeModalF: () => void;
 }
 
-const CreateAppointmentModal: React.FC<props> = ({appointmentData, closeModalF}) => {
-  const router = useRouter()
+const CreateAppointmentModal: React.FC<props> = ({
+  appointmentData,
+  closeModalF,
+  servicesData,
+}) => {
+  const router = useRouter();
+  const [selectedService, setSelectedService] = useState<string | undefined>('')
+
+  useEffect(() => {
+    if(servicesData) {
+      setSelectedService(servicesData[0].name)
+    }
+  }, [servicesData])
+  
+  useEffect(() => {
+    if(appointmentData)
+    appointmentData.service = selectedService
+  }, [selectedService])
+  
+
   const saveAppointment = async () => {
-    closeModal()
+    closeModal();
     const token = localStorage.getItem("sacaturno_token");
     const authHeader = {
       headers: {
@@ -25,54 +46,76 @@ const CreateAppointmentModal: React.FC<props> = ({appointmentData, closeModalF})
       },
     };
     const savedAppointment = await axiosReq.post(
-        "/appointment/create",
-        appointmentData,
-        authHeader
-      );
+      "/appointment/create",
+      appointmentData,
+      authHeader
+    );
     console.log(savedAppointment);
     router.refresh();
   };
 
-
-
   const closeModal = () => {
-    closeModalF()
-  }
+    closeModalF();
+  };
 
   return (
     <>
-      <div className="absolute flex items-center justify-center text-black modalCont" >
+      <div className="absolute flex items-center justify-center text-black modalCont">
         <div className="flex flex-col bg-white w-80 md:w-96 px-7 py-9 h-fit borderShadow">
           <IoMdClose
-              className={styles.closeModal}
-              onClick={closeModal}
-              size={22}
-            />
+            className={styles.closeModal}
+            onClick={closeModal}
+            size={22}
+          />
           <h4 className="mb-6 text-2xl font-bold text-center uppercase">
             Nuevo turno
           </h4>
           {/* <span>Hacé click en un turno para ver los detalles</span> */}
-          <div className="flex flex-col w-full gap-4 h-fit">
-
+          <div className="flex flex-col w-full gap-5 h-fit">
             <div className="flex flex-col w-fit h-fit">
-              <label style={{fontSize:'12px'}} className="font-bold uppercase ">Fecha</label>
+              <label
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Fecha
+              </label>
               <span className="text-sm">
-                {dayjs(appointmentData?.start).format('dddd DD/MM ')}{" "}
+                {dayjs(appointmentData?.start).format("dddd DD/MM ")}{" "}
               </span>
             </div>
 
             <div className="flex flex-col w-fit h-fit">
-              <label style={{fontSize:'12px'}} className="font-bold uppercase ">Hora</label>
+              <label
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Hora
+              </label>
               <span className="text-sm">
-                {dayjs(appointmentData?.start).format('HH:mm [hs] ')}{" "}
-                {dayjs(appointmentData?.end).format('[a] HH:mm [hs]')}
+                {dayjs(appointmentData?.start).format("HH:mm [hs] ")}{" "}
+                {dayjs(appointmentData?.end).format("[a] HH:mm [hs]")}
               </span>
+            </div>
+
+            <div className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}>
+              <label
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase mb-1 "
+              >
+                Servicio a prestar
+              </label>
+              <select value={selectedService} onChange={ e => setSelectedService(e.target.value)} id="appointmentDuration">
+                {servicesData?.map((service) => (
+                  <option key={service._id} value={service.name}>{service.name}</option>
+                ))}
+              </select>
             </div>
 
             <div className="flex justify-center w-full mt-3 align-middle h-fit">
-                <button className={styles.button} onClick={saveAppointment}>Crear turno</button>
+              <button className={styles.button} onClick={saveAppointment}>
+                Crear turno
+              </button>
             </div>
-
           </div>
         </div>
       </div>

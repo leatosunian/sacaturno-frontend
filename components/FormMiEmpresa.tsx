@@ -5,7 +5,7 @@ import Image from "next/image";
 import { durationOptions, timeOptions } from "@/helpers/timeOptions";
 import { IBusiness } from "../interfaces/business.interface";
 import { AxiosResponse } from "axios";
-import { useEffect, useState } from "react";
+import { ChangeEvent, ChangeEventHandler, MouseEventHandler, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axiosReq from "@/config/axios";
 import { FieldValues, useForm } from "react-hook-form";
@@ -39,7 +39,7 @@ const FormMiEmpresa = ({
   servicesData,
 }: {
   businessData: IBusiness;
-  servicesData: IService;
+  servicesData: IService[];
 }) => {
   const {
     register,
@@ -55,7 +55,7 @@ const FormMiEmpresa = ({
   const [business, setBusiness] = useState<IBusiness>();
   const [isBusiness, setIsBusiness] = useState(false);
   const [newService, setNewService] = useState("");
-  const [services, setServices] = useState<IService[]>([]);
+  const [services, setServices] = useState<IService[]>();
 
   const router = useRouter();
 
@@ -79,7 +79,7 @@ const FormMiEmpresa = ({
   }, [businessData]);
 
   useEffect(() => {
-    console.log(servicesData);
+    setServices(servicesData);
   }, [servicesData]);
 
   useEffect(() => {
@@ -108,6 +108,12 @@ const FormMiEmpresa = ({
     if (fileInput != null) {
       fileInput.click();
     }
+  };
+
+  const handleInputAddService = (e: ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.value);
+
+    setNewService(e.target.value);
   };
 
   const hideAlert = () => {
@@ -203,19 +209,29 @@ const FormMiEmpresa = ({
     }
   };
 
-  const handleAddService = async () => {
-    try {
-      const token = localStorage.getItem("sacaturno_token");
-      const authHeader = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      if (newService !== "") {
+  const addService = async () => {
+    if (newService !== "") {
+      try {
+        const token = localStorage.getItem("sacaturno_token");
+        const authHeader = {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        };
+
+        let newServiceData: IService = {
+          name: "",
+          businessID: "",
+          ownerID: "",
+        };
+        newServiceData.name = newService;
+        newServiceData.businessID = business?._id;
+        newServiceData.ownerID = business?.ownerID;
+
         const createService = await axiosReq.post(
           "/business/service/create",
-          newService,
+          newServiceData,
           authHeader
         );
         setAlert({
@@ -224,15 +240,48 @@ const FormMiEmpresa = ({
           alertType: "OK_ALERT",
         });
         hideAlert();
-      } else return;
+        setNewService("");
+        router.refresh();
+      } catch (error) {
+        setAlert({
+          msg: "Error al crear servicio",
+          error: true,
+          alertType: "ERROR_ALERT",
+        });
+      }
+    }
+  };
+
+  const deleteService = async (serviceID:string | undefined) => {
+    try {
+      const token = localStorage.getItem("sacaturno_token");
+      const authHeader = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      await axiosReq.delete(
+        `/business/service/delete/${serviceID}`,
+        authHeader
+      );
+      setAlert({
+        msg: "Servicio eliminado",
+        error: true,
+        alertType: "OK_ALERT",
+      });
+      hideAlert();
+      router.refresh();
     } catch (error) {
       setAlert({
-        msg: "Error al crear servicio",
+        msg: "Error al eliminar servicio",
         error: true,
         alertType: "ERROR_ALERT",
       });
     }
-  };
+  }
+
+  const handleEditService = async () => {};
 
   const myLoader = ({ src }: { src: string }) => {
     return `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${business?.image}`;
@@ -439,7 +488,7 @@ const FormMiEmpresa = ({
         </div>
 
         <div className="flex flex-col items-center justify-center w-full gap-10 mt-6 lg:flex-row lg:mt-4 md:gap-16 ">
-          <div className={styles.formInputAppDuration}>
+          <div className={`${styles.formInputAppDuration} mb-auto`}>
             <div className={styles.formInput}>
               <span
                 style={{ fontSize: "12px" }}
@@ -451,9 +500,13 @@ const FormMiEmpresa = ({
                 <input
                   placeholder="Nombre del servicio"
                   type="text"
+                  value={newService}
                   maxLength={30}
+                  onChange={(e) => {
+                    setNewService(e.target.value);
+                  }}
                 />
-                <button onClick={handleAddService} className={styles.button}>
+                <button onClick={addService} className={styles.button}>
                   <IoMdAdd size={17} />
                 </button>
               </div>
@@ -468,49 +521,37 @@ const FormMiEmpresa = ({
             </div>
           )}
 
-          {services?.length > 0 && (
+          {services?.length !== 0 && (
             <div className="flex flex-col gap-2 w-fit h-fit">
-              <div className={styles.formInputAppDuration}>
-                <div
-                  style={{
-                    padding: "22px 16px",
-                    border: "1px solid rgba(95, 95, 95, 0.267)",
-                    borderRadius: "8px",
-                  }}
-                  className="flex items-center h-8 gap-1 w-fit"
-                >
-                  <span className="mr-4 text-xs font-semibold uppercase">
-                    Corte de pelo
-                  </span>
-                  <button onClick={handleAddService} className={styles.button}>
-                    <FaEdit size={12} />
-                  </button>
-                  <button onClick={handleAddService} className={styles.button}>
-                    <RxCross2 size={12} />
-                  </button>
-                </div>
-              </div>
-    
-              <div className={styles.formInputAppDuration}>
-                <div
-                  style={{
-                    padding: "22px 16px",
-                    border: "1px solid rgba(95, 95, 95, 0.267)",
-                    borderRadius: "8px",
-                  }}
-                  className="flex items-center h-8 gap-1 w-fit"
-                >
-                  <span className="mr-4 text-xs font-semibold uppercase">
-                    Corte de pelo
-                  </span>
-                  <button onClick={handleAddService} className={styles.button}>
-                    <FaEdit size={12} />
-                  </button>
-                  <button onClick={handleAddService} className={styles.button}>
-                    <RxCross2 size={12} />
-                  </button>
-                </div>
-              </div>
+              {services?.map((service) => (
+                  <div key={service._id} className={styles.formInputAppDuration}>
+                    <div
+                      style={{
+                        padding: "22px 16px",
+                        border: "1px solid rgba(95, 95, 95, 0.267)",
+                        borderRadius: "8px",
+                      }}
+                      className="flex items-center h-8 gap-1 w-fit"
+                    >
+                      <span className="mr-4 text-xs font-semibold uppercase">
+                        {service.name}
+                      </span>
+                      <button
+                        onClick={handleEditService}
+                        className={styles.button}
+                      >
+                        <FaEdit size={12} />
+                      </button>
+                      <button
+                        className={styles.button}
+                        key={service._id}
+                        onClick={() => deleteService(service._id)}
+                      >
+                        <RxCross2 size={12} />
+                      </button>
+                    </div>
+                  </div>
+              ))}
             </div>
           )}
         </div>

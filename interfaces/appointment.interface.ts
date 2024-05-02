@@ -9,5 +9,5 @@ export interface IAppointment {
   title?: string;
   name?: string;
   _id?: string;
-  service: string;
+  service: string | undefined;
 }
