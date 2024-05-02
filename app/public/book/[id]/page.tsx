@@ -63,7 +63,6 @@ const BookAppointment: React.FC<propsComponent> = async ({params}) => {
           <CalendarBookAppointment
             appointments={data.appointments}
             businessData={data.businessData}
-            servicesData={services}
           />}
         </div> 
       </div>
