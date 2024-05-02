@@ -25,36 +25,8 @@ interface propsComponent {
   }
 }
 
-async function getServicesData() {
-  try {
-    const cookieStore = cookies();
-    const token = cookieStore.get("sacaturno_token");
-    const ownerID = cookieStore.get("sacaturno_userID");
-    const authHeader = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token?.value}`,
-      },
-    };
-    const allServices = await axiosReq.get(
-      `/business/service/get/user/${ownerID?.value}`,
-      authHeader
-    );
-    return allServices.data;
-  } catch (error) {
-    const response_data = {
-      _id: "",
-      name: "",
-      businessID: "",
-      owner: "",
-    };
-    return { response_data };
-  }
-}
-
 const BookAppointment: React.FC<propsComponent> = async ({params}) => {
   const data = await getAppointments(params.id);
-  const services: IService[] = await getServicesData();
   return (
     <>
       <div className="flex flex-col justify-center gap-10 md:flex-row">

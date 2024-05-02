@@ -43,6 +43,9 @@ interface eventType {
   _id?: string | undefined;
   service: string | undefined;
   status?: "booked" | "unbooked" | undefined;
+  email: string| undefined;
+  phone: number| undefined;
+  name: string | undefined;
 }
 
 interface eventType2 {
@@ -52,6 +55,9 @@ interface eventType2 {
   clientID: string | "" | undefined;
   _id?: string | undefined;
   service: string | undefined;
+  email: string| undefined;
+  phone: number| undefined;
+  name: string | undefined;
   status?: "booked" | "unbooked" | undefined;
 }
 
@@ -77,6 +83,9 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
   const [eventModal, setEventModal] = useState(false);
   const [eventData, setEventData] = useState<eventType2 | undefined>();
   const [bookAppointmentModal, setBookAppointmentModal] = useState(false);
+  const [bookedAppointmentModal, setBookedAppointmentModal] = useState(false);
+  const [bookedAppointmentData, setBookedAppointmentData] =
+    useState<eventType2>();
   const [bookAppointmentData, setBookAppointmentData] =
     useState<IAppointment>();
   const [view, setView] = useState<(typeof Views)[Keys]>(Views.DAY);
@@ -97,7 +106,6 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
   }, [appointmentsData]);
 
   const parseAppointments = (appointments: IAppointment[] | undefined) => {
-    
     dayjs.extend(timezone);
     dayjs.extend(utc);
     dayjs.extend(advanced);
@@ -105,7 +113,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
     let appointmentsList: eventType[] = [];
 
     appointments?.map(
-      ({ start, end, title, clientID, businessID, _id, status, service }) => {
+      ({ start, end, title, clientID, businessID, _id, status, service, email, phone, name }) => {
         let appointmentObj: eventType;
         appointmentObj = {
           start: dayjs(start).tz("America/Argentina/Buenos_Aires").toDate(),
@@ -115,7 +123,10 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
           status,
           businessID,
           _id,
-          service
+          service,
+          email,
+          name,
+          phone
         };
         if (appointmentObj.status === "unbooked") {
           appointmentsList.push(appointmentObj);
@@ -131,7 +142,6 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
     }, 3000);
   };
 
-
   const handleSelectEvent = (event: eventType) => {
     const eventDataObj: eventType2 = {
       service: event.service,
@@ -139,7 +149,10 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
       start: dayjs(event.start).format("D [de] MMMM [|] HH:mm [hs] "),
       end: dayjs(event.end).format("[-] HH:mm [hs]"),
       clientID: event.clientID,
-      title: event.title
+      title: event.title,
+      email: event.email,
+      phone: event.phone,
+      name: event.name
     };
     setEventData(eventDataObj);
     setBookAppointmentModal(true);
@@ -167,7 +180,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
               style={{ backgroundColor: "#dd4924" }}
             >
               <span className="text-sm font-semibold">{event.title} </span>
-              <span style={{fontSize:'10px'}}>{event.service} </span>
+              <span style={{ fontSize: "10px" }}>{event.service} </span>
             </div>
           </>
         );
@@ -202,14 +215,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
     }
   }, [view, date]);
 
-  const bookedNotification = () => {
-    setAlert({
-      msg: "Turno reservado! Revisa tu correo para mas información",
-      error: true,
-      alertType: "OK_ALERT",
-    });
-    hideAlert()
-  }
+
 
   return (
     <>
@@ -217,7 +223,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
         <BookAppointmentModal
           appointmentData={eventData}
           closeModalF={() => setBookAppointmentModal(false)}
-          onBooked = {() => bookedNotification()}
+
         />
       )}
 
