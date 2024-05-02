@@ -32,7 +32,6 @@ const localizer = dayjsLocalizer(dayjs);
 interface Props {
   appointments: IAppointment[];
   businessData: IBusiness;
-  servicesData: IService[];
 }
 
 interface eventType {
@@ -70,7 +69,7 @@ const messages = {
   time: "Hora",
 };
 
-const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesData }) => {
+const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
   var now = dayjs();
   const localizer = dayjsLocalizer(dayjs);
   const [appointmentsData, setAppointmentsData] = useState<IAppointment[]>();
