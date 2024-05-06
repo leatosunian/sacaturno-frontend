@@ -19,7 +19,7 @@ const SearchBusiness: React.FC = () => {
   const router = useRouter();
 
   const myLoader = ({ src }: { src: string }) => {
-    return `${process.env.BACKEND_URL}/api${src}`;
+    return `https://sacaturno-server-production.up.railway.app/api${src}`;
   };
 
   const hideAlert = () => {

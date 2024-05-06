@@ -20,6 +20,14 @@ export const businessSchema = z.object({
         message: 'El domicilio debe tener menos de 50 caractéres'
     }),
 
+    email: z.string().email({
+        message: 'Ingresá un correo válido'
+    }),
+
+    phone: z.string().min(7, {
+        message: 'El teléfono es demasiado corto'
+    }),
+
     appointmentDuration: z.string(),
 
     dayStart: z.string(),

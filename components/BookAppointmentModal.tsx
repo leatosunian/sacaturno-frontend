@@ -69,6 +69,8 @@ const BookAppointmentModal: React.FC<props> = ({
       "/appointment/book",
       bookingData
     );
+    console.log(bookedAppointment);
+    
     setBookedModal(true);
     setBookedAppointmentData(bookedAppointment.data);
     setSpinner(false);
@@ -98,7 +100,7 @@ const BookAppointmentModal: React.FC<props> = ({
           <div className="flex flex-col bg-white w-80 md:w-96 p-7 h-fit borderShadow">
             {spinner && (
               <div className={styles.spinnerCont}>
-                <div className="loader z-50"></div>
+                <div className="z-50 loader"></div>
               </div>
             )}
 
@@ -223,7 +225,7 @@ const BookAppointmentModal: React.FC<props> = ({
               onClick={closeModal}
               size={22}
             />
-            <div className="w-full gap-4 h-fit flex flex-col items-center ">
+            <div className="flex flex-col items-center w-full gap-4 h-fit ">
               <Image
                 src={correctIcon}
                 style={{ width: "60px", height: "60px" }}
@@ -235,7 +237,7 @@ const BookAppointmentModal: React.FC<props> = ({
             </div>
 
             {/* <span>Hacé click en un turno para ver los detalles</span> */}
-            <div className="flex flex-col w-full gap-4 h-fit my-2">
+            <div className="flex flex-col w-full gap-4 my-2 h-fit">
               <div className="flex flex-col w-fit h-fit">
                 <label
                   style={{ fontSize: "12px" }}
@@ -290,7 +292,7 @@ const BookAppointmentModal: React.FC<props> = ({
               </div>
 
               {/* <div>
-                <p className="text-xs text-pretty text-justify">
+                <p className="text-xs text-justify text-pretty">
                   Recibirás en tu correo los datos de la reserva realizada. En
                   caso de no haber recibido el correo, revisar la carpeta de
                   correo no deseado.

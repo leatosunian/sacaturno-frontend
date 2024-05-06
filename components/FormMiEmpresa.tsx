@@ -32,6 +32,8 @@ interface formInputs {
   appointmentDuration: string;
   dayStart: string;
   dayEnd: string;
+  phone: number;
+  email: string;
 }
 
 const FormMiEmpresa = ({
@@ -90,9 +92,11 @@ const FormMiEmpresa = ({
       setValue("dayStart", business.dayStart);
       setValue("dayEnd", business.dayEnd);
       setValue("appointmentDuration", business.appointmentDuration);
+      setValue("phone", parseInt(business.phone));
+      setValue("email", business.email);
     }
     return;
-  }, [business]);
+  }, [business, setValue]);
 
   const handleSubmitClick = () => {
     const fileInput = document.querySelector(
@@ -108,12 +112,6 @@ const FormMiEmpresa = ({
     if (fileInput != null) {
       fileInput.click();
     }
-  };
-
-  const handleInputAddService = (e: ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);
-
-    setNewService(e.target.value);
   };
 
   const hideAlert = () => {
@@ -368,6 +366,37 @@ const FormMiEmpresa = ({
                 </span>
               )}
             </div>
+
+            <div className={styles.formInput}>
+              <span
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Email de contacto
+              </span>
+              <input type="email" {...register("email")} maxLength={40} />
+              {errors.email?.message && (
+                <span className="text-xs font-semibold text-red-600">
+                  {errors.email.message}
+                </span>
+              )}
+            </div>
+
+            <div className={styles.formInput}>
+              <span
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Teléfono de contacto
+              </span>
+              <input type="number" {...register("phone")} maxLength={40} />
+              {errors.phone?.message && (
+                <span className="text-xs font-semibold text-red-600">
+                  {errors.phone.message}
+                </span>
+              )}
+            </div>
+
           </div>
         </div>
 
