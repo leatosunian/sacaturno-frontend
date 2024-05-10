@@ -1,5 +1,4 @@
 import { NextResponse, NextRequest } from "next/server";
-import { log } from "console";
 
 export interface NextRequestPathname extends NextRequest {
   pathname: string;
@@ -25,7 +24,7 @@ export const middleware = async (req: NextRequestPathname, res: NextResponse) =>
   }
   /** verify token */
   if (token && userID) {
-    const validUser = await fetch("https://sacaturno.netlify.app/api/checkauth", {
+    const validUser = await fetch("https://sacaturno.com.ar/api/checkauth", {
       headers: {
         "Content-Type": "application/json",
       },

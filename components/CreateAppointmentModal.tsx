@@ -24,7 +24,7 @@ const CreateAppointmentModal: React.FC<props> = ({
   const [selectedService, setSelectedService] = useState<string | undefined>('')
 
   useEffect(() => {
-    if(servicesData) {
+    if(servicesData && servicesData[0]) {
       setSelectedService(servicesData[0].name)
     }
   }, [servicesData])
@@ -32,7 +32,7 @@ const CreateAppointmentModal: React.FC<props> = ({
   useEffect(() => {
     if(appointmentData)
     appointmentData.service = selectedService
-  }, [selectedService])
+  }, [selectedService, appointmentData])
   
 
   const saveAppointment = async () => {
@@ -100,7 +100,7 @@ const CreateAppointmentModal: React.FC<props> = ({
             <div className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}>
               <label
                 style={{ fontSize: "12px" }}
-                className="font-bold uppercase mb-1 "
+                className="mb-1 font-bold uppercase "
               >
                 Servicio a prestar
               </label>

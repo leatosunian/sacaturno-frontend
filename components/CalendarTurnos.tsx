@@ -213,6 +213,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesD
       end: dayjs(event.end).format("[-] HH:mm [hs]"),
       clientID: event.clientID,
       title: event.title,
+      status: event.status,
       name: event.name,
       phone: event.phone,
       email: event.email,
@@ -228,7 +229,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesD
         return (
           <>
             <div
-              className="h-full px-2 py-1 w-fit flex flex-col gap-1"
+              className="flex flex-col h-full gap-1 px-2 py-1 w-fit"
               style={{ backgroundColor: "rgb(203 137 121)" }}
             >
               <span className="text-sm">{event.name} </span>
@@ -241,7 +242,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesD
         return (
           <>
             <div
-              className="w-full h-full px-2 py-1 flex flex-col gap-1"
+              className="flex flex-col w-full h-full gap-1 px-2 py-1"
               style={{ backgroundColor: "#dd4924" }}
             >
               <span className="text-sm font-semibold ">{event.title} </span>

@@ -19,16 +19,10 @@ interface formInputs {
 
 const FormLogin = () => {
   const [alert, setAlert] = useState<AlertInterface>();
-  const [user, setUser] = useState({
-    email: "",
-    password: "",
-  });
-
+  
   const {
     register,
     handleSubmit,
-    watch,
-    setValue,
     formState: { errors },
   } = useForm<formInputs>({
     resolver: zodResolver(loginSchema),

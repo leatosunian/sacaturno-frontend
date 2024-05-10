@@ -176,7 +176,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
         return (
           <>
             <div
-              className="w-full h-full flex flex-col px-2 py-1 gap-1"
+              className="flex flex-col w-full h-full gap-1 px-2 py-1"
               style={{ backgroundColor: "#dd4924" }}
             >
               <span className="text-sm font-semibold">{event.title} </span>
@@ -228,9 +228,9 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
       )}
 
       <div className="flex flex-col w-full h-fit ">
-        <header className="flex flex-col items-center justify-center w-full mt-5 mb-5 md:mt-7 md:mb-7 h-fit">
-          <h4 className="text-2xl font-bold md:text-3xl">{business?.name}</h4>
-          <span>Reservar turno</span>
+        <header className="flex flex-col items-center justify-center w-full mt-4 mb-4 md:mt-7 md:mb-7 h-fit">
+          <h4 className="text-xl font-bold uppercase md:text-2xl">{business?.name}</h4>
+          <span className="text-sm uppercase">Reservar turno</span>
         </header>
         <div className="flex-col hidden w-full mb-5 md:flex md:flex-row h-fit">
           <div className="flex w-1/3 h-fit">

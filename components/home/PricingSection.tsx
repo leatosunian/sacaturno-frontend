@@ -42,19 +42,19 @@ const PricingSection = () => {
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
                 <span className="text-xs text-gray-300">
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit
+                  Prueba gratuita por 30 días
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
                 <span className="text-xs text-gray-300">
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit
+                  70 turnos mensuales
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
                 <span className="text-xs text-gray-300">
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit
+                  1 servicio por empresa
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
@@ -102,11 +102,11 @@ const PricingSection = () => {
           <div className={homeStyles.pricingCard}>
             <div className="mb-5">
               <h4 className="mb-3 text-3xl font-semibold lg:text-3xl">
-                Plan Prueba
+                Plan Full
               </h4>
               <div>
                 <span className="mr-1 text-2xl font-semibold lg:text-2xl">
-                  $0
+                  $6900
                 </span>
                 <span className="text-sm text-gray-400">ARS/mes</span>
               </div>
@@ -127,13 +127,13 @@ const PricingSection = () => {
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
                 <span className="text-xs text-gray-300">
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit
+                  Turnos ilimitados
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
                 <span className="text-xs text-gray-300">
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit
+                  Servicios ilimitados
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">

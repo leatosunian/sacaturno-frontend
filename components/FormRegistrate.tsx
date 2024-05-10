@@ -25,8 +25,6 @@ const FormRegistrate = () => {
   const {
     register,
     handleSubmit,
-    watch,
-    setValue,
     formState: { errors },
   } = useForm<formInputs>({
     resolver: zodResolver(registerSchema),
@@ -44,6 +42,8 @@ const FormRegistrate = () => {
   
 
   const handleRegister = async (data: FieldValues) => {
+    console.log(data);
+    
     if (data) {
       const registeredUser = await axiosReq.post("/user/create", data);
       console.log(registeredUser);
@@ -101,19 +101,6 @@ const FormRegistrate = () => {
               <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
                 <AiOutlineExclamationCircle color="red" />
                 <span className="text-xs "> {errors.email.message} </span>
-              </div>
-            </>
-          )}
-        </div>
-
-        <div className={styles.loginFormInput}>
-          <span style={{fontSize:'12px'}} className="font-medium uppercase ">Teléfono</span>
-          <input type="number" {...register("phone")} />
-          {errors.phone?.message && (
-            <>
-              <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
-                <AiOutlineExclamationCircle color="red" />
-                <span className="text-xs "> {errors.phone.message} </span>
               </div>
             </>
           )}

@@ -47,8 +47,7 @@ const AppointmentModal: React.FC<props> = ({ appointment, closeModalF }) => {
   };
 
   useEffect(() => {
-    if (appointment?.clientID !== "") {
-      getClientData(appointment?.clientID);
+    if (appointment?.status === "booked") {
       setIsBooked(true);
     }
   }, [appointment]);

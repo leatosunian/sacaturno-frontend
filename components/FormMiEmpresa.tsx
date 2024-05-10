@@ -5,7 +5,13 @@ import Image from "next/image";
 import { durationOptions, timeOptions } from "@/helpers/timeOptions";
 import { IBusiness } from "../interfaces/business.interface";
 import { AxiosResponse } from "axios";
-import { ChangeEvent, ChangeEventHandler, MouseEventHandler, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  ChangeEventHandler,
+  MouseEventHandler,
+  useEffect,
+  useState,
+} from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axiosReq from "@/config/axios";
 import { FieldValues, useForm } from "react-hook-form";
@@ -208,49 +214,61 @@ const FormMiEmpresa = ({
   };
 
   const addService = async () => {
-    if (newService !== "") {
-      try {
-        const token = localStorage.getItem("sacaturno_token");
-        const authHeader = {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        };
+    if (businessData.subscription === "SC_FREE" && servicesData.length > 0) {
+      setAlert({
+        msg: "Solo podes añadir un servicio.",
+        error: true,
+        alertType: "ERROR_ALERT",
+      });
+      hideAlert();
+      return;
+    }
 
-        let newServiceData: IService = {
-          name: "",
-          businessID: "",
-          ownerID: "",
-        };
-        newServiceData.name = newService;
-        newServiceData.businessID = business?._id;
-        newServiceData.ownerID = business?.ownerID;
+    if (businessData.subscription === "SC_FULL" || businessData.subscription === "SC_FREE" && servicesData.length === 0) {
+      if (newService !== "" && services) {
+        try {
+          const token = localStorage.getItem("sacaturno_token");
+          const authHeader = {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          };
 
-        const createService = await axiosReq.post(
-          "/business/service/create",
-          newServiceData,
-          authHeader
-        );
-        setAlert({
-          msg: "Servicio añadido correctamente",
-          error: true,
-          alertType: "OK_ALERT",
-        });
-        hideAlert();
-        setNewService("");
-        router.refresh();
-      } catch (error) {
-        setAlert({
-          msg: "Error al crear servicio",
-          error: true,
-          alertType: "ERROR_ALERT",
-        });
+          let newServiceData: IService = {
+            name: "",
+            businessID: "",
+            ownerID: "",
+          };
+          newServiceData.name = newService;
+          newServiceData.businessID = business?._id;
+          newServiceData.ownerID = business?.ownerID;
+
+          const createService = await axiosReq.post(
+            "/business/service/create",
+            newServiceData,
+            authHeader
+          );
+          setAlert({
+            msg: "Servicio añadido correctamente",
+            error: true,
+            alertType: "OK_ALERT",
+          });
+          hideAlert();
+          setNewService("");
+          router.refresh();
+        } catch (error) {
+          setAlert({
+            msg: "Error al crear servicio",
+            error: true,
+            alertType: "ERROR_ALERT",
+          });
+        }
       }
     }
   };
 
-  const deleteService = async (serviceID:string | undefined) => {
+  const deleteService = async (serviceID: string | undefined) => {
     try {
       const token = localStorage.getItem("sacaturno_token");
       const authHeader = {
@@ -277,7 +295,7 @@ const FormMiEmpresa = ({
         alertType: "ERROR_ALERT",
       });
     }
-  }
+  };
 
   const handleEditService = async () => {};
 
@@ -396,7 +414,6 @@ const FormMiEmpresa = ({
                 </span>
               )}
             </div>
-
           </div>
         </div>
 
@@ -553,33 +570,33 @@ const FormMiEmpresa = ({
           {services?.length !== 0 && (
             <div className="flex flex-col gap-2 w-fit h-fit">
               {services?.map((service) => (
-                  <div key={service._id} className={styles.formInputAppDuration}>
-                    <div
-                      style={{
-                        padding: "22px 16px",
-                        border: "1px solid rgba(95, 95, 95, 0.267)",
-                        borderRadius: "8px",
-                      }}
-                      className="flex items-center h-8 gap-1 w-fit"
+                <div key={service._id} className={styles.formInputAppDuration}>
+                  <div
+                    style={{
+                      padding: "22px 16px",
+                      border: "1px solid rgba(95, 95, 95, 0.267)",
+                      borderRadius: "8px",
+                    }}
+                    className="flex items-center h-8 gap-1 w-fit"
+                  >
+                    <span className="mr-4 text-xs font-semibold uppercase">
+                      {service.name}
+                    </span>
+                    <button
+                      onClick={handleEditService}
+                      className={styles.button}
                     >
-                      <span className="mr-4 text-xs font-semibold uppercase">
-                        {service.name}
-                      </span>
-                      <button
-                        onClick={handleEditService}
-                        className={styles.button}
-                      >
-                        <FaEdit size={12} />
-                      </button>
-                      <button
-                        className={styles.button}
-                        key={service._id}
-                        onClick={() => deleteService(service._id)}
-                      >
-                        <RxCross2 size={12} />
-                      </button>
-                    </div>
+                      <FaEdit size={12} />
+                    </button>
+                    <button
+                      className={styles.button}
+                      key={service._id}
+                      onClick={() => deleteService(service._id)}
+                    >
+                      <RxCross2 size={12} />
+                    </button>
                   </div>
+                </div>
               ))}
             </div>
           )}

@@ -58,7 +58,6 @@ async function getServicesData() {
         Authorization: `Bearer ${token?.value}`,
       },
     };
-    console.log(ownerID);
     
     const allServices = await axiosReq.get(
       `/business/service/get/user/${ownerID?.value}`,
