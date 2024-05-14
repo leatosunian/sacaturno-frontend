@@ -1,0 +1,68 @@
+.button {
+  width: fit-content;
+  height: fit-content;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 12px;
+  margin: 0 auto;
+  align-self: center;
+  border: 1px solid rgba(128, 128, 128, 0.445);
+  background-color: #dd4924;
+  color: white;
+  border-radius: 7px;
+  font-size: 12px;
+  text-transform: uppercase;
+  transition: all 0.3s ease-in-out;
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
+  -ms-border-radius: 7px;
+  -o-border-radius: 7px;
+}
+
+.button:hover {
+  color: #d92f04;
+  border: 1px solid #d92f04;
+  background-color: white;
+  transition: all 0.3s ease-in-out;
+  -webkit-transition: all 0.3s ease-in-out;
+  -moz-transition: all 0.3s ease-in-out;
+  -ms-transition: all 0.3s ease-in-out;
+  -o-transition: all 0.3s ease-in-out;
+}
+
+.closeModal {
+  color: red;
+  cursor: pointer;
+  transform: translate(310px, -10px);
+  -webkit-transform: translate(310px, -10px);
+  -moz-transform: translate(310px, -10px);
+  -ms-transform: translate(310px, -10px);
+  -o-transform: translate(310px, -10px);
+}
+
+.modalCont {
+  background-color: rgb(255, 255, 255);
+  z-index: 10000;
+  position: absolute;
+  width: 100%;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+@media (max-width: 768px) {
+  .closeModal {
+    transform: translate(250px, -12px);
+    position: absolute;
+    -webkit-transform: translate(250px, -12px);
+    -moz-transform: translate(250px, -12px);
+    -ms-transform: translate(250px, -12px);
+    -o-transform: translate(250px, -12px);
+  }
+}

@@ -38,7 +38,7 @@
         translate: 0; 
         display: block;
         position: absolute;
-        z-index: 9999;
+        z-index: 99999;
         top: 0;
         right: 0;
         width: 200px;

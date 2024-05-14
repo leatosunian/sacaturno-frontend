@@ -25,6 +25,7 @@ import { IoMdAdd } from "react-icons/io";
 import { FaEdit } from "react-icons/fa";
 import { RxCross2 } from "react-icons/rx";
 import { IService } from "@/interfaces/service.interface";
+import UpgradePlanModal from "./UpgradePlanModal";
 
 interface props {
   businessData: IBusiness;
@@ -63,6 +64,7 @@ const FormMiEmpresa = ({
   const [business, setBusiness] = useState<IBusiness>();
   const [isBusiness, setIsBusiness] = useState(false);
   const [newService, setNewService] = useState("");
+  const [upgradePlanModal, setUpgradePlanModal] = useState(false);
   const [services, setServices] = useState<IService[]>();
 
   const router = useRouter();
@@ -215,16 +217,14 @@ const FormMiEmpresa = ({
 
   const addService = async () => {
     if (businessData.subscription === "SC_FREE" && servicesData.length > 0) {
-      setAlert({
-        msg: "Solo podes añadir un servicio.",
-        error: true,
-        alertType: "ERROR_ALERT",
-      });
-      hideAlert();
+      setUpgradePlanModal(true);
       return;
     }
 
-    if (businessData.subscription === "SC_FULL" || businessData.subscription === "SC_FREE" && servicesData.length === 0) {
+    if (
+      businessData.subscription === "SC_FULL" ||
+      (businessData.subscription === "SC_FREE" && servicesData.length === 0)
+    ) {
       if (newService !== "" && services) {
         try {
           const token = localStorage.getItem("sacaturno_token");
@@ -305,329 +305,341 @@ const FormMiEmpresa = ({
 
   return (
     <>
-      <form
-        onSubmit={handleSubmit((data) => {
-          saveChanges(data);
-        })}
-        className={styles.businessForm}
-      >
-        <div className="flex justify-center w-full mb-5 h-fit">
-          <h3 className="text-xl font-bold uppercase ">Datos de la empresa</h3>
-        </div>
+      {upgradePlanModal && (
+        <UpgradePlanModal closeModalF={() => setUpgradePlanModal(false)} />
+      )}
 
-        <div className="flex flex-col items-center justify-center w-full gap-10 md:gap-5 md:justify-around md:flex-row">
-          <div
-            onClick={handleClick}
-            className="rounded-full inputFileFormProfile"
-            title="Cambiar logo de empresa"
+      {!upgradePlanModal && (
+        <>
+          <form
+            onSubmit={handleSubmit((data) => {
+              saveChanges(data);
+            })}
+            className={styles.businessForm}
           >
-            <Image
-              loader={myLoader}
-              width={64}
-              height={64}
-              className="w-16 rounded-full"
-              src={
-                `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/` +
-                business?.image
-              }
-              alt=""
-            />
-            <input
-              onChange={handleFileInput}
-              type="file"
-              className="inputField"
-              accept="image/*"
-              hidden
-            />
-          </div>
-
-          <div className="flex flex-col justify-between w-full gap-4 md:w-1/2 ">
-            <div className={styles.formInput}>
-              <span
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Nombre
-              </span>
-              <input type="text" maxLength={30} {...register("name")} />
-              {errors.name?.message && (
-                <span className="text-xs font-semibold text-red-600">
-                  {errors.name.message}
-                </span>
-              )}
-            </div>
-            <div className={styles.formInput}>
-              <span
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Rubro principal
-              </span>
-              <input type="text" maxLength={20} {...register("businessType")} />
-              {errors.businessType?.message && (
-                <span className="text-xs font-semibold text-red-600">
-                  {errors.businessType.message}
-                </span>
-              )}
-            </div>
-            <div className={styles.formInput}>
-              <span
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Domicilio de sucursal
-              </span>
-              <input type="text" {...register("address")} maxLength={40} />
-              {errors.address?.message && (
-                <span className="text-xs font-semibold text-red-600">
-                  {errors.address.message}
-                </span>
-              )}
+            <div className="flex justify-center w-full mb-5 h-fit">
+              <h3 className="text-xl font-bold uppercase ">
+                Datos de la empresa
+              </h3>
             </div>
 
-            <div className={styles.formInput}>
-              <span
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
+            <div className="flex flex-col items-center justify-center w-full gap-10 md:gap-5 md:justify-around md:flex-row">
+              <div
+                onClick={handleClick}
+                className="rounded-full inputFileFormProfile"
+                title="Cambiar logo de empresa"
               >
-                Email de contacto
-              </span>
-              <input type="email" {...register("email")} maxLength={40} />
-              {errors.email?.message && (
-                <span className="text-xs font-semibold text-red-600">
-                  {errors.email.message}
-                </span>
-              )}
-            </div>
-
-            <div className={styles.formInput}>
-              <span
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Teléfono de contacto
-              </span>
-              <input type="number" {...register("phone")} maxLength={40} />
-              {errors.phone?.message && (
-                <span className="text-xs font-semibold text-red-600">
-                  {errors.phone.message}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-center w-full h-fit lg:my-7 my-11">
-          <div
-            style={{
-              width: "80%",
-              height: "1px",
-              background: "rgba(0, 0, 0, 0.2)",
-            }}
-          ></div>
-        </div>
-
-        <div className="flex justify-center w-full h-fit">
-          <h3 className="text-xl font-bold uppercase ">
-            Configuración de turnos
-          </h3>
-        </div>
-
-        <div className="flex flex-col items-start w-full gap-5 mt-4 lg:justify-center md:items-center lg:flex-row">
-          <div className={styles.formInputAppDuration}>
-            <span style={{ fontSize: "12px" }} className="font-bold uppercase ">
-              Duración de cada turno
-            </span>
-            {/* <Select onChange={} options={durationOptions} /> */}
-            <select
-              className="formInputAppDuration"
-              {...register("appointmentDuration")}
-              defaultValue={business?.appointmentDuration}
-              id="appointmentDuration"
-            >
-              <option value="15">15 min</option>
-              <option value="30">30 min</option>
-              <option value="45">45 min</option>
-              <option value="60">1 h</option>
-              <option value="75">1:15 hs</option>
-              <option value="90">1:30 hs</option>
-              <option value="105">1:45 hs</option>
-              <option value="120">2 hs</option>
-            </select>
-            {errors.appointmentDuration?.message && (
-              <span className="text-xs font-semibold text-red-600">
-                {errors.appointmentDuration.message}
-              </span>
-            )}
-          </div>
-
-          <div className={styles.formInputOpening}>
-            <span style={{ fontSize: "12px" }} className="font-bold uppercase ">
-              Horario de atención
-            </span>
-            <div className="flex items-end gap-3">
-              <div className="flex items-end gap-2">
-                <span
-                  style={{ fontSize: "12px" }}
-                  className="font-bold uppercase"
-                >
-                  Desde:
-                </span>
-                <select
-                  defaultValue={business?.dayStart}
-                  {...register("dayStart")}
-                  id="dayStart"
-                >
-                  {timeOptions.map((time) => (
-                    <option value={time.value} key={time.label}>
-                      {time.label}
-                    </option>
-                  ))}
-                </select>
-                {errors.dayStart?.message && (
-                  <span className="text-xs font-semibold text-red-600">
-                    {errors.dayStart.message}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex items-end gap-2">
-                <span
-                  style={{ fontSize: "12px" }}
-                  className="font-bold uppercase"
-                >
-                  Hasta:
-                </span>
-                <select
-                  defaultValue={business?.dayEnd}
-                  {...register("dayEnd")}
-                  id="dayEnd"
-                >
-                  {timeOptions.map((time) => (
-                    <option value={time.value} key={time.label}>
-                      {time.label}
-                    </option>
-                  ))}
-                </select>
-                {errors.dayEnd?.message && (
-                  <span className="text-xs font-semibold text-red-600">
-                    {errors.dayEnd.message}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-center w-full h-fit lg:my-7 my-11">
-          <div
-            style={{
-              width: "80%",
-              height: "1px",
-              background: "rgba(0, 0, 0, 0.2)",
-            }}
-          ></div>
-        </div>
-
-        <div className="flex justify-center w-full h-fit">
-          <h3 className="text-xl font-bold uppercase ">Servicios</h3>
-        </div>
-
-        <div className="flex flex-col items-center justify-center w-full gap-10 mt-6 lg:flex-row lg:mt-4 md:gap-16 ">
-          <div className={`${styles.formInputAppDuration} mb-auto`}>
-            <div className={styles.formInput}>
-              <span
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                añadir servicio
-              </span>
-              <div className="flex items-center gap-3 w-fit h-fit">
-                <input
-                  placeholder="Nombre del servicio"
-                  type="text"
-                  value={newService}
-                  maxLength={30}
-                  onChange={(e) => {
-                    setNewService(e.target.value);
-                  }}
+                <Image
+                  loader={myLoader}
+                  width={64}
+                  height={64}
+                  className="w-16 rounded-full"
+                  src={
+                    `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/` +
+                    business?.image
+                  }
+                  alt=""
                 />
-                <button onClick={addService} className={styles.button}>
-                  <IoMdAdd size={17} />
-                </button>
+                <input
+                  onChange={handleFileInput}
+                  type="file"
+                  className="inputField"
+                  accept="image/*"
+                  hidden
+                />
+              </div>
+
+              <div className="flex flex-col justify-between w-full gap-4 md:w-1/2 ">
+                <div className={styles.formInput}>
+                  <span
+                    style={{ fontSize: "12px" }}
+                    className="font-bold uppercase "
+                  >
+                    Nombre
+                  </span>
+                  <input type="text" maxLength={30} {...register("name")} />
+                  {errors.name?.message && (
+                    <span className="text-xs font-semibold text-red-600">
+                      {errors.name.message}
+                    </span>
+                  )}
+                </div>
+                <div className={styles.formInput}>
+                  <span
+                    style={{ fontSize: "12px" }}
+                    className="font-bold uppercase "
+                  >
+                    Rubro principal
+                  </span>
+                  <input
+                    type="text"
+                    maxLength={20}
+                    {...register("businessType")}
+                  />
+                  {errors.businessType?.message && (
+                    <span className="text-xs font-semibold text-red-600">
+                      {errors.businessType.message}
+                    </span>
+                  )}
+                </div>
+                <div className={styles.formInput}>
+                  <span
+                    style={{ fontSize: "12px" }}
+                    className="font-bold uppercase "
+                  >
+                    Domicilio de sucursal
+                  </span>
+                  <input type="text" {...register("address")} maxLength={40} />
+                  {errors.address?.message && (
+                    <span className="text-xs font-semibold text-red-600">
+                      {errors.address.message}
+                    </span>
+                  )}
+                </div>
+
+                <div className={styles.formInput}>
+                  <span
+                    style={{ fontSize: "12px" }}
+                    className="font-bold uppercase "
+                  >
+                    Email de contacto
+                  </span>
+                  <input type="email" {...register("email")} maxLength={40} />
+                  {errors.email?.message && (
+                    <span className="text-xs font-semibold text-red-600">
+                      {errors.email.message}
+                    </span>
+                  )}
+                </div>
+
+                <div className={styles.formInput}>
+                  <span
+                    style={{ fontSize: "12px" }}
+                    className="font-bold uppercase "
+                  >
+                    Teléfono de contacto
+                  </span>
+                  <input type="number" {...register("phone")} maxLength={40} />
+                  {errors.phone?.message && (
+                    <span className="text-xs font-semibold text-red-600">
+                      {errors.phone.message}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
+
+            {/* <div className="flex justify-start w-full h-fit">
+              <h3 className="font-bold uppercase text-md ">
+                Configuración de turnos
+              </h3>
+            </div> */}
+
+            <div className="flex flex-col items-start w-full gap-5 mt-4 lg:justify-center md:items-center lg:flex-row">
+              <div className={styles.formInputAppDuration}>
+                <span
+                  style={{ fontSize: "12px" }}
+                  className="font-bold uppercase "
+                >
+                  Duración de cada turno
+                </span>
+                {/* <Select onChange={} options={durationOptions} /> */}
+                <select
+                  className="formInputAppDuration"
+                  {...register("appointmentDuration")}
+                  defaultValue={business?.appointmentDuration}
+                  id="appointmentDuration"
+                >
+                  <option value="15">15 min</option>
+                  <option value="30">30 min</option>
+                  <option value="45">45 min</option>
+                  <option value="60">1 h</option>
+                  <option value="75">1:15 hs</option>
+                  <option value="90">1:30 hs</option>
+                  <option value="105">1:45 hs</option>
+                  <option value="120">2 hs</option>
+                </select>
+                {errors.appointmentDuration?.message && (
+                  <span className="text-xs font-semibold text-red-600">
+                    {errors.appointmentDuration.message}
+                  </span>
+                )}
+              </div>
+
+              <div className={styles.formInputOpening}>
+                <span
+                  style={{ fontSize: "12px" }}
+                  className="font-bold uppercase "
+                >
+                  Horario de atención
+                </span>
+                <div className="flex items-end gap-3">
+                  <div className="flex items-end gap-2">
+                    <span
+                      style={{ fontSize: "12px" }}
+                      className="font-bold uppercase"
+                    >
+                      Desde:
+                    </span>
+                    <select
+                      defaultValue={business?.dayStart}
+                      {...register("dayStart")}
+                      id="dayStart"
+                    >
+                      {timeOptions.map((time) => (
+                        <option value={time.value} key={time.label}>
+                          {time.label}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.dayStart?.message && (
+                      <span className="text-xs font-semibold text-red-600">
+                        {errors.dayStart.message}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-end gap-2">
+                    <span
+                      style={{ fontSize: "12px" }}
+                      className="font-bold uppercase"
+                    >
+                      Hasta:
+                    </span>
+                    <select
+                      defaultValue={business?.dayEnd}
+                      {...register("dayEnd")}
+                      id="dayEnd"
+                    >
+                      {timeOptions.map((time) => (
+                        <option value={time.value} key={time.label}>
+                          {time.label}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.dayEnd?.message && (
+                      <span className="text-xs font-semibold text-red-600">
+                        {errors.dayEnd.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={handleSubmitClick}
+              className={"inputSubmitField hidden "}
+            />
+          </form>
+
+          <div className="flex gap-5 my-12 ">
+            <button onClick={handleSubmitClick} className={styles.button}>
+              <LuSave size={18} />
+              Guardar cambios
+            </button>
+            <button className={styles.btn2}>
+              <AiOutlineSchedule size={18} />
+              Turnos
+            </button>
           </div>
 
-          {services?.length === 0 && (
-            <div className="flex items-center justify-center h-16 w-fit">
-              <span className="text-sm font-semibold uppercase">
-                Aún no tenés servicios creados.
-              </span>
-            </div>
-          )}
+          <div className="flex justify-center w-full my-3 h-fit lg:my-0">
+            <div
+              style={{
+                width: "80%",
+                height: "1px",
+                background: "rgba(0, 0, 0, 0.2)",
+              }}
+            ></div>
+          </div>
 
-          {services?.length !== 0 && (
-            <div className="flex flex-col gap-2 w-fit h-fit">
-              {services?.map((service) => (
-                <div key={service._id} className={styles.formInputAppDuration}>
-                  <div
-                    style={{
-                      padding: "22px 16px",
-                      border: "1px solid rgba(95, 95, 95, 0.267)",
-                      borderRadius: "8px",
-                    }}
-                    className="flex items-center h-8 gap-1 w-fit"
+          <div className="flex flex-col my-7 md:my-12 w-fit h-fit">
+            <h3 className="mb-8 text-xl font-bold text-center uppercase md:mb-4 ">Servicios</h3>
+
+            <div className="flex flex-col items-center justify-center w-full gap-6 my-0 lg:flex-row lg:mt-4 md:gap-5 lg:gap-16 ">
+              <div className={`${styles.formInputAppDuration} mb-auto`}>
+                <div className={styles.formInput}>
+                  <span
+                    style={{ fontSize: "12px" }}
+                    className="font-bold uppercase "
                   >
-                    <span className="mr-4 text-xs font-semibold uppercase">
-                      {service.name}
-                    </span>
-                    <button
-                      onClick={handleEditService}
-                      className={styles.button}
-                    >
-                      <FaEdit size={12} />
-                    </button>
-                    <button
-                      className={styles.button}
-                      key={service._id}
-                      onClick={() => deleteService(service._id)}
-                    >
-                      <RxCross2 size={12} />
+                    añadir servicio
+                  </span>
+                  <div className="flex items-center gap-3 w-fit h-fit">
+                    <input
+                      placeholder="Nombre del servicio"
+                      type="text"
+                      value={newService}
+                      maxLength={30}
+                      onChange={(e) => {
+                        setNewService(e.target.value);
+                      }}
+                    />
+                    <button onClick={addService} className={styles.button}>
+                      <IoMdAdd size={17} />
                     </button>
                   </div>
                 </div>
-              ))}
+              </div>
+
+              {services?.length === 0 && (
+                <div className="flex items-center justify-center h-fit lg:h-16 w-fit">
+                  <span className="text-sm font-semibold uppercase">
+                    Aún no tenés servicios creados.
+                  </span>
+                </div>
+              )}
+
+              {services?.length !== 0 && (
+                <div className="flex flex-col gap-2 w-fit h-fit">
+                  {services?.map((service) => (
+                    <div
+                      key={service._id}
+                      className={styles.formInputAppDuration}
+                    >
+                      <div
+                        style={{
+                          padding: "22px 16px",
+                          border: "1px solid rgba(95, 95, 95, 0.267)",
+                          borderRadius: "8px",
+                        }}
+                        className="flex items-center h-8 gap-1 w-fit"
+                      >
+                        <span className="mr-4 text-xs font-semibold uppercase">
+                          {service.name}
+                        </span>
+                        <button
+                          onClick={handleEditService}
+                          className={styles.button}
+                        >
+                          <FaEdit size={12} />
+                        </button>
+                        <button
+                          className={styles.button}
+                          key={service._id}
+                          onClick={() => deleteService(service._id)}
+                        >
+                          <RxCross2 size={12} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          {/* ALERT */}
+          {alert?.error && (
+            <div className="flex justify-center w-full h-fit">
+              <Alert
+                error={alert?.error}
+                msg={alert?.msg}
+                alertType={alert?.alertType}
+              />
             </div>
           )}
-        </div>
-
-        <button
-          onClick={handleSubmitClick}
-          className={"inputSubmitField hidden "}
-        />
-      </form>
-
-      <div className="flex gap-4 mt-9 ">
-        <button onClick={handleSubmitClick} className={styles.button}>
-          <LuSave size={18} />
-          Guardar cambios
-        </button>
-        <button className={styles.btn2}>
-          <AiOutlineSchedule size={18} />
-          Turnos
-        </button>
-      </div>
-
-      {/* ALERT */}
-      {alert?.error && (
-        <div className="flex justify-center w-full h-fit">
-          <Alert
-            error={alert?.error}
-            msg={alert?.msg}
-            alertType={alert?.alertType}
-          />
-        </div>
+        </>
       )}
     </>
   );

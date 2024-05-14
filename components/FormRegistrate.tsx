@@ -19,7 +19,11 @@ interface formInputs {
 }
 
 const FormRegistrate = () => {
-  const [alert, setAlert] = useState<AlertInterface>({ error: false, alertType: "OK_ALERT", msg: "El usuario ya existe" });
+  const [alert, setAlert] = useState<AlertInterface>({
+    error: false,
+    alertType: "OK_ALERT",
+    msg: "El usuario ya existe",
+  });
   const [registerData, setRegisterData] = useState<IUser>();
 
   const {
@@ -39,29 +43,37 @@ const FormRegistrate = () => {
   /*useEffect(() => {
     hideAlert()
   }, [])*/
-  
 
   const handleRegister = async (data: FieldValues) => {
-    console.log(data);
-    
     if (data) {
-      const registeredUser = await axiosReq.post("/user/create", data);
-      console.log(registeredUser);
-      if (registeredUser.data.response_data === "USER_EXISTS") {
+      try {
+        const registeredUser = await axiosReq.post("/user/create", data);
+        console.log(registeredUser);
+        if (registeredUser.data.response_data === "USER_EXISTS") {
+          setAlert({
+            alertType: "ERROR_ALERT",
+            error: true,
+            msg: "El usuario ya existe",
+          });
+          hideAlert();
+        }
+        if (
+          registeredUser.data.response_data.msg === "CHAT_CREATED_SUCCESSFULLY"
+        ) {
+          setAlert({
+            alertType: "OK_ALERT",
+            error: true,
+            msg: "¡Usuario creado! Iniciá sesión para acceder",
+          });
+          hideAlert();
+        }
+      } catch (error) {
+        console.log(error);
+        
         setAlert({
           alertType: "ERROR_ALERT",
           error: true,
-          msg: "El usuario ya existe",
-        });
-        hideAlert();
-      }
-      if (
-        registeredUser.data.response_data.msg === "CHAT_CREATED_SUCCESSFULLY"
-      ) {
-        setAlert({
-          alertType: "OK_ALERT",
-          error: true,
-          msg: "¡Usuario creado! Iniciá sesión y comenzá a crear tu empresa.",
+          msg: "Error al crear cuenta",
         });
         hideAlert();
       }
@@ -81,7 +93,9 @@ const FormRegistrate = () => {
         className={styles.loginForm}
       >
         <div className={styles.loginFormInput}>
-          <span style={{fontSize:'12px'}} className="font-medium uppercase ">Nombre</span>
+          <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
+            Nombre
+          </span>
           <input type="text" {...register("name")} />
           {errors.name?.message && (
             <>
@@ -94,7 +108,9 @@ const FormRegistrate = () => {
         </div>
 
         <div className={styles.loginFormInput}>
-          <span style={{fontSize:'12px'}} className="font-medium uppercase ">Correo electrónico</span>
+          <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
+            Correo electrónico
+          </span>
           <input type="email" {...register("email")} />
           {errors.email?.message && (
             <>
@@ -107,7 +123,9 @@ const FormRegistrate = () => {
         </div>
 
         <div className={styles.loginFormInput}>
-          <span style={{fontSize:'12px'}} className="font-medium uppercase ">Contraseña</span>
+          <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
+            Contraseña
+          </span>
           <input type="password" {...register("password")} />
           {errors.password?.message && (
             <>

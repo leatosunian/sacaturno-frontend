@@ -11,16 +11,16 @@ const FormAlert: React.FC<Props> = ({ alertType, msg, error }) => {
         {error && (
           <>
             {alertType === "OK_ALERT" && (
-              <FaRegCircleCheck color="green" size={22} />
+              <FaRegCircleCheck color="green" size={18} />
             )}
 
             {alertType === "ERROR_ALERT" && (
-              <AiOutlineExclamationCircle color="red" size={22} />
+              <AiOutlineExclamationCircle color="red" size={18} />
             )}
           </>
         )}
 
-        {error && <span className="text-sm "> {msg} </span>}
+        {error && <span className="text-xs "> {msg} </span>}
       </div>
     </>
   );

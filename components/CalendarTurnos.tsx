@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import styles from "@/app/css-modules/CalendarTurnos.module.css";
 import CreateAppointmentModal from "./CreateAppointmentModal";
 import { IService } from "@/interfaces/service.interface";
+import NoServicesModal from "./NoServicesModal";
 
 dayjs.locale("es-mx");
 const localizer = dayjsLocalizer(dayjs);
@@ -295,6 +296,9 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesD
           servicesData={services}
           closeModalF={() => setCreateAppointmentModal(false)}
         />
+      )}
+      {servicesData.length === 0 && (
+        <NoServicesModal />
       )}
 
       <div className="flex flex-col w-full h-fit ">

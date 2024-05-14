@@ -94,14 +94,8 @@ const MiEmpresa: NextPage<Props> = async ({}) => {
         )}
 
         {typeof data === "string" && (
-          <div className="flex h-full w-fit backdrop-blur-sm ">
-            <Image
-              className="rounded-xl"
-              alt=""
-              src={BusinessSkImg}
-              width={800}
-              height={800}
-            />
+          <div className="flex w-full h-full mt-10 md:mt-16 backdrop-blur-sm">
+
             <div
               className="absolute flex flex-col items-center justify-center w-full h-full gap-5 bg-opacity-20 backdrop-blur-sm rounded-xl"
               style={{
