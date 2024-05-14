@@ -123,7 +123,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesD
     setServices(servicesData);
     parseAppointments(appointments);
     return;
-  }, [appointments, businessData, services]);
+  }, [appointments, businessData, services, servicesData]);
 
   useEffect(() => {
     parseAppointments(appointmentsData);

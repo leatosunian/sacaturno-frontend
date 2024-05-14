@@ -57,7 +57,11 @@ const FormCreateBusiness: React.FC = () => {
 
   const createBusiness = async (data: FieldValues) => {
     console.log(data);
-
+    setAlert({
+      msg: "",
+      error: false,
+      alertType: "ERROR_ALERT",
+    });
     try {
       const token = localStorage.getItem("sacaturno_token");
       const userID = localStorage.getItem("sacaturno_userID");
@@ -76,7 +80,7 @@ const FormCreateBusiness: React.FC = () => {
         );
         if (updatedUser.data.businessData === "BUSINESS_EXISTS") {
           setAlert({
-            msg: "Ya existe una empresa con ese nombre",
+            msg: "Solo podes añadir una empresa",
             error: true,
             alertType: "ERROR_ALERT",
           });

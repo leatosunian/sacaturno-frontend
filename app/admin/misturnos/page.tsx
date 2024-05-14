@@ -58,7 +58,7 @@ const MisTurnos: React.FC = async () => {
               servicesData={data.services}
             />
           )}
-          {data.appointments.length === 0 && (
+          {!data.businessData.name && (
             <div
               style={{ height: "calc(100vh - 64px)" }}
               className="flex flex-col items-center justify-center gap-6 px-4 text-center min-w-40 w-fit"
