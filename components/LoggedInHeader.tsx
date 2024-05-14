@@ -30,6 +30,7 @@ const LoggedInHeader: NextPage<Props> = ({}) => {
         method: "POST",
       });
       router.push("/");
+      router.refresh();
     } catch (error) {
       console.log(error);
     }
@@ -132,7 +133,12 @@ const LoggedInHeader: NextPage<Props> = ({}) => {
           >
             Mi perfil
           </Link>
-          <span onClick={logOut} className="flex items-center h-12 text-xs font-medium uppercase" >Cerrar sesión</span>
+          <span
+            onClick={logOut}
+            className="flex items-center h-12 text-xs font-medium uppercase"
+          >
+            Cerrar sesión
+          </span>
         </aside>
       </div>
     </>

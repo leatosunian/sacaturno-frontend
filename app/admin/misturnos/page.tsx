@@ -1,12 +1,13 @@
 import axiosReq from "@/config/axios";
-import { NextPage } from "next";
 import CalendarTurnos from "@/components/CalendarTurnos";
 import { IAppointment } from "@/interfaces/appointment.interface";
-import { useAuth } from "@/hooks/useAuth";
-import AppointmentModal from "../../../components/AppointmentModal";
 import { cookies } from "next/headers";
 import { IBusiness } from "@/interfaces/business.interface";
 import { IService } from "@/interfaces/service.interface";
+import warningImage from '@/public/warning.png'
+import Image from "next/image";
+import styles from '@/app/css-modules/CreateAppointmentModal.module.css'
+import Link from "next/link";
 
 interface Props {
   appointments: IAppointment[];
@@ -50,11 +51,27 @@ const MisTurnos: React.FC = async () => {
     <>
       <div className="flex flex-col justify-center gap-10 md:flex-row">
         <div className="flex justify-center w-full h-full md:w-fit">
-          <CalendarTurnos
-            appointments={data.appointments}
-            businessData={data.businessData}
-            servicesData={data.services}
-          />
+          {data.businessData.name && (
+            <CalendarTurnos
+              appointments={data.appointments}
+              businessData={data.businessData}
+              servicesData={data.services}
+            />
+          )}
+          {data.appointments.length === 0 && (
+            <div
+              style={{ height: "calc(100vh - 64px)" }}
+              className="flex flex-col items-center justify-center gap-6 px-4 text-center min-w-40 w-fit"
+            >
+              <Image alt="Warning" src={warningImage} width={90} />
+              <span className="font-semibold sm:text-lg text-md md:text-xl">
+                ¡Creá tu empresa para comenzar a cargar tus turnos!
+              </span>
+              <Link href="/admin/miempresa/create">
+                <button className={styles.button} >Crear empresa</button>              
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </>

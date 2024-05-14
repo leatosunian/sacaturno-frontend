@@ -4,10 +4,11 @@ import FormMiEmpresa from "@/components/FormMiEmpresa";
 import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
 import { cookies } from "next/headers";
-import Image from "next/image";
-import BusinessSkImg from "@/public/business.png";
 import Link from "next/link";
 import { IService } from "@/interfaces/service.interface";
+import { MdOutlineWorkHistory } from "react-icons/md";
+
+
 
 interface Props {}
 export const metadata: Metadata = {
@@ -58,7 +59,7 @@ async function getServicesData() {
         Authorization: `Bearer ${token?.value}`,
       },
     };
-    
+
     const allServices = await axiosReq.get(
       `/business/service/get/user/${ownerID?.value}`,
       authHeader
@@ -81,40 +82,34 @@ const MiEmpresa: NextPage<Props> = async ({}) => {
 
   return (
     <>
-      <header className="flex justify-center w-full mt-5 mb-5 md:mt-7 md:mb-7 h-fit">
-        <h4 style={{ fontSize: "22px" }} className="font-bold uppercase ">
-          Mi Empresa
-        </h4>
-      </header>
-      <div className="flex justify-center w-full mt-5 h-fit">
-        {typeof data !== "string" && (
-          <div className={`${styles.cont} mb-5`}>
-            <FormMiEmpresa businessData={data} servicesData={services} />
-          </div>
-        )}
-
-        {typeof data === "string" && (
-          <div className="flex w-full h-full mt-10 md:mt-16 backdrop-blur-sm">
-
-            <div
-              className="absolute flex flex-col items-center justify-center w-full h-full gap-5 bg-opacity-20 backdrop-blur-sm rounded-xl"
-              style={{
-                boxShadow: "-10px 10px 25px 1px rgba(0,0,0,0.22)",
-                WebkitBoxShadow: "7px 10px 25px 1px rgba(0,0,0,0.22)",
-                MozBoxShadow: "7px 10px 25px 1px rgba(0,0,0,0.22)",
-                backgroundColor: "rgb(0,0,0, 0.12)",
-              }}
+      {typeof data === "string" && (
+        <div
+              style={{ height: "calc(100vh - 64px)" }}
+              className="flex flex-col items-center justify-center w-full gap-6 px-4 text-center min-w-40"
             >
-              <h4 className="text-2xl font-semibold">
+              <MdOutlineWorkHistory color="#dd4924" size={100}/>
+              <span className="font-semibold sm:text-lg md:text-xl">
                 No tenés una empresa creada.
-              </h4>
+              </span>
               <Link href="/admin/miempresa/create">
-                <button className={styles.button}>Crear empresa</button>
+                <button className={styles.button} >Crear empresa</button>              
               </Link>
             </div>
+      )}
+      {typeof data !== "string" && (
+        <>
+          <header className="flex justify-center w-full mt-5 mb-5 md:mt-7 md:mb-7 h-fit">
+            <h4 style={{ fontSize: "22px" }} className="font-bold uppercase ">
+              Mi Empresa
+            </h4>
+          </header>
+          <div className="flex justify-center w-full mt-5 h-fit">
+            <div className={`${styles.cont} mb-5`}>
+              <FormMiEmpresa businessData={data} servicesData={services} />
+            </div>
           </div>
-        )}
-      </div>
+        </>
+      )}
     </>
   );
 };
