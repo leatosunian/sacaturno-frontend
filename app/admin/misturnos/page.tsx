@@ -63,7 +63,7 @@ const MisTurnos: React.FC = async () => {
               style={{ height: "calc(100vh - 64px)" }}
               className="flex flex-col items-center justify-center gap-6 px-4 text-center min-w-40 w-fit"
             >
-              <Image alt="Warning" src={warningImage} width={90} />
+              <Image placeholder="blur" alt="Warning" src={warningImage} width={90} />
               <span className="font-semibold sm:text-lg text-md md:text-xl">
                 ¡Creá tu empresa para comenzar a cargar tus turnos!
               </span>

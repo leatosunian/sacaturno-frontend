@@ -1,30 +1,24 @@
 "use client";
-import { NextPage } from "next";
 import {
   Calendar,
   EventProps,
   Views,
   dayjsLocalizer,
 } from "react-big-calendar";
-
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import dayjs from "dayjs";
 import "dayjs/locale/es-mx";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import AppointmentModal from "./AppointmentModal";
 import { IBusiness } from "@/interfaces/business.interface";
-import axiosReq from "@/config/axios";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import advanced from "dayjs/plugin/advancedFormat";
-import ObjectId, { Types } from "mongoose";
 import { useRouter } from "next/navigation";
 import styles from "@/app/css-modules/CalendarBookAppointment.module.css";
 import BookAppointmentModal from "./BookAppointmentModal";
 import AlertInterface from "@/interfaces/alert.interface";
 import Alert from "./Alert";
-import { IService } from "@/interfaces/service.interface";
 
 dayjs.locale("es-mx");
 const localizer = dayjsLocalizer(dayjs);

@@ -14,12 +14,12 @@ const Alert: React.FC<Props> = ({alertType, msg, error}) => {
         <div className='notificationImgCont'>
           {
             alertType === 'OK_ALERT' &&
-            <Image src={correct} alt="" className='notificationImage'/>
+            <Image placeholder='blur' src={correct} alt="" className='notificationImage'/>
           }
           
           {
             alertType === 'ERROR_ALERT' &&
-            <Image src={remove} alt="" className='notificationImage'/>
+            <Image placeholder='blur' src={remove} alt="" className='notificationImage'/>
           }
           <span>{msg}</span>
         </div>

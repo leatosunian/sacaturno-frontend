@@ -1,5 +1,4 @@
 "use client";
-import { NextPage } from "next";
 import {
   Calendar,
   EventProps,
@@ -16,7 +15,6 @@ import { IBusiness } from "@/interfaces/business.interface";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import advanced from "dayjs/plugin/advancedFormat";
-import ObjectId, { Types } from "mongoose";
 import { useRouter } from "next/navigation";
 import styles from "@/app/css-modules/CalendarTurnos.module.css";
 import CreateAppointmentModal from "./CreateAppointmentModal";
@@ -60,34 +58,6 @@ interface eventType2 {
 }
 
 type Keys = keyof typeof Views;
-
-const turnosList = [
-  {
-    start: dayjs("2024-02-05T11:00:00").toDate(),
-    end: dayjs("2024-02-05T12:00:00").toDate(),
-    title: "Juan Perez",
-  },
-  {
-    start: dayjs("2024-02-05T12:00:00").toDate(),
-    end: dayjs("2024-02-05T13:00:00").toDate(),
-    title: "Leandro Tosunian",
-  },
-  {
-    start: dayjs("2024-02-05T14:00:00").toDate(),
-    end: dayjs("2024-02-05T15:00:00").toDate(),
-    title: "Gabriel Lopez",
-  },
-  {
-    start: dayjs("2024-02-05T8:00:00").toDate(),
-    end: dayjs("2024-02-05T9:00:00").toDate(),
-    title: "Adrian Benitez",
-  },
-  {
-    start: dayjs("2024-02-05T10:00:00").toDate(),
-    end: dayjs("2024-02-05T11:00:00").toDate(),
-    title: "Agustin Perez",
-  },
-];
 
 const messages = {
   allDay: "Todo el día",
