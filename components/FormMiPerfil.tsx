@@ -20,7 +20,6 @@ interface Props {
 
 interface formInputs {
   name: string;
-  surname: string;
   phone: number;
   email: string;
 }
@@ -40,7 +39,6 @@ const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
   const router = useRouter();
   useEffect(() => {
     setValue("name", profileData.response_data.name);
-    setValue("surname", profileData.response_data.surname);
     setValue("phone", profileData.response_data.phone);
     setValue("email", profileData.response_data.email);
     return setProfile(profileData.response_data);
@@ -185,30 +183,33 @@ const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
             hidden
           />
         </div>
-        <div className="flex flex-col justify-between w-full gap-5 md:w-1/2 md:gap-3">
+        <div className="flex flex-col justify-center w-full gap-5 md:w-1/2 md:gap-5">
           <div className={styles.formInput}>
-            <span style={{fontSize:'12px'}} className="font-bold uppercase ">Nombre</span>
+            <span style={{ fontSize: "12px" }} className="font-bold uppercase ">
+              Nombre
+            </span>
             <input type="text" {...register("name")} maxLength={30} />
-            {/* {
-                  errors.name?.message && <span className='text-xs font-semibold text-red-600'> {errors.name.message} </span>
-                } */}
+            {errors.name?.message && (
+              <span className="text-xs font-semibold text-red-600">
+                {errors.name.message}
+              </span>
+            )}
           </div>
           <div className={styles.formInput}>
-            <span style={{fontSize:'12px'}} className="font-bold uppercase ">Apellido</span>
-            <input type="text" {...register("surname")} maxLength={30} />
-            {/* {
-                  errors.surname?.message && <span className='text-xs font-semibold text-red-600'> {errors.surname.message} </span>
-                }    */}
-          </div>
-          <div className={styles.formInput}>
-            <span style={{fontSize:'12px'}} className="font-bold uppercase ">Email</span>
+            <span style={{ fontSize: "12px" }} className="font-bold uppercase ">
+              Email
+            </span>
             <input type="email" {...register("email")} maxLength={40} />
-            {/* {
-                  errors.email?.message && <span className='text-xs font-semibold text-red-600'> {errors.email.message} </span>
-                }    */}
+            {errors.email?.message && (
+              <span className="text-xs font-semibold text-red-600">
+                {errors.email.message}
+              </span>
+            )}
           </div>
           <div className={styles.formInput}>
-            <span style={{fontSize:'12px'}} className="font-bold uppercase ">Número de teléfono</span>
+            <span style={{ fontSize: "12px" }} className="font-bold uppercase ">
+              Número de teléfono
+            </span>
             <input
               type="number"
               {...register("phone")}
@@ -216,9 +217,11 @@ const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
               pattern="[0-9]*"
               inputMode="numeric"
             />
-            {/* {
-                  errors.phone?.message && <span className='text-xs font-semibold text-red-600'> {errors.phone.message} </span>
-                }                 */}
+            {errors.phone?.message && (
+              <span className="text-xs font-semibold text-red-600">
+                {errors.phone.message}
+              </span>
+            )}
           </div>
         </div>
         <button
