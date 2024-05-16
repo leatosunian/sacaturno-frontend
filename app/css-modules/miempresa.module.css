@@ -222,15 +222,25 @@
     -o-transform: translate(310px, -25px);
 }
 
+.configArrows {
+    width: 55vw;
+}
+
 @media (max-width: 1300px) {
     .cont {
         width: 70%;
         
     }
-
+    .configArrows {
+        width: 70vw;
+    }
 }
 
 @media (max-width: 768px) {
+    .configArrows {
+        width: 90vw;
+    }
+    
     .cont {
         width: 90%;
         padding: 25px 20px ;

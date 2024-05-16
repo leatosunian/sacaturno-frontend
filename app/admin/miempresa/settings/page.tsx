@@ -1,13 +1,13 @@
 import { Metadata, NextPage } from "next";
-import styles from "../../css-modules/miempresa.module.css";
-import FormMiEmpresa from "@/components/FormMiEmpresa";
+import styles from "@/app/css-modules/miempresa.module.css";
 import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { IService } from "@/interfaces/service.interface";
 import { MdOutlineWorkHistory } from "react-icons/md";
-import { FaArrowRight } from "react-icons/fa6";
+import FormSettings from "@/components/FormSettings";
+import { FaArrowLeft } from "react-icons/fa6";
 
 interface Props {}
 export const metadata: Metadata = {
@@ -75,7 +75,7 @@ async function getServicesData() {
   }
 }
 
-const MiEmpresa: NextPage<Props> = async ({}) => {
+const Settings: NextPage<Props> = async ({}) => {
   const services: IService[] = await getServicesData();
   const data: IBusiness = await getBusinessData();
 
@@ -103,17 +103,20 @@ const MiEmpresa: NextPage<Props> = async ({}) => {
             </h4>
           </header>
           <div className="flex flex-col justify-center w-full mt-5 h-fit">
-            <div className={`${styles.cont}`}>
-              <FormMiEmpresa businessData={data} servicesData={services} />
+            <div className={`${styles.cont} mb-5`}>
+              <FormSettings businessData={data} servicesData={services} />
             </div>
-            <div className={`mx-auto flex justify-end my-9 h-fit lg:my-4 ${styles.configArrows}`}>
+
+            <div
+              className={`mx-auto flex justify-start my-3 h-fit lg:my-4 ${styles.configArrows}`}
+            >
               <Link
                 className="flex items-center gap-2 text-xs font-semibold uppercase"
                 style={{ color: "#dd4924" }}
-                href="/admin/miempresa/settings"
+                href="/admin/miempresa"
               >
-                Servicios y suscripciones
-                <FaArrowRight />
+                <FaArrowLeft />
+                Datos de mi empresa
               </Link>
             </div>
           </div>
@@ -123,4 +126,4 @@ const MiEmpresa: NextPage<Props> = async ({}) => {
   );
 };
 
-export default MiEmpresa;
+export default Settings;
