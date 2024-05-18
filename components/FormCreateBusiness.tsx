@@ -20,6 +20,8 @@ interface formInputs {
   appointmentDuration: string;
   dayStart: string;
   dayEnd: string;
+  email: string;
+  phone: number;
 }
 
 const FormCreateBusiness: React.FC = () => {
@@ -95,7 +97,7 @@ const FormCreateBusiness: React.FC = () => {
         hideAlert();
         setTimeout(() => {
           router.push("/admin/miempresa");
-          router.refresh()
+          router.refresh();
         }, 3000);
       }
     } catch (error) {
@@ -159,6 +161,36 @@ const FormCreateBusiness: React.FC = () => {
               {errors.address?.message && (
                 <span className="text-xs font-semibold text-red-600">
                   {errors.address.message}
+                </span>
+              )}
+            </div>
+
+            <div className={styles.formInput}>
+              <span
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Email de contacto
+              </span>
+              <input type="text" {...register("email")} maxLength={40} />
+              {errors.email?.message && (
+                <span className="text-xs font-semibold text-red-600">
+                  {errors.email.message}
+                </span>
+              )}
+            </div>
+
+            <div className={styles.formInput}>
+              <span
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Teléfono de contacto
+              </span>
+              <input type="text" {...register("phone")} maxLength={40} />
+              {errors.phone?.message && (
+                <span className="text-xs font-semibold text-red-600">
+                  {errors.phone.message}
                 </span>
               )}
             </div>
@@ -247,14 +279,18 @@ const FormCreateBusiness: React.FC = () => {
         </div>
 
         <div className="flex flex-col items-start justify-center w-full gap-5 mt-5 md:items-center md:flex-row">
-          <button onClick={createBusiness} type="submit" className={"inputSubmitField hidden "} />
+          <button
+            onClick={createBusiness}
+            type="submit"
+            className={"inputSubmitField hidden "}
+          />
         </div>
       </form>
 
-        <button onClick={handleSubmitClick} className={styles.button}>
-          <MdOutlineAddBusiness size={20} />
-          Crear empresa
-        </button>
+      <button onClick={handleSubmitClick} className={styles.button}>
+        <MdOutlineAddBusiness size={20} />
+        Crear empresa
+      </button>
       {/* ALERT */}
       {alert?.error && (
         <div className="flex justify-center w-full h-fit">

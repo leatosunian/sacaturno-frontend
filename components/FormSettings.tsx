@@ -12,20 +12,24 @@ import { useRouter } from "next/navigation";
 import Alert from "./Alert";
 import UpgradePlanModal from "./UpgradePlanModal";
 import Link from "next/link";
-import { FaArrowLeft } from "react-icons/fa6";
+import { FaArrowLeft, FaMedal } from "react-icons/fa6";
+import ISubscription from "@/interfaces/subscriptionDisplay.interface";
 
 const FormSettings = ({
   businessData,
   servicesData,
+  subscriptionData,
 }: {
   businessData: IBusiness;
   servicesData: IService[];
+  subscriptionData: any;
 }) => {
   // STATES
   const [services, setServices] = useState<IService[]>();
   const [newService, setNewService] = useState("");
   const [alert, setAlert] = useState<AlertInterface>();
   const [upgradePlanModal, setUpgradePlanModal] = useState(false);
+  console.log(subscriptionData);
 
   const router = useRouter();
   // USEFFECTS
@@ -41,14 +45,18 @@ const FormSettings = ({
   };
 
   const addService = async () => {
-    if (businessData.subscription === "SC_FREE" && servicesData.length > 0) {
+    if (
+      subscriptionData.subscriptionType === "SC_FREE" &&
+      servicesData.length > 0
+    ) {
       setUpgradePlanModal(true);
       return;
     }
 
     if (
-      businessData.subscription === "SC_FULL" ||
-      (businessData.subscription === "SC_FREE" && servicesData.length === 0)
+      subscriptionData.subscriptionType === "SC_FULL" ||
+      (subscriptionData.subscriptionType === "SC_FREE" &&
+        servicesData.length === 0)
     ) {
       if (newService !== "" && services) {
         try {
@@ -223,31 +231,79 @@ const FormSettings = ({
           Mi Plan
         </h3>
 
-        <div className="flex flex-col justify-between w-full gap-4 px-4 md:px-16 md:gap-0 h-fit md:flex-row">
+        <div className="flex flex-col justify-between w-full gap-4 px-4 md:px-20 md:gap-0 h-fit md:flex-row">
           <div className="flex flex-col gap-4">
             <div className="flex flex-col">
               <b className="text-xs uppercase">Plan actual</b>
-              <span className="text-xs font-semibold uppercase">Plan Free</span>
+              {subscriptionData.subscriptionType === "SC_FREE" && (
+                <span className="text-xs font-semibold uppercase">
+                  Plan Free
+                </span>
+              )}
+              {subscriptionData.subscriptionType === "SC_FULL" && (
+                <span className="flex items-center gap-1 text-xs font-semibold uppercase">
+                  <FaMedal color="#dd4924" />
+                  Plan Full
+                </span>
+              )}
             </div>
 
             <div className="flex flex-col">
               <b className="text-xs uppercase">Estado del plan</b>
-              <span className="text-xs font-semibold text-green-600 uppercase">● Activo</span>
+              {subscriptionData.subscriptionType === "SC_FREE" && (
+                <span className="text-xs font-semibold text-green-600 uppercase">
+                  ● Activo
+                </span>
+              )}
+              {subscriptionData.subscriptionType === "SC_FULL" && (
+                <span className="text-xs font-semibold text-green-600 uppercase">
+                  ● Activo
+                </span>
+              )}
+              {subscriptionData.subscriptionType === "SC_EXPIRED" && (
+                <span className="text-xs font-semibold text-red-600 uppercase">
+                  ● Vencido
+                </span>
+              )}
             </div>
           </div>
 
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col">
-              <b className="text-xs uppercase">Fecha de pago</b>
-              <span className="text-xs font-semibold uppercase">18/04/2024</span>
-            </div>
-            <div className="flex flex-col">
-              <b className="text-xs uppercase">Fecha de vencimiento</b>
-              <span className="text-xs font-semibold uppercase">18/04/2024</span>
-            </div>
+            {subscriptionData.subscriptionType === "SC_FREE" && (
+              <>
+                <div className="flex flex-col">
+                  <b className="text-xs uppercase">Fecha de activación</b>
+                  <span className="text-xs font-semibold uppercase">
+                    {subscriptionData.paymentDate}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <b className="text-xs uppercase">Fecha de vencimiento</b>
+                  <span className="text-xs font-semibold uppercase">
+                    {subscriptionData.expiracyDate}
+                  </span>
+                </div>
+              </>
+            )}
+
+            {subscriptionData.subscriptionType === "SC_FULL" && (
+              <>
+                <div className="flex flex-col">
+                  <b className="text-xs uppercase">Fecha de pago</b>
+                  <span className="text-xs font-semibold uppercase">
+                    {subscriptionData.paymentDate}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <b className="text-xs uppercase">Fecha de vencimiento</b>
+                  <span className="text-xs font-semibold uppercase">
+                    {subscriptionData.expiracyDate}
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
-
       </div>
       {/* <div className="flex justify-start w-full px-4 my-3 h-fit lg:my-0">
         <Link className="flex items-center gap-2 text-xs font-semibold uppercase" style={{color:'#dd4924'}} href="/admin/miempresa">

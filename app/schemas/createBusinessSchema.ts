@@ -1,5 +1,4 @@
 import {z} from 'zod'
-import { timeOptions } from '@/helpers/timeOptions'
 
 export const createBusinessSchema = z.object({
     name: z.string().min(3, {
@@ -18,6 +17,12 @@ export const createBusinessSchema = z.object({
         message: 'Ingresá un domicilio'
     }).max(50, {
         message: 'El domicilio debe tener menos de 50 caractéres'
+    }),
+
+    phone: z.coerce.number().gte(8, 'Ingresa un número válido'),
+
+    email: z.string().email({
+        message: 'Ingresá un correo válido'
     }),
 
     appointmentDuration: z.string(),

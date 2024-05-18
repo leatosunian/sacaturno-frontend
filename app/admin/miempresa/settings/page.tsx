@@ -8,8 +8,9 @@ import { IService } from "@/interfaces/service.interface";
 import { MdOutlineWorkHistory } from "react-icons/md";
 import FormSettings from "@/components/FormSettings";
 import { FaArrowLeft } from "react-icons/fa6";
+import dayjs from "dayjs";
+import ISubscription from "@/interfaces/subscription.interface";
 
-interface Props {}
 export const metadata: Metadata = {
   title: "Mi Empresa - SacaTurno",
   description: "IT-related blog for devs",
@@ -75,9 +76,53 @@ async function getServicesData() {
   }
 }
 
-const Settings: NextPage<Props> = async ({}) => {
+async function getSubscriptionData() {
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("sacaturno_token");
+    const ownerID = cookieStore.get("sacaturno_userID");
+    const authHeader = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token?.value}`,
+      },
+    };
+    const subscriptionData = await axiosReq.get(
+      `/subscription/get/ownerID/${ownerID?.value}`,
+      authHeader
+    );
+
+   
+    console.log(dayjs(subscriptionData.data.paymentDate).format('DD/MM/YYYY'));
+    if(subscriptionData.data) {
+
+      const subscription = {
+        businessID: subscriptionData.data.businessID,
+        ownerID: subscriptionData.data.ownerID,
+        subscriptionType: subscriptionData.data.subscriptionType,
+        paymentDate: dayjs(subscriptionData.data.paymentDate).format('DD/MM/YYYY'),
+        expiracyDate: dayjs(subscriptionData.data.expiracyDate).format('DD/MM/YYYY')
+      }
+    
+      return subscription;
+    }
+    
+  } catch (error) {
+    const response_data = {
+      businessID: "",
+      ownerID: "",
+      subscriptionType: "",
+      paymentDate: '',
+      expiracyDate: '',
+    };
+    return { response_data };
+  }
+}
+
+const Settings: NextPage = async ({}) => {
   const services: IService[] = await getServicesData();
   const data: IBusiness = await getBusinessData();
+  const subscription = await getSubscriptionData();
 
   return (
     <>
@@ -104,7 +149,7 @@ const Settings: NextPage<Props> = async ({}) => {
           </header>
           <div className="flex flex-col justify-center w-full mt-5 h-fit">
             <div className={`${styles.cont} mb-5`}>
-              <FormSettings businessData={data} servicesData={services} />
+              <FormSettings businessData={data} servicesData={services} subscriptionData={subscription} />
             </div>
 
             <div
