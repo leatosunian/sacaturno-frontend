@@ -12,6 +12,7 @@ import Alert from "@/components/Alert";
 import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
 import { createBusinessSchema } from "@/app/schemas/createBusinessSchema";
+import dayjs from "dayjs";
 
 interface formInputs {
   name: string;
@@ -58,7 +59,6 @@ const FormCreateBusiness: React.FC = () => {
   };
 
   const createBusiness = async (data: FieldValues) => {
-    console.log(data);
     setAlert({
       msg: "",
       error: false,
