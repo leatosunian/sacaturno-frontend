@@ -131,6 +131,33 @@ const FormSettings = ({
   };
 
   const handleEditService = async () => {};
+
+  const handleMercadoPagoPreference = async () => {
+    const token = localStorage.getItem("sacaturno_token");
+    const authHeader = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const data = {
+      title: "Plan Full",
+      businessID: businessData._id,
+      ownerID: businessData.ownerID,
+      email: businessData.email,
+      quantity: 1,
+      currency_id: "ARS",
+    };
+    console.log(data);
+    
+    try {
+      const preference = await axiosReq.post("/subscription/pay/full", data,authHeader);
+      router.push(preference.data.sandbox_init_point)
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <>
       {upgradePlanModal && (
@@ -304,6 +331,12 @@ const FormSettings = ({
             )}
           </div>
         </div>
+      </div>
+
+      <div>
+        <button onClick={handleMercadoPagoPreference} className={styles.button}>
+          Actualizar plan
+        </button>
       </div>
       {/* <div className="flex justify-start w-full px-4 my-3 h-fit lg:my-0">
         <Link className="flex items-center gap-2 text-xs font-semibold uppercase" style={{color:'#dd4924'}} href="/admin/miempresa">
