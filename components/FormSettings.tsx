@@ -163,7 +163,7 @@ const FormSettings = ({
   return (
     <>
       {upgradePlanModal && (
-        <UpgradePlanModal closeModalF={() => setUpgradePlanModal(false)} />
+        <UpgradePlanModal createPreference={handleMercadoPagoPreference} closeModalF={() => setUpgradePlanModal(false)} />
       )}
 
       {/* SERVICES SECTION */}

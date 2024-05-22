@@ -7,9 +7,13 @@ import { IoMdClose } from "react-icons/io";
 
 interface props {
   closeModalF: () => void;
+  createPreference: () => void;
 }
 
-const UpgradePlanModal: React.FC<props> = ({closeModalF}) => {
+const UpgradePlanModal: React.FC<props> = ({
+  closeModalF,
+  createPreference,
+}) => {
   const closeModal = () => {
     closeModalF();
   };
@@ -44,9 +48,9 @@ const UpgradePlanModal: React.FC<props> = ({closeModalF}) => {
               </label>
             </div>
           </div>
-          <Link href={"/admin/miempresa"}>
-            <button className={styles.button}>Comprar plan</button>
-          </Link>
+
+          <button onClick={createPreference} className={styles.button}>Comprar plan</button>
+
         </div>
       </div>
     </>
