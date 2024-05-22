@@ -92,10 +92,7 @@ async function getSubscriptionData() {
       authHeader
     );
 
-   
-    console.log(dayjs(subscriptionData.data.paymentDate).format('DD/MM/YYYY'));
     if(subscriptionData.data) {
-
       const subscription = {
         businessID: subscriptionData.data.businessID,
         ownerID: subscriptionData.data.ownerID,
@@ -105,7 +102,6 @@ async function getSubscriptionData() {
         expiracyDay: subscriptionData.data.expiracyDay,
         expiracyMonth: subscriptionData.data.expiracyMonth
       }
-    
       return subscription;
     }
     

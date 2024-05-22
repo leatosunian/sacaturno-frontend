@@ -15,6 +15,7 @@ import Link from "next/link";
 import { FaArrowLeft, FaMedal } from "react-icons/fa6";
 import ISubscription from "@/interfaces/subscriptionDisplay.interface";
 import dayjs from "dayjs";
+import ExpiredPlanModal from "./ExpiredPlanModal";
 
 const FormSettings = ({
   businessData,
@@ -165,7 +166,9 @@ const FormSettings = ({
       {upgradePlanModal && (
         <UpgradePlanModal createPreference={handleMercadoPagoPreference} closeModalF={() => setUpgradePlanModal(false)} />
       )}
-
+      {/* {subscriptionData.subscriptionType === 'SC_EXPIRED' && (
+        <ExpiredPlanModal createPreference={handleMercadoPagoPreference} />
+      )} */}
       {/* SERVICES SECTION */}
       <div className="flex flex-col w-fit h-fit">
         <h3 className="mb-8 text-xl font-bold text-center uppercase md:mb-4 ">
@@ -257,7 +260,7 @@ const FormSettings = ({
 
         {subscriptionData.subscriptionType !== "SC_EXPIRED" && (
           <>
-            <div className="flex flex-col justify-between w-full gap-4 px-4 md:px-20 md:gap-0 h-fit md:flex-row">
+            <div className="flex flex-col justify-between w-full gap-4 px-4 mb-5 md:px-20 md:gap-0 h-fit md:flex-row">
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col">
                   {subscriptionData.subscriptionType === "SC_FREE" && (

@@ -20,14 +20,16 @@ import styles from "@/app/css-modules/CalendarTurnos.module.css";
 import CreateAppointmentModal from "./CreateAppointmentModal";
 import { IService } from "@/interfaces/service.interface";
 import NoServicesModal from "./NoServicesModal";
+import ISubscription from "@/interfaces/subscription.interface";
+import ExpiredPlanModal from "./ExpiredPlanModal";
 
 dayjs.locale("es-mx");
-const localizer = dayjsLocalizer(dayjs);
 
 interface Props {
   appointments: IAppointment[];
   businessData: IBusiness;
   servicesData: IService[];
+  subscriptionData: ISubscription | undefined;
 }
 
 interface eventType {
@@ -71,7 +73,7 @@ const messages = {
   time: "Hora",
 };
 
-const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesData }) => {
+const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesData, subscriptionData }) => {
   var now = dayjs();
   const localizer = dayjsLocalizer(dayjs);
   const [appointmentsData, setAppointmentsData] = useState<IAppointment[]>();
@@ -84,16 +86,19 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesD
     useState<IAppointment>();
   const [view, setView] = useState<(typeof Views)[Keys]>(Views.DAY);
   const [date, setDate] = useState<Date>(now.toDate());
-
+  const [expiredModal, setExpiredModal] = useState(false)
   const router = useRouter();
-
+  
   useEffect(() => {
     setAppointmentsData(appointments);
     setBusiness(businessData);
     setServices(servicesData);
     parseAppointments(appointments);
+    if(subscriptionData?.subscriptionType === 'SC_EXPIRED'){
+      setExpiredModal(true)
+    }
     return;
-  }, [appointments, businessData, services, servicesData]);
+  }, [appointments, businessData, services, servicesData, subscriptionData]);
 
   useEffect(() => {
     parseAppointments(appointmentsData);
@@ -269,6 +274,9 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesD
       )}
       {servicesData.length === 0 && (
         <NoServicesModal />
+      )}
+      {expiredModal && (
+        <ExpiredPlanModal businessData={business} />
       )}
 
       <div className="flex flex-col w-full h-fit ">
