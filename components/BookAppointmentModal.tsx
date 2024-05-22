@@ -1,14 +1,13 @@
 "use client";
 import axiosReq from "@/config/axios";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styles from "@/app/css-modules/BookAppointmentModal.module.css";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldValues, useForm } from "react-hook-form";
 import { bookAppointmentSchema } from "@/app/schemas/bookAppointmentSchema";
 import { IoMdClose } from "react-icons/io";
-import Image from "next/image";
-import correctIcon from "@/public/correct.png";
+import { BsFillCheckCircleFill } from "react-icons/bs";
 
 interface eventType2 {
   start: string;
@@ -39,7 +38,7 @@ const BookAppointmentModal: React.FC<props> = ({
   closeModalF,
 }) => {
   const [spinner, setSpinner] = useState(false);
-  const [bookedModal, setBookedModal] = useState(false);
+  const [bookedModal, setBookedModal] = useState(true);
   const [bookedAppointmentData, setBookedAppointmentData] =
     useState<eventType2>();
 
@@ -70,7 +69,7 @@ const BookAppointmentModal: React.FC<props> = ({
       bookingData
     );
     console.log(bookedAppointment);
-    
+
     setBookedModal(true);
     setBookedAppointmentData(bookedAppointment.data);
     setSpinner(false);
@@ -226,10 +225,15 @@ const BookAppointmentModal: React.FC<props> = ({
               size={22}
             />
             <div className="flex flex-col items-center w-full gap-4 h-fit ">
-              <Image
-                src={correctIcon}
-                style={{ width: "60px", height: "60px" }}
-                alt="Correct"
+              <BsFillCheckCircleFill
+                className="hidden md:block"
+                size={70}
+                color="#4bc720"
+              />
+              <BsFillCheckCircleFill
+                className="block md:hidden"
+                size={60}
+                color="#4bc720"
               />
               <h4 className="mb-6 text-xl font-bold text-center uppercase ">
                 Turno reservado
@@ -305,7 +309,6 @@ const BookAppointmentModal: React.FC<props> = ({
                 Cancelar turno
               </button>
             </div>
-
           </div>
         </div>
       )}

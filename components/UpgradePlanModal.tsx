@@ -3,7 +3,7 @@ import styles from "@/app/css-modules/NoServicesModal.module.css";
 import Link from "next/link";
 import warningIcon from "@/public/warning.png";
 import Image from "next/image";
-import { IoMdClose } from "react-icons/io";
+import { IoIosAlert, IoMdClose } from "react-icons/io";
 
 interface props {
   closeModalF: () => void;
@@ -28,11 +28,7 @@ const UpgradePlanModal: React.FC<props> = ({
             size={22}
           />
           <div className="flex flex-col items-center w-full gap-4 h-fit ">
-            <Image
-              src={warningIcon}
-              style={{ width: "60px", height: "60px" }}
-              alt="Correct"
-            />
+            <IoIosAlert size={100} color="#d7a954" />
             <h4 className="mb-6 text-xl font-bold text-center uppercase ">
               Actualiza tu plan
             </h4>
@@ -49,8 +45,9 @@ const UpgradePlanModal: React.FC<props> = ({
             </div>
           </div>
 
-          <button onClick={createPreference} className={styles.button}>Comprar plan</button>
-
+          <button onClick={createPreference} className={styles.button}>
+            Comprar plan
+          </button>
         </div>
       </div>
     </>
