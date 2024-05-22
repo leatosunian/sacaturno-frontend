@@ -7,13 +7,14 @@ import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
 import { FaEdit } from "react-icons/fa";
 import { RxCross2 } from "react-icons/rx";
-import { IoMdAdd } from "react-icons/io";
+import { IoMdAdd, IoMdAlert } from "react-icons/io";
 import { useRouter } from "next/navigation";
 import Alert from "./Alert";
 import UpgradePlanModal from "./UpgradePlanModal";
 import Link from "next/link";
 import { FaArrowLeft, FaMedal } from "react-icons/fa6";
 import ISubscription from "@/interfaces/subscriptionDisplay.interface";
+import dayjs from "dayjs";
 
 const FormSettings = ({
   businessData,
@@ -29,9 +30,9 @@ const FormSettings = ({
   const [newService, setNewService] = useState("");
   const [alert, setAlert] = useState<AlertInterface>();
   const [upgradePlanModal, setUpgradePlanModal] = useState(false);
-  console.log(subscriptionData);
 
   const router = useRouter();
+
   // USEFFECTS
   useEffect(() => {
     setServices(servicesData);
@@ -130,8 +131,6 @@ const FormSettings = ({
     }
   };
 
-  const handleEditService = async () => {};
-
   const handleMercadoPagoPreference = async () => {
     const token = localStorage.getItem("sacaturno_token");
     const authHeader = {
@@ -148,11 +147,14 @@ const FormSettings = ({
       quantity: 1,
       currency_id: "ARS",
     };
-    console.log(data);
-    
+
     try {
-      const preference = await axiosReq.post("/subscription/pay/full", data,authHeader);
-      router.push(preference.data.sandbox_init_point)
+      const preference = await axiosReq.post(
+        "/subscription/pay/full",
+        data,
+        authHeader
+      );
+      router.push(preference.data.sandbox_init_point);
     } catch (error) {
       console.log(error);
     }
@@ -219,12 +221,7 @@ const FormSettings = ({
                     <span className="mr-4 text-xs font-semibold uppercase">
                       {service.name}
                     </span>
-                    <button
-                      onClick={handleEditService}
-                      className={styles.button}
-                    >
-                      <FaEdit size={12} />
-                    </button>
+
                     <button
                       className={styles.button}
                       key={service._id}
@@ -253,91 +250,137 @@ const FormSettings = ({
       </div>
       {/* DIVIDER */}
 
-      <div className="flex flex-col w-full mb-7 md:mb-12 h-fit">
+      <div className="flex flex-col w-full h-fit">
         <h3 className="mb-8 text-xl font-bold text-center uppercase md:mb-4 ">
           Mi Plan
         </h3>
 
-        <div className="flex flex-col justify-between w-full gap-4 px-4 md:px-20 md:gap-0 h-fit md:flex-row">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col">
-              <b className="text-xs uppercase">Plan actual</b>
-              {subscriptionData.subscriptionType === "SC_FREE" && (
-                <span className="text-xs font-semibold uppercase">
-                  Plan Free
-                </span>
-              )}
-              {subscriptionData.subscriptionType === "SC_FULL" && (
-                <span className="flex items-center gap-1 text-xs font-semibold uppercase">
-                  <FaMedal color="#dd4924" />
-                  Plan Full
-                </span>
-              )}
+        {subscriptionData.subscriptionType !== "SC_EXPIRED" && (
+          <>
+            <div className="flex flex-col justify-between w-full gap-4 px-4 md:px-20 md:gap-0 h-fit md:flex-row">
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col">
+                  {subscriptionData.subscriptionType === "SC_FREE" && (
+                    <>
+                      <b className="text-xs uppercase">Plan actual</b>
+                      <span className="text-xs font-semibold uppercase">
+                        Plan Free
+                      </span>
+                    </>
+                  )}
+                  {subscriptionData.subscriptionType === "SC_FULL" && (
+                    <>
+                      <b className="text-xs uppercase">Plan actual</b>
+                      <span className="flex items-center gap-1 text-xs font-semibold uppercase">
+                        <FaMedal color="#dd4924" />
+                        Plan Full
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                <div className="flex flex-col">
+                  {subscriptionData.subscriptionType === "SC_FREE" && (
+                    <>
+                      <b className="text-xs uppercase">Estado del plan</b>
+                      <span className="text-xs font-semibold text-green-600 uppercase">
+                        ● Activo
+                      </span>
+                    </>
+                  )}
+                  {subscriptionData.subscriptionType === "SC_FULL" && (
+                    <>
+                      <b className="text-xs uppercase">Estado del plan</b>
+                      <span className="text-xs font-semibold text-green-600 uppercase">
+                        ● Activo
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                {subscriptionData.subscriptionType === "SC_FREE" && (
+                  <>
+                    <div className="flex flex-col">
+                      <b className="text-xs uppercase">Fecha de activación</b>
+                      <span className="text-xs font-semibold uppercase">
+                        {subscriptionData.paymentDate}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <b className="text-xs uppercase">Fecha de vencimiento</b>
+                      <span className="text-xs font-semibold uppercase">
+                        {subscriptionData.expiracyDate}
+                      </span>
+                    </div>
+                  </>
+                )}
+
+                {subscriptionData.subscriptionType === "SC_FULL" && (
+                  <>
+                    <div className="flex flex-col">
+                      <b className="text-xs uppercase">Fecha de pago</b>
+                      <span className="text-xs font-semibold uppercase">
+                        {subscriptionData.paymentDate}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <b className="text-xs uppercase">Fecha de vencimiento</b>
+                      <span className="text-xs font-semibold uppercase">
+                        {subscriptionData.expiracyDate}
+                      </span>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
-
-            <div className="flex flex-col">
-              <b className="text-xs uppercase">Estado del plan</b>
-              {subscriptionData.subscriptionType === "SC_FREE" && (
-                <span className="text-xs font-semibold text-green-600 uppercase">
-                  ● Activo
-                </span>
-              )}
-              {subscriptionData.subscriptionType === "SC_FULL" && (
-                <span className="text-xs font-semibold text-green-600 uppercase">
-                  ● Activo
-                </span>
-              )}
-              {subscriptionData.subscriptionType === "SC_EXPIRED" && (
-                <span className="text-xs font-semibold text-red-600 uppercase">
-                  ● Vencido
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-4">
-            {subscriptionData.subscriptionType === "SC_FREE" && (
-              <>
-                <div className="flex flex-col">
-                  <b className="text-xs uppercase">Fecha de activación</b>
-                  <span className="text-xs font-semibold uppercase">
-                    {subscriptionData.paymentDate}
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <b className="text-xs uppercase">Fecha de vencimiento</b>
-                  <span className="text-xs font-semibold uppercase">
-                    {subscriptionData.expiracyDate}
-                  </span>
-                </div>
-              </>
-            )}
-
-            {subscriptionData.subscriptionType === "SC_FULL" && (
-              <>
-                <div className="flex flex-col">
-                  <b className="text-xs uppercase">Fecha de pago</b>
-                  <span className="text-xs font-semibold uppercase">
-                    {subscriptionData.paymentDate}
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <b className="text-xs uppercase">Fecha de vencimiento</b>
-                  <span className="text-xs font-semibold uppercase">
-                    {subscriptionData.expiracyDate}
-                  </span>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+          </>
+        )}
       </div>
 
-      <div>
-        <button onClick={handleMercadoPagoPreference} className={styles.button}>
-          Actualizar plan
-        </button>
-      </div>
+      {subscriptionData.subscriptionType === "SC_EXPIRED" && (
+        <>
+          <div className="flex flex-col items-center justify-center gap-2 px-5">
+            <IoMdAlert color="#dd4924" size={40} />
+            <span className="text-xs font-semibold text-center md:text-sm">
+              Tu suscripción ha caducado. Hacé click en el boton debajo para
+              renovar tu plan.
+            </span>
+          </div>
+
+          <div className="mb-2 mt-7">
+            <button
+              onClick={handleMercadoPagoPreference}
+              className={styles.button}
+            >
+              Actualizar plan
+            </button>
+          </div>
+        </>
+      )}
+
+      {subscriptionData.subscriptionType === "SC_FREE" && (
+        <>
+          <div className="flex flex-col items-center justify-center gap-2 px-5 mt-5 md:mt-7 md:flex-row">
+            <IoMdAlert className="hidden md:block" color="#dd4924" size={25} />
+            <IoMdAlert className="block md:hidden" color="#dd4924" size={40} />
+            <span className="text-xs font-semibold md:text-sm">
+              Estás utilizando una prueba gratuita.
+            </span>
+          </div>
+
+          <div className="mt-4 mb-2">
+            <button
+              onClick={handleMercadoPagoPreference}
+              className={styles.button}
+            >
+              Actualizar plan
+            </button>
+          </div>
+        </>
+      )}
+
       {/* <div className="flex justify-start w-full px-4 my-3 h-fit lg:my-0">
         <Link className="flex items-center gap-2 text-xs font-semibold uppercase" style={{color:'#dd4924'}} href="/admin/miempresa">
           <FaArrowLeft />

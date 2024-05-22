@@ -101,7 +101,9 @@ async function getSubscriptionData() {
         ownerID: subscriptionData.data.ownerID,
         subscriptionType: subscriptionData.data.subscriptionType,
         paymentDate: dayjs(subscriptionData.data.paymentDate).format('DD/MM/YYYY'),
-        expiracyDate: dayjs(subscriptionData.data.expiracyDate).format('DD/MM/YYYY')
+        expiracyDate: dayjs(subscriptionData.data.expiracyDate).format('DD/MM/YYYY'),
+        expiracyDay: subscriptionData.data.expiracyDay,
+        expiracyMonth: subscriptionData.data.expiracyMonth
       }
     
       return subscription;
