@@ -37,8 +37,8 @@ interface eventType {
   _id?: string | undefined;
   service: string | undefined;
   status?: "booked" | "unbooked" | undefined;
-  email: string| undefined;
-  phone: number| undefined;
+  email: string | undefined;
+  phone: number | undefined;
   name: string | undefined;
 }
 
@@ -49,8 +49,8 @@ interface eventType2 {
   clientID: string | "" | undefined;
   _id?: string | undefined;
   service: string | undefined;
-  email: string| undefined;
-  phone: number| undefined;
+  email: string | undefined;
+  phone: number | undefined;
   name: string | undefined;
   status?: "booked" | "unbooked" | undefined;
 }
@@ -107,7 +107,19 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
     let appointmentsList: eventType[] = [];
 
     appointments?.map(
-      ({ start, end, title, clientID, businessID, _id, status, service, email, phone, name }) => {
+      ({
+        start,
+        end,
+        title,
+        clientID,
+        businessID,
+        _id,
+        status,
+        service,
+        email,
+        phone,
+        name,
+      }) => {
         let appointmentObj: eventType;
         appointmentObj = {
           start: dayjs(start).tz("America/Argentina/Buenos_Aires").toDate(),
@@ -120,7 +132,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
           service,
           email,
           name,
-          phone
+          phone,
         };
         if (appointmentObj.status === "unbooked") {
           appointmentsList.push(appointmentObj);
@@ -146,7 +158,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
       title: event.title,
       email: event.email,
       phone: event.phone,
-      name: event.name
+      name: event.name,
     };
     setEventData(eventDataObj);
     setBookAppointmentModal(true);
@@ -209,21 +221,34 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
     }
   }, [view, date]);
 
-
+  const handleCancelBooking = (action: string) => {
+    setBookAppointmentModal(false);
+    if (action === "CANCELLED") {
+      setAlert({
+        error: true,
+        alertType: "OK_ALERT",
+        msg: "Cancelaste tu reserva",
+      });
+      router.refresh();
+      hideAlert();
+    }
+  };
 
   return (
     <>
       {bookAppointmentModal && (
         <BookAppointmentModal
+          businessData={businessData}
           appointmentData={eventData}
-          closeModalF={() => setBookAppointmentModal(false)}
-
+          closeModalF={(action) => handleCancelBooking(action)}
         />
       )}
 
       <div className="flex flex-col w-full h-fit ">
         <header className="flex flex-col items-center justify-center w-full mt-4 mb-4 md:mt-7 md:mb-7 h-fit">
-          <h4 className="text-xl font-bold uppercase md:text-2xl">{business?.name}</h4>
+          <h4 className="text-xl font-bold uppercase md:text-2xl">
+            {business?.name}
+          </h4>
           <span className="text-sm uppercase">Reservar turno</span>
         </header>
         <div className="flex-col hidden w-full mb-5 md:flex md:flex-row h-fit">

@@ -8,6 +8,7 @@ import { FieldValues, useForm } from "react-hook-form";
 import { bookAppointmentSchema } from "@/app/schemas/bookAppointmentSchema";
 import { IoMdClose } from "react-icons/io";
 import { BsFillCheckCircleFill } from "react-icons/bs";
+import { IBusiness } from "@/interfaces/business.interface";
 
 interface eventType2 {
   start: string;
@@ -20,11 +21,13 @@ interface eventType2 {
   email: string | undefined;
   name: string | undefined;
   phone: number | undefined;
+  businessEmail?: string | undefined;
 }
 
 interface props {
   appointmentData: eventType2 | undefined;
-  closeModalF: () => void;
+  businessData: IBusiness;
+  closeModalF: (action: string) => void;
 }
 
 interface formInputs {
@@ -36,17 +39,16 @@ interface formInputs {
 const BookAppointmentModal: React.FC<props> = ({
   appointmentData,
   closeModalF,
+  businessData,
 }) => {
   const [spinner, setSpinner] = useState(false);
-  const [bookedModal, setBookedModal] = useState(true);
+  const [bookedModal, setBookedModal] = useState(false);
   const [bookedAppointmentData, setBookedAppointmentData] =
     useState<eventType2>();
 
   const {
     register,
     handleSubmit,
-    watch,
-    setValue,
     formState: { errors },
   } = useForm<formInputs>({
     resolver: zodResolver(bookAppointmentSchema),
@@ -79,7 +81,7 @@ const BookAppointmentModal: React.FC<props> = ({
 
   const closeModal = () => {
     setBookedModal(false);
-    closeModalF();
+    closeModalF("BOOKED");
   };
 
   const handleSubmitClick = () => {
@@ -89,6 +91,30 @@ const BookAppointmentModal: React.FC<props> = ({
 
     if (fileInput != null) {
       fileInput.click();
+    }
+  };
+
+  const handleCancelBooking = async () => {
+    if (bookedAppointmentData) {
+      const data = {
+        _id: bookedAppointmentData._id,
+        start: bookedAppointmentData.start,
+        end: bookedAppointmentData.end,
+        name: bookedAppointmentData.name,
+        phone: bookedAppointmentData.phone,
+        service: bookedAppointmentData.service,
+        email: bookedAppointmentData.email,
+        status: bookedAppointmentData.status,
+        businessEmail: businessData.email
+      };
+
+      const canceledBooking = await axiosReq.put(
+        "/appointment/book/cancel",
+        data
+      );
+      if (canceledBooking) {
+        closeModalF("CANCELLED");
+      }
     }
   };
 
@@ -305,7 +331,10 @@ const BookAppointmentModal: React.FC<props> = ({
             </div>
 
             <div className="flex justify-center w-full align-middle mt-7 h-fit">
-              <button className={styles.buttonRed} onClick={handleSubmitClick}>
+              <button
+                className={styles.buttonRed}
+                onClick={handleCancelBooking}
+              >
                 Cancelar turno
               </button>
             </div>
