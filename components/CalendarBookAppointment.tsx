@@ -77,11 +77,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
   const [eventModal, setEventModal] = useState(false);
   const [eventData, setEventData] = useState<eventType2 | undefined>();
   const [bookAppointmentModal, setBookAppointmentModal] = useState(false);
-  const [bookedAppointmentModal, setBookedAppointmentModal] = useState(false);
-  const [bookedAppointmentData, setBookedAppointmentData] =
     useState<eventType2>();
-  const [bookAppointmentData, setBookAppointmentData] =
-    useState<IAppointment>();
   const [view, setView] = useState<(typeof Views)[Keys]>(Views.DAY);
   const [date, setDate] = useState<Date>(now.toDate());
   const [alert, setAlert] = useState<AlertInterface>();
@@ -195,7 +191,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
   };
 
   const onNextClick = useCallback(() => {
-    if (view === Views.DAY) {
+    if (view === Views.DAY) {     
       setDate(dayjs(date).add(1, "day").toDate());
     }
     if (view === Views.WEEK) {
@@ -204,11 +200,22 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
   }, [view, date]);
 
   const onPrevClick = useCallback(() => {
+    const day = Number(dayjs(date).format('D'))
+    const month = Number(dayjs(date).format('M'))
+    const actualMonth =  dayjs().month()+1
+    const actualDay= dayjs().date()
+    console.log(day, month);
+    console.log(actualDay, actualMonth)
     if (view === Views.DAY) {
-      setDate(dayjs(date).subtract(1, "day").toDate());
+      if( month >= actualMonth  && day > actualDay ){
+        setDate(dayjs(date).subtract(1, "day").toDate());
+      } 
     }
+
     if (view === Views.WEEK) {
-      setDate(dayjs(date).subtract(1, "week").toDate());
+      if(month > actualMonth){
+        setDate(dayjs(date).subtract(1, "week").toDate());
+      }
     }
   }, [view, date]);
 

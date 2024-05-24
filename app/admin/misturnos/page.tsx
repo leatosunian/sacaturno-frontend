@@ -10,6 +10,7 @@ import styles from "@/app/css-modules/CreateAppointmentModal.module.css";
 import Link from "next/link";
 import dayjs from "dayjs";
 import ISubscription from "@/interfaces/subscription.interface";
+import { IoIosAlert } from "react-icons/io";
 
 interface Props {
   appointments: IAppointment[];
@@ -101,12 +102,7 @@ const MisTurnos: React.FC = async () => {
               style={{ height: "calc(100vh - 64px)" }}
               className="flex flex-col items-center justify-center gap-6 px-4 text-center min-w-40 w-fit"
             >
-              <Image
-                placeholder="blur"
-                alt="Warning"
-                src={warningImage}
-                width={90}
-              />
+              <IoIosAlert size={100} color="#d7a954" />
               <span className="font-semibold sm:text-lg text-md md:text-xl">
                 ¡Creá tu empresa para comenzar a cargar tus turnos!
               </span>
