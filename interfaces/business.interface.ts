@@ -3,7 +3,7 @@ export interface IBusiness {
     name: string;
     businessType: string;
     address: string;
-    phone: string;
+    phone: number;
     image: string;
     appointmentDuration: string;
     dayStart: string;
@@ -11,5 +11,6 @@ export interface IBusiness {
     _id?: string;
     email: string;
     subscription?: string;
+    slug: string
   }
   

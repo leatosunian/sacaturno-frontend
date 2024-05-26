@@ -34,6 +34,7 @@ interface formInputs {
   dayEnd: string;
   phone: number;
   email: string;
+  slug: string;
 }
 
 const FormMiEmpresa = ({
@@ -55,21 +56,10 @@ const FormMiEmpresa = ({
 
   const [alert, setAlert] = useState<AlertInterface>();
   const [business, setBusiness] = useState<IBusiness>();
-  const [isBusiness, setIsBusiness] = useState(false);
-  const [newService, setNewService] = useState("");
-  const [services, setServices] = useState<IService[]>();
 
   const router = useRouter();
 
   useEffect(() => {
-    if (
-      typeof businessData === "string" &&
-      businessData === "BUSINESS_NOT_FOUND"
-    ) {
-      setIsBusiness(false);
-    } else {
-      setIsBusiness(true);
-    }
     setBusiness(businessData);
     setValue("name", businessData.name);
     setValue("address", businessData.address);
@@ -77,12 +67,9 @@ const FormMiEmpresa = ({
     setValue("dayStart", businessData.dayStart);
     setValue("dayEnd", businessData.dayEnd);
     setValue("appointmentDuration", businessData.appointmentDuration);
+    setValue("slug", businessData.slug);
     return;
   }, [businessData]);
-
-  useEffect(() => {
-    setServices(servicesData);
-  }, [servicesData]);
 
   useEffect(() => {
     if (business) {
@@ -92,7 +79,7 @@ const FormMiEmpresa = ({
       setValue("dayStart", business.dayStart);
       setValue("dayEnd", business.dayEnd);
       setValue("appointmentDuration", business.appointmentDuration);
-      setValue("phone", parseInt(business.phone));
+      setValue("phone", business.phone);
       setValue("email", business.email);
     }
     return;
@@ -319,6 +306,25 @@ const FormMiEmpresa = ({
               {errors.phone?.message && (
                 <span className="text-xs font-semibold text-red-600">
                   {errors.phone.message}
+                </span>
+              )}
+            </div>
+
+            <div className={styles.formInput}>
+              <span
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Link
+              </span>
+              <div className="flex items-center w-full gap-1 h-fit">
+                <span style={{ fontSize: "14px" }}
+                className="font-medium ">sacaturno.com.ar/</span>
+                <input type="text" maxLength={30} {...register("slug")} />
+              </div>
+              {errors.slug?.message && (
+                <span className="text-xs font-semibold text-red-600">
+                  {errors.slug.message}
                 </span>
               )}
             </div>

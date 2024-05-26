@@ -106,13 +106,13 @@ const SearchBusiness: React.FC = () => {
 
           {searchResults.length > 0 && (
             <div className="flex justify-center w-full mt-6 mb-3 h-fit">
-              <div className="h-14 w-80 ">
+              <div className="w-full px-2 h-fit">
                 {searchResults.map((business) => (
                   <>
                     <div
                       key={business._id}
                       style={{ border: "1px solid rgba(255, 255, 255, 0.12)" }}
-                      className="flex items-center w-full h-full gap-4 px-5 text-white backdrop-blur py-9 rounded-xl"
+                      className="flex items-center w-full gap-4 px-5 text-white h-14 backdrop-blur py-9 rounded-xl"
                     >
                       <Image
                         loader={myLoader}
@@ -132,7 +132,7 @@ const SearchBusiness: React.FC = () => {
                       </div>
                       <button
                         onClick={() => {
-                          router.push(`/public/book/${business._id}`);
+                          router.push(`/${business.slug}`);
                         }}
                         title="Ver turnos"
                         className={`ml-auto ${stylesLogin.translucentBtn2}`}
