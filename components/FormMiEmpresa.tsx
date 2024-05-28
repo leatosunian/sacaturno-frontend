@@ -13,12 +13,7 @@ import { AiOutlineSchedule } from "react-icons/ai";
 import Alert from "./Alert";
 import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
-import { IoMdAdd } from "react-icons/io";
-import { FaArrowRight, FaEdit } from "react-icons/fa";
-import { RxCross2 } from "react-icons/rx";
 import { IService } from "@/interfaces/service.interface";
-import UpgradePlanModal from "./UpgradePlanModal";
-import Link from "next/link";
 
 interface props {
   businessData: IBusiness;
@@ -32,7 +27,7 @@ interface formInputs {
   appointmentDuration: string;
   dayStart: string;
   dayEnd: string;
-  phone: number;
+  phone: string;
   email: string;
   slug: string;
 }
@@ -79,7 +74,7 @@ const FormMiEmpresa = ({
       setValue("dayStart", business.dayStart);
       setValue("dayEnd", business.dayEnd);
       setValue("appointmentDuration", business.appointmentDuration);
-      setValue("phone", business.phone);
+      setValue("phone", business.phone.toString());
       setValue("email", business.email);
     }
     return;
@@ -140,7 +135,7 @@ const FormMiEmpresa = ({
       };
       let formData = new FormData();
       formData.append("profile_image", image);
-      const updatedImage = await axiosReq.post(
+      await axiosReq.post(
         "/business/updateimage",
         formData,
         authHeader
@@ -178,12 +173,24 @@ const FormMiEmpresa = ({
           data,
           authHeader
         );
-        setAlert({
-          msg: "Los cambios han sido guardados",
-          error: true,
-          alertType: "OK_ALERT",
-        });
-        hideAlert();
+        if (updatedUser.data.editedBusiness === "ERROR_EDIT_SLUG_EXISTS") {
+          setAlert({
+            msg: "El link ya existe, intentá con otro",
+            error: true,
+            alertType: "ERROR_ALERT",
+          });
+          hideAlert();
+          return;
+        }
+        if (updatedUser.data.msg === "BUSINESS_EDITED") {
+          setAlert({
+            msg: "Los cambios han sido guardados",
+            error: true,
+            alertType: "OK_ALERT",
+          });
+          hideAlert();
+          return;
+        }
       }
     } catch (error) {
       setAlert({
@@ -318,8 +325,9 @@ const FormMiEmpresa = ({
                 Link
               </span>
               <div className="flex items-center w-full gap-1 h-fit">
-                <span style={{ fontSize: "14px" }}
-                className="font-medium ">sacaturno.com.ar/</span>
+                <span style={{ fontSize: "14px" }} className="font-medium ">
+                  sacaturno.com.ar/
+                </span>
                 <input type="text" maxLength={30} {...register("slug")} />
               </div>
               {errors.slug?.message && (

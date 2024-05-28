@@ -23,6 +23,7 @@ interface formInputs {
   dayEnd: string;
   email: string;
   phone: number;
+  slug: string;
 }
 
 const FormCreateBusiness: React.FC = () => {
@@ -191,6 +192,25 @@ const FormCreateBusiness: React.FC = () => {
               {errors.phone?.message && (
                 <span className="text-xs font-semibold text-red-600">
                   {errors.phone.message}
+                </span>
+              )}
+            </div>
+
+            <div className={styles.formInput}>
+              <span
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Link
+              </span>
+              <div className="flex items-center w-full gap-1 h-fit">
+                <span style={{ fontSize: "14px" }}
+                className="font-medium ">sacaturno.com.ar/</span>
+                <input type="text" maxLength={30} {...register("slug")} />
+              </div>
+              {errors.slug?.message && (
+                <span className="text-xs font-semibold text-red-600">
+                  {errors.slug.message}
                 </span>
               )}
             </div>

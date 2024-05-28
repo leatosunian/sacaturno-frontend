@@ -204,13 +204,11 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
     const month = Number(dayjs(date).format("M"));
     const actualMonth = dayjs().month() + 1;
     const actualDay = dayjs().date();
-    console.log(month, actualMonth);
     if (view === Views.DAY) {
       if (month >= actualMonth && day > actualDay) {
         setDate(dayjs(date).subtract(1, "day").toDate());
       }
     }
-
     if (view === Views.WEEK) {
       setDate(dayjs(date).subtract(1, "week").toDate());
     }

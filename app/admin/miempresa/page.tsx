@@ -106,7 +106,9 @@ const MiEmpresa: NextPage<Props> = async ({}) => {
             <div className={`${styles.cont}`}>
               <FormMiEmpresa businessData={data} servicesData={services} />
             </div>
-            <div className={`mx-auto flex justify-end my-9 h-fit lg:my-4 ${styles.configArrows}`}>
+            <div
+              className={`mx-auto flex justify-end my-9 h-fit lg:my-4 ${styles.configArrows}`}
+            >
               <Link
                 className="flex items-center gap-2 text-xs font-semibold uppercase"
                 style={{ color: "#dd4924" }}
@@ -116,6 +118,8 @@ const MiEmpresa: NextPage<Props> = async ({}) => {
                 <FaArrowRight />
               </Link>
             </div>
+            {/* SPACER */}
+            <div className="w-full h-2 md:h-20 "></div>
           </div>
         </>
       )}

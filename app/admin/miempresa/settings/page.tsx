@@ -92,26 +92,29 @@ async function getSubscriptionData() {
       authHeader
     );
 
-    if(subscriptionData.data) {
+    if (subscriptionData.data) {
       const subscription = {
         businessID: subscriptionData.data.businessID,
         ownerID: subscriptionData.data.ownerID,
         subscriptionType: subscriptionData.data.subscriptionType,
-        paymentDate: dayjs(subscriptionData.data.paymentDate).format('DD/MM/YYYY'),
-        expiracyDate: dayjs(subscriptionData.data.expiracyDate).format('DD/MM/YYYY'),
+        paymentDate: dayjs(subscriptionData.data.paymentDate).format(
+          "DD/MM/YYYY"
+        ),
+        expiracyDate: dayjs(subscriptionData.data.expiracyDate).format(
+          "DD/MM/YYYY"
+        ),
         expiracyDay: subscriptionData.data.expiracyDay,
-        expiracyMonth: subscriptionData.data.expiracyMonth
-      }
+        expiracyMonth: subscriptionData.data.expiracyMonth,
+      };
       return subscription;
     }
-    
   } catch (error) {
     const response_data = {
       businessID: "",
       ownerID: "",
       subscriptionType: "",
-      paymentDate: '',
-      expiracyDate: '',
+      paymentDate: "",
+      expiracyDate: "",
     };
     return { response_data };
   }
@@ -147,7 +150,11 @@ const Settings: NextPage = async ({}) => {
           </header>
           <div className="flex flex-col justify-center w-full mt-5 h-fit">
             <div className={`${styles.cont} mb-5`}>
-              <FormSettings businessData={data} servicesData={services} subscriptionData={subscription} />
+              <FormSettings
+                businessData={data}
+                servicesData={services}
+                subscriptionData={subscription}
+              />
             </div>
 
             <div
@@ -162,6 +169,8 @@ const Settings: NextPage = async ({}) => {
                 Datos de mi empresa
               </Link>
             </div>
+            {/* SPACER */}
+            <div className="w-full h-5 md:h-20 "></div>
           </div>
         </>
       )}

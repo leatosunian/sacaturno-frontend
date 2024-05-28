@@ -203,7 +203,7 @@ const FormSettings = ({
 
           {servicesData?.length === 0 && (
             <div className="flex items-center justify-center h-fit lg:h-16 w-fit">
-              <span className="text-sm font-semibold uppercase">
+              <span className="text-xs font-semibold uppercase md:text-sm">
                 Aún no tenés servicios creados.
               </span>
             </div>

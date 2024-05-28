@@ -24,7 +24,9 @@ export const businessSchema = z.object({
         message: 'Ingresá un correo válido'
     }),
 
-    phone: z.coerce.number().gte(7, 'Ingresa un número válido'),
+    phone: z.string().min(7, {
+        message: 'El teléfono es demasiado corto'
+    }),
 
     appointmentDuration: z.string(),
 
@@ -32,7 +34,7 @@ export const businessSchema = z.object({
         message: 'El link debe tener al menos 3 caractéres'
     }).max(35, {
         message: 'El link debe tener menos de 35 caractéres'
-    }),
+    }).refine(s => !s.includes(' '), 'El link no debe contener espacios'),
 
     dayStart: z.string(),
 

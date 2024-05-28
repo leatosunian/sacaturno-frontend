@@ -25,6 +25,12 @@ export const createBusinessSchema = z.object({
         message: 'Ingresá un correo válido'
     }),
 
+    slug: z.string().min(3, {
+        message: 'El link debe tener al menos 3 caractéres'
+    }).max(35, {
+        message: 'El link debe tener menos de 35 caractéres'
+    }).refine(s => !s.includes(' '), 'El link no debe contener espacios'),
+
     appointmentDuration: z.string(),
 
     dayStart: z.string(),
