@@ -58,12 +58,12 @@ const FormRegistrate = () => {
           hideAlert();
         }
         if (
-          registeredUser.data.response_data.msg === "CHAT_CREATED_SUCCESSFULLY"
+          registeredUser.data.response_data.msg === "USER_CREATED_SUCCESSFULLY"
         ) {
           setAlert({
             alertType: "OK_ALERT",
             error: true,
-            msg: "¡Usuario creado! Iniciá sesión para acceder",
+            msg: "¡Usuario creado! Revisá tu correo y activá tu cuenta.",
           });
           hideAlert();
         }

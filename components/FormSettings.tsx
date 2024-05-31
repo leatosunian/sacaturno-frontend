@@ -11,11 +11,7 @@ import { IoMdAdd, IoMdAlert } from "react-icons/io";
 import { useRouter } from "next/navigation";
 import Alert from "./Alert";
 import UpgradePlanModal from "./UpgradePlanModal";
-import Link from "next/link";
-import { FaArrowLeft, FaMedal } from "react-icons/fa6";
-import ISubscription from "@/interfaces/subscriptionDisplay.interface";
-import dayjs from "dayjs";
-import ExpiredPlanModal from "./ExpiredPlanModal";
+import { FaMedal } from "react-icons/fa6";
 
 const FormSettings = ({
   businessData,

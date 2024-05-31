@@ -5,4 +5,5 @@ export interface IUser {
   password?: string;
   profileImage?: string;
   _id?: string;
+  verified?: boolean;
 }
