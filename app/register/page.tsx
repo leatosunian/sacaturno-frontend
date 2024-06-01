@@ -7,7 +7,6 @@ export const metadata: Metadata = {
   description: "Aplicación de turnos online",
 };
 import sacaturno_logo from "@/public/st_logo_white.png";
-import LoginRegisterFooter from "@/components/FooterLoginRegister";
 import { IoIosSearch } from "react-icons/io";
 import Link from "next/link";
 import HeaderPublic from "@/components/HeaderPublic";

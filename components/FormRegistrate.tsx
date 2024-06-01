@@ -1,9 +1,8 @@
 "use client";
-import { FormEventHandler, useState, useEffect } from "react";
+import { useState } from "react";
 import styles from "../app/css-modules/FormRegistrate.module.css";
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
-import { IUser } from "@/interfaces/user.interface";
 import { registerSchema } from "@/app/schemas/registerSchema";
 import { FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,7 +23,6 @@ const FormRegistrate = () => {
     alertType: "OK_ALERT",
     msg: "El usuario ya existe",
   });
-  const [registerData, setRegisterData] = useState<IUser>();
 
   const {
     register,
@@ -37,7 +35,7 @@ const FormRegistrate = () => {
   const hideAlert = () => {
     setTimeout(() => {
       setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
-    }, 3000);
+    }, 6000);
   };
 
   /*useEffect(() => {
@@ -63,7 +61,7 @@ const FormRegistrate = () => {
           setAlert({
             alertType: "OK_ALERT",
             error: true,
-            msg: "¡Usuario creado! Revisá tu correo y activá tu cuenta.",
+            msg: "¡Usuario creado! Revisá tu correo y activá tu cuenta. Si no recibiste el correo, revisá tu correo no deseado.",
           });
           hideAlert();
         }

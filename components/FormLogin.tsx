@@ -19,7 +19,7 @@ interface formInputs {
 
 const FormLogin = () => {
   const [alert, setAlert] = useState<AlertInterface>();
-  
+
   const {
     register,
     handleSubmit,
@@ -33,14 +33,14 @@ const FormLogin = () => {
   const hideAlert = () => {
     setTimeout(() => {
       setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
-    }, 3000);
+    }, 6000);
   };
 
   const handleLogin = async (data: FieldValues) => {
     if (data) {
       const login = await axiosReq.post(`/user/login`, data);
-      
-      console.log('login: ', login);
+
+      console.log("login: ", login);
 
       if (typeof login.data.response_data === "object") {
         localStorage.setItem(
@@ -50,7 +50,7 @@ const FormLogin = () => {
         localStorage.setItem("sacaturno_token", login.data.response_data.token);
 
         try {
-          const res = await fetch( '/api/login', {
+          const res = await fetch("/api/login", {
             method: "POST",
             body: JSON.stringify({
               token: login.data.response_data.token,
@@ -81,6 +81,15 @@ const FormLogin = () => {
         router.push("/admin/perfil");
         return;
       }
+      if (login.data.response_data === "USER_NOT_VERIFIED") {
+        setAlert({
+          alertType: "ERROR_ALERT",
+          error: true,
+          msg: "Debes confirmar tu correo para ingresar",
+        });
+        hideAlert();
+        return;
+      }
       if (login.data.response_data === "WRONG_PASSWORD" || "USER_NOT_FOUND") {
         setAlert({
           alertType: "ERROR_ALERT",
@@ -106,7 +115,9 @@ const FormLogin = () => {
         className={styles.loginForm}
       >
         <div className={styles.loginFormInput}>
-          <span style={{fontSize:'12px'}} className="font-medium uppercase ">Correo electrónico</span>
+          <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
+            Correo electrónico
+          </span>
           <input type="email" {...register("email")} />
           {errors.email?.message && (
             <>
@@ -118,7 +129,9 @@ const FormLogin = () => {
           )}
         </div>
         <div className={styles.loginFormInput}>
-          <span style={{fontSize:'12px'}} className="font-medium uppercase ">Contraseña</span>
+          <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
+            Contraseña
+          </span>
           <input type="password" {...register("password")} />
           {errors.password?.message && (
             <>
