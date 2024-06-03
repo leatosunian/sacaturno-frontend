@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import styles from '@/app/css-modules/login.module.css'
 
 export const metadata: Metadata = {
-  title: "Sacar turno - SacaTurno",
-  description: "IT-related blog for devs",
+  title: "Buscar empresa | SacaTurno",
+  description: "Aplicación de turnos online",
 };
 
 export default function Layout({

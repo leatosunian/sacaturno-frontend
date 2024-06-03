@@ -10,6 +10,12 @@ import { MdOutlineAddBusiness } from "react-icons/md";
 import { FaArrowDown, FaCheck } from "react-icons/fa6";
 import PricingSection from "@/components/home/PricingSection";
 import HeaderPublic from "@/components/HeaderPublic";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "SacaTurno | Tu app de turnos online",
+  description: "Aplicación de turnos online",
+};
 
 export default function Home() {
   return (

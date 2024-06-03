@@ -11,8 +11,8 @@ import { FaArrowRight } from "react-icons/fa6";
 
 interface Props {}
 export const metadata: Metadata = {
-  title: "Mi Empresa - SacaTurno",
-  description: "IT-related blog for devs",
+  title: "Mi Empresa | SacaTurno",
+  description: "Aplicación de turnos online",
 };
 
 async function getBusinessData() {

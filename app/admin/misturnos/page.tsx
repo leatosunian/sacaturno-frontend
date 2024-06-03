@@ -4,18 +4,17 @@ import { IAppointment } from "@/interfaces/appointment.interface";
 import { cookies } from "next/headers";
 import { IBusiness } from "@/interfaces/business.interface";
 import { IService } from "@/interfaces/service.interface";
-import warningImage from "@/public/warning.png";
-import Image from "next/image";
 import styles from "@/app/css-modules/CreateAppointmentModal.module.css";
 import Link from "next/link";
 import dayjs from "dayjs";
 import ISubscription from "@/interfaces/subscription.interface";
 import { IoIosAlert } from "react-icons/io";
+import { Metadata } from "next";
 
-interface Props {
-  appointments: IAppointment[];
-  businessData: IBusiness;
-}
+export const metadata: Metadata = {
+  title: "Mis turnos | SacaTurno",
+  description: "IT-related blog for devs",
+};
 
 const getAppointments = async () => {
   const cookieStore = cookies();

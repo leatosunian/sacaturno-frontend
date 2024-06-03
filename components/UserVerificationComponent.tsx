@@ -3,8 +3,8 @@ import { IUser } from "@/interfaces/user.interface";
 import React from "react";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import styles from "@/app/css-modules/FormMiEmpresa.module.css";
-import { PiWarningCircleFill } from "react-icons/pi";
 import Link from "next/link";
+
 type Props = {
   userData: IUser;
 };
@@ -21,7 +21,7 @@ const UserVerificationComponent = ({ userData }: Props) => {
         </div>
         <div className="flex flex-col gap-5">
           <p className="font-medium text-justify text-md md:text-lg">
-            ¡Gracias <b>{userData.name}</b> por registrarte en SacaTurno!{" "}
+            ¡Gracias <b>{userData?.name}</b> por registrarte en SacaTurno!{" "}
             <b>Ya podés iniciar sesión</b> y comenzar a configurar tu empresa y{" "}
             <b>cargar tus turnos</b>.{" "}
           </p>

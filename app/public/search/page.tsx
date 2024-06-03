@@ -5,7 +5,6 @@ import { ChangeEventHandler, useState } from "react";
 import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
 import AlertInterface from "@/interfaces/alert.interface";
-import Alert from "@/components/Alert";
 import { GrTableAdd } from "react-icons/gr";
 import { useRouter } from "next/navigation";
 import stylesLogin from "@/app/css-modules/login.module.css";

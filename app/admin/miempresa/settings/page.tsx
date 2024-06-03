@@ -12,8 +12,8 @@ import dayjs from "dayjs";
 import ISubscription from "@/interfaces/subscription.interface";
 
 export const metadata: Metadata = {
-  title: "Mi Empresa - SacaTurno",
-  description: "IT-related blog for devs",
+  title: "Mi plan | SacaTurno",
+  description: "Aplicación de turnos online",
 };
 
 async function getBusinessData() {

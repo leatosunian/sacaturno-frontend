@@ -1,6 +1,10 @@
 import UserVerificationComponent from "@/components/UserVerificationComponent";
 import axiosReq from "@/config/axios";
-
+import { Metadata } from "next";
+export const metadata: Metadata = {
+  title: "Confirmar correo | SacaTurno",
+  description: "Aplicación de turnos online",
+};
 interface propsComponent {
   params: {
     token: string;

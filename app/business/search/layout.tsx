@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import LoggedInHeader from "@/components/LoggedInHeader";
 
-
 export const metadata: Metadata = {
-  title: "Sacar turno - SacaTurno",
-  description: "IT-related blog for devs",
+  title: "Buscar empresa | SacaTurno",
+  description: "Aplicación de turnos online",
 };
 
 export default function Layout({

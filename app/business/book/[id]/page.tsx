@@ -2,12 +2,27 @@ import CalendarBookAppointment from "@/components/CalendarBookAppointment";
 import axiosReq from "@/config/axios";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import { IBusiness } from "@/interfaces/business.interface";
+import { Metadata } from "next";
 import { LuCalendarClock } from "react-icons/lu";
 
-interface Props {
-  appointments: IAppointment[];
-  businessData: IBusiness;
+interface propsComponent {
+  params: {
+    id: string;
+  };
 }
+
+export async function generateMetadata({
+  params,
+}: propsComponent): Promise<Metadata> {
+  const id = params.id;
+  const businessFetch = await axiosReq.get(`/business/getbyid/${id}`);
+  const businessData: IBusiness = businessFetch.data;
+  return {
+    title: `${businessData.name} | SacaTurno`,
+    description: "Aplicación de turnos online",
+  };
+}
+
 
 /*export const getServerSideProps: GetServerSideProps = async (context) => {
   const { params } = context
@@ -30,11 +45,6 @@ const getAppointments = async (ID: string) => {
   return { appointments: appointments.data, businessData };
 };
 
-interface propsComponent {
-  params: {
-    id: string;
-  };
-}
 
 const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
   const data = await getAppointments(params.id);

@@ -1,16 +1,17 @@
 import { Metadata } from "next";
 import styles from "../css-modules/login.module.css";
 import FormLogin from "@/components/FormLogin";
-export const metadata: Metadata = {
-  title: "Iniciar Sesión - SacaTurno",
-  description: "Aplicación de turnos online",
-};
 import sacaturno_logo from "@/public/st_logo_white.png";
 import Image from "next/image";
 import LoginRegisterFooter from "@/components/FooterLoginRegister";
 import Link from "next/link";
 import { IoIosSearch } from "react-icons/io";
 import HeaderPublic from "@/components/HeaderPublic";
+
+export const metadata: Metadata = {
+  title: "Iniciar Sesión | SacaTurno",
+  description: "Aplicación de turnos online",
+};
 
 export default function Login() {
   return (

@@ -5,25 +5,37 @@ import { IBusiness } from "@/interfaces/business.interface";
 import { IService } from "@/interfaces/service.interface";
 import { IoIosAlert } from "react-icons/io";
 import { LuCalendarClock } from "react-icons/lu";
-
-const getAppointments = async (ID: string) => {
-  const businessFetch = await axiosReq.get(`/business/getbyslug/${ID}`);
-  const businessData: IBusiness = businessFetch.data;
-  if(businessData._id){
-
-    const appointments = await axiosReq.get(
-      `/appointment/public/get/${businessData._id}`
-    );
-    return { appointments: appointments.data, businessData };
-  }
-  return { appointments: {}, businessData };
-};
-
+import { Metadata, ResolvingMetadata } from "next";
 interface propsComponent {
   params: {
     slug: string;
   };
 }
+
+export async function generateMetadata({
+  params,
+}: propsComponent): Promise<Metadata> {
+  const slug = params.slug;
+  const businessFetch = await axiosReq.get(`/business/getbyslug/${slug}`);
+  const businessData: IBusiness = businessFetch.data;
+  return {
+    title: `${businessData.name} | SacaTurno`,
+    description: "Aplicación de turnos online",
+  };
+}
+
+const getAppointments = async (ID: string) => {
+  const businessFetch = await axiosReq.get(`/business/getbyslug/${ID}`);
+  const businessData: IBusiness = businessFetch.data;
+  if (businessData._id) {
+    const appointments = await axiosReq.get(
+      `/appointment/public/get/${businessData._id}`
+    );
+
+    return { appointments: appointments.data, businessData };
+  }
+  return { appointments: {}, businessData };
+};
 
 const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
   const data = await getAppointments(params.slug);

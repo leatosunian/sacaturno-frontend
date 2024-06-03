@@ -1,8 +1,11 @@
-import styles from "../../css-modules/miempresa.module.css";
 import FormMiPerfil from "@/components/FormMiPerfil";
 import axiosReq from "@/config/axios";
+import { Metadata } from "next";
 import { cookies } from "next/headers";
-
+export const metadata: Metadata = {
+  title: "Mi perfil | SacaTurno",
+  description: "IT-related blog for devs",
+};
 const getUser = async () => {
   const cookieStore = cookies();
   const token = cookieStore.get("sacaturno_token");
@@ -31,7 +34,9 @@ const MiPerifl = async () => {
   return (
     <>
       <header className="flex justify-center w-full mt-5 mb-5 md:mt-7 md:mb-7 h-fit">
-        <h4 style={{fontSize:'22px'}} className="font-bold uppercase ">Mi Perfil</h4>
+        <h4 style={{ fontSize: "22px" }} className="font-bold uppercase ">
+          Mi Perfil
+        </h4>
       </header>
 
       <div className="flex justify-center w-screen mt-5 h-fit">
