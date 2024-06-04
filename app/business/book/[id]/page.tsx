@@ -24,17 +24,6 @@ export async function generateMetadata({
 }
 
 
-/*export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { params } = context
-
-  // Make the data available to the page component
-  return {
-    props: {
-      params,
-    },
-  }
-}*/
-
 const getAppointments = async (ID: string) => {
   const businessFetch = await axiosReq.get(`/business/getbyid/${ID}`);
   const businessData: IBusiness = businessFetch.data;

@@ -1,19 +1,16 @@
 "use client";
-import { FormEventHandler, useState, useEffect } from "react";
+import { useState } from "react";
 import styles from "../app/css-modules/FormLogin.module.css";
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema } from "@/app/schemas/loginSchema";
 import FormAlert from "./FormAlert";
+import { passwordRecoverySchema } from "@/app/schemas/passwordRecoverySchema";
 
 interface formInputs {
-  password: string;
   email: string;
 }
 
@@ -25,23 +22,28 @@ const PasswordRecovery = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<formInputs>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(passwordRecoverySchema),
   });
 
-  const { saveAuthData } = useAuth();
-  const router = useRouter();
   const hideAlert = () => {
     setTimeout(() => {
       setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
-    }, 6000);
+    }, 10000);
   };
 
   const handlePasswordRecovery = async (data: FieldValues) => {
     if (data) {
-      const login = await axiosReq.post(`/user/login`, data);
-
-      console.log("login: ", login);
-
+      // GET BUSINESS BY EMAIL 
+      const businessData = await axiosReq.get('/business/getbyemail/'+data.email)
+      if(businessData.data === 'BUSINESS_NOT_FOUND'){
+        setAlert({ alertType: "ERROR_ALERT", error: true, msg: "No existe una cuenta con ese correo."});
+        return
+      }      
+      // SEND RECOVERY EMAIL
+      const recovery = await axiosReq.post(`/user/password/recovery/${businessData.data.ownerID}`);
+      console.log(recovery);
+      setAlert({ alertType: "OK_ALERT", error: true, msg: "Te enviamos un correo para restablecer tu contraseña. Revisá tu casilla de correo no deseado."});
+      hideAlert()
     }
   };
 

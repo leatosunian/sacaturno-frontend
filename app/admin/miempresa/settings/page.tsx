@@ -12,7 +12,7 @@ import dayjs from "dayjs";
 import ISubscription from "@/interfaces/subscription.interface";
 
 export const metadata: Metadata = {
-  title: "Mi plan | SacaTurno",
+  title: "Servicios y suscripciones | SacaTurno",
   description: "Aplicación de turnos online",
 };
 
