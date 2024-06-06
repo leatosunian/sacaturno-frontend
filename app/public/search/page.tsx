@@ -104,8 +104,8 @@ const SearchBusiness: React.FC = () => {
           </div>
 
           {searchResults.length > 0 && (
-            <div className="flex justify-center w-full mt-6 mb-3 h-fit">
-              <div className="w-full px-2 h-fit">
+            <div className="flex justify-center w-full mt-6 h-fit">
+              <div className="w-full px-2 h-fit flex flex-col gap-4">
                 {searchResults.map((business) => (
                   <>
                     <div

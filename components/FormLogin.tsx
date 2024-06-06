@@ -151,10 +151,16 @@ const FormLogin = () => {
           />
         )}
 
-        <span className="text-xs ">
-          No tenes cuenta? Hacé click para
+        <span className="mb-3 text-xs">
+          ¿No tenes cuenta? Hacé click para
           <b className="cursor-pointer">
             <Link href="/register"> registrarte</Link>
+          </b>
+        </span>
+        <span className="text-xs">
+          ¿Olvidaste tu contraseña?
+          <b className="cursor-pointer">
+            <Link href="/register"> Recuperar contraseña</Link>
           </b>
         </span>
         <button type="submit" className={styles.translucentBtn}>

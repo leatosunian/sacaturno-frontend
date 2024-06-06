@@ -79,7 +79,7 @@ const AppointmentModal: React.FC<props> = ({ appointment, closeModalF }) => {
             Datos del turno
           </h4>
           {/* <span>Hacé click en un turno para ver los detalles</span> */}
-          <div className="flex flex-col gap-4 mb-7 w-fit h-fit">
+          <div className="flex flex-col gap-4 mb-2 w-fit h-fit">
             <div className="flex flex-col w-fit h-fit">
               <label
                 style={{ fontSize: "12px" }}

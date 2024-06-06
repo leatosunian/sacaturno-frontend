@@ -85,7 +85,7 @@ const PasswordRecovery = () => {
         <span className="text-xs ">
             Volver a
           <b className="cursor-pointer">
-            <Link href="/register"> iniciar sesión</Link>
+            <Link href="/login"> iniciar sesión</Link>
           </b>
         </span>
         <button type="submit" className={styles.translucentBtn}>
