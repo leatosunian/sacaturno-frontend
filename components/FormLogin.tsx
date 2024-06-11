@@ -18,7 +18,12 @@ interface formInputs {
 }
 
 const FormLogin = () => {
-  const [alert, setAlert] = useState<AlertInterface>();
+  const [alert, setAlert] = useState<AlertInterface>({
+    alertType: "ERROR_ALERT",
+    error: false,
+    msg: "",
+  });
+  const [loading, setLoading] = useState<boolean>(false);
 
   const {
     register,
@@ -38,9 +43,8 @@ const FormLogin = () => {
 
   const handleLogin = async (data: FieldValues) => {
     if (data) {
+      setLoading(true);
       const login = await axiosReq.post(`/user/login`, data);
-
-      console.log("login: ", login);
 
       if (typeof login.data.response_data === "object") {
         localStorage.setItem(
@@ -60,7 +64,6 @@ const FormLogin = () => {
               "content-type": "application/json",
             },
           });
-          console.log(res);
           const loginData = {
             userID: login.data.response_data.userID,
             token: login.data.response_data.token,
@@ -69,16 +72,19 @@ const FormLogin = () => {
           localStorage.setItem("sacaturno_token", loginData.token);
           saveAuthData(loginData);
         } catch (error) {
-          return setAlert({
+          setLoading(false);
+          setAlert({
             alertType: "ERROR_ALERT",
             error: true,
             msg: "Error al iniciar sesión",
           });
+          return;
         }
 
         setAlert({ alertType: "ERROR_ALERT", error: false, msg: "" });
         hideAlert();
-        router.push("/admin/perfil");
+        router.push("/admin/dashboard");
+        router.refresh();
         return;
       }
       if (login.data.response_data === "USER_NOT_VERIFIED") {
@@ -88,6 +94,7 @@ const FormLogin = () => {
           msg: "Debes confirmar tu correo para ingresar",
         });
         hideAlert();
+        setLoading(false);
         return;
       }
       if (login.data.response_data === "WRONG_PASSWORD" || "USER_NOT_FOUND") {
@@ -97,6 +104,7 @@ const FormLogin = () => {
           msg: "Usuario o contraseña incorrectos",
         });
         hideAlert();
+        setLoading(false);
         return;
       }
     }
@@ -143,7 +151,7 @@ const FormLogin = () => {
           )}
         </div>
 
-        {alert && (
+        {alert.error !== false && (
           <FormAlert
             msg={alert.msg}
             error={alert.error}
@@ -151,21 +159,45 @@ const FormLogin = () => {
           />
         )}
 
-        <span className="mb-3 text-xs">
-          ¿No tenes cuenta? Hacé click para
-          <b className="cursor-pointer">
-            <Link href="/register"> registrarte</Link>
-          </b>
-        </span>
-        <span className="text-xs">
-          ¿Olvidaste tu contraseña?
-          <b className="cursor-pointer">
-            <Link href="/register"> Recuperar contraseña</Link>
-          </b>
-        </span>
-        <button type="submit" className={styles.translucentBtn}>
-          Ingresar
-        </button>
+        <div className="flex flex-col gap-2 my-2 md:gap-0 w-fit h-fit">
+          <span className="mb-3 text-xs font-light">
+            ¿No tenes cuenta?{"  "}
+            <Link
+              className="font-semibold cursor-pointer orangeHover"
+              href="/register"
+            >
+              Registrate
+            </Link>
+          </span>
+          <span className="text-xs font-light">
+            ¿Olvidaste tu contraseña? 
+            {"  "}
+            <Link
+              className="font-semibold cursor-pointer orangeHover"
+              href="/login/recovery"
+            >
+              Recuperar contraseña
+            </Link>
+          </span>
+        </div>
+
+        <div className="flex items-center justify-center w-full h-9">
+          {loading && (
+            <>
+              <div
+                style={{ height: "100%", width: "100%" }}
+                className="flex items-center justify-center w-full"
+              >
+                <div className="loaderSmall"></div>
+              </div>
+            </>
+          )}
+          {!loading && (
+            <button type="submit" className={styles.translucentBtn}>
+              Ingresar
+            </button>
+          )}
+        </div>
       </form>
     </>
   );

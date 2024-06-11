@@ -23,6 +23,8 @@ const FormRegistrate = () => {
     alertType: "OK_ALERT",
     msg: "El usuario ya existe",
   });
+  const [loading, setLoading] = useState<boolean>(false);
+
 
   const {
     register,
@@ -44,6 +46,7 @@ const FormRegistrate = () => {
 
   const handleRegister = async (data: FieldValues) => {
     if (data) {
+      setLoading(true)
       try {
         const registeredUser = await axiosReq.post("/user/create", data);
         console.log(registeredUser);
@@ -54,6 +57,7 @@ const FormRegistrate = () => {
             msg: "El usuario ya existe",
           });
           hideAlert();
+          setLoading(false)
         }
         if (
           registeredUser.data.response_data.msg === "USER_CREATED_SUCCESSFULLY"
@@ -64,9 +68,11 @@ const FormRegistrate = () => {
             msg: "¡Usuario creado! Revisá tu correo y activá tu cuenta. Si no recibiste el correo, revisá tu correo no deseado.",
           });
           hideAlert();
+          setLoading(false)
         }
       } catch (error) {
         console.log(error);
+        setLoading(false)
         
         setAlert({
           alertType: "ERROR_ALERT",
@@ -135,7 +141,7 @@ const FormRegistrate = () => {
           )}
         </div>
 
-        {alert && (
+        {alert.error !== false && (
           <FormAlert
             msg={alert.msg}
             error={alert.error}
@@ -143,15 +149,29 @@ const FormRegistrate = () => {
           />
         )}
 
-        <span className="text-xs ">
+        <span className="text-xs my-2 ">
           Ya tenes cuenta? Hacé click para
           <b className="cursor-pointer">
             <Link href="/login"> iniciar sesión</Link>
           </b>
         </span>
-        <button type="submit" className={styles.translucentBtn}>
-          Crear cuenta
-        </button>
+        <div className="flex items-center justify-center w-full h-9">
+          {loading && (
+            <>
+              <div
+                style={{ height: "100%", width: "100%" }}
+                className="flex items-center justify-center w-full"
+              >
+                <div className="loaderSmall"></div>
+              </div>
+            </>
+          )}
+          {!loading && (
+            <button type="submit" className={styles.translucentBtn}>
+              Ingresar
+            </button>
+          )}
+        </div>
       </form>
     </>
   );

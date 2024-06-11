@@ -15,6 +15,7 @@ const SearchBusiness: React.FC = () => {
   const [searchField, setSearchField] = useState<string>("");
   const [searchResults, setSearchResults] = useState<IBusiness[]>([]);
   const [alert, setAlert] = useState<AlertInterface>();
+  const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
 
   const myLoader = ({ src }: { src: string }) => {
@@ -33,7 +34,9 @@ const SearchBusiness: React.FC = () => {
   };
 
   const handleSearch = async () => {
+    setSearchResults([]);
     if (searchField !== "") {
+      setLoading(true);
       try {
         const res = await axiosReq.get(`/business/search/${searchField}`, {
           headers: {
@@ -41,7 +44,6 @@ const SearchBusiness: React.FC = () => {
             "Cache-Control": "no-store",
           },
         });
-        console.log(res.data);
         if (res.data === "BUSINESS_NOT_FOUND") {
           setAlert({
             msg: "No se encontraron resultados",
@@ -49,15 +51,18 @@ const SearchBusiness: React.FC = () => {
             alertType: "ERROR_ALERT",
           });
           hideAlert();
+          setLoading(false);
           return;
         }
         if (res.data instanceof Array) {
+          setLoading(false);
           return setSearchResults(res.data);
         }
 
         /*return res.data;*/
       } catch (error: any) {
         console.log(error);
+        setLoading(false);
       }
     }
   };
@@ -68,14 +73,16 @@ const SearchBusiness: React.FC = () => {
       <div className="flex flex-col items-center w-full pt-24 text-white h-fit">
         <div className={`${stylesLogin.loginCont2}`}>
           <header className="flex justify-center w-full mb-5 md:mb-10 h-fit">
-            <h4  style={{fontSize:'22px'}} className="font-bold uppercase ">
+            <h4 style={{ fontSize: "22px" }} className="font-bold uppercase ">
               Reservar turno
             </h4>
           </header>
 
           <div className="w-80">
             <div className={stylesLogin.loginFormInput}>
-              <span className="text-xs font-semibold uppercase">Nombre de la empresa</span>
+              <span className="text-xs font-semibold uppercase">
+                Nombre de la empresa
+              </span>
               <input
                 value={searchField}
                 onChange={handleChange}
@@ -94,18 +101,30 @@ const SearchBusiness: React.FC = () => {
             )}
           </div>
           <div className="flex flex-col gap-4 mt-5 md:flex-row">
-            <button
-              onClick={handleSearch}
-              className={`${stylesLogin.translucentBtn2}`}
-            >
-              <HiSearch size={18} />
-              Buscar
-            </button>
+            {!loading && (
+              <button
+                onClick={handleSearch}
+                className={`${stylesLogin.translucentBtn2}`}
+              >
+                <HiSearch size={18} />
+                Buscar
+              </button>
+            )}
+            {loading && (
+              <>
+                <div
+                  style={{ height: "100%", width: "100%" }}
+                  className="flex items-center justify-center w-full"
+                >
+                  <div className="loaderSmall" style={{border: "2px solid white"}}></div>
+                </div>
+              </>
+            )}
           </div>
 
           {searchResults.length > 0 && (
             <div className="flex justify-center w-full mt-6 h-fit">
-              <div className="w-full px-2 h-fit flex flex-col gap-4">
+              <div className="flex flex-col w-full gap-4 px-2 h-fit">
                 {searchResults.map((business) => (
                   <>
                     <div

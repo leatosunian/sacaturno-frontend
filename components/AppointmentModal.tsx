@@ -134,7 +134,7 @@ const AppointmentModal: React.FC<props> = ({ appointment, closeModalF }) => {
                   >
                     Teléfono
                   </label>
-                  <span className="text-sm">+{appointment?.phone}</span>
+                  <span className="text-sm">{appointment?.phone}</span>
                 </div>
 
                 <div className="flex flex-col w-fit h-fit">

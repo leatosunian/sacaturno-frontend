@@ -25,12 +25,7 @@
 }
 
 .loginForm button:hover {
-  transform: scale(1.1);
   transition: all 0.3s ease-in-out;
-  -webkit-transform: scale(1.1);
-  -moz-transform: scale(1.1);
-  -ms-transform: scale(1.1);
-  -o-transform: scale(1.1);
   -webkit-transition: all 0.3s ease-in-out;
   -moz-transition: all 0.3s ease-in-out;
   -ms-transition: all 0.3s ease-in-out;
@@ -91,6 +86,10 @@
   -moz-border-radius: 7px;
   -ms-border-radius: 7px;
   -o-border-radius: 7px;
+  -webkit-transition: all 0.3s ease-in-out;
+  -moz-transition: all 0.3s ease-in-out;
+  -ms-transition: all 0.3s ease-in-out;
+  -o-transition: all 0.3s ease-in-out;
 }
 
 .translucentBtn {
@@ -121,17 +120,14 @@
 }
 
 .translucentBtn2:hover {
-  border: 1px solid rgba(255, 255, 255, 0.473);
+  /* border: 1px solid rgba(255, 255, 255, 0.473); */
+  border: 1px solid #dd4924;
   transition: all ease-in-out 0.2s;
 }
 
 .loginForm button:hover {
-  transform: scale(1.1);
+  border: 1px solid #dd4924;
   transition: all 0.3s ease-in-out;
-  -webkit-transform: scale(1.1);
-  -moz-transform: scale(1.1);
-  -ms-transform: scale(1.1);
-  -o-transform: scale(1.1);
   -webkit-transition: all 0.3s ease-in-out;
   -moz-transition: all 0.3s ease-in-out;
   -ms-transition: all 0.3s ease-in-out;

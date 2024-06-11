@@ -44,6 +44,24 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+.orangeHover {
+  color: white;
+  transition: .2s all ease-in-out;
+  -webkit-transition: .2s all ease-in-out;
+  -moz-transition: .2s all ease-in-out;
+  -ms-transition: .2s all ease-in-out;
+  -o-transition: .2s all ease-in-out;
+}
+
+.orangeHover:hover {
+  color: #dd4924;
+  transition: .2s all ease-in-out;
+  -webkit-transition: .2s all ease-in-out;
+  -moz-transition: .2s all ease-in-out;
+  -ms-transition: .2s all ease-in-out;
+  -o-transition: .2s all ease-in-out;
+}
+
 /* SPINNER STYLES */
 .loader {
   width: 50px;
@@ -54,6 +72,16 @@ input[type="number"] {
     l20-1 0.8s infinite linear alternate,
     l20-2 1.6s infinite linear;
 }
+.loaderSmall {
+  width: 24px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 3px solid #dd4924;
+  animation:
+    l20-1 0.8s infinite linear alternate,
+    l20-2 1.6s infinite linear;
+}
+
 @keyframes l20-1{
    0%    {clip-path: polygon(50% 50%,0       0,  50%   0%,  50%    0%, 50%    0%, 50%    0%, 50%    0% )}
    12.5% {clip-path: polygon(50% 50%,0       0,  50%   0%,  100%   0%, 100%   0%, 100%   0%, 100%   0% )}

@@ -16,6 +16,7 @@ interface formInputs {
 
 const PasswordRecovery = () => {
   const [alert, setAlert] = useState<AlertInterface>();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const {
     register,
@@ -33,17 +34,41 @@ const PasswordRecovery = () => {
 
   const handlePasswordRecovery = async (data: FieldValues) => {
     if (data) {
-      // GET BUSINESS BY EMAIL 
-      const businessData = await axiosReq.get('/business/getbyemail/'+data.email)
-      if(businessData.data === 'BUSINESS_NOT_FOUND'){
-        setAlert({ alertType: "ERROR_ALERT", error: true, msg: "No existe una cuenta con ese correo."});
-        return
-      }      
-      // SEND RECOVERY EMAIL
-      const recovery = await axiosReq.post(`/user/password/recovery/${businessData.data.ownerID}`);
-      console.log(recovery);
-      setAlert({ alertType: "OK_ALERT", error: true, msg: "Te enviamos un correo para restablecer tu contraseña. Revisá tu casilla de correo no deseado."});
-      hideAlert()
+      setLoading(true);
+      // GET BUSINESS BY EMAIL
+      try {
+        const businessData = await axiosReq.get(
+          "/business/getbyemail/" + data.email
+        );
+        if (businessData.data === "BUSINESS_NOT_FOUND") {
+          setAlert({
+            alertType: "ERROR_ALERT",
+            error: true,
+            msg: "No existe una cuenta con ese correo.",
+          });
+          setLoading(false);
+          return;
+        }
+        // SEND RECOVERY EMAIL
+        const recovery = await axiosReq.post(
+          `/user/password/recovery/${businessData.data.ownerID}`
+        );
+        setLoading(false);
+        setAlert({
+          alertType: "OK_ALERT",
+          error: true,
+          msg: "Te enviamos un correo para restablecer tu contraseña. Revisá tu casilla de correo no deseado.",
+        });
+        hideAlert();
+      } catch (error) {
+        setAlert({
+          alertType: "ERROR_ALERT",
+          error: true,
+          msg: "Error al enviar correo. Intentá nuevamente.",
+        });
+        setLoading(false);
+        return;
+      }
     }
   };
 
@@ -73,7 +98,7 @@ const PasswordRecovery = () => {
             </>
           )}
         </div>
-       
+
         {alert && (
           <FormAlert
             msg={alert.msg}
@@ -83,8 +108,8 @@ const PasswordRecovery = () => {
         )}
 
         <span className="text-xs ">
-            Volver a
-          <b className="cursor-pointer">
+          Volver a
+          <b className="cursor-pointer orangeHover">
             <Link href="/login"> iniciar sesión</Link>
           </b>
         </span>

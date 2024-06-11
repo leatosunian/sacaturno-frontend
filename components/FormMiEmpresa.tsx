@@ -51,6 +51,7 @@ const FormMiEmpresa = ({
 
   const [alert, setAlert] = useState<AlertInterface>();
   const [business, setBusiness] = useState<IBusiness>();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const router = useRouter();
 
@@ -135,11 +136,7 @@ const FormMiEmpresa = ({
       };
       let formData = new FormData();
       formData.append("profile_image", image);
-      await axiosReq.post(
-        "/business/updateimage",
-        formData,
-        authHeader
-      );
+      await axiosReq.post("/business/updateimage", formData, authHeader);
       setAlert({
         msg: "Imagen cambiada",
         error: true,
@@ -159,6 +156,7 @@ const FormMiEmpresa = ({
 
   const saveChanges = async (data: FieldValues) => {
     try {
+      setLoading(true);
       const token = localStorage.getItem("sacaturno_token");
       const authHeader = {
         headers: {
@@ -180,6 +178,8 @@ const FormMiEmpresa = ({
             alertType: "ERROR_ALERT",
           });
           hideAlert();
+          setLoading(false);
+
           return;
         }
         if (updatedUser.data.msg === "BUSINESS_EDITED") {
@@ -189,10 +189,13 @@ const FormMiEmpresa = ({
             alertType: "OK_ALERT",
           });
           hideAlert();
+          setLoading(false);
+
           return;
         }
       }
     } catch (error) {
+      setLoading(false);
       setAlert({
         msg: "Error al actualizar perfil",
         error: true,
@@ -437,15 +440,23 @@ const FormMiEmpresa = ({
         />
       </form>
 
-      <div className="flex gap-5 mt-12 ">
-        <button onClick={handleSubmitClick} className={styles.button}>
-          <LuSave size={18} />
-          Guardar cambios
-        </button>
-        <button className={styles.btn2}>
-          <AiOutlineSchedule size={18} />
-          Turnos
-        </button>
+      <div className="flex items-center justify-center w-full mt-12 h-9">
+        {loading && (
+          <>
+            <div
+              style={{ height: "100%", width: "100%" }}
+              className="flex items-center justify-center w-full"
+            >
+              <div className="loaderSmall"></div>
+            </div>
+          </>
+        )}
+        {!loading && (
+          <button onClick={handleSubmitClick} className={styles.button}>
+            <LuSave size={18} />
+            Guardar cambios
+          </button>
+        )}
       </div>
 
       {/* ALERT */}
