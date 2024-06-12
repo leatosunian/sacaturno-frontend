@@ -60,19 +60,13 @@ const PricingSection = () => {
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
                 <span className="text-xs text-gray-300">
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit
+                  Notificaciones por email
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
                 <span className="text-xs text-gray-300">
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit
-                </span>
-              </div>
-              <div className="flex items-center justify-center gap-3 w-fit h-fit">
-                <FaCheck size={12} />
-                <span className="text-xs text-gray-300">
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit
+                  Soporte 24/7
                 </span>
               </div>
             </div>
@@ -126,9 +120,7 @@ const PricingSection = () => {
               </h5>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
-                <span className="text-xs text-gray-300">
-                  Turnos ilimitados
-                </span>
+                <span className="text-xs text-gray-300">Turnos ilimitados</span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
@@ -139,25 +131,19 @@ const PricingSection = () => {
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
                 <span className="text-xs text-gray-300">
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit
+                  Notificaciones por email
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
                 <span className="text-xs text-gray-300">
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit
+                  Soporte 24/7
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
                 <span className="text-xs text-gray-300">
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit
-                </span>
-              </div>
-              <div className="flex items-center justify-center gap-3 w-fit h-fit">
-                <FaCheck size={12} />
-                <span className="text-xs text-gray-300">
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit
+                  Notificaciones por email
                 </span>
               </div>
             </div>

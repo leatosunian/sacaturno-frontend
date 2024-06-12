@@ -1,7 +1,6 @@
 import Image from "next/image";
 import homeStyles from "@/app/css-modules/home.module.css";
 import styles from "@/app/css-modules/login.module.css";
-import LoginRegisterFooter from "@/components/FooterLoginRegister";
 import sacaturno_logo from "@/public/st_logo_white.png";
 import { IoIosSearch } from "react-icons/io";
 import Link from "next/link";
@@ -11,6 +10,7 @@ import { FaArrowDown, FaCheck } from "react-icons/fa6";
 import PricingSection from "@/components/home/PricingSection";
 import HeaderPublic from "@/components/HeaderPublic";
 import { Metadata } from "next";
+import Accordion from "@/components/Accordion";
 
 export const metadata: Metadata = {
   title: "SacaTurno | Tu app de turnos online",
@@ -132,6 +132,50 @@ export default function Home() {
       {/* PRICING SECTION */}
 
       <PricingSection />
+
+      <div
+        style={{
+          width: "40%",
+          height: "1px",
+          background: "rgba(255, 255, 255, 0.2)",
+          margin: "34px auto",
+        }}
+      ></div>
+
+      <div className="flex flex-col items-center justify-center w-full gap-12 py-20 h-fit ">
+        <header className="text-center">
+          <h4 className="text-3xl font-semibold text-white ">
+            Preguntas frecuentes
+          </h4>
+        </header>
+        <div className="w-full px-6 md:w-4/6 lg:w-1/2 md:px-0 h-fit rounded-xl ">
+          <Accordion
+            title="¿Cómo reservo un turno?"
+            answer='En la pagina principal accedé al menú, hacé click en "Reservar turno", buscá el nombre de la empresa. En el resultado de la busqueda pulsá en el ícono del calendario, cliqueá en el turno disponible que desees, llená tus datos y realizá la reserva. Una vez hecho el turno, recibirás un correo con los datos de la reserva. Si no lo recibiste, revisá la carpeta de correo no deseado.'
+          />
+          <Accordion
+            title="¿Cómo creo mi empresa?"
+            answer="Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor,
+          laborum, quo corporis illo ipsa iure doloribus provident amet nisi
+          deleniti perferendis similique molestiae unde dolores eius dicta
+          voluptate eum qui?"
+          />
+
+          <Accordion
+            title="¿Como cancelo un turno?"
+            answer="Podés cancelar el turno en el mismo momento que hiciste la reserva. Si deseas cancelarlo luego, debes contactarte con el dueño de la empresa mediante el correo y/o el teléfono de contacto que te enviamos al realizar la reserva del turno.  "
+          />
+        </div>
+
+        <div
+          style={{
+            width: "40%",
+            height: "1px",
+            background: "rgba(255, 255, 255, 0.2)",
+            margin: "5rem auto",
+          }}
+        ></div>
+      </div>
     </>
   );
 }
