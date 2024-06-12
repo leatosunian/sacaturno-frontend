@@ -125,7 +125,7 @@ export default function Home() {
           width: "40%",
           height: "1px",
           background: "rgba(255, 255, 255, 0.2)",
-          margin: "34px auto",
+          margin: "5rem auto",
         }}
       ></div>
 
@@ -138,11 +138,11 @@ export default function Home() {
           width: "40%",
           height: "1px",
           background: "rgba(255, 255, 255, 0.2)",
-          margin: "34px auto",
+          margin: "5rem auto",
         }}
       ></div>
 
-      <div className="flex flex-col items-center justify-center w-full gap-12 py-20 h-fit ">
+      <div className="flex flex-col items-center justify-center w-full gap-12 h-fit ">
         <header className="text-center">
           <h4 className="text-3xl font-semibold text-white ">
             Preguntas frecuentes
@@ -155,15 +155,12 @@ export default function Home() {
           />
           <Accordion
             title="¿Cómo creo mi empresa?"
-            answer="Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor,
-          laborum, quo corporis illo ipsa iure doloribus provident amet nisi
-          deleniti perferendis similique molestiae unde dolores eius dicta
-          voluptate eum qui?"
+            answer='Primero debés registrarte y confirmar tu cuenta en el correo que te enviaremos luego del registro. Una vez hayas activado tu cuenta, iniciá sesión y accedé a "Mi empresa", completá los datos de tu negocio y hacé click en "Crear empresa". Recordá crear un servicio para poder comenzar a cargar tus turnos. '
           />
 
           <Accordion
             title="¿Como cancelo un turno?"
-            answer="Podés cancelar el turno en el mismo momento que hiciste la reserva. Si deseas cancelarlo luego, debes contactarte con el dueño de la empresa mediante el correo y/o el teléfono de contacto que te enviamos al realizar la reserva del turno.  "
+            answer="Podés cancelar el turno en el mismo momento que hiciste la reserva. Si deseas cancelarlo luego, debes contactarte con el dueño de la empresa mediante el correo y/o el teléfono de contacto que te enviamos al realizar la reserva del turno."
           />
         </div>
 
