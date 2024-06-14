@@ -13,6 +13,7 @@ import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
 import Alert from "./Alert";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface Props {
   profileData: any;
@@ -223,12 +224,25 @@ const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
               </span>
             )}
           </div>
+          <span className="text-xs font-light">
+            ¿Olvidaste tu contraseña? 
+            {"  "}
+            <Link
+              className="font-semibold cursor-pointer blackOrangeHover"
+              href="/login/recovery"
+            >
+              Cambiar contraseña
+            </Link>
+          </span>
         </div>
         <button
           onClick={handleSubmitClick}
           className={"inputSubmitField hidden "}
         />
       </form>
+
+      <div className="flex flex-col gap-2 my-2 md:gap-0 w-fit h-fit">
+        </div>
 
       <div className="flex flex-col gap-4 mt-9 md:flex-row">
         <button onClick={handleSubmitClick} className={styles.button}>

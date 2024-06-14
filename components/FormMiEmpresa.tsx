@@ -190,7 +190,7 @@ const FormMiEmpresa = ({
           });
           hideAlert();
           setLoading(false);
-
+          router.refresh()
           return;
         }
       }

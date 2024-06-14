@@ -108,6 +108,13 @@ const LoggedInHeader: NextPage<Props> = ({}) => {
           <Link
             onClick={closeNavMenu}
             className="flex items-center h-12 text-xs font-medium uppercase"
+            href="/admin/dashboard"
+          >
+            Inicio
+          </Link>
+          <Link
+            onClick={closeNavMenu}
+            className="flex items-center h-12 text-xs font-medium uppercase"
             href="/business/search"
           >
             Sacar turno

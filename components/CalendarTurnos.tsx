@@ -22,6 +22,8 @@ import { IService } from "@/interfaces/service.interface";
 import NoServicesModal from "./NoServicesModal";
 import ISubscription from "@/interfaces/subscription.interface";
 import ExpiredPlanModal from "./ExpiredPlanModal";
+import AllDayAppointmentsModal from "./AllDayAppointmentsModal";
+import { LuCalendarPlus } from "react-icons/lu";
 
 dayjs.locale("es-mx");
 
@@ -59,6 +61,13 @@ interface eventType2 {
   status?: "booked" | "unbooked" | undefined;
 }
 
+interface IAllDayModalProps {
+  date: Date;
+  business: IBusiness;
+  services: IService[];
+  closeModalF: () => void;
+}
+
 type Keys = keyof typeof Views;
 
 const messages = {
@@ -73,7 +82,12 @@ const messages = {
   time: "Hora",
 };
 
-const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesData, subscriptionData }) => {
+const CalendarTurnos: React.FC<Props> = ({
+  appointments,
+  businessData,
+  servicesData,
+  subscriptionData,
+}) => {
   var now = dayjs();
   const localizer = dayjsLocalizer(dayjs);
   const [appointmentsData, setAppointmentsData] = useState<IAppointment[]>();
@@ -84,18 +98,21 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesD
   const [createAppointmentModal, setCreateAppointmentModal] = useState(false);
   const [createAppointmentData, setCreateAppointmentData] =
     useState<IAppointment>();
+  const [allDayAppointmentsModal, setAllDayAppointmentsModal] = useState(false);
+  const [allDayAppointmentsData, setAllDayAppointmentsData] =
+    useState<IAllDayModalProps>();
   const [view, setView] = useState<(typeof Views)[Keys]>(Views.DAY);
   const [date, setDate] = useState<Date>(now.toDate());
-  const [expiredModal, setExpiredModal] = useState(false)
+  const [expiredModal, setExpiredModal] = useState(false);
   const router = useRouter();
-  
+
   useEffect(() => {
     setAppointmentsData(appointments);
     setBusiness(businessData);
     setServices(servicesData);
     parseAppointments(appointments);
-    if(subscriptionData?.subscriptionType === 'SC_EXPIRED'){
-      setExpiredModal(true)
+    if (subscriptionData?.subscriptionType === "SC_EXPIRED") {
+      setExpiredModal(true);
     }
     return;
   }, [appointments, businessData, services, servicesData, subscriptionData]);
@@ -160,7 +177,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesD
         name,
         email,
         phone,
-        service
+        service,
       }) => {
         let appointmentObj: eventType;
         appointmentObj = {
@@ -174,7 +191,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesD
           name,
           email,
           phone,
-          service
+          service,
         };
         appointmentsList.push(appointmentObj);
       }
@@ -193,7 +210,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesD
       name: event.name,
       phone: event.phone,
       email: event.email,
-      service: event.service
+      service: event.service,
     };
     setEventData(eventDataObj);
     setEventModal(true);
@@ -209,7 +226,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesD
               style={{ backgroundColor: "rgb(203 137 121)" }}
             >
               <span className="text-sm">{event.name} </span>
-              <span style={{fontSize:'11px'}}>{event.service} </span>
+              <span style={{ fontSize: "11px" }}>{event.service} </span>
             </div>
           </>
         );
@@ -222,7 +239,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesD
               style={{ backgroundColor: "#dd4924" }}
             >
               <span className="text-sm font-semibold ">{event.title} </span>
-              <span style={{fontSize:'11px'}}>{event.service} </span>
+              <span style={{ fontSize: "11px" }}>{event.service} </span>
             </div>
           </>
         );
@@ -259,6 +276,14 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesD
 
   return (
     <>
+      {allDayAppointmentsModal && (
+        <AllDayAppointmentsModal
+          business={business}
+          services={services}
+          date={date}
+          closeModalF={() => setAllDayAppointmentsModal(false)}
+        />
+      )}
       {eventModal && (
         <AppointmentModal
           appointment={eventData}
@@ -272,12 +297,8 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesD
           closeModalF={() => setCreateAppointmentModal(false)}
         />
       )}
-      {servicesData.length === 0 && (
-        <NoServicesModal />
-      )}
-      {expiredModal && (
-        <ExpiredPlanModal businessData={business} />
-      )}
+      {servicesData.length === 0 && <NoServicesModal />}
+      {expiredModal && <ExpiredPlanModal businessData={business} />}
 
       <div className="flex flex-col w-full h-fit ">
         <header className="flex justify-center w-full mt-5 mb-3 md:mt-7 md:mb-7 h-fit">
@@ -322,22 +343,44 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesD
             >
               Dia
             </button>
+            {/* <button
+              className={`${styles.btnAddAll} ml-1`}
+              onClick={() => setAllDayAppointmentsModal(true)}
+            >
+              <LuCalendarPlus size={21} />
+            </button> */}
           </div>
         </div>
 
         <div className="flex flex-col mb-2 md:hidden">
           <h4 className="w-full font-bold text-center uppercase text-md">
-            {calendarDate}{" "}
+            {calendarDate}
           </h4>
         </div>
 
-        <div className="fixed bottom-0 z-50 flex justify-center w-full ml-auto mr-auto -translate-y-8 md:hidden">
-          <button className={styles.btnWeekBlue} onClick={() => onPrevClick()}>
-            Anterior
-          </button>
-          <button className={styles.btnDayBlue} onClick={() => onNextClick()}>
-            Siguiente
-          </button>
+        <div className="fixed bottom-0 z-50 flex flex-col items-center w-full ml-auto mr-auto -translate-y-8 md:hidden">
+          <div className="w-fit flex flex-col gap-1">
+            <div className="">
+              <button
+                className={styles.btnWeekBlue}
+                onClick={() => onPrevClick()}
+              >
+                Anterior
+              </button>
+              <button
+                className={styles.btnDayBlue}
+                onClick={() => onNextClick()}
+              >
+                Siguiente
+              </button>
+            </div>
+            <button
+              className={`${styles.btnAddAll} w-full`}
+              onClick={() => setAllDayAppointmentsModal(true)}
+            >
+              Crear turnos del día
+            </button>
+          </div>
         </div>
 
         <div className={styles.calendarContainer}>
@@ -373,6 +416,14 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData, servicesD
             longPressThreshold={250}
           />
         </div>
+        {view === "day" && (
+          <button
+            className={`${styles.btnAddAll} hidden md:flex gap-2 items-center ml-auto mb-10 mt-3`}
+            onClick={() => setAllDayAppointmentsModal(true)}
+          >
+            <LuCalendarPlus size={18} /> Crear turnos del día
+          </button>
+        )}
       </div>
     </>
   );

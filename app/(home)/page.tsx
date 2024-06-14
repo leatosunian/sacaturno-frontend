@@ -125,13 +125,10 @@ export default function Home() {
           width: "40%",
           height: "1px",
           background: "rgba(255, 255, 255, 0.2)",
-          margin: "5rem auto",
+          margin: "50px auto 0px auto",
         }}
+        className="hidden md:block"
       ></div>
-
-      {/* PRICING SECTION */}
-
-      <PricingSection />
 
       <div
         style={{
@@ -140,6 +137,29 @@ export default function Home() {
           background: "rgba(255, 255, 255, 0.2)",
           margin: "5rem auto",
         }}
+        className="block md:hidden"
+      ></div>
+
+      {/* PRICING SECTION */}
+
+      <PricingSection />
+      <div
+        style={{
+          width: "40%",
+          height: "1px",
+          background: "rgba(255, 255, 255, 0.2)",
+          margin: "0px auto 5rem auto",
+        }}
+        className="hidden lg:block"
+      ></div>
+      <div
+        style={{
+          width: "40%",
+          height: "1px",
+          background: "rgba(255, 255, 255, 0.2)",
+          margin: "5rem auto",
+        }}
+        className="block lg:hidden"
       ></div>
 
       <div className="flex flex-col items-center justify-center w-full gap-12 h-fit ">
@@ -157,7 +177,14 @@ export default function Home() {
             title="¿Cómo creo mi empresa?"
             answer='Primero debés registrarte y confirmar tu cuenta en el correo que te enviaremos luego del registro. Una vez hayas activado tu cuenta, iniciá sesión y accedé a "Mi empresa", completá los datos de tu negocio y hacé click en "Crear empresa". Recordá crear un servicio para poder comenzar a cargar tus turnos. '
           />
-
+          <Accordion
+            title="¿Como cancelo un turno?"
+            answer="Podés cancelar el turno en el mismo momento que hiciste la reserva. Si deseas cancelarlo luego, debes contactarte con el dueño de la empresa mediante el correo y/o el teléfono de contacto que te enviamos al realizar la reserva del turno."
+          />
+          <Accordion
+            title="¿Como cancelo un turno?"
+            answer="Podés cancelar el turno en el mismo momento que hiciste la reserva. Si deseas cancelarlo luego, debes contactarte con el dueño de la empresa mediante el correo y/o el teléfono de contacto que te enviamos al realizar la reserva del turno."
+          />
           <Accordion
             title="¿Como cancelo un turno?"
             answer="Podés cancelar el turno en el mismo momento que hiciste la reserva. Si deseas cancelarlo luego, debes contactarte con el dueño de la empresa mediante el correo y/o el teléfono de contacto que te enviamos al realizar la reserva del turno."

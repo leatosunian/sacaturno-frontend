@@ -124,6 +124,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
     );
     setAppointmentsData(appointmentsList);
     setLoading(false);
+    appointmentsList.sort((a, b) => a.start.getTime() - b.start.getTime());
     return appointmentsList;
   };
 
@@ -144,7 +145,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
           closeModalF={() => setAppointmentInfoModal(false)}
         />
       )}
-      <div className="flex w-full h-full pt-8 px-7 sm:px-24 md:pt-16 md:px-24 lg:px-36 xl:px-60 ">
+      <div className="flex w-full h-full pt-8 px-7 sm:px-24 md:pt-16 md:px-24 lg:px-36 xl:px-60 2xl:px-80">
         <div className="flex flex-col w-full gap-7 md:gap-12 h-fit">
           <h4 className="text-2xl font-semibold md:text-3xl">
             ¡Bienvenido, {userData?.name}!{" "}
@@ -309,7 +310,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                   </span>
                   <Link href="/admin/misturnos">
                     <button className={`${styles.button} px-7`}>
-                      Ver historial
+                      Ver mis turnos
                     </button>
                   </Link>
                 </div>

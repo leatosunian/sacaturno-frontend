@@ -29,6 +29,8 @@ async function getBusinessData() {
       },
     });
     const appList:IAppointment[] = appointments.data
+    console.log(appList);
+    
     return { business: business, appointments: appList };
   } catch (error: any) {
     return undefined
