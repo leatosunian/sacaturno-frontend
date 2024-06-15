@@ -91,6 +91,35 @@
   height: 65vh !important;
 }
 
+.dropmenu{
+  padding: 8px 14px;
+  border-radius: 12px;
+  color: white;
+  margin-top: 20px;
+  background-color: #dd4924;
+  font-size: 13px;
+  z-index: 2000;
+  -webkit-border-radius: 12px;
+  -moz-border-radius: 12px;
+  -ms-border-radius: 12px;
+  -o-border-radius: 12px;
+}
+
+.dropmenu::before {
+  content: '';
+  background: inherit;
+  position: relative;
+  margin-top: 20px;
+
+  top: 20px;
+  right: 14px;
+  width: 10px;
+  height: 10px;
+  rotate: -45deg;
+  position: absolute;
+  margin-left: auto;
+}
+
 @media (max-width: 768px) {
   .calendarComponent {
     width: 100vw !important;

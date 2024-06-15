@@ -24,6 +24,7 @@ import ISubscription from "@/interfaces/subscription.interface";
 import ExpiredPlanModal from "./ExpiredPlanModal";
 import AllDayAppointmentsModal from "./AllDayAppointmentsModal";
 import { LuCalendarPlus } from "react-icons/lu";
+import { IoMdMore } from "react-icons/io";
 
 dayjs.locale("es-mx");
 
@@ -104,6 +105,7 @@ const CalendarTurnos: React.FC<Props> = ({
   const [view, setView] = useState<(typeof Views)[Keys]>(Views.DAY);
   const [date, setDate] = useState<Date>(now.toDate());
   const [expiredModal, setExpiredModal] = useState(false);
+  const [dropdownActive, setDropdownActive] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -132,7 +134,7 @@ const CalendarTurnos: React.FC<Props> = ({
     dayjs.extend(timezone);
     dayjs.extend(utc);
     dayjs.extend(advanced);
-
+    setDropdownActive(false)
     const token = localStorage.getItem("sacaturno_token");
     const authHeader = {
       headers: {
@@ -200,6 +202,7 @@ const CalendarTurnos: React.FC<Props> = ({
   };
 
   const handleSelectEvent = (event: eventType) => {
+    setDropdownActive(false)
     const eventDataObj: eventType2 = {
       _id: event._id,
       start: dayjs(event.start).format("D [de] MMMM [|] HH:mm [hs]"),
@@ -225,8 +228,8 @@ const CalendarTurnos: React.FC<Props> = ({
               className="flex flex-col h-full gap-1 px-2 py-1 w-fit"
               style={{ backgroundColor: "rgb(203 137 121)" }}
             >
-              <span className="text-sm">{event.name} </span>
-              <span style={{ fontSize: "11px" }}>{event.service} </span>
+              <span className="md:text-sm text-xs ">{event.name} </span>
+              <span style={{ fontSize: "10px" }}>{event.service} </span>
             </div>
           </>
         );
@@ -238,8 +241,8 @@ const CalendarTurnos: React.FC<Props> = ({
               className="flex flex-col w-full h-full gap-1 px-2 py-1"
               style={{ backgroundColor: "#dd4924" }}
             >
-              <span className="text-sm font-semibold ">{event.title} </span>
-              <span style={{ fontSize: "11px" }}>{event.service} </span>
+              <span className="md:text-sm text-xs font-semibold ">{event.title} </span>
+              <span style={{ fontSize: "10px" }}>{event.service} </span>
             </div>
           </>
         );
@@ -299,10 +302,31 @@ const CalendarTurnos: React.FC<Props> = ({
       )}
       {servicesData.length === 0 && <NoServicesModal />}
       {expiredModal && <ExpiredPlanModal businessData={business} />}
+      {/* mobile dropdown */}
+      <div
+        style={{ position: "absolute", top: "87px", right: "20px" }}
+        className="md:hidden overflow-hidden flex flex-col"
+      >
+        <IoMdMore
+          onClick={() => setDropdownActive(!dropdownActive)}
+          size={25}
+          className="md:hidden block ml-auto"
+          style={{ marginRight: "6px" }}
+        />
+        {dropdownActive && (
+          <div className={styles.dropmenu}>
+            <span onClick={() => {
+              setAllDayAppointmentsModal(true)
+              setDropdownActive(false)
+            }} className="font-medium" >Crear turnos del día</span>
+          </div>
+        )}
+      </div>
+      {/* mobile dropdown */}
 
       <div className="flex flex-col w-full h-fit ">
-        <header className="flex justify-center w-full mt-5 mb-3 md:mt-7 md:mb-7 h-fit">
-          <h4 style={{ fontSize: "22px" }} className="font-bold uppercase ">
+        <header className="flex w-full mt-5 justify-center items-center mb-3 md:mt-7 md:mb-7 h-fit">
+          <h4 style={{ fontSize: "22px" }} className="font-bold  uppercase ">
             Mis Turnos
           </h4>
         </header>
@@ -374,12 +398,6 @@ const CalendarTurnos: React.FC<Props> = ({
                 Siguiente
               </button>
             </div>
-            <button
-              className={`${styles.btnAddAll} w-full`}
-              onClick={() => setAllDayAppointmentsModal(true)}
-            >
-              Crear turnos del día
-            </button>
           </div>
         </div>
 
