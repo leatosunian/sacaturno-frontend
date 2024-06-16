@@ -43,7 +43,10 @@ const LoggedInHeader: NextPage<Props> = ({}) => {
         style={{ backgroundColor: "#060606" }}
       >
         <div className="flex items-center justify-center h-full gap-1 w-fit ">
-          <Image className="w-28" src={sacaturno_logo} alt="SacaTurno" />
+          <Link href={'/admin/dashboard'}>
+          
+            <Image className="w-28" src={sacaturno_logo} alt="SacaTurno" />
+          </Link>
         </div>
 
         <div className="items-center justify-center hidden gap-8 text-sm md:flex">
