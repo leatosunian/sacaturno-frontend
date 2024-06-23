@@ -95,7 +95,10 @@
   padding: 8px 14px;
   border-radius: 12px;
   color: white;
+  display: flex;
+  gap: 9px;
   margin-top: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.459);
   background-color: #dd4924;
   font-size: 13px;
   z-index: 2000;
@@ -110,6 +113,9 @@
   background: inherit;
   position: relative;
   margin-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.459);
+  z-index: 1000;
+  border-right: 1px solid rgba(0, 0, 0, 0.459);
 
   top: 20px;
   right: 14px;

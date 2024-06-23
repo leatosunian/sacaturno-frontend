@@ -3,4 +3,6 @@ export interface IService {
   businessID: string | undefined;
   name: string | undefined;
   ownerID?: string | undefined;
+  price: number | undefined;
+  description: string | undefined;
 }

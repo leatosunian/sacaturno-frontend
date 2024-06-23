@@ -5,13 +5,14 @@ import styles from "@/app/css-modules/FormMiEmpresa.module.css";
 import { useEffect, useState } from "react";
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
-import { FaEdit } from "react-icons/fa";
-import { RxCross2 } from "react-icons/rx";
-import { IoMdAdd, IoMdAlert } from "react-icons/io";
 import { useRouter } from "next/navigation";
 import Alert from "./Alert";
 import UpgradePlanModal from "./UpgradePlanModal";
-import { FaMedal } from "react-icons/fa6";
+import { LuSearchX } from "react-icons/lu";
+import { TbPlaylistAdd } from "react-icons/tb";
+import CreateServiceModal from "./CreateServiceModal";
+import { IoMdMore } from "react-icons/io";
+import EditServiceModal from "./EditServiceModal";
 
 const FormSettings = ({
   businessData,
@@ -26,13 +27,18 @@ const FormSettings = ({
   const [services, setServices] = useState<IService[]>();
   const [newService, setNewService] = useState("");
   const [alert, setAlert] = useState<AlertInterface>();
-  const [upgradePlanModal, setUpgradePlanModal] = useState(false);
+  const [upgradePlanModal, setUpgradePlanModal] = useState<boolean>(false);
+  const [editServiceModal, setEditServiceModal] = useState<boolean>(false);
+  const [serviceToEdit, setServiceToEdit] = useState<IService>();
+  const [createServiceModal, setCreateServiceModal] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const router = useRouter();
 
   // USEFFECTS
   useEffect(() => {
     setServices(servicesData);
+    setLoading(false);
   }, [servicesData]);
 
   // FUNCTIONS
@@ -42,7 +48,11 @@ const FormSettings = ({
     }, 3000);
   };
 
-  const addService = async () => {
+  const addService = async (formData: {
+    name: string;
+    price: number;
+    description: string;
+  }) => {
     if (
       subscriptionData.subscriptionType === "SC_FREE" &&
       servicesData.length > 0
@@ -56,7 +66,7 @@ const FormSettings = ({
       (subscriptionData.subscriptionType === "SC_FREE" &&
         servicesData.length === 0)
     ) {
-      if (newService !== "" && services) {
+      if (formData && services) {
         try {
           const token = localStorage.getItem("sacaturno_token");
           const authHeader = {
@@ -67,13 +77,12 @@ const FormSettings = ({
           };
 
           let newServiceData: IService = {
-            name: "",
-            businessID: "",
-            ownerID: "",
+            name: formData.name,
+            businessID: businessData?._id,
+            ownerID: businessData?.ownerID,
+            price: formData.price,
+            description: formData.description,
           };
-          newServiceData.name = newService;
-          newServiceData.businessID = businessData?._id;
-          newServiceData.ownerID = businessData?.ownerID;
 
           const createService = await axiosReq.post(
             "/business/service/create",
@@ -86,6 +95,7 @@ const FormSettings = ({
             alertType: "OK_ALERT",
           });
           hideAlert();
+          setCreateServiceModal(false);
           setNewService("");
           router.refresh();
         } catch (error) {
@@ -100,6 +110,8 @@ const FormSettings = ({
   };
 
   const deleteService = async (serviceID: string | undefined) => {
+    setEditServiceModal(false);
+    setLoading(true);
     try {
       const token = localStorage.getItem("sacaturno_token");
       const authHeader = {
@@ -119,12 +131,50 @@ const FormSettings = ({
       });
       hideAlert();
       router.refresh();
+      setLoading(false);
     } catch (error) {
       setAlert({
         msg: "Error al eliminar servicio",
         error: true,
         alertType: "ERROR_ALERT",
       });
+      setLoading(false);
+    }
+  };
+
+  const editService = async (formData: {
+    id: string | undefined;
+    name: string | undefined;
+    description: string | undefined;
+    price: number | undefined;
+  }) => {
+    setEditServiceModal(false);
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem("sacaturno_token");
+      const authHeader = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      await axiosReq.put(`/business/service/edit`, formData, authHeader);
+      setAlert({
+        msg: "Servicio editado",
+        error: true,
+        alertType: "OK_ALERT",
+      });
+      hideAlert();
+      router.refresh();
+      setLoading(false);
+    } catch (error) {
+      setAlert({
+        msg: "Error al editar servicio",
+        error: true,
+        alertType: "ERROR_ALERT",
+      });
+      setLoading(false);
     }
   };
 
@@ -157,236 +207,207 @@ const FormSettings = ({
     }
   };
 
+  const setEditService = async (service: IService) => {
+    if (service !== undefined) {
+      setServiceToEdit(service);
+      setEditServiceModal(true);
+    }
+  };
+
   return (
     <>
-      {upgradePlanModal && (
-        <UpgradePlanModal createPreference={handleMercadoPagoPreference} closeModalF={() => setUpgradePlanModal(false)} />
+      {createServiceModal && (
+        <CreateServiceModal
+          closeModalF={() => setCreateServiceModal(false)}
+          onCreateService={(formData) => addService(formData)}
+        />
       )}
-      {/* {subscriptionData.subscriptionType === 'SC_EXPIRED' && (
-        <ExpiredPlanModal createPreference={handleMercadoPagoPreference} />
-      )} */}
+
+      {upgradePlanModal && (
+        <UpgradePlanModal
+          createPreference={handleMercadoPagoPreference}
+          closeModalF={() => setUpgradePlanModal(false)}
+        />
+      )}
+
+      {editServiceModal && (
+        <EditServiceModal
+          serviceData={serviceToEdit}
+          onDeleteService={(serviceID) => deleteService(serviceID)}
+          onEditService={(serviceData) => editService(serviceData)}
+          closeModalF={() => setEditServiceModal(false)}
+        />
+      )}
+
       {/* SERVICES SECTION */}
+
       <div className="flex flex-col w-fit h-fit">
         <h3 className="mb-8 text-xl font-bold text-center uppercase md:mb-4 ">
           Servicios
         </h3>
 
-        <div className="flex flex-col items-center justify-center w-full gap-6 my-0 lg:flex-row lg:mt-4 md:gap-5 lg:gap-16 ">
-          <div className={`${styles.formInputAppDuration} mb-auto`}>
-            <div className={styles.formInput}>
-              <span
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                añadir servicio
-              </span>
-              <div className="flex items-center gap-3 w-fit h-fit">
-                <input
-                  placeholder="Nombre del servicio"
-                  type="text"
-                  value={newService}
-                  maxLength={30}
-                  onChange={(e) => {
-                    setNewService(e.target.value);
-                  }}
-                />
-                <button onClick={addService} className={styles.button}>
-                  <IoMdAdd size={17} />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {servicesData?.length === 0 && (
-            <div className="flex items-center justify-center h-fit lg:h-16 w-fit">
-              <span className="text-xs font-semibold uppercase md:text-sm">
-                Aún no tenés servicios creados.
-              </span>
-            </div>
-          )}
-
-          {servicesData?.length !== 0 && (
-            <div className="flex flex-col gap-2 w-fit h-fit">
-              {servicesData?.map((service) => (
-                <div key={service._id} className={styles.formInputAppDuration}>
-                  <div
-                    style={{
-                      padding: "22px 16px",
-                      border: "1px solid rgba(95, 95, 95, 0.267)",
-                      borderRadius: "8px",
-                    }}
-                    className="flex items-center h-8 gap-1 w-fit"
-                  >
-                    <span className="mr-4 text-xs font-semibold uppercase">
-                      {service.name}
-                    </span>
-
-                    <button
-                      className={styles.button}
-                      key={service._id}
-                      onClick={() => deleteService(service._id)}
-                    >
-                      <RxCross2 size={12} />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-      {/* SERVICES SECTION */}
-
-      {/* DIVIDER */}
-      <div className="flex justify-center w-full my-7 md:my-12 h-fit ">
-        <div
-          style={{
-            width: "80%",
-            height: "1px",
-            background: "rgba(0, 0, 0, 0.2)",
-          }}
-        ></div>
-      </div>
-      {/* DIVIDER */}
-
-      <div className="flex flex-col w-full h-fit">
-        <h3 className="mb-8 text-xl font-bold text-center uppercase md:mb-4 ">
-          Mi Plan
-        </h3>
-
-        {subscriptionData.subscriptionType !== "SC_EXPIRED" && (
+        {loading && (
           <>
-            <div className="flex flex-col justify-between w-full gap-4 px-4 mb-5 md:px-20 md:gap-0 h-fit md:flex-row">
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col">
-                  {subscriptionData.subscriptionType === "SC_FREE" && (
-                    <>
-                      <b className="text-xs uppercase">Plan actual</b>
-                      <span className="text-xs font-semibold uppercase">
-                        Plan Free
-                      </span>
-                    </>
-                  )}
-                  {subscriptionData.subscriptionType === "SC_FULL" && (
-                    <>
-                      <b className="text-xs uppercase">Plan actual</b>
-                      <span className="flex items-center gap-1 text-xs font-semibold uppercase">
-                        <FaMedal color="#dd4924" />
-                        Plan Full
-                      </span>
-                    </>
-                  )}
-                </div>
-
-                <div className="flex flex-col">
-                  {subscriptionData.subscriptionType === "SC_FREE" && (
-                    <>
-                      <b className="text-xs uppercase">Estado del plan</b>
-                      <span className="text-xs font-semibold text-green-600 uppercase">
-                        ● Activo
-                      </span>
-                    </>
-                  )}
-                  {subscriptionData.subscriptionType === "SC_FULL" && (
-                    <>
-                      <b className="text-xs uppercase">Estado del plan</b>
-                      <span className="text-xs font-semibold text-green-600 uppercase">
-                        ● Activo
-                      </span>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-4">
-                {subscriptionData.subscriptionType === "SC_FREE" && (
-                  <>
-                    <div className="flex flex-col">
-                      <b className="text-xs uppercase">Fecha de activación</b>
-                      <span className="text-xs font-semibold uppercase">
-                        {subscriptionData.paymentDate}
-                      </span>
-                    </div>
-                    <div className="flex flex-col">
-                      <b className="text-xs uppercase">Fecha de vencimiento</b>
-                      <span className="text-xs font-semibold uppercase">
-                        {subscriptionData.expiracyDate}
-                      </span>
-                    </div>
-                  </>
-                )}
-
-                {subscriptionData.subscriptionType === "SC_FULL" && (
-                  <>
-                    <div className="flex flex-col">
-                      <b className="text-xs uppercase">Fecha de pago</b>
-                      <span className="text-xs font-semibold uppercase">
-                        {subscriptionData.paymentDate}
-                      </span>
-                    </div>
-                    <div className="flex flex-col">
-                      <b className="text-xs uppercase">Fecha de vencimiento</b>
-                      <span className="text-xs font-semibold uppercase">
-                        {subscriptionData.expiracyDate}
-                      </span>
-                    </div>
-                  </>
-                )}
+            <div className="h-64 w-96 lg:h-72">
+              <div
+                style={{ height: "100%", width: "100%" }}
+                className="flex items-center justify-center w-full"
+              >
+                <div className="loader"></div>
               </div>
             </div>
           </>
         )}
+
+        {services?.length === 0 && !loading && (
+          <>
+            <div className="flex flex-col items-center justify-center gap-5 mt-0 md:mt-3 mb-7 md:px-20">
+              <LuSearchX
+                color="#dd4924"
+                className="block md:hidden"
+                size={50}
+              />
+              <LuSearchX
+                color="#dd4924"
+                className="hidden md:block"
+                size={100}
+              />
+              <div className="flex flex-col items-center gap-3 w-fit h-fit">
+                <span className="text-lg font-semibold text-center md:text-xl ">
+                  Todavía no creaste ningún servicio.
+                </span>
+                <span className="w-full text-xs font-semibold text-center text-gray-500 md:w-5/6">
+                  Recordá que debés crear al menos un servicio para comenzar a
+                  gestionar tus turnos
+                </span>
+              </div>
+            </div>
+
+            <div className="mb-3">
+              <button
+                onClick={() => {
+                  setCreateServiceModal(true);
+                }}
+                className={`${styles.button} mx-auto`}
+                style={{ padding: "6px 12px", gap: "6px" }}
+              >
+                <TbPlaylistAdd size={25} />
+                Crear servicio
+              </button>
+            </div>
+
+            {/* <div className="flex gap-1 mt-0 md:mt-2 w-fit h-fit ">
+              <PiSealWarningFill color="rgb(161 98 7)" />
+              <span className="text-xs font-semibold text-yellow-700">
+                ¡Debés crear al menos un servicio para comenzar a gestionar tus
+                turnos!
+              </span>
+            </div> */}
+          </>
+        )}
+
+        {servicesData.length > 0 && !loading && (
+          <>
+            <div className="flex flex-col w-full gap-3 mt-0 md:mt-2 h-fit">
+              {servicesData.map((service) => (
+                <div
+                  key={service._id}
+                  className="flex items-center py-3 pl-5 pr-4 rounded-lg"
+                  style={{
+                    border: "1px solid rgba(0, 0, 0, 0.2)",
+                  }}
+                >
+                  <span className="text-xs font-semibold uppercase md:text-sm w-fit">
+                    {service.name}
+                  </span>
+                  <div
+                    style={{
+                      width: "1px",
+                      height: "26px",
+                      backgroundColor: "rgba(0, 0, 0, 0.2)",
+                    }}
+                    className="mx-5"
+                  ></div>
+                  <div className="flex flex-col mr-2 md:mr-3 w-fit h-fit">
+                    <h5 className="text-sm font-semibold lg:text-md">
+                      AR$ {service.price}
+                    </h5>
+                    {service.description !== "" && (
+                      <span className="text-xs font-normal text-gray-500 lg:text-sm">
+                        {service.description}
+                      </span>
+                    )}
+                    {service.description === "" && (
+                      <span className="text-xs font-normal text-gray-500">
+                        No hay descripción.
+                      </span>
+                    )}
+                  </div>
+                  <IoMdMore
+                    className="ml-auto"
+                    size={24}
+                    onClick={() => setEditService(service)}
+                  />
+                </div>
+              ))}
+
+              {subscriptionData.subscriptionType === "SC_FULL" && (
+                <div className="my-3">
+                  <button
+                    onClick={() => {
+                      setCreateServiceModal(true);
+                    }}
+                    className={`${styles.button} mx-auto`}
+                    style={{ padding: "6px 12px", gap: "6px" }}
+                  >
+                    <TbPlaylistAdd size={25} />
+                    añadir servicio
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {subscriptionData.subscriptionType === "SC_FREE" && (
+              <>
+                <div className="mt-5 notifications-container">
+                  <div className="alert">
+                    <div className="flex">
+                      <div className="flex-shrink-0">
+                        <svg
+                          aria-hidden="true"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="w-5 h-5 alert-svg"
+                        >
+                          <path
+                            clip-rule="evenodd"
+                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                            fill-rule="evenodd"
+                          ></path>
+                        </svg>
+                      </div>
+                      <div className="alert-prompt-wrap">
+                        <p className="text-sm text-yellow-700">
+                          Para agregar más de un servicio debes suscribirte al
+                          Plan Full.{" "}
+                          <span
+                            className="alert-prompt-link"
+                            onClick={handleMercadoPagoPreference}
+                          >
+                            Actualizar suscripción
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </>
+        )}
       </div>
 
-      {subscriptionData.subscriptionType === "SC_EXPIRED" && (
-        <>
-          <div className="flex flex-col items-center justify-center gap-2 px-5">
-            <IoMdAlert color="#dd4924" size={40} />
-            <span className="text-xs font-semibold text-center md:text-sm">
-              Tu suscripción ha caducado. Hacé click en el boton debajo para
-              renovar tu plan.
-            </span>
-          </div>
-
-          <div className="mb-2 mt-7">
-            <button
-              onClick={handleMercadoPagoPreference}
-              className={styles.button}
-            >
-              Actualizar plan
-            </button>
-          </div>
-        </>
-      )}
-
-      {subscriptionData.subscriptionType === "SC_FREE" && (
-        <>
-          <div className="flex flex-col items-center justify-center gap-2 px-5 mt-5 md:mt-7 md:flex-row">
-            <IoMdAlert className="hidden md:block" color="#dd4924" size={25} />
-            <IoMdAlert className="block md:hidden" color="#dd4924" size={40} />
-            <span className="text-xs font-semibold md:text-sm">
-              Estás utilizando una prueba gratuita.
-            </span>
-          </div>
-
-          <div className="mt-4 mb-2">
-            <button
-              onClick={handleMercadoPagoPreference}
-              className={styles.button}
-            >
-              Actualizar plan
-            </button>
-          </div>
-        </>
-      )}
-
-      {/* <div className="flex justify-start w-full px-4 my-3 h-fit lg:my-0">
-        <Link className="flex items-center gap-2 text-xs font-semibold uppercase" style={{color:'#dd4924'}} href="/admin/miempresa">
-          <FaArrowLeft />
-          Modificar datos de mi empresa
-        </Link>
-      </div> */}
-      {/* ALERT */}
       {alert?.error && (
         <div className="flex justify-center w-full h-fit">
           <Alert

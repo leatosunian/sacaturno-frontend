@@ -14,18 +14,29 @@ import AlertInterface from "@/interfaces/alert.interface";
 import Alert from "./Alert";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { FaMedal } from "react-icons/fa6";
+import { MdMoneyOff } from "react-icons/md";
+import { IoMdAlert } from "react-icons/io";
+import { IBusiness } from "@/interfaces/business.interface";
 
 interface Props {
   profileData: any;
+  subscriptionData: any;
+  businessData: IBusiness;
 }
 
 interface formInputs {
   name: string;
   phone: number;
   email: string;
+  birthdate: string;
 }
 
-const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
+const FormMiPerfil: React.FC<Props> = ({
+  profileData,
+  subscriptionData,
+  businessData,
+}: Props) => {
   const {
     register,
     handleSubmit,
@@ -37,6 +48,8 @@ const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
   });
   const [alert, setAlert] = useState<AlertInterface>();
   const [profile, setProfile] = useState<IUser>();
+  const [loading, setLoading] = useState<boolean>(false);
+
   const router = useRouter();
   useEffect(() => {
     setValue("name", profileData.response_data.name);
@@ -89,6 +102,7 @@ const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
   };
 
   const saveChanges = async (data: FieldValues) => {
+    setLoading(true);
     const token = localStorage.getItem("sacaturno_token");
     const userID = localStorage.getItem("sacaturno_userID");
     const authHeader = {
@@ -113,10 +127,40 @@ const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
       });
       hideAlert();
     }
+    setLoading(false);
+  };
+
+  const handleMercadoPagoPreference = async () => {
+    const token = localStorage.getItem("sacaturno_token");
+    const authHeader = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const data = {
+      title: "Plan Full",
+      businessID: businessData._id,
+      ownerID: businessData.ownerID,
+      email: businessData.email,
+      quantity: 1,
+      currency_id: "ARS",
+    };
+
+    try {
+      const preference = await axiosReq.post(
+        "/subscription/pay/full",
+        data,
+        authHeader
+      );
+      router.push(preference.data.init_point);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const myLoader = ({ src }: { src: string }) => {
-    return `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${profile?.profileImage}`;
+    return `http://localhost:4000/api/user/getprofilepic/${profile?.profileImage}`;
   };
 
   const updateProfileImage = async (image: File) => {
@@ -156,6 +200,9 @@ const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
 
   return (
     <>
+      <div className="flex justify-center w-full mb-9 h-fit">
+        <h3 className="text-xl font-bold uppercase ">Información personal</h3>
+      </div>
       <form
         className={styles.form}
         onSubmit={handleSubmit((data) => saveChanges(data))}
@@ -187,7 +234,7 @@ const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
         <div className="flex flex-col justify-center w-full gap-5 md:w-1/2 md:gap-5">
           <div className={styles.formInput}>
             <span style={{ fontSize: "12px" }} className="font-bold uppercase ">
-              Nombre
+              Nombre y apellido
             </span>
             <input type="text" {...register("name")} maxLength={30} />
             {errors.name?.message && (
@@ -200,7 +247,14 @@ const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
             <span style={{ fontSize: "12px" }} className="font-bold uppercase ">
               Email
             </span>
-            <input type="email" {...register("email")} maxLength={40} />
+            <input
+              className="text-gray-400"
+              type="email"
+              {...register("email")}
+              disabled
+              maxLength={40}
+              title="El correo no se puede cambiar"
+            />
             {errors.email?.message && (
               <span className="text-xs font-semibold text-red-600">
                 {errors.email.message}
@@ -224,8 +278,19 @@ const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
               </span>
             )}
           </div>
+          <div className={styles.formInput}>
+            <span style={{ fontSize: "12px" }} className="font-bold uppercase ">
+              Fecha de nacimiento
+            </span>
+            <input type="date" {...register("birthdate")} />
+            {errors.phone?.message && (
+              <span className="text-xs font-semibold text-red-600">
+                {errors.phone.message}
+              </span>
+            )}
+          </div>
           <span className="text-xs font-light">
-            ¿Olvidaste tu contraseña? 
+            ¿Olvidaste tu contraseña?
             {"  "}
             <Link
               className="font-semibold cursor-pointer blackOrangeHover"
@@ -241,14 +306,348 @@ const FormMiPerfil: React.FC<Props> = ({ profileData }: Props) => {
         />
       </form>
 
-      <div className="flex flex-col gap-2 my-2 md:gap-0 w-fit h-fit">
+      <div className="flex flex-col gap-2 my-2 md:gap-0 w-fit h-fit"></div>
+
+      <div className="flex items-center justify-center w-full mt-6 h-9">
+        {loading && (
+          <>
+            <div
+              style={{ height: "100%", width: "100%" }}
+              className="flex items-center justify-center w-full"
+            >
+              <div className="loaderSmall"></div>
+            </div>
+          </>
+        )}
+        {!loading && (
+          <button onClick={handleSubmitClick} className={styles.button}>
+            <LuSave size={18} />
+            Guardar cambios
+          </button>
+        )}
+      </div>
+
+      {/* DIVIDER */}
+      <div className="flex justify-center w-full my-7 md:my-12 h-fit ">
+        <div
+          style={{
+            width: "80%",
+            height: "1px",
+            background: "rgba(0, 0, 0, 0.2)",
+          }}
+        ></div>
+      </div>
+      {/* DIVIDER */}
+
+      <div className="flex flex-col w-full h-fit">
+        <h3 className="mb-8 text-xl font-bold text-center uppercase md:mb-10 ">
+          Planes y facturación
+        </h3>
+
+        <div className="w-full mb-5 md:px-20 ">
+          <h5 className="font-semibold text-xl mb-4">&#128188; Mi plan</h5>
         </div>
 
-      <div className="flex flex-col gap-4 mt-9 md:flex-row">
-        <button onClick={handleSubmitClick} className={styles.button}>
-          <LuSave size={18} />
-          Guardar cambios
-        </button>
+        {subscriptionData.subscriptionType !== "SC_EXPIRED" && (
+          <>
+            <div className="flex flex-col justify-between w-full gap-4 px-0 mb-5 md:px-20 md:gap-0 h-fit md:flex-row">
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col">
+                  {subscriptionData.subscriptionType === "SC_FREE" && (
+                    <>
+                      <b className="text-xs uppercase">Plan actual</b>
+                      <span className="text-xs font-semibold uppercase">
+                        Plan Free
+                      </span>
+                    </>
+                  )}
+                  {subscriptionData.subscriptionType === "SC_FULL" && (
+                    <>
+                      <b className="text-xs uppercase">Plan actual</b>
+                      <span className="flex items-center gap-1 text-xs font-semibold uppercase">
+                        <FaMedal color="#dd4924" />
+                        Plan Full
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                <div className="flex flex-col">
+                  {subscriptionData.subscriptionType === "SC_FREE" && (
+                    <>
+                      <b className="text-xs uppercase">Estado del plan</b>
+                      <span className="text-xs font-semibold text-green-600 uppercase">
+                        ● Activo
+                      </span>
+                    </>
+                  )}
+                  {subscriptionData.subscriptionType === "SC_FULL" && (
+                    <>
+                      <b className="text-xs uppercase">Estado del plan</b>
+                      <span className="text-xs font-semibold text-green-600 uppercase">
+                        ● Activo
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                {subscriptionData.subscriptionType === "SC_FREE" && (
+                  <>
+                    <div className="flex flex-col">
+                      <b className="text-xs uppercase">Fecha de activación</b>
+                      <span className="text-xs font-semibold uppercase">
+                        {subscriptionData.paymentDate}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <b className="text-xs uppercase">Fecha de vencimiento</b>
+                      <span className="text-xs font-semibold uppercase">
+                        {subscriptionData.expiracyDate}
+                      </span>
+                    </div>
+                  </>
+                )}
+
+                {subscriptionData.subscriptionType === "SC_FULL" && (
+                  <>
+                    <div className="flex flex-col">
+                      <b className="text-xs uppercase">Fecha de pago</b>
+                      <span className="text-xs font-semibold uppercase">
+                        {subscriptionData.paymentDate}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <b className="text-xs uppercase">Fecha de vencimiento</b>
+                      <span className="text-xs font-semibold uppercase">
+                        {subscriptionData.expiracyDate}
+                      </span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {subscriptionData.subscriptionType === "SC_EXPIRED" && (
+          <>
+            <div className="flex mt-3 mb-5 md:px-20  flex-col items-center justify-center gap-2 px-5">
+              <IoMdAlert color="#dd4924" size={40} />
+              <span className="text-xs font-semibold text-center md:text-sm">
+                Tu suscripción ha caducado. Hacé click en el boton debajo para
+                renovar tu plan.
+              </span>
+            </div>
+
+            <div className="mt-0 md:mt-4 mb-6">
+              <button
+                onClick={handleMercadoPagoPreference}
+                className={`${styles.button} mx-auto`}
+              >
+                Actualizar plan
+              </button>
+            </div>
+          </>
+        )}
+
+        {subscriptionData.subscriptionType === "SC_FREE" && (
+          <>
+            <div className="flex flex-col items-center justify-center gap-2 px-5 mt-5 md:mt-7 md:flex-row">
+              <IoMdAlert
+                className="hidden md:block"
+                color="#dd4924"
+                size={25}
+              />
+              <IoMdAlert
+                className="block md:hidden"
+                color="#dd4924"
+                size={40}
+              />
+              <span className="text-xs font-semibold md:text-sm">
+                Estás utilizando una prueba gratuita.
+              </span>
+            </div>
+
+            <div className="mt-4 mb-6">
+              <button
+                onClick={handleMercadoPagoPreference}
+                className={`${styles.button} mx-auto`}
+              >
+                Actualizar plan
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* DIVIDER */}
+        <div className="flex justify-center w-full my-7 md:my-6 h-fit ">
+          <div
+            style={{
+              width: "35%",
+              height: "1px",
+              background: "rgba(0, 0, 0, 0.2)",
+            }}
+          ></div>
+        </div>
+        {/* DIVIDER */}
+
+        <div className="flex flex-col justify-between mt-6 w-full px-0 gap-4 mb-5 md:mb-10 md:px-20 md:gap-5 h-fit ">
+          <h5 className="font-semibold text-xl mb-4">
+            &#128179; Historial de facturación
+          </h5>
+          <div className="flex flex-col gap-2 w-full h-full ">
+            <div
+              className="w-full h-fit hidden lg:flex pb-1 items-center justify-between mb-2"
+              style={{
+                borderBottom: "1px solid rgba(0, 0, 0, 0.2)",
+                paddingRight: "7px",
+              }}
+            >
+              <span className="font-bold w-4/12 text-xs uppercase">
+                Suscripción
+              </span>
+              <span className="font-bold w-1/5 text-xs uppercase ">Precio</span>
+              <span className="font-bold w-2/6 text-xs uppercase ">
+                Fecha de pago
+              </span>
+              <span className="font-bold w-1/5 text-xs uppercase">Estado</span>
+            </div>
+
+            <div
+              className={`${styles.paymentsCont} flex flex-col gap-4 w-full h-full max-h-96 overflow-y-scroll`}
+            >
+              {/* <div className="w-full h-fit flex  items-center justify-between">
+                <span className="flex items-center gap-1 text-sm font-medium w-4/12">
+                  <FaMedal color="#dd4924" />
+                  Plan Prueba
+                </span>
+                <span className="text-sm font-semibold w-1/5">$10200</span>
+                <span className="text-sm w-2/6">18/6/2024</span>
+                <span className="text-xs font-semibold text-green-600 uppercase w-1/5">
+                  ● Aprobado
+                </span>
+              </div> */}
+
+              <div
+                className={`${styles.paymentCard} w-full h-fit flex  items-center justify-around  md:justify-between  rounded-xl`}
+              >
+                <span className="flex items-center gap-1 text-sm font-medium w-fit lg:w-4/12 ">
+                  <FaMedal color="#dd4924" />
+                  Plan Full
+                </span>
+                <div className="w-fit h-fit md:hidden flex flex-col">
+                  <span className="text-sm font-semibold w-fit md:w-1/5">
+                    $10200
+                  </span>
+                  <span className="text-xs md:text-sm w-fit md:w-2/6">
+                    18/6/2024
+                  </span>
+                </div>
+                <span className="text-sm font-semibold md:w-fit w-1/5 lg:w-1/5 md:block hidden">
+                  $10200
+                </span>
+                <span className="text-sm w-2/6 lg:w-2/6 md:w-fit md:block hidden">
+                  18/6/2024
+                </span>
+                <span className="text-xs sm:hidden block font-semibold text-green-600 uppercase w-fit md:w-1/5">
+                  Aprobado
+                </span>
+                <span className="text-xs hidden sm:block font-semibold text-green-600 uppercase w-fit md:w-1/5">
+                  ● Aprobado
+                </span>
+              </div>
+
+              <div
+                className={`${styles.paymentCard} w-full h-fit flex  items-center justify-around  md:justify-between  rounded-xl`}
+              >
+                <span className="flex items-center gap-1 text-sm font-medium w-fit lg:w-4/12 ">
+                  <FaMedal color="#dd4924" />
+                  Plan Full
+                </span>
+                <div className="w-fit h-fit md:hidden flex flex-col">
+                  <span className="text-sm font-semibold w-fit md:w-1/5">
+                    $10200
+                  </span>
+                  <span className="text-xs md:text-sm w-fit md:w-2/6">
+                    18/6/2024
+                  </span>
+                </div>
+                <span className="text-sm font-semibold md:w-fit w-1/5 lg:w-1/5 md:block hidden">
+                  $10200
+                </span>
+                <span className="text-sm w-2/6 lg:w-2/6 md:w-fit md:block hidden">
+                  18/6/2024
+                </span>
+                <span className="text-xs sm:hidden block font-semibold text-green-600 uppercase w-fit md:w-1/5">
+                  Aprobado
+                </span>
+                <span className="text-xs hidden sm:block font-semibold text-green-600 uppercase w-fit md:w-1/5">
+                  ● Aprobado
+                </span>
+              </div>
+
+              <div
+                className={`${styles.paymentCard} w-full h-fit flex  items-center justify-around  md:justify-between  rounded-xl`}
+              >
+                <span className="flex items-center gap-1 text-sm font-medium w-fit lg:w-4/12 ">
+                  <FaMedal color="#dd4924" />
+                  Plan Full
+                </span>
+                <div className="w-fit h-fit md:hidden flex flex-col">
+                  <span className="text-sm font-semibold w-fit md:w-1/5">
+                    $10200
+                  </span>
+                  <span className="text-xs md:text-sm w-fit md:w-2/6">
+                    18/6/2024
+                  </span>
+                </div>
+                <span className="text-sm font-semibold md:w-fit w-1/5 lg:w-1/5 md:block hidden">
+                  $10200
+                </span>
+                <span className="text-sm w-2/6 lg:w-2/6 md:w-fit md:block hidden">
+                  18/6/2024
+                </span>
+                <span className="text-xs sm:hidden block font-semibold text-green-600 uppercase w-fit md:w-1/5">
+                  Aprobado
+                </span>
+                <span className="text-xs hidden sm:block font-semibold text-green-600 uppercase w-fit md:w-1/5">
+                  ● Aprobado
+                </span>
+              </div>
+
+              <div
+                className={`${styles.paymentCard} w-full h-fit flex  items-center justify-around  md:justify-between  rounded-xl`}
+              >
+                <span className="flex items-center gap-1 text-sm font-medium w-fit lg:w-4/12 ">
+                  <FaMedal color="#dd4924" />
+                  Plan Full
+                </span>
+                <div className="w-fit h-fit md:hidden flex flex-col">
+                  <span className="text-sm font-semibold w-fit md:w-1/5">
+                    $10200
+                  </span>
+                  <span className="text-xs md:text-sm w-fit md:w-2/6">
+                    18/6/2024
+                  </span>
+                </div>
+                <span className="text-sm font-semibold md:w-fit w-1/5 lg:w-1/5 md:block hidden">
+                  $10200
+                </span>
+                <span className="text-sm w-2/6 lg:w-2/6 md:w-fit md:block hidden">
+                  18/6/2024
+                </span>
+                <span className="text-xs sm:hidden block font-semibold text-green-600 uppercase w-fit md:w-1/5">
+                  Aprobado
+                </span>
+                <span className="text-xs hidden sm:block font-semibold text-green-600 uppercase w-fit md:w-1/5">
+                  ● Aprobado
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* ALERT */}

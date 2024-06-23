@@ -36,6 +36,8 @@ const FormCreateBusiness: React.FC = () => {
     resolver: zodResolver(createBusinessSchema),
   });
   const [alert, setAlert] = useState<AlertInterface>();
+  const [loading, setLoading] = useState<boolean>(false);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -56,10 +58,11 @@ const FormCreateBusiness: React.FC = () => {
   const hideAlert = () => {
     setTimeout(() => {
       setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
-    }, 3000);
+    }, 3600);
   };
 
   const createBusiness = async (data: FieldValues) => {
+    setLoading(true)
     setAlert({
       msg: "",
       error: false,
@@ -88,20 +91,23 @@ const FormCreateBusiness: React.FC = () => {
             alertType: "ERROR_ALERT",
           });
           hideAlert();
+          setLoading(false)
           return;
         }
         setAlert({
-          msg: "Empresa creada con éxito!",
+          msg: "Empresa creada con éxito! Aguardá a ser redirigido",
           error: true,
           alertType: "OK_ALERT",
         });
         hideAlert();
         setTimeout(() => {
-          router.push("/admin/miempresa");
           router.refresh();
-        }, 3000);
+          router.push("/admin/miempresa/settings");
+          setLoading(false)
+        }, 4000);
       }
     } catch (error) {
+      setLoading(false)
       setAlert({
         msg: "Error al crear empresa",
         error: true,
@@ -307,10 +313,25 @@ const FormCreateBusiness: React.FC = () => {
         </div>
       </form>
 
-      <button onClick={handleSubmitClick} className={styles.button}>
-        <MdOutlineAddBusiness size={20} />
-        Crear empresa
-      </button>
+      <div className="flex items-center justify-center w-full h-9">
+        {loading && (
+          <>
+            <div
+              style={{ height: "100%", width: "100%" }}
+              className="flex items-center justify-center w-full"
+            >
+              <div className="loaderSmall"></div>
+            </div>
+          </>
+        )}
+        {!loading && (
+          <button onClick={handleSubmitClick} className={styles.button}>
+            <MdOutlineAddBusiness size={20} />
+            Crear empresa
+          </button>
+        )}
+      </div>
+
       {/* ALERT */}
       {alert?.error && (
         <div className="flex justify-center w-full h-fit">

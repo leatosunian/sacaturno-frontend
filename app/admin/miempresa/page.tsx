@@ -114,7 +114,7 @@ const MiEmpresa: NextPage<Props> = async ({}) => {
                 style={{ color: "#dd4924" }}
                 href="/admin/miempresa/settings"
               >
-                Servicios y suscripciones
+                Mis servicios
                 <FaArrowRight />
               </Link>
             </div>

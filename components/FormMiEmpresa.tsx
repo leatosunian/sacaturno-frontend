@@ -440,7 +440,7 @@ const FormMiEmpresa = ({
         />
       </form>
 
-      <div className="flex items-center justify-center w-full mt-12 h-9">
+      <div className="flex items-center justify-center w-full mt-7 md:mt-8 h-9">
         {loading && (
           <>
             <div

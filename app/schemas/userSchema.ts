@@ -17,4 +17,7 @@ export const userSchema = z.object({
     }).max(50, {
         message: 'La contraseña debe tener menos de 50 caractéres'
     }),*/
+    birthdate: z.string().refine((date) => new Date(date).toString() !== 'Fecha inválida', {
+        message: 'Ingresá tu fecha de nacimiento'
+    }).transform((date) => new Date(date))
 })

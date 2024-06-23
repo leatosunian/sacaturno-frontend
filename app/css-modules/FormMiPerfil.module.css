@@ -75,6 +75,53 @@
 }
 
 
+.paymentsCont::-webkit-scrollbar {
+  margin-left: 4px;
+  width: 7px;
+  color: red;
+  transition: .3s all ease-in-out;
+}
+
+.paymentsCont::-webkit-scrollbar-track {
+  background: rgba(73, 73, 73, 0.168);
+  transition: .3s all ease-in-out;
+  border-radius: 100vw; 
+  -webkit-border-radius: 100vw;
+  -moz-border-radius: 100vw;
+  -ms-border-radius: 100vw;
+  -o-border-radius: 100vw;
+}
+
+.paymentsCont::-webkit-scrollbar-thumb {
+  /* background: linear-gradient(to bottom, #fe529457, #f76e6444); */
+  background-color: #dd49242c;
+  height: 20px;
+  border-radius: 100vw;
+  transition: .3s all ease-in-out;
+  -webkit-transition: .3s all ease-in-out;
+  -moz-transition: .3s all ease-in-out;
+  -ms-transition: .3s all ease-in-out;
+  -o-transition: .3s all ease-in-out;
+  -webkit-border-radius: 100vw;
+  -moz-border-radius: 100vw;
+  -ms-border-radius: 100vw;
+  -o-border-radius: 100vw;
+}
+
+.paymentsCont::-webkit-scrollbar-thumb:hover {
+  /* background: linear-gradient(to bottom, #fe5294b6, #f76e64a1); */
+  background-color: #dd4924;
+  transition: .3s all ease-in-out;
+  -webkit-transition: .3s all ease-in-out;
+  -moz-transition: .3s all ease-in-out;
+  -ms-transition: .3s all ease-in-out;
+  -o-transition: .3s all ease-in-out;
+}
+
+.paymentCard {
+  border: none;
+  padding: 0px;
+}
 
 @media (max-width: 768px) {
   .form {
@@ -84,5 +131,17 @@
     align-items: center;
     flex-direction: column;
     gap: 20px;
+  }
+  .paymentCard {
+    border: none;
+    padding: 8px 8px;
+  }
+}
+
+
+@media (max-width: 1024px) {
+  .paymentCard {
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    padding: 8px 12px;
   }
 }

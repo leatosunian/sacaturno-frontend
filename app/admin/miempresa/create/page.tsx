@@ -10,7 +10,7 @@ const CreateBusiness: React.FC = () => {
         </h4>
       </header>
 
-      <div className="flex flex-col justify-center w-screen mt-7 h-fit">
+      <div className="flex flex-col justify-center w-full mt-7 h-fit">
         <div className={styles.cont}>
           <FormCreateBusiness />
         </div>

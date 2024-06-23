@@ -49,7 +49,7 @@ const SetRecoverPassword: React.FC<propsComponent> = async ({ params }) => {
                   Recuperar contraseña
                 </h3>
                 <span className="text-xs text-center lg:text-sm">
-                  Ingresá el correo de la cuenta que deseas recuperar.
+                  Ingresá una nueva contraseña para tu cuenta.
                 </span>
               </div>
               <NewPasswordRecovery token={params.token} />

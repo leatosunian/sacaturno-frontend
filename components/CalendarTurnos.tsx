@@ -228,7 +228,7 @@ const CalendarTurnos: React.FC<Props> = ({
               className="flex flex-col h-full gap-1 px-2 py-1 w-fit"
               style={{ backgroundColor: "rgb(203 137 121)" }}
             >
-              <span className="md:text-sm text-xs ">{event.name} </span>
+              <span className="text-xs md:text-sm ">{event.name} </span>
               <span style={{ fontSize: "10px" }}>{event.service} </span>
             </div>
           </>
@@ -241,7 +241,7 @@ const CalendarTurnos: React.FC<Props> = ({
               className="flex flex-col w-full h-full gap-1 px-2 py-1"
               style={{ backgroundColor: "#dd4924" }}
             >
-              <span className="md:text-sm text-xs font-semibold ">{event.title} </span>
+              <span className="text-xs font-semibold md:text-sm ">{event.title} </span>
               <span style={{ fontSize: "10px" }}>{event.service} </span>
             </div>
           </>
@@ -302,19 +302,21 @@ const CalendarTurnos: React.FC<Props> = ({
       )}
       {servicesData.length === 0 && <NoServicesModal />}
       {expiredModal && <ExpiredPlanModal businessData={business} />}
+
       {/* mobile dropdown */}
       <div
         style={{ position: "absolute", top: "87px", right: "20px" }}
-        className="md:hidden overflow-hidden flex flex-col"
+        className="flex flex-col overflow-hidden md:hidden"
       >
         <IoMdMore
           onClick={() => setDropdownActive(!dropdownActive)}
           size={25}
-          className="md:hidden block ml-auto"
+          className="block ml-auto md:hidden"
           style={{ marginRight: "6px" }}
         />
         {dropdownActive && (
           <div className={styles.dropmenu}>
+            <LuCalendarPlus size={18} />
             <span onClick={() => {
               setAllDayAppointmentsModal(true)
               setDropdownActive(false)
@@ -325,8 +327,8 @@ const CalendarTurnos: React.FC<Props> = ({
       {/* mobile dropdown */}
 
       <div className="flex flex-col w-full h-fit ">
-        <header className="flex w-full mt-5 justify-center items-center mb-3 md:mt-7 md:mb-7 h-fit">
-          <h4 style={{ fontSize: "22px" }} className="font-bold  uppercase ">
+        <header className="flex items-center justify-center w-full mt-5 mb-3 md:mt-7 md:mb-7 h-fit">
+          <h4 style={{ fontSize: "22px" }} className="font-bold uppercase ">
             Mis Turnos
           </h4>
         </header>
@@ -383,7 +385,7 @@ const CalendarTurnos: React.FC<Props> = ({
         </div>
 
         <div className="fixed bottom-0 z-50 flex flex-col items-center w-full ml-auto mr-auto -translate-y-8 md:hidden">
-          <div className="w-fit flex flex-col gap-1">
+          <div className="flex flex-col gap-1 w-fit">
             <div className="">
               <button
                 className={styles.btnWeekBlue}
