@@ -34,6 +34,10 @@
   width: 100%;
   padding-right: 10px;
   padding-left: 4px;
+  box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.2);
+  border-bottom-right-radius: 12px;
+  border-top-left-radius: 12px;
   height: fit-content;
 }
 
@@ -91,7 +95,7 @@
   height: 65vh !important;
 }
 
-.dropmenu{
+.dropmenu {
   padding: 8px 14px;
   border-radius: 12px;
   color: white;
@@ -109,7 +113,7 @@
 }
 
 .dropmenu::before {
-  content: '';
+  content: "";
   background: inherit;
   position: relative;
   margin-top: 20px;

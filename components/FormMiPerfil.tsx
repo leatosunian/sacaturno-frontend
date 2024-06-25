@@ -583,7 +583,7 @@ const FormMiPerfil: React.FC<Props> = ({
                     </span>
                   </div> */}
 
-                  {paymentsData.map((payment) => (
+                  {paymentsData.length > 0 && paymentsData.map((payment) => (
                     <>
                       <div
                         key={payment._id}

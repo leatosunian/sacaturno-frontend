@@ -315,7 +315,7 @@ const FormSettings = ({
               {servicesData.map((service) => (
                 <div
                   key={service._id}
-                  className="flex py-4 md:py-5 pl-5  pr-3 rounded-xl w-full md:w-5/6 lg:w-4/6"
+                  className="flex py-4  pl-5  pr-3 rounded-xl w-full md:w-5/6 lg:w-4/6"
                   style={{ border: "1px solid rgba(0, 0, 0, 0.2)" }}
                 >
                   <div className="flex flex-col gap-2  w-full">

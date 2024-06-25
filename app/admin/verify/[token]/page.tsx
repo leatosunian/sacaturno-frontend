@@ -16,6 +16,8 @@ const verifyUser = async (token: string) => {
     const verification = await axiosReq.post(`/user/verify/${token}`);
     if (verification.data._id) {
       return verification.data;
+    } else {
+      return undefined
     }
   } catch (error) {
     return;
