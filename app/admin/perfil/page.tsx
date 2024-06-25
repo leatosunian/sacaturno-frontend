@@ -36,21 +36,15 @@ const getPaymentsData = async () => {
   const token = cookieStore.get("sacaturno_token");
   const userID = cookieStore.get("sacaturno_userID");
   try {
-    const res = await axiosReq.get(`/subscription/payments/get/all/${userID?.value}`, {
+    const res = await axiosReq.get(`/subscription/payments/get/all/${'aslkjhbgsa98oiugas9'}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token?.value}`,
       },
-    });
+    });    
     return res.data;
   } catch (error: any) {
-    const response_data = {
-      name: "",
-      surname: "",
-      phone: "",
-      email: "",
-    };
-    return { response_data };
+    return [];
   }
 };
 
