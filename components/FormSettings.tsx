@@ -67,6 +67,7 @@ const FormSettings = ({
         servicesData.length === 0)
     ) {
       if (formData && services) {
+        setLoading(true)
         try {
           const token = localStorage.getItem("sacaturno_token");
           const authHeader = {
@@ -97,8 +98,10 @@ const FormSettings = ({
           hideAlert();
           setCreateServiceModal(false);
           setNewService("");
+          setLoading(false)
           router.refresh();
         } catch (error) {
+          setLoading(false)
           setAlert({
             msg: "Error al crear servicio",
             error: true,
@@ -308,46 +311,43 @@ const FormSettings = ({
 
         {servicesData.length > 0 && !loading && (
           <>
-            <div className="flex flex-col w-full gap-3 mt-0 md:mt-2 h-fit">
+            <div className="flex flex-col items-center w-full gap-3 mt-0 md:mt-2 h-fit">
               {servicesData.map((service) => (
                 <div
                   key={service._id}
-                  className="flex items-center py-3 pl-5 pr-4 rounded-lg"
-                  style={{
-                    border: "1px solid rgba(0, 0, 0, 0.2)",
-                  }}
+                  className="flex py-4 md:py-5 pl-5  pr-3 rounded-xl w-full md:w-5/6 lg:w-4/6"
+                  style={{ border: "1px solid rgba(0, 0, 0, 0.2)" }}
                 >
-                  <span className="text-xs font-semibold uppercase md:text-sm w-fit">
-                    {service.name}
-                  </span>
-                  <div
-                    style={{
-                      width: "1px",
-                      height: "26px",
-                      backgroundColor: "rgba(0, 0, 0, 0.2)",
-                    }}
-                    className="mx-5"
-                  ></div>
-                  <div className="flex flex-col mr-2 md:mr-3 w-fit h-fit">
-                    <h5 className="text-sm font-semibold lg:text-md">
-                      AR$ {service.price}
-                    </h5>
-                    {service.description !== "" && (
-                      <span className="text-xs font-normal text-gray-500 lg:text-sm">
-                        {service.description}
+                  <div className="flex flex-col gap-2  w-full">
+                    <div className="flex items-start  flex-col">
+                      <span className="text-sm uppercase leading-4 md:leading-3 mt-0 md:mt-1 mb-0 md:mb-1	font-bold md:text-base w-fit">
+                        {service.name}
                       </span>
-                    )}
-                    {service.description === "" && (
-                      <span className="text-xs font-normal text-gray-500">
-                        No hay descripción.
-                      </span>
-                    )}
+                      <h5 className="text-sm text-gray-400 font-medium lg:text-md">
+                        AR$ {service.price}
+                      </h5>
+                    </div>
+
+                    <div className="flex flex-col mr-2 md:mr-3 w-fit h-fit">
+                      {service.description !== "" && (
+                        <p className="text-xs font-normal leading-4 text-gray-500 lg:text-sm">
+                          {service.description}
+                        </p>
+                      )}
+                      {service.description === "" && (
+                        <p className="text-xs md:text-sm font-normal leading-3 text-gray-500">
+                          No hay descripción.
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <IoMdMore
-                    className="ml-auto"
-                    size={24}
-                    onClick={() => setEditService(service)}
-                  />
+                  <div className="my-auto">
+                    <IoMdMore
+                      className="ml-auto"
+                      size={24}
+                      onClick={() => setEditService(service)}
+                    />
+                  </div>
                 </div>
               ))}
 
@@ -369,7 +369,7 @@ const FormSettings = ({
 
             {subscriptionData.subscriptionType === "SC_FREE" && (
               <>
-                <div className="mt-5 notifications-container">
+                <div className="mt-5 mb-2 notifications-container w-full md:w-5/6 lg:w-4/6 mx-auto">
                   <div className="alert">
                     <div className="flex">
                       <div className="flex-shrink-0">
@@ -392,7 +392,7 @@ const FormSettings = ({
                           Para agregar más de un servicio debes suscribirte al
                           Plan Full.{" "}
                           <span
-                            className="alert-prompt-link"
+                            className="cursor-pointer alert-prompt-link"
                             onClick={handleMercadoPagoPreference}
                           >
                             Actualizar suscripción

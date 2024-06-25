@@ -28,7 +28,8 @@
   background-color: #dd4924;
   color: white;
   border-radius: 7px;
-  font-size: 14px;
+  font-size: 12px;
+  text-transform: uppercase;
   transition: all 0.3s ease-in-out;
   -webkit-border-radius: 7px;
   -moz-border-radius: 7px;

@@ -17,6 +17,7 @@
 }
 
 body {
+  overflow: overlay;
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
@@ -47,6 +48,41 @@ input[type="number"] {
 input:active {
   border: 1px solid #dd4924 !important;
 }
+
+/* ::-webkit-scrollbar {
+  margin-left: 4px;
+  width: 10px;
+  transition: .3s all ease-in-out;
+}
+
+::-webkit-scrollbar-track {
+  background: linear-gradient(to bottom, rgb(62, 107, 126), rgb(0, 30, 35), rgb(0, 30, 35), rgb(0, 30, 35)); 
+  transition: .3s all ease-in-out;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #f1563060;
+  height: 20px;
+  border-radius: 100vw;
+  transition: .3s all ease-in-out;
+  -webkit-transition: .3s all ease-in-out;
+  -moz-transition: .3s all ease-in-out;
+  -ms-transition: .3s all ease-in-out;
+  -o-transition: .3s all ease-in-out;
+  -webkit-border-radius: 100vw;
+  -moz-border-radius: 100vw;
+  -ms-border-radius: 100vw;
+  -o-border-radius: 100vw;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #dd4924;
+  transition: .3s all ease-in-out;
+  -webkit-transition: .3s all ease-in-out;
+  -moz-transition: .3s all ease-in-out;
+  -ms-transition: .3s all ease-in-out;
+  -o-transition: .3s all ease-in-out;
+} */
 
 .orangeHover {
   color: white;

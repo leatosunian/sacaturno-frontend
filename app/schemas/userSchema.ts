@@ -9,9 +9,8 @@ export const userSchema = z.object({
     email: z.string().email({
         message: 'Ingresá un correo válido'
     }),
-    phone: z.string().min(7, {
-        message: 'El teléfono es demasiado corto'
-    }),
+    phone: z.coerce.number().gte(9, "El teléfono es demasiado corto"),
+    
     /*password: z.string().min(6, {
         message: 'La contraseña debe tener al menos 6 caractéres'
     }).max(50, {

@@ -31,6 +31,30 @@ const getUser = async () => {
   }
 };
 
+const getPaymentsData = async () => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("sacaturno_token");
+  const userID = cookieStore.get("sacaturno_userID");
+  try {
+    const res = await axiosReq.get(`/subscription/payments/get/all/${userID?.value}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token?.value}`,
+      },
+    });
+    return res.data;
+  } catch (error: any) {
+    const response_data = {
+      name: "",
+      surname: "",
+      phone: "",
+      email: "",
+    };
+    return { response_data };
+  }
+};
+
+
 async function getBusinessData() {
   const cookieStore = cookies();
   const token = cookieStore.get("sacaturno_token");
@@ -111,6 +135,7 @@ const MiPerifl = async () => {
   const data = await getUser();
   const subscription = await getSubscriptionData();
   const business = await getBusinessData();
+  const payments = await getPaymentsData();
 
   return (
     <>
@@ -121,8 +146,8 @@ const MiPerifl = async () => {
       </header>
 
       <div className="flex justify-center w-full mt-5 h-fit">
-        <div className="perfilPageCont mb-10 md:mb-20">
-          <FormMiPerfil businessData={business} subscriptionData={subscription} profileData={data} />
+        <div className="mb-10 perfilPageCont md:mb-20">
+          <FormMiPerfil businessData={business} subscriptionData={subscription} profileData={data} paymentsData={payments} />
         </div>
       </div>
     </>
