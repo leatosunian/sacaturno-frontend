@@ -204,7 +204,10 @@
     -o-transition: all .3s ease-in-out;
 }
 
+
 @media (max-width: 768px) {
+
+    
     .cont {
         width: 90%;
         padding: 25px 20px ;

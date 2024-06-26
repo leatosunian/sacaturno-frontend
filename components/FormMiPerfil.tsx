@@ -169,7 +169,7 @@ const FormMiPerfil: React.FC<Props> = ({
   };
 
   const myLoader = ({ src }: { src: string }) => {
-    return `http://localhost:4000/api/user/getprofilepic/${profile?.profileImage}`;
+    return `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${profile?.profileImage}`;
   };
 
   const updateProfileImage = async (image: File) => {

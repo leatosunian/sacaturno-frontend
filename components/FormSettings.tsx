@@ -67,7 +67,7 @@ const FormSettings = ({
         servicesData.length === 0)
     ) {
       if (formData && services) {
-        setLoading(true)
+        setLoading(true);
         try {
           const token = localStorage.getItem("sacaturno_token");
           const authHeader = {
@@ -98,10 +98,10 @@ const FormSettings = ({
           hideAlert();
           setCreateServiceModal(false);
           setNewService("");
-          setLoading(false)
+          setLoading(false);
           router.refresh();
         } catch (error) {
-          setLoading(false)
+          setLoading(false);
           setAlert({
             msg: "Error al crear servicio",
             error: true,
@@ -244,14 +244,14 @@ const FormSettings = ({
 
       {/* SERVICES SECTION */}
 
-      <div className="flex flex-col w-fit h-fit">
+      <div className="flex flex-col w-full h-fit">
         <h3 className="mb-8 text-xl font-bold text-center uppercase md:mb-4 ">
           Servicios
         </h3>
 
         {loading && (
           <>
-            <div className="h-64 w-96 lg:h-72">
+            <div className="w-full h-64 lg:h-72">
               <div
                 style={{ height: "100%", width: "100%" }}
                 className="flex items-center justify-center w-full"
@@ -315,15 +315,15 @@ const FormSettings = ({
               {servicesData.map((service) => (
                 <div
                   key={service._id}
-                  className="flex py-4  pl-5  pr-3 rounded-xl w-full md:w-5/6 lg:w-4/6"
+                  className="flex w-full py-4 pl-5 pr-3 rounded-xl md:w-5/6 lg:w-4/6"
                   style={{ border: "1px solid rgba(0, 0, 0, 0.2)" }}
                 >
-                  <div className="flex flex-col gap-2  w-full">
-                    <div className="flex items-start  flex-col">
-                      <span className="text-sm uppercase leading-4 md:leading-3 mt-0 md:mt-1 mb-0 md:mb-1	font-bold md:text-base w-fit">
+                  <div className="flex flex-col w-full gap-2">
+                    <div className="flex flex-col items-start">
+                      <span className="mt-0 mb-0 text-sm font-bold leading-4 uppercase md:leading-3 md:mt-1 md:mb-1 md:text-base w-fit">
                         {service.name}
                       </span>
-                      <h5 className="text-sm text-gray-400 font-medium lg:text-md">
+                      <h5 className="text-sm font-medium text-gray-400 lg:text-md">
                         AR$ {service.price}
                       </h5>
                     </div>
@@ -335,7 +335,7 @@ const FormSettings = ({
                         </p>
                       )}
                       {service.description === "" && (
-                        <p className="text-xs md:text-sm font-normal leading-3 text-gray-500">
+                        <p className="text-xs font-normal leading-3 text-gray-500 md:text-sm">
                           No hay descripción.
                         </p>
                       )}
@@ -367,9 +367,10 @@ const FormSettings = ({
               )}
             </div>
 
+
             {subscriptionData.subscriptionType === "SC_FREE" && (
               <>
-                <div className="mt-5 mb-2 notifications-container w-full md:w-5/6 lg:w-4/6 mx-auto">
+                <div className="w-full mx-auto mt-5 mb-2 notifications-container md:w-5/6 lg:w-4/6">
                   <div className="alert">
                     <div className="flex">
                       <div className="flex-shrink-0">
