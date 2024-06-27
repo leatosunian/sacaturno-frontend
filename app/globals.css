@@ -487,9 +487,9 @@ html {
 
 .accordionCard {
   border-radius: 15px;
-  background-color: rgba(0, 0, 0, 0.18);
+  background-color: white;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(156, 156, 156, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.253);
   box-shadow: -10px 10px 25px 1px rgba(0, 0, 0, 0.2);
   -webkit-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.2);
   -moz-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.2);
@@ -497,14 +497,15 @@ html {
   -moz-border-radius: 15px;
   -ms-border-radius: 15px;
   -o-border-radius: 15px;
+  color: black;
 }
 
 .accordionAnswer {
-  border-top: 1px solid rgba(255, 255, 255, 0.205);
-  background-color: rgba(0, 0, 0, 0.18);
+  border-top: 1px solid rgba(255, 255, 255, 0.938);
+  background-color: rgba(219, 219, 219, 0.918);
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
-
+  color: black;
 }
 
 /**/

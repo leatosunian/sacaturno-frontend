@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className={`${montserrat.className} ${styles.backgroundImage}`}>
+    <div className={`${montserrat.className} `}>
       <AuthProvider>{children}</AuthProvider>
     </div>
   );

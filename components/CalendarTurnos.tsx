@@ -113,9 +113,9 @@ const CalendarTurnos: React.FC<Props> = ({
     setBusiness(businessData);
     setServices(servicesData);
     parseAppointments(appointments);
-    if (subscriptionData?.subscriptionType === "SC_EXPIRED") {
-      setExpiredModal(true);
-    }
+    //if (subscriptionData?.subscriptionType === "SC_EXPIRED") {
+    //  setExpiredModal(true);
+    //}
     return;
   }, [appointments, businessData, services, servicesData, subscriptionData]);
 
@@ -134,7 +134,10 @@ const CalendarTurnos: React.FC<Props> = ({
     dayjs.extend(timezone);
     dayjs.extend(utc);
     dayjs.extend(advanced);
-    setDropdownActive(false)
+    setDropdownActive(false);
+    if (subscriptionData?.subscriptionType === "SC_EXPIRED") {
+      setExpiredModal(true);
+    }
     const token = localStorage.getItem("sacaturno_token");
     const authHeader = {
       headers: {
@@ -202,7 +205,7 @@ const CalendarTurnos: React.FC<Props> = ({
   };
 
   const handleSelectEvent = (event: eventType) => {
-    setDropdownActive(false)
+    setDropdownActive(false);
     const eventDataObj: eventType2 = {
       _id: event._id,
       start: dayjs(event.start).format("D [de] MMMM [|] HH:mm [hs]"),
@@ -241,7 +244,9 @@ const CalendarTurnos: React.FC<Props> = ({
               className="flex flex-col w-full h-full gap-1 px-2 py-1"
               style={{ backgroundColor: "#dd4924" }}
             >
-              <span className="text-xs font-semibold md:text-sm ">{event.title} </span>
+              <span className="text-xs font-semibold md:text-sm ">
+                {event.title}{" "}
+              </span>
               <span style={{ fontSize: "10px" }}>{event.service} </span>
             </div>
           </>
@@ -276,6 +281,13 @@ const CalendarTurnos: React.FC<Props> = ({
       return `${weekStart.format("D")} a ${weekEnd.format("D [de] MMMM ")}`;
     }
   }, [view, date]);
+
+  const handleSetAllDayAppointmentsModal = () => {
+    if (subscriptionData?.subscriptionType === "SC_EXPIRED") {
+      return setExpiredModal(true);
+    }
+    setAllDayAppointmentsModal(true);
+  };
 
   return (
     <>
@@ -317,10 +329,15 @@ const CalendarTurnos: React.FC<Props> = ({
         {dropdownActive && (
           <div className={styles.dropmenu}>
             <LuCalendarPlus size={18} />
-            <span onClick={() => {
-              setAllDayAppointmentsModal(true)
-              setDropdownActive(false)
-            }} className="font-medium" >Crear turnos del día</span>
+            <span
+              onClick={() => {
+                setAllDayAppointmentsModal(true);
+                setDropdownActive(false);
+              }}
+              className="font-medium"
+            >
+              Crear turnos del día
+            </span>
           </div>
         )}
       </div>
@@ -439,7 +456,7 @@ const CalendarTurnos: React.FC<Props> = ({
         {view === "day" && (
           <button
             className={`${styles.btnAddAll} hidden md:flex gap-2 items-center ml-auto mb-10 mt-3`}
-            onClick={() => setAllDayAppointmentsModal(true)}
+            onClick={() => handleSetAllDayAppointmentsModal()}
           >
             <LuCalendarPlus size={18} /> Crear turnos del día
           </button>

@@ -44,7 +44,7 @@ const ExpiredPlanModal: React.FC<Props> = ({businessData}) => {
   
   return (
     <>
-      <div className={styles.modalCont}>
+      <div className={styles.modalCont} style={{height:'calc(100vh - 64px)', marginTop:'64px'}}>
         <div className="flex flex-col px-5 py-10 text-black bg-white w-80 md:w-96 h-fit borderShadow">
           <div className="flex flex-col items-center w-full gap-4 h-fit ">
             <IoIosAlert size={100} color="#d7a954" />
@@ -60,8 +60,7 @@ const ExpiredPlanModal: React.FC<Props> = ({businessData}) => {
                 style={{ fontSize: "14px" }}
                 className="font-normal text-center"
               >
-                Recuerda abonar tu suscripción al plan full para seguir
-                utilizando el servicio.
+                Recuerda abonar tu suscripción al plan full para continuar creando nuevos turnos.
               </label>
             </div>
           </div>

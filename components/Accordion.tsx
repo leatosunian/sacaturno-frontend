@@ -13,7 +13,7 @@ const Accordion = ({ title, answer }: { title: string; answer: string }) => {
       >
         <span>{title}</span>
         <svg
-          className="ml-8 fill-gray-300 shrink-0"
+          className="ml-8 fill-orange-600 shrink-0"
           width="16"
           height="16"
           xmlns="http://www.w3.org/2000/svg"

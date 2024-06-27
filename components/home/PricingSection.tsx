@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { FaCheck } from "react-icons/fa6";
 import { MdOutlineAddBusiness } from "react-icons/md";
-import homeStyles from "@/app/css-modules/home.module.css";
+import homeStyles from "@/app/css-modules/HomeWhite.module.css";
 import styles from "@/app/css-modules/login.module.css";
 
 const PricingSection = () => {
   return (
     <>
-      <div className="flex flex-col items-center justify-center w-full gap-12 text-white h-fit lg:h-screen">
+      <div className="flex flex-col items-center justify-center w-full gap-12 text-black h-fit lg:h-screen">
         {/* HEADER */}
         <div className="w-full text-center h-fit">
           <h3 className="text-3xl font-semibold">Planes</h3>
@@ -23,7 +23,7 @@ const PricingSection = () => {
                 <span className="mr-1 text-2xl font-semibold lg:text-2xl">
                   $0
                 </span>
-                <span className="text-sm text-gray-400">ARS/mes</span>
+                <span className="text-sm text-gray-800">ARS/mes</span>
               </div>
             </div>
 
@@ -41,31 +41,31 @@ const PricingSection = () => {
               </h5>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
-                <span className="text-xs text-gray-300">
+                <span className="text-xs text-black">
                   Prueba gratuita por 30 días
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
-                <span className="text-xs text-gray-300">
-                  70 turnos mensuales
-                </span>
-              </div>
-              <div className="flex items-center justify-center gap-3 w-fit h-fit">
-                <FaCheck size={12} />
-                <span className="text-xs text-gray-300">
+                <span className="text-xs text-black">
                   1 servicio por empresa
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
-                <span className="text-xs text-gray-300">
+                <span className="text-xs text-black">
+                  Un turno por horario
+                </span>
+              </div>
+              <div className="flex items-center justify-center gap-3 w-fit h-fit">
+                <FaCheck size={12} />
+                <span className="text-xs text-black">
                   Notificaciones por email
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
-                <span className="text-xs text-gray-300">
+                <span className="text-xs text-black">
                   Soporte 24/7
                 </span>
               </div>
@@ -84,7 +84,7 @@ const PricingSection = () => {
               <Link
                 href="/register"
                 type="submit"
-                className={`${styles.translucentBtn2} font-thin`}
+                className={`${homeStyles.translucentBtn2} font-normal`}
                 style={{ padding: " 13px 15px ", width: "100%" }}
               >
                 <MdOutlineAddBusiness size={24} />
@@ -102,7 +102,7 @@ const PricingSection = () => {
                 <span className="mr-1 text-2xl font-semibold lg:text-2xl">
                   $6900
                 </span>
-                <span className="text-sm text-gray-400">ARS/mes</span>
+                <span className="text-sm text-gray-800">ARS/mes</span>
               </div>
             </div>
 
@@ -120,30 +120,30 @@ const PricingSection = () => {
               </h5>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
-                <span className="text-xs text-gray-300">Turnos ilimitados</span>
+                <span className="text-xs text-black">Turnos ilimitados</span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
-                <span className="text-xs text-gray-300">
+                <span className="text-xs text-black">
                   Servicios ilimitados
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
-                <span className="text-xs text-gray-300">
+                <span className="text-xs text-black">
                   Notificaciones por email
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
-                <span className="text-xs text-gray-300">
+                <span className="text-xs text-black">
                   Soporte 24/7
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
-                <span className="text-xs text-gray-300">
-                  Notificaciones por email
+                <span className="text-xs text-black">
+                  Turnos simultáneos en un mismo horario
                 </span>
               </div>
             </div>
@@ -161,7 +161,7 @@ const PricingSection = () => {
               <Link
                 href="/register"
                 type="submit"
-                className={`${styles.translucentBtn2} font-thin`}
+                className={`${homeStyles.translucentBtn2} font-normal`}
                 style={{ padding: " 13px 15px ", width: "100%" }}
               >
                 <MdOutlineAddBusiness size={24} />
