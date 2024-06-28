@@ -11,7 +11,7 @@ const Accordion = ({ title, answer }: { title: string; answer: string }) => {
         onClick={() => setAccordionActive(!accordionActive)}
         className="flex items-center justify-between w-full h-full px-6 py-6"
       >
-        <span>{title}</span>
+        <span className="font-medium text-md xl:text-lg">{title}</span>
         <svg
           className="ml-8 fill-orange-600 shrink-0"
           width="16"
