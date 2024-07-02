@@ -3,7 +3,6 @@ import styles from "../css-modules/login.module.css";
 import FormLogin from "@/components/FormLogin";
 import sacaturno_logo from "@/public/st_logo_white.png";
 import Image from "next/image";
-import LoginRegisterFooter from "@/components/FooterLoginRegister";
 import Link from "next/link";
 import { IoIosSearch } from "react-icons/io";
 import HeaderPublic from "@/components/HeaderPublic";

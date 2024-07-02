@@ -14,6 +14,7 @@ import Accordion from "@/components/Accordion";
 import HeaderPublicBlack from "@/components/HeaderPublicBlack";
 import FAQSection from "@/components/home/FAQSection";
 import HeroSection from "@/components/home/HeroSection";
+import Footer from "@/components/home/Footer";
 
 export const metadata: Metadata = {
   title: "SacaTurno | Tu app de turnos online",
@@ -47,6 +48,7 @@ export default function Home() {
       ></div>
       {/* DIVIDER */}
       <FAQSection />
+      <Footer/>
     </>
   );
 }
