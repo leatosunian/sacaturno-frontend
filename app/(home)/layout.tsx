@@ -6,11 +6,8 @@ import { AuthProvider } from "../context/authContext";
 const montserrat = Montserrat({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SacaTurno",
-  description: "IT-related blog for devs",
-  icons: {
-    icon: "/icon.png",
-  },
+  title: "SacaTurno | Tu app de turnos online",
+  description: "Aplicación de turnos online",
 };
 
 export default function RootLayout({

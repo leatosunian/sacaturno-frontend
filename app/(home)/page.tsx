@@ -1,16 +1,10 @@
 "use client";
 import PricingSection from "@/components/home/PricingSection";
-import { Metadata } from "next";
 import HeaderPublicBlack from "@/components/HeaderPublicBlack";
 import FAQSection from "@/components/home/FAQSection";
 import HeroSection from "@/components/home/HeroSection";
 import Footer from "@/components/home/Footer";
 import { AnimatePresence, motion } from "framer-motion";
-
-export const metadata: Metadata = {
-  title: "SacaTurno | Tu app de turnos online",
-  description: "Aplicación de turnos online",
-};
 
 export default function Home() {
   return (
