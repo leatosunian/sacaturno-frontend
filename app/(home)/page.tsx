@@ -1,20 +1,11 @@
-import Image from "next/image";
-import homeStyles from "@/app/css-modules/HomeWhite.module.css";
-import styles from "@/app/css-modules/login.module.css";
-import sacaturno_logo from "@/public/deviceframes2.png";
-import { IoIosSearch } from "react-icons/io";
-import Link from "next/link";
-import { CiLogin } from "react-icons/ci";
-import { MdOutlineAddBusiness } from "react-icons/md";
-import { FaArrowDown, FaCheck } from "react-icons/fa6";
+"use client";
 import PricingSection from "@/components/home/PricingSection";
-import HeaderPublic from "@/components/HeaderPublic";
 import { Metadata } from "next";
-import Accordion from "@/components/Accordion";
 import HeaderPublicBlack from "@/components/HeaderPublicBlack";
 import FAQSection from "@/components/home/FAQSection";
 import HeroSection from "@/components/home/HeroSection";
 import Footer from "@/components/home/Footer";
+import { AnimatePresence, motion } from "framer-motion";
 
 export const metadata: Metadata = {
   title: "SacaTurno | Tu app de turnos online",
@@ -24,31 +15,66 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <>
-      <HeaderPublicBlack />
-      <HeroSection/>
-      <PricingSection />
-      {/* DIVIDER */}
-      <div
-        style={{
-          width: "40%",
-          height: "1px",
-          background: "rgba(255, 255, 255, 0.2)",
-          margin: "0px auto 5rem auto",
-        }}
-        className="hidden lg:block"
-      ></div>
-      <div
-        style={{
-          width: "40%",
-          height: "1px",
-          background: "rgba(255, 255, 255, 0.2)",
-          margin: "5rem auto",
-        }}
-        className="block lg:hidden"
-      ></div>
-      {/* DIVIDER */}
-      <FAQSection />
-      <Footer/>
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          exit={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.3, ease: "easeInOut" }}
+        >
+          <HeaderPublicBlack />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: -30 }}
+          exit={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3, ease: "easeInOut" }}
+        >
+          <HeroSection />
+        </motion.div>
+
+        <PricingSection />
+        {/* DIVIDER */}
+        <div
+          style={{
+            width: "40%",
+            height: "1px",
+            background: "rgba(255, 255, 255, 0.2)",
+            margin: "0px auto 5rem auto",
+          }}
+          className="hidden lg:block"
+        ></div>
+        <div
+          style={{
+            width: "40%",
+            height: "1px",
+            background: "rgba(255, 255, 255, 0.2)",
+            margin: "2rem auto",
+          }}
+          className="block lg:hidden"
+        ></div>
+        {/* DIVIDER */}
+        <FAQSection />
+        <div
+          style={{
+            width: "40%",
+            height: "1px",
+            background: "rgba(255, 255, 255, 0.2)",
+            margin: "5.4rem auto",
+          }}
+          className="hidden lg:block"
+        ></div>
+        <div
+          style={{
+            width: "40%",
+            height: "1px",
+            background: "rgba(255, 255, 255, 0.2)",
+            margin: "3.5rem auto",
+          }}
+          className="block lg:hidden"
+        ></div>
+        <Footer />
+      </AnimatePresence>
     </>
   );
 }

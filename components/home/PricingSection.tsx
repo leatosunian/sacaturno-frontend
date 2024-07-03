@@ -1,9 +1,10 @@
+"use client";
 import Link from "next/link";
 import { FaCheck, FaMedal } from "react-icons/fa6";
 import { MdMoneyOff, MdOutlineAddBusiness } from "react-icons/md";
 import homeStyles from "@/app/css-modules/HomeWhite.module.css";
-import styles from "@/app/css-modules/login.module.css";
 import { SiAdguard } from "react-icons/si";
+import { motion } from "framer-motion";
 
 const PricingSection = () => {
   return (
@@ -21,7 +22,13 @@ const PricingSection = () => {
         </div>
 
         <div className={homeStyles.pricingCardCont}>
-          <div className={homeStyles.pricingCard}>
+          <motion.div
+            initial={{ opacity: 0, x: 10 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ amount: "all", once: true }}
+            transition={{ duration: 0.7, ease: "easeInOut" }}
+            className={homeStyles.pricingCard}
+          >
             <div className="mb-5">
               <h4 className="flex items-center gap-2 mb-3 text-2xl font-semibold xl:text-3xl">
                 <MdMoneyOff
@@ -105,9 +112,15 @@ const PricingSection = () => {
                 Crear empresa
               </Link>
             </div>
-          </div>
+          </motion.div>
 
-          <div className={homeStyles.pricingCard}>
+          <motion.div
+            initial={{ opacity: 0, x: 10 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ amount: "all", once: true }}
+            transition={{ duration: 0.7, ease: "easeInOut" }}
+            className={homeStyles.pricingCard}
+          >
             <div className="mb-5">
               <h4 className="flex items-center gap-3 mb-3 text-2xl font-semibold xl:text-3xl">
                 <FaMedal
@@ -188,7 +201,7 @@ const PricingSection = () => {
                 Crear empresa
               </Link>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </>

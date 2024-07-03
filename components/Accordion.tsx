@@ -1,12 +1,18 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useState } from "react";
 
 const Accordion = ({ title, answer }: { title: string; answer: string }) => {
   const [accordionActive, setAccordionActive] = useState(false);
 
   return (
-    <div className="w-full mb-3 text-white h-fit accordionCard">
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ amount: "all", once: true }}
+      className="w-full mb-3 text-white h-fit accordionCard"
+    >
       <button
         onClick={() => setAccordionActive(!accordionActive)}
         className="flex items-center justify-between w-full h-full px-6 py-6"
@@ -45,15 +51,11 @@ const Accordion = ({ title, answer }: { title: string; answer: string }) => {
             : "grid-rows-[0fr] opacity-0 px-0 py-0"
         }`}
       >
-        <p className={`overflow-hidden  ${
-          accordionActive
-            ? " py-3"
-            : "py-0"
-        }`}>
+        <p className={`overflow-hidden  ${accordionActive ? " py-3" : "py-0"}`}>
           {answer}
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

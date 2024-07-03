@@ -1,3 +1,5 @@
+"use client"
+import { motion } from "framer-motion";
 import Accordion from "../Accordion";
 
 const FAQSection = () => {
@@ -9,6 +11,7 @@ const FAQSection = () => {
             Preguntas frecuentes
           </h4>
         </header>
+
         <div className="w-full px-6 md:w-4/6 lg:w-1/2 md:px-0 h-fit rounded-xl ">
           <Accordion
             title="¿Cómo reservo un turno?"
@@ -32,14 +35,8 @@ const FAQSection = () => {
           />
         </div>
 
-        <div
-          style={{
-            width: "40%",
-            height: "1px",
-            background: "rgba(255, 255, 255, 0.2)",
-            margin: "5rem auto",
-          }}
-        ></div>
+
+
       </div>
     </>
   );
