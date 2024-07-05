@@ -22,21 +22,18 @@ const FAQSection = () => {
             answer='Primero debés registrarte y confirmar tu cuenta en el correo que te enviaremos luego del registro. Una vez hayas activado tu cuenta, iniciá sesión y accedé a "Mi empresa", completá los datos de tu negocio y hacé click en "Crear empresa". Recordá crear un servicio para poder comenzar a cargar tus turnos. '
           />
           <Accordion
-            title="¿Como cancelo un turno?"
+            title="¿Cómo cancelo un turno?"
+            answer="Podés cancelar el turno en el mismo momento que hiciste la reserva. Si necesitás cancelarlo luego, debés contactarte con el dueño de la empresa mediante el correo o el teléfono de contacto que te enviamos en el correo al realizar la reserva del turno."
+          />
+          <Accordion
+            title="¿Cómo utilizo la plataforma?"
             answer="Podés cancelar el turno en el mismo momento que hiciste la reserva. Si deseas cancelarlo luego, debes contactarte con el dueño de la empresa mediante el correo y/o el teléfono de contacto que te enviamos al realizar la reserva del turno."
           />
           <Accordion
-            title="¿Como cancelo un turno?"
-            answer="Podés cancelar el turno en el mismo momento que hiciste la reserva. Si deseas cancelarlo luego, debes contactarte con el dueño de la empresa mediante el correo y/o el teléfono de contacto que te enviamos al realizar la reserva del turno."
-          />
-          <Accordion
-            title="¿Como cancelo un turno?"
-            answer="Podés cancelar el turno en el mismo momento que hiciste la reserva. Si deseas cancelarlo luego, debes contactarte con el dueño de la empresa mediante el correo y/o el teléfono de contacto que te enviamos al realizar la reserva del turno."
+            title="No recibo los correos"
+            answer="Los correos pueden llegar a la carpeta de spam o de correo no deseado. Recordá revisar esa carpeta o si estas teniendo problemas no dudes en contactarnos."
           />
         </div>
-
-
-
       </div>
     </>
   );

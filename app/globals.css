@@ -501,8 +501,9 @@ html {
 }
 
 .accordionAnswer {
-  border-top: 1px solid rgba(255, 255, 255, 0.938);
-  background-color: rgba(219, 219, 219, 0.918);
+  border-top: 1px solid rgba(220, 220, 220);
+  background-color: rgba(240, 240, 240);
+  line-height: 25px;
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
   color: black;

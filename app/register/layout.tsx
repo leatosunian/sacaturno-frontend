@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <div className={`${montserrat.className} ${styles.backgroundImage}`}>
+      <div className={`${montserrat.className}`}>
         <AuthProvider>{children}</AuthProvider>
       </div>
     </>

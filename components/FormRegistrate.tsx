@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import styles from "../app/css-modules/FormRegistrate.module.css";
+import stylesHome from "../app/css-modules/HomeWhite.module.css";
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
 import { registerSchema } from "@/app/schemas/registerSchema";
@@ -25,7 +26,6 @@ const FormRegistrate = () => {
   });
   const [loading, setLoading] = useState<boolean>(false);
 
-
   const {
     register,
     handleSubmit,
@@ -46,7 +46,7 @@ const FormRegistrate = () => {
 
   const handleRegister = async (data: FieldValues) => {
     if (data) {
-      setLoading(true)
+      setLoading(true);
       try {
         const registeredUser = await axiosReq.post("/user/create", data);
         console.log(registeredUser);
@@ -57,7 +57,7 @@ const FormRegistrate = () => {
             msg: "El usuario ya existe",
           });
           hideAlert();
-          setLoading(false)
+          setLoading(false);
         }
         if (
           registeredUser.data.response_data.msg === "USER_CREATED_SUCCESSFULLY"
@@ -68,12 +68,12 @@ const FormRegistrate = () => {
             msg: "¡Usuario creado! Revisá tu correo y activá tu cuenta. Si no recibiste el correo, revisá tu correo no deseado.",
           });
           hideAlert();
-          setLoading(false)
+          setLoading(false);
         }
       } catch (error) {
         console.log(error);
-        setLoading(false)
-        
+        setLoading(false);
+
         setAlert({
           alertType: "ERROR_ALERT",
           error: true,
@@ -149,13 +149,13 @@ const FormRegistrate = () => {
           />
         )}
 
-        <span className="text-xs my-2 ">
+        <span className="my-2 text-xs ">
           Ya tenes cuenta? Hacé click para
-          <b className="cursor-pointer">
+          <b className="cursor-pointer blackOrangeHover">
             <Link href="/login"> iniciar sesión</Link>
           </b>
         </span>
-        <div className="flex items-center justify-center w-full h-9">
+        <div className="flex items-center justify-center w-full mt-3 h-9">
           {loading && (
             <>
               <div
@@ -167,7 +167,16 @@ const FormRegistrate = () => {
             </>
           )}
           {!loading && (
-            <button type="submit" className={styles.translucentBtn}>
+            <button
+              type="submit"
+              className={`${stylesHome.btnAnimated}`}
+              style={{
+                fontSize: "12px",
+                letterSpacing: ".5px",
+                width: "100%",
+                padding: "11px 0px",
+              }}
+            >
               Ingresar
             </button>
           )}

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import styles from "../app/css-modules/FormLogin.module.css";
+import stylesHome from "../app/css-modules/HomeWhite.module.css";
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
 import Link from "next/link";
@@ -16,12 +17,12 @@ interface formInputs {
 }
 
 interface IProps {
-    token: string;
+  token: string;
 }
 
 const NewPasswordRecovery: React.FC<IProps> = ({ token }) => {
   const [alert, setAlert] = useState<AlertInterface>();
-  console.log(token)
+  console.log(token);
   const {
     register,
     handleSubmit,
@@ -39,24 +40,26 @@ const NewPasswordRecovery: React.FC<IProps> = ({ token }) => {
   useEffect(() => {
     return () => {
       setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
-    }
-  }, [])
-  
+    };
+  }, []);
 
   const handleSetNewPassword = async (data: FieldValues) => {
-    console.log('Form inputs', data );
-    
+    console.log("Form inputs", data);
+
     if (data) {
-      if(data.password !== data.confirmPassword){
+      if (data.password !== data.confirmPassword) {
         setAlert({
           alertType: "ERROR_ALERT",
           error: true,
           msg: "Las contraseñas no coinciden.",
         });
-        return
+        return;
       }
-      const recovery = await axiosReq.post(`/user/password/recovery/set/${token}`, data);
-      console.log(recovery)
+      const recovery = await axiosReq.post(
+        `/user/password/recovery/set/${token}`,
+        data
+      );
+      console.log(recovery);
       setAlert({
         alertType: "OK_ALERT",
         error: true,
@@ -109,6 +112,12 @@ const NewPasswordRecovery: React.FC<IProps> = ({ token }) => {
           )}
         </div>
 
+        <span className="text-xs ">
+          Volver a
+          <b className="cursor-pointer">
+            <Link href="/login"> iniciar sesión</Link>
+          </b>
+        </span>
         {alert && (
           <FormAlert
             msg={alert.msg}
@@ -117,16 +126,18 @@ const NewPasswordRecovery: React.FC<IProps> = ({ token }) => {
           />
         )}
 
-        <span className="text-xs ">
-          Volver a
-          <b className="cursor-pointer">
-            <Link href="/login"> iniciar sesión</Link>
-          </b>
-        </span>
-        <button type="submit" className={styles.translucentBtn}>
+        <button
+          type="submit"
+          className={`${stylesHome.btnAnimated}`}
+          style={{
+            fontSize: "12px",
+            letterSpacing: ".5px",
+            width: "100%",
+            padding: "11px 0px",
+          }}
+        >
           Cambiar contraseña
         </button>
-        
       </form>
     </>
   );

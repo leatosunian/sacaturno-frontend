@@ -11,13 +11,13 @@ const Accordion = ({ title, answer }: { title: string; answer: string }) => {
       initial={{ opacity: 0, x: 20 }}
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ amount: "all", once: true }}
-      className="w-full mb-3 text-white h-fit accordionCard"
+      className="w-full mb-6 text-white h-fit accordionCard"
     >
       <button
         onClick={() => setAccordionActive(!accordionActive)}
         className="flex items-center justify-between w-full h-full px-6 py-6"
       >
-        <span className="font-medium text-md xl:text-lg">{title}</span>
+        <span className="font-medium text-left text-md xl:text-lg">{title}</span>
         <svg
           className="ml-8 fill-orange-600 shrink-0"
           width="16"

@@ -8,16 +8,16 @@ import sacaturno_logo from "@/public/st_logo_white.png";
 import Image from "next/image";
 import Link from "next/link";
 import { IoIosSearch } from "react-icons/io";
-import HeaderPublic from "@/components/HeaderPublic";
 import PasswordRecovery from "@/components/PasswordRecovery";
+import HeaderPublicBlack from '@/components/HeaderPublicBlack';
 
 export default function RecoverPassword() {
   return (
     <>
-      <HeaderPublic />
+      <HeaderPublicBlack />
       <div>
         <div className="flex flex-col w-full h-screen lg:flex-row ">
-          <div className="flex-col items-center justify-center hidden w-full pt-24 md:pt-0 md:pb-0 lg:flex pb-14 h-fit lg:h-full lg:w-1/2">
+          <div className={`flex-col items-center justify-center hidden w-full pt-0 md:pt-0 md:pb-0 lg:flex pb-14 h-2 lg:h-full lg:w-3/5 ${styles.backgroundImage}`}>
             <Image
               className="w-48 lg:mt-0 lg:w-96"
               alt=""
@@ -38,13 +38,13 @@ export default function RecoverPassword() {
               </Link>
             </div>
           </div>
-          <div className="flex justify-center w-full pt-24 align-middle lg:pt-0 lg:mt-0 h-fit lg:h-full lg:w-1/2">
+          <div className="flex justify-center w-full pt-16 align-middle lg:pt-0 lg:mt-0 h-fit lg:h-full lg:w-2/5">
             <div className={styles.loginCont}>
               <div className={styles.loginHeader}>
                 <h3 className="mb-3 text-2xl font-semibold uppercase lg:text-3xl">
                   Recuperar contraseña
                 </h3>
-                <span className="text-xs text-center lg:text-sm">
+                <span className="text-xs text-left lg:text-sm">
                   Ingresá el correo de la cuenta que deseas recuperar.
                 </span>
               </div>

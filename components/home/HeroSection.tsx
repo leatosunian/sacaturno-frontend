@@ -1,5 +1,5 @@
 import Image from "next/image";
-import mockup from "@/public/deviceframes.png";
+import mockup from "@/public/deviceframes2.png";
 import mockup2 from "@/public/deviceframes4.png";
 import styles from "@/app/css-modules/HomeWhite.module.css";
 import Link from "next/link";

@@ -1,6 +1,7 @@
 "use client";
 import { FormEventHandler, useState, useEffect } from "react";
 import styles from "../app/css-modules/FormLogin.module.css";
+import stylesHome from "../app/css-modules/HomeWhite.module.css";
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
@@ -173,7 +174,7 @@ const FormLogin = () => {
             ¿Olvidaste tu contraseña? 
             {"  "}
             <Link
-              className="font-semibold cursor-pointer orangeHover"
+              className="font-semibold cursor-pointer blackOrangeHover"
               href="/login/recovery"
             >
               Recuperar contraseña
@@ -181,7 +182,7 @@ const FormLogin = () => {
           </span>
         </div>
 
-        <div className="flex items-center justify-center w-full h-9">
+        <div className="flex items-center justify-center w-full mt-3 h-9">
           {loading && (
             <>
               <div
@@ -193,7 +194,7 @@ const FormLogin = () => {
             </>
           )}
           {!loading && (
-            <button type="submit" className={styles.translucentBtn}>
+            <button type="submit" className={`${stylesHome.btnAnimated}`} style={{fontSize:'12px', letterSpacing:'.5px', width:'100%', padding:'11px 0px'}}>
               Ingresar
             </button>
           )}

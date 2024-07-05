@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import styles from "../app/css-modules/FormLogin.module.css";
+import stylesHome from "../app/css-modules/HomeWhite.module.css";
+
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
 import Link from "next/link";
@@ -113,8 +115,17 @@ const PasswordRecovery = () => {
             <Link href="/login"> iniciar sesión</Link>
           </b>
         </span>
-        <button type="submit" className={styles.translucentBtn}>
-          Recuperar contraseña
+        <button
+          type="submit"
+          className={`${stylesHome.btnAnimated} mt-3`}
+          style={{
+            fontSize: "12px",
+            letterSpacing: ".5px",
+            width: "100%",
+            padding: "11px 0px",
+          }}
+        >
+          Recuperar contraseñaz
         </button>
       </form>
     </>

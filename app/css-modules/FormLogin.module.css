@@ -6,31 +6,7 @@
   gap: 20px;
 }
 
-.loginForm button {
-  width: fit-content;
-  height: fit-content;
-  padding: 5px 17px;
-  align-self: center;
-  margin-top: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.144);
-  background-color: #272e3c;
-  color: white;
-  border-radius: 7px;
-  font-size: 14px;
-  transition: all 0.3s ease-in-out;
-  -webkit-border-radius: 7px;
-  -moz-border-radius: 7px;
-  -ms-border-radius: 7px;
-  -o-border-radius: 7px;
-}
 
-.loginForm button:hover {
-  transition: all 0.3s ease-in-out;
-  -webkit-transition: all 0.3s ease-in-out;
-  -moz-transition: all 0.3s ease-in-out;
-  -ms-transition: all 0.3s ease-in-out;
-  -o-transition: all 0.3s ease-in-out;
-}
 
 .loginFormInput {
   width: 100%;
@@ -43,9 +19,9 @@
 .loginFormInput input {
   height: 30px;
   width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.068);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 7px;
-  background-color: rgba(0, 0, 0, 0.089);
+  background-color: rgba(0, 0, 0, 0.05);
   font-size: 13px;
   padding: 0 10px;
   transition: all ease-in-out 0.2s;
@@ -61,36 +37,15 @@
 }
 
 .loginFormInput input:hover {
-  border: 1px solid rgba(255, 255, 255, 0.368);
+  border: 1px solid #dd4924;
   transition: all ease-in-out 0.2s;
 }
 .loginFormInput input:focus {
-  background-color: rgba(148, 148, 148, 0.062);
-  border: none;
+  background-color: rgba(0, 0, 0, 0.08);
+  border: 1px solid #dd4924;
+  outline: none;
 }
 
-.loginForm button {
-  width: fit-content;
-  height: fit-content;
-  padding: 7px 20px;
-  align-self: center;
-  margin-top: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.144);
-  background-color: #272e3c;
-  color: white;
-  border-radius: 7px;
-  text-transform: uppercase;
-  font-size: 12px;
-  transition: all 0.3s ease-in-out;
-  -webkit-border-radius: 7px;
-  -moz-border-radius: 7px;
-  -ms-border-radius: 7px;
-  -o-border-radius: 7px;
-  -webkit-transition: all 0.3s ease-in-out;
-  -moz-transition: all 0.3s ease-in-out;
-  -ms-transition: all 0.3s ease-in-out;
-  -o-transition: all 0.3s ease-in-out;
-}
 
 .translucentBtn {
   background-color: rgba(0, 0, 0, 0.082) !important;

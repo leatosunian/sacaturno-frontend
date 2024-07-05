@@ -47,23 +47,38 @@ const HeaderPublic: NextPage<Props> = ({}) => {
         <div className="flex items-center h-full gap-1 j ustify-center w-fit ">
           {/* <FcCalendar size={34} />
           <h1 className="text-md">SacaTurno</h1> */}
-          <Image className="w-28" src={sacaturno_logo} alt="SacaTurno" />
+          <Link href={"/"}>
+            <Image className="w-28" src={sacaturno_logo} alt="SacaTurno" />
+          </Link>
         </div>
+
 
         <div className="items-center justify-center hidden gap-8 text-sm md:flex">
           <div>
-            <Link href="/public/search" className={`cursor-pointer ${styles.navLink}`}>
+            <Link
+              href="/public/search"
+              className={`cursor-pointer ${styles.navLink}`}
+            >
               reservar turno
             </Link>
           </div>
           <div>
-            <Link href="/login" className={`cursor-pointer ${styles.navLink}`}>Iniciar sesión</Link>
+            <Link href="/login" className={`cursor-pointer ${styles.navLink}`}>
+              Iniciar sesión
+            </Link>
           </div>
           <div>
-            <Link href="/register" className={`cursor-pointer ${styles.navLink}`}>registrarme</Link>
+            <Link
+              href="/register"
+              className={`cursor-pointer ${styles.navLink}`}
+            >
+              registrarme
+            </Link>
           </div>
           <div>
-            <Link href="/login" className={`cursor-pointer ${styles.navLink}`}>contactanos</Link>
+            <Link href="/login" className={`cursor-pointer ${styles.navLink}`}>
+              contactanos
+            </Link>
           </div>
           <div
             onClick={logOut}
@@ -82,7 +97,7 @@ const HeaderPublic: NextPage<Props> = ({}) => {
 
         <div className={active ? styles.overlayActive : styles.overlay}></div>
 
-        <aside  className={active ? styles.activeAside : styles.aside}>
+        <aside className={active ? styles.activeAside : styles.aside}>
           <div
             onClick={handleActiveNavBar}
             className="flex items-center justify-end w-full h-16 md:hidden"

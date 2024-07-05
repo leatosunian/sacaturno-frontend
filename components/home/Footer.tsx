@@ -60,7 +60,7 @@ const Footer: React.FC = () => {
             </div>
           </div>
 
-          <div className="w-full pb-5 my-auto text-center h-fit">
+          <div className="w-full pb-10 my-auto text-center md:pb-5 h-fit">
             <span className="text-sm text-gray-500 h-fit w-fit">
               developed by{" "}
               <Link
