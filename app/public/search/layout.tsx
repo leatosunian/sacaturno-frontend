@@ -13,7 +13,7 @@ export default function Layout({
 }>) {
   return (
       <>
-        <div className={`${styles.publicBgImage} h-screen`}>
+        <div className={`h-screen`}>
           {children}
         </div> 
       </>

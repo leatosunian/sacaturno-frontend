@@ -1,4 +1,5 @@
 import styles from "@/app/css-modules/login.module.css";
+import stylesHome from '@/app/css-modules/HomeWhite.module.css'
 import FormRegistrate from "@/components/FormRegistrate";
 import Image from "next/image";
 import sacaturno_logo from "@/public/st_logo_white.png";
@@ -13,7 +14,7 @@ export default function Register() {
       <HeaderPublicBlack />
       <div  style={{height:'calc(100vh - 64px)', paddingTop:'0px', marginBottom:'64px'}}>
         <div className="flex flex-col w-full h-screen lg:flex-row">
-          <div className={`flex-col items-center justify-center hidden w-full pt-0 md:pt-0 md:pb-0 lg:flex pb-14 h-2 lg:h-full lg:w-3/5 ${styles.backgroundImage}`}>
+          <div className={`flex-col items-center justify-center hidden w-full pt-0 md:pt-0 md:pb-0 lg:flex pb-14 h-2 lg:h-full lg:w-2/5 ${styles.backgroundImage}`}>
             <Image
               className="w-48 lg:mt-0 lg:w-96"
               alt=""
@@ -35,13 +36,13 @@ export default function Register() {
             </div>
           </div>
 
-          <div className="flex justify-center w-full pt-16 align-middle lg:pt-0 lg:mt-0 h-fit lg:h-full lg:w-2/5">
+          <div className={`flex justify-center w-full my-auto md:my-0 pt-10 md:pt-24 items-start md:items-center lg:pt-0 lg:mt-0 h-full lg:w-3/5 ${stylesHome.dottedBg}`}>
             <div className={styles.loginCont}>
               <div className={styles.loginHeader}>
                 <h3 className="mb-3 text-2xl font-semibold uppercase lg:text-3xl">
                   Registrate
                 </h3>
-                <span className="text-xs text-left lg:text-sm">
+                <span className="text-xs text-left text-gray-500 lg:text-sm">
                   ¡Creá tu cuenta y comenzá a gestionar tus turnos!
                 </span>
               </div>

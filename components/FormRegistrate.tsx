@@ -98,9 +98,9 @@ const FormRegistrate = () => {
       >
         <div className={styles.loginFormInput}>
           <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
-            Nombre
+            Nombre completo
           </span>
-          <input type="text" {...register("name")} />
+          <input type="text" {...register("name")} placeholder="Ingresá tu nombre y apellido" />
           {errors.name?.message && (
             <>
               <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
@@ -115,7 +115,7 @@ const FormRegistrate = () => {
           <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
             Correo electrónico
           </span>
-          <input type="email" {...register("email")} />
+          <input type="email" {...register("email")} placeholder="Ingresá tu email" />
           {errors.email?.message && (
             <>
               <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
@@ -130,7 +130,7 @@ const FormRegistrate = () => {
           <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
             Contraseña
           </span>
-          <input type="password" {...register("password")} />
+          <input type="password" {...register("password")}  placeholder="Ingresá tu contraseña"/>
           {errors.password?.message && (
             <>
               <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
@@ -155,7 +155,7 @@ const FormRegistrate = () => {
             <Link href="/login"> iniciar sesión</Link>
           </b>
         </span>
-        <div className="flex items-center justify-center w-full mt-3 h-9">
+        <div className="flex items-center justify-center w-full mt-3 h-fit">
           {loading && (
             <>
               <div

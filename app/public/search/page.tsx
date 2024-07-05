@@ -1,5 +1,4 @@
 "use client";
-import { HiSearch } from "react-icons/hi";
 import Image from "next/image";
 import { ChangeEventHandler, useState } from "react";
 import axiosReq from "@/config/axios";
@@ -7,15 +6,22 @@ import { IBusiness } from "@/interfaces/business.interface";
 import AlertInterface from "@/interfaces/alert.interface";
 import { GrTableAdd } from "react-icons/gr";
 import { useRouter } from "next/navigation";
+import sacaturno_logo from "@/public/st_logo_white.png";
+import stylesHome from "@/app/css-modules/HomeWhite.module.css";
 import stylesLogin from "@/app/css-modules/login.module.css";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
-import HeaderPublic from "@/components/HeaderPublic";
+import HeaderPublicBlack from "@/components/HeaderPublicBlack";
+import { IoIosSearch } from "react-icons/io";
+import Link from "next/link";
+import Footer from "@/components/home/Footer";
 
 const SearchBusiness: React.FC = () => {
   const [searchField, setSearchField] = useState<string>("");
   const [searchResults, setSearchResults] = useState<IBusiness[]>([]);
   const [alert, setAlert] = useState<AlertInterface>();
   const [loading, setLoading] = useState<boolean>(false);
+  const [loadingCalBtn, setLoadingCalBtn] = useState<boolean>(false);
+
   const router = useRouter();
 
   const myLoader = ({ src }: { src: string }) => {
@@ -69,103 +75,181 @@ const SearchBusiness: React.FC = () => {
 
   return (
     <>
-      <HeaderPublic />
-      <div className="flex flex-col items-center w-full pt-24 text-white h-fit">
-        <div className={`${stylesLogin.loginCont2}`}>
-          <header className="flex justify-center w-full mb-5 md:mb-10 h-fit">
-            <h4 style={{ fontSize: "22px" }} className="font-bold uppercase ">
-              Reservar turno
-            </h4>
-          </header>
-
-          <div className="w-80">
-            <div className={stylesLogin.loginFormInput}>
-              <span className="text-xs font-semibold uppercase">
-                Nombre de la empresa
-              </span>
-              <input
-                value={searchField}
-                onChange={handleChange}
-                type="text"
-                maxLength={30}
-              />
-            </div>
-            {/* ALERT */}
-            {alert?.error && (
-              <>
-                <div className="flex items-center justify-center gap-1 mt-3 w-fit h-fit">
-                  <AiOutlineExclamationCircle color="red" />
-                  <span className="text-xs "> {alert.msg} </span>
-                </div>
-              </>
-            )}
-          </div>
-          <div className="flex flex-col gap-4 mt-5 md:flex-row">
-            {!loading && (
-              <button
-                onClick={handleSearch}
-                className={`${stylesLogin.translucentBtn2}`}
+      <HeaderPublicBlack />
+      <div
+        style={{
+          height: "calc(100vh - 64px)",
+          paddingTop: "0px",
+          marginBottom: "64px",
+        }}
+      >
+        <div className="flex flex-col w-full h-screen lg:flex-row">
+          <div
+            className={`flex-col items-center justify-center hidden w-full pt-0 md:pt-0 md:pb-0 lg:flex pb-14 h-2 lg:h-full lg:w-2/5 ${stylesLogin.backgroundImage}`}
+          >
+            <Image
+              className="w-48 lg:mt-0 lg:w-96"
+              alt=""
+              src={sacaturno_logo}
+            />
+            <span className="mt-2 text-sm font-thin text-gray-200 lg:mt-0 lg:text-lg">
+              tu app para gestionar tu agenda
+            </span>
+            <div className="hidden mt-10 lg:block">
+              <Link
+                href="/public/search"
+                type="submit"
+                className={`${stylesLogin.translucentBtn2} font-light uppercase`}
+                style={{ padding: " 12px 16px ", fontSize: "13px" }}
               >
-                <HiSearch size={18} />
-                Buscar
-              </button>
-            )}
-            {loading && (
-              <>
-                <div
-                  style={{ height: "100%", width: "100%" }}
-                  className="flex items-center justify-center w-full"
-                >
-                  <div className="loaderSmall" style={{border: "2px solid white"}}></div>
-                </div>
-              </>
-            )}
+                <IoIosSearch size={24} />
+                Buscar empresa
+              </Link>
+            </div>
           </div>
+          <div
+            className={`flex justify-center w-full my-auto md:my-0 pt-10 md:pt-24 items-start md:items-center lg:pt-0 lg:mt-0 h-full lg:w-3/5 ${stylesHome.dottedBg}`}
+          >
+            <div className={`${stylesLogin.loginCont}`}>
+              <div className={stylesLogin.loginHeader}>
+                <h3 className="mb-2 text-2xl font-semibold uppercase lg:text-3xl">
+                  Reservar turno
+                </h3>
+                <span className="text-xs text-left text-gray-500 lg:text-sm">
+                  Ingresá el nombre de la empresa que estás buscando
+                </span>
+              </div>
 
-          {searchResults.length > 0 && (
-            <div className="flex justify-center w-full mt-6 h-fit">
-              <div className="flex flex-col w-full gap-4 px-2 h-fit">
-                {searchResults.map((business) => (
+              <div className="w-full">
+                <div className={stylesLogin.loginFormInput}>
+                  <span className="text-xs font-semibold uppercase">
+                    Nombre de la empresa
+                  </span>
+                  <input
+                    value={searchField}
+                    onChange={handleChange}
+                    placeholder="Ingresá el nombre de la empresa"
+                    type="text"
+                    maxLength={30}
+                  />
+                </div>
+                {/* ALERT */}
+                {alert?.error && (
                   <>
-                    <div
-                      key={business._id}
-                      style={{ border: "1px solid rgba(255, 255, 255, 0.12)" }}
-                      className="flex items-center w-full gap-4 px-5 text-white h-14 backdrop-blur py-9 rounded-xl"
-                    >
-                      <Image
-                        loader={myLoader}
-                        width={64}
-                        height={64}
-                        className="w-12 h-12 rounded-full"
-                        src={`/user/getprofilepic/${business.image}`}
-                        alt=""
-                      />
-                      <div className="flex flex-col w-fit h-fit">
-                        <span className="text-sm font-medium">
-                          {business.name}
-                        </span>
-                        <span className="text-xs font-light text-gray-300">
-                          {business.businessType}
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => {
-                          router.push(`/${business.slug}`);
-                        }}
-                        title="Ver turnos"
-                        className={`ml-auto ${stylesLogin.translucentBtn2}`}
-                        style={{ padding: "25px 0 !important" }}
-                      >
-                        <GrTableAdd className="my-1" size={15} />
-                      </button>
+                    <div className="flex items-center justify-center gap-1 mt-3 w-fit h-fit">
+                      <AiOutlineExclamationCircle color="red" />
+                      <span className="text-xs "> {alert.msg} </span>
                     </div>
                   </>
-                ))}
+                )}
               </div>
+              <div className="flex flex-col w-full gap-4 mt-7 md:flex-row">
+                {!loading && (
+                  <button
+                    type="submit"
+                    className={`${stylesHome.btnAnimated}`}
+                    onClick={handleSearch}
+                    style={{
+                      fontSize: "12px",
+                      letterSpacing: ".5px",
+                      width: "100%",
+                      padding: "11px 0",
+                    }}
+                  >
+                    Buscar
+                  </button>
+                )}
+                {loading && (
+                  <>
+                    <div
+                      style={{
+                        height: "100%",
+                        width: "100%",
+                        padding: "11px 0",
+                      }}
+                      className="flex items-center justify-center w-full h-11"
+                    >
+                      <div className="loaderSmall"></div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {searchResults.length > 0 && (
+                <div className="flex justify-center w-full mt-8 h-fit">
+                  <div className="flex flex-col w-full gap-4 h-fit">
+                    {searchResults.map((business) => (
+                      <>
+                        <div
+                          key={business._id}
+                          style={{
+                            border: "1px solid rgba(0, 0, 0, 0.15)",
+                          }}
+                          className="flex items-center w-full gap-4 px-4 h-14 backdrop-blur py-9 rounded-xl"
+                        >
+                          <Image
+                            loader={myLoader}
+                            width={64}
+                            height={64}
+                            className="w-12 h-12 rounded-full"
+                            src={`/user/getprofilepic/${business.image}`}
+                            alt=""
+                          />
+                          <div className="flex flex-col w-fit h-fit">
+                            <span className="text-sm font-medium">
+                              {business.name}
+                            </span>
+                            <span className="text-xs font-light text-gray-500">
+                              {business.businessType}
+                            </span>
+                          </div>
+                          {/* <button
+                            onClick={() => {
+                              router.push(`/${business.slug}`);
+                            }}
+                            title="Ver turnos"
+                            className={`ml-auto ${stylesLogin.buttonBusiness}`}
+                            style={{ padding: "25px 0 !important" }}
+                          >
+                            <GrTableAdd className="my-1" size={15} />
+                          </button> */}
+
+                          <div className="flex items-center justify-center ml-auto w-fit h-fit">
+                            {loadingCalBtn && (
+                              <>
+                                <div
+                                  style={{ height: "35px", width: "41px" }}
+                                  className="flex items-center justify-center w-full"
+                                >
+                                  <div className="loaderSmall"></div>
+                                </div>
+                              </>
+                            )}
+                            {!loadingCalBtn && (
+                              <button
+                                onClick={() => {
+                                  setLoadingCalBtn(true)
+                                  router.push(`/${business.slug}`);
+                                }}
+                                title="Ver turnos"
+                                className={`ml-auto ${stylesLogin.buttonBusiness}`}
+                                style={{ padding: "25px 0 !important" }}
+                              >
+                                <GrTableAdd className="my-1" size={15} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 };

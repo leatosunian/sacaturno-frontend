@@ -1,10 +1,8 @@
 import { Montserrat } from "next/font/google";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/authContext";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
-const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
@@ -13,7 +11,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} `}>
+      <body className={`${montserrat.className} `}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

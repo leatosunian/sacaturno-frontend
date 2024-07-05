@@ -22,7 +22,7 @@ export default function Login() {
         <div className="flex flex-col w-full h-screen lg:flex-row ">
 
 
-          <div className={`flex-col items-center justify-center hidden w-full pt-0 md:pt-0 md:pb-0 lg:flex pb-14 h-2 lg:h-full lg:w-3/5 ${styles.backgroundImage}`}>
+          <div className={`flex-col items-center justify-center hidden w-full pt-0 md:pt-0 md:pb-0 lg:flex pb-14 h-2 lg:h-full lg:w-2/5 ${styles.backgroundImage} `}>
             <Image
               className="w-48 lg:mt-0 lg:w-96"
               alt=""
@@ -45,13 +45,13 @@ export default function Login() {
           </div>
 
 
-          <div className="flex justify-center w-full pt-16 align-middle lg:pt-0 lg:mt-0 h-fit lg:h-full lg:w-2/5">
+          <div className={`flex justify-center w-full my-auto md:my-0 pt-10 md:pt-24 items-start md:items-center lg:pt-0 lg:mt-0 h-full lg:w-3/5 ${stylesHome.dottedBg}`}>
             <div className={styles.loginCont}>
               <div className={styles.loginHeader}>
-                <h3 className="mb-3 text-2xl font-semibold uppercase lg:text-3xl">
+                <h3 className="mb-3 text-2xl font-semibold uppercase xl:text-3xl">
                   Iniciar Sesión
                 </h3>
-                <span className="text-xs text-center lg:text-sm">
+                <span className="text-xs text-center text-gray-500 lg:text-sm">
                   ¡Accedé a tu cuenta para gestionar tus turnos!
                 </span>
               </div>

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
-import styles from "@/app/css-modules/home.module.css";
 import { AuthProvider } from "../context/authContext";
 
 const montserrat = Montserrat({ subsets: ["latin"] });

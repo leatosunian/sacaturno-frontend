@@ -22,7 +22,6 @@ interface IProps {
 
 const NewPasswordRecovery: React.FC<IProps> = ({ token }) => {
   const [alert, setAlert] = useState<AlertInterface>();
-  console.log(token);
   const {
     register,
     handleSubmit,
@@ -44,8 +43,6 @@ const NewPasswordRecovery: React.FC<IProps> = ({ token }) => {
   }, []);
 
   const handleSetNewPassword = async (data: FieldValues) => {
-    console.log("Form inputs", data);
-
     if (data) {
       if (data.password !== data.confirmPassword) {
         setAlert({
@@ -55,16 +52,24 @@ const NewPasswordRecovery: React.FC<IProps> = ({ token }) => {
         });
         return;
       }
-      const recovery = await axiosReq.post(
-        `/user/password/recovery/set/${token}`,
-        data
-      );
-      console.log(recovery);
-      setAlert({
-        alertType: "OK_ALERT",
-        error: true,
-        msg: "¡Tu contraseña fue cambiada con éxito! Ya podés iniciar sesión con tus nuevos datos.",
-      });
+      try {
+        const recovery = await axiosReq.post(
+          `/user/password/recovery/set/${token}`,
+          data
+        );
+        console.log(recovery);
+        setAlert({
+          alertType: "OK_ALERT",
+          error: true,
+          msg: "¡Tu contraseña fue cambiada con éxito! Ya podés iniciar sesión con tus nuevos datos.",
+        });
+      } catch (error) {
+        setAlert({
+          alertType: "ERROR_ALERT",
+          error: true,
+          msg: "Ocurrió un error al reestablecer tu contraseña. Intentá nuevamente.",
+        });
+      }
     }
   };
 
@@ -84,7 +89,7 @@ const NewPasswordRecovery: React.FC<IProps> = ({ token }) => {
           <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
             Nueva contraseña
           </span>
-          <input type="password" {...register("password")} />
+          <input type="password" {...register("password")} placeholder="Ingresá tu nueva contraseña" />
           {errors.password?.message && (
             <>
               <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
@@ -99,7 +104,7 @@ const NewPasswordRecovery: React.FC<IProps> = ({ token }) => {
           <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
             Confirmar contraseña
           </span>
-          <input type="password" {...register("confirmPassword")} />
+          <input type="password" {...register("confirmPassword")} placeholder="Confirmá tu nueva contraseña" />
           {errors.confirmPassword?.message && (
             <>
               <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">

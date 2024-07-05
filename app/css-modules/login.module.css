@@ -9,13 +9,15 @@
   align-items: center;
   align-self: center;
   padding: 45px 35px;
+  background-color: white;
+  margin: 0;
   height: fit-content;
   width: 400px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   color: black;
-  box-shadow: -10px 10px 25px 1px rgba(0, 0, 0, 0.3);
-  -webkit-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.3);
-  -moz-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.3);
+  box-shadow: -10px 10px 25px 1px rgba(0, 0, 0, 0.24);
+  -webkit-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.24);
+  -moz-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.24);
   border-radius: 15px;
   -webkit-border-radius: 15px;
   -moz-border-radius: 15px;
@@ -36,9 +38,9 @@
   backdrop-filter: blur(10px);
   border: 1px solid rgba(0, 0, 0, 0.068);
   color: black;
-  box-shadow: -10px 10px 25px 1px rgba(0, 0, 0, 0.3);
-  -webkit-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.3);
-  -moz-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.3);
+  box-shadow: -10px 10px 25px 1px rgba(0, 0, 0, 0.24);
+  -webkit-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.24);
+  -moz-box-shadow: 7px 10px 25px 1px rgba(0, 0, 0, 0.24);
   border-radius: 15px;
   -webkit-border-radius: 15px;
   -moz-border-radius: 15px;
@@ -123,9 +125,9 @@
 .loginFormInput input {
   height: 30px;
   width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.068);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 7px;
-  background-color: rgba(0, 0, 0, 0.089);
+  background-color: rgba(0, 0, 0, 0.05);
   font-size: 13px;
   padding: 0 10px;
   transition: all ease-in-out 0.2s;
@@ -141,12 +143,13 @@
 }
 
 .loginFormInput input:hover {
-  border: 1px solid rgba(255, 255, 255, 0.368);
+  border: 1px solid #dd4924;
   transition: all ease-in-out 0.2s;
 }
 .loginFormInput input:focus {
-  background-color: rgba(148, 148, 148, 0.062);
-  border: none;
+  background-color: rgba(0, 0, 0, 0.08);
+  border: 1px solid #dd4924;
+  outline: none;
 }
 
 .backgroundImage {
@@ -154,7 +157,6 @@
   background-image: url(../../public/zoe-BVoTTLwXvMQ-unsplash.jpg);
   background-size: 100vw 100vh;
   background-size: cover;
-  border-right: 1px solid #dd49244f;
   overflow: hidden;
 }
 
@@ -177,6 +179,49 @@
 .footerLink:hover {
   color: rgba(255, 255, 255, 0.8);
   transition: all ease-in-out 0.2s;
+}
+
+.buttonBusiness {
+  width: fit-content;
+  height: fit-content;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 12px;
+  align-self: center;
+  border: 1px solid rgba(128, 128, 128, 0.445);
+  background-color: #dd4924;
+  color: white;
+  border-radius: 7px;
+  font-size: 12px;
+  text-transform: uppercase;
+  transition: all .3s ease-in-out;
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
+  -ms-border-radius: 7px;
+  -o-border-radius: 7px;
+}
+
+
+
+.buttonBusiness:hover {
+  color: #d92f04;
+  border: 1px solid #d92f04;
+  background-color: white; 
+  transition: all .3s ease-in-out;
+  -webkit-transition: all .3s ease-in-out;
+  -moz-transition: all .3s ease-in-out;
+  -ms-transition: all .3s ease-in-out;
+  -o-transition: all .3s ease-in-out;
+}
+
+
+@media (max-width: 1023px) {
+  .loginCont {
+    margin: 0 0 auto 0;
+  }
+
 }
 
 @media (max-width: 768px) {

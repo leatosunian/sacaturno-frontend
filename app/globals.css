@@ -19,6 +19,7 @@
 body {
   overflow: overlay;
   color: rgb(var(--foreground-rgb));
+  font-family: inherit;
   background: linear-gradient(
       to bottom,
       transparent,

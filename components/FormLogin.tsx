@@ -127,7 +127,7 @@ const FormLogin = () => {
           <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
             Correo electrónico
           </span>
-          <input type="email" {...register("email")} />
+          <input type="email" {...register("email")}  placeholder="Ingresá tu email"/>
           {errors.email?.message && (
             <>
               <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
@@ -141,7 +141,7 @@ const FormLogin = () => {
           <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
             Contraseña
           </span>
-          <input type="password" {...register("password")} />
+          <input type="password" {...register("password")} placeholder="Ingresá tu contraseña" />
           {errors.password?.message && (
             <>
               <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
@@ -164,7 +164,7 @@ const FormLogin = () => {
           <span className="mb-3 text-xs font-light">
             ¿No tenes cuenta?{"  "}
             <Link
-              className="font-semibold cursor-pointer orangeHover"
+              className="font-semibold cursor-pointer blackOrangeHover"
               href="/register"
             >
               Registrate
@@ -182,7 +182,7 @@ const FormLogin = () => {
           </span>
         </div>
 
-        <div className="flex items-center justify-center w-full mt-3 h-9">
+        <div className="flex items-center justify-center w-full mt-3 h-fit">
           {loading && (
             <>
               <div

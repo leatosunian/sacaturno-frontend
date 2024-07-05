@@ -90,7 +90,7 @@ const PasswordRecovery = () => {
           <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
             Correo electrónico
           </span>
-          <input type="email" {...register("email")} />
+          <input type="email" {...register("email")} placeholder="Ingresá tu email" />
           {errors.email?.message && (
             <>
               <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
@@ -111,7 +111,7 @@ const PasswordRecovery = () => {
 
         <span className="text-xs ">
           Volver a
-          <b className="cursor-pointer orangeHover">
+          <b className="cursor-pointer blackOrangeHover">
             <Link href="/login"> iniciar sesión</Link>
           </b>
         </span>
@@ -125,7 +125,7 @@ const PasswordRecovery = () => {
             padding: "11px 0px",
           }}
         >
-          Recuperar contraseñaz
+          Recuperar contraseña
         </button>
       </form>
     </>
