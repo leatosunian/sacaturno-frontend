@@ -52,7 +52,7 @@ const LoggedInHeader: NextPage<Props> = ({}) => {
         <div className="items-center justify-center hidden gap-8 text-sm md:flex">
           <div>
             <Link
-              href="/business/search"
+              href="/public/search"
               className={`cursor-pointer ${styles.navLink}`}
             >
               Sacar turno
@@ -118,7 +118,7 @@ const LoggedInHeader: NextPage<Props> = ({}) => {
           <Link
             onClick={closeNavMenu}
             className="flex items-center h-12 text-xs font-medium uppercase"
-            href="/business/search"
+            href="/public/search"
           >
             Sacar turno
           </Link>

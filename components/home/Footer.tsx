@@ -36,6 +36,12 @@ const Footer: React.FC = () => {
                   <Link href={''} className={`${styles.textHoverToOrange} text-xs`}>
                     Preguntas frecuentes
                   </Link>
+                  <Link href={'/faq/terminos'} className={`${styles.textHoverToOrange} text-xs`}>
+                    Términos y condiciones
+                  </Link>
+                  <Link href={'/faq/privacidad'} className={`${styles.textHoverToOrange} text-xs`}>
+                    Política de privacidad
+                  </Link>
                   <Link href={''} className={`${styles.textHoverToOrange} text-xs`}>
                     Guía de uso
                   </Link>
@@ -49,10 +55,10 @@ const Footer: React.FC = () => {
                   Tu cuenta
                 </span>
                 <div className="flex flex-col gap-2 lg:gap-1">
-                  <Link href={''} className={`${styles.textHoverToOrange} text-xs`}>
+                  <Link href={'/login'} className={`${styles.textHoverToOrange} text-xs`}>
                     Iniciar sesión
                   </Link>
-                  <Link href={''} className={`${styles.textHoverToOrange} text-xs`}>
+                  <Link href={'register'} className={`${styles.textHoverToOrange} text-xs`}>
                     Registrarme
                   </Link>
                 </div>

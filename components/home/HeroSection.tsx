@@ -42,7 +42,7 @@ const HeroSection = () => {
               <span>o</span>
               <div className="flex justify-center w-fit ">
                 <Link
-                  href="/register"
+                  href="/public/search"
                   type="submit"
                   className={`${styles.btnAnimatedWhite} font-normal`}
                 >
