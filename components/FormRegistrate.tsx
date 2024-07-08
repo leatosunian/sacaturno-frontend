@@ -27,7 +27,6 @@ const FormRegistrate = () => {
   });
   const [loading, setLoading] = useState<boolean>(false);
   const [isPolicyAccepted, setIsPolicyAccepted] = useState<boolean>(false)
-
   const {
     register,
     handleSubmit,
@@ -35,7 +34,6 @@ const FormRegistrate = () => {
   } = useForm<formInputs>({
     resolver: zodResolver(registerSchema),
   });
-  console.log(errors);
   
   const hideAlert = () => {
     setTimeout(() => {
@@ -43,9 +41,6 @@ const FormRegistrate = () => {
     }, 6000);
   };
 
-  /*useEffect(() => {
-    hideAlert()
-  }, [])*/
 
   const handleRegister = async (data: FieldValues) => {
     if(!isPolicyAccepted){
