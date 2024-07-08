@@ -44,6 +44,9 @@ const FormCreateBusiness: React.FC = () => {
     setValue("dayStart", "8");
     setValue("dayEnd", "17");
     setValue("appointmentDuration", "60");
+    return () => {
+      setLoading(false)
+    }
   }, []);
 
   const handleSubmitClick = () => {
@@ -58,7 +61,7 @@ const FormCreateBusiness: React.FC = () => {
   const hideAlert = () => {
     setTimeout(() => {
       setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
-    }, 3600);
+    }, 4000);
   };
 
   const createBusiness = async (data: FieldValues) => {
@@ -95,7 +98,7 @@ const FormCreateBusiness: React.FC = () => {
           return;
         }
         setAlert({
-          msg: "Empresa creada con éxito! Aguardá a ser redirigido",
+          msg: "¡Empresa creada! Ahora añade un servicio.",
           error: true,
           alertType: "OK_ALERT",
         });
@@ -103,7 +106,6 @@ const FormCreateBusiness: React.FC = () => {
         setTimeout(() => {
           router.refresh();
           router.push("/admin/miempresa/settings");
-          setLoading(false)
         }, 4000);
       }
     } catch (error) {

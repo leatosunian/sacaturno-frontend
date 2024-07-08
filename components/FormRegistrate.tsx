@@ -16,6 +16,7 @@ interface formInputs {
   password: string;
   phone: number;
   email: string;
+  acceptPolicy: boolean
 }
 
 const FormRegistrate = () => {
@@ -25,6 +26,7 @@ const FormRegistrate = () => {
     msg: "El usuario ya existe",
   });
   const [loading, setLoading] = useState<boolean>(false);
+  const [isPolicyAccepted, setIsPolicyAccepted] = useState<boolean>(false)
 
   const {
     register,
@@ -33,7 +35,8 @@ const FormRegistrate = () => {
   } = useForm<formInputs>({
     resolver: zodResolver(registerSchema),
   });
-
+  console.log(errors);
+  
   const hideAlert = () => {
     setTimeout(() => {
       setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
@@ -45,7 +48,17 @@ const FormRegistrate = () => {
   }, [])*/
 
   const handleRegister = async (data: FieldValues) => {
+    if(!isPolicyAccepted){
+      setAlert({
+        alertType: "ERROR_ALERT",
+        error: true,
+        msg: "Debes aceptar los terminos y condiciones",
+      });
+      hideAlert()
+      return
+    }
     if (data) {
+      setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
       setLoading(true);
       try {
         const registeredUser = await axiosReq.post("/user/create", data);
@@ -100,7 +113,11 @@ const FormRegistrate = () => {
           <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
             Nombre completo
           </span>
-          <input type="text" {...register("name")} placeholder="Ingresá tu nombre y apellido" />
+          <input
+            type="text"
+            {...register("name")}
+            placeholder="Ingresá tu nombre y apellido"
+          />
           {errors.name?.message && (
             <>
               <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
@@ -115,7 +132,11 @@ const FormRegistrate = () => {
           <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
             Correo electrónico
           </span>
-          <input type="email" {...register("email")} placeholder="Ingresá tu email" />
+          <input
+            type="email"
+            {...register("email")}
+            placeholder="Ingresá tu email"
+          />
           {errors.email?.message && (
             <>
               <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
@@ -130,12 +151,43 @@ const FormRegistrate = () => {
           <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
             Contraseña
           </span>
-          <input type="password" {...register("password")}  placeholder="Ingresá tu contraseña"/>
+          <input
+            type="password"
+            {...register("password")}
+            placeholder="Ingresá tu contraseña"
+          />
           {errors.password?.message && (
             <>
               <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
                 <AiOutlineExclamationCircle color="red" />
                 <span className="text-xs "> {errors.password.message} </span>
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 mt-3 md:mt-2 md:gap-3">
+          <label className="container">
+            <input type="checkbox" onClick={() => setIsPolicyAccepted(!isPolicyAccepted)} />
+            <svg viewBox="0 0 64 64" height="15px" width="15px">
+              <path
+                d="M 0 16 V 56 A 8 8 90 0 0 8 64 H 56 A 8 8 90 0 0 64 56 V 8 A 8 8 90 0 0 56 0 H 8 A 8 8 90 0 0 0 8 V 16 L 32 48 L 64 16 V 8 A 8 8 90 0 0 56 0 H 8 A 8 8 90 0 0 0 8 V 56 A 8 8 90 0 0 8 64 H 56 A 8 8 90 0 0 64 56 V 16"
+                pathLength="575.0541381835938"
+                className="path"
+              ></path>
+            </svg>
+          </label>
+          <span className="text-xs">
+            Acepto los{" "}
+            <Link className="text-xs font-semibold blackOrangeHover" href={"/faq/terminos"}>
+              términos y condiciones
+            </Link>
+          </span>
+          {errors.acceptPolicy?.message && (
+            <>
+              <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
+                <AiOutlineExclamationCircle color="red" />
+                <span className="text-xs "> {errors.acceptPolicy.message} </span>
               </div>
             </>
           )}
@@ -149,7 +201,7 @@ const FormRegistrate = () => {
           />
         )}
 
-        <span className="my-2 text-xs ">
+        <span className="mt-2 text-xs md:mt-0 ">
           Ya tenes cuenta? Hacé click para
           <b className="cursor-pointer blackOrangeHover">
             <Link href="/login"> iniciar sesión</Link>

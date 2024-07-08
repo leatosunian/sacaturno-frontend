@@ -287,17 +287,7 @@ const FormMiPerfil: React.FC<Props> = ({
               </span>
             )}
           </div>
-          <div className={styles.formInput}>
-            <span style={{ fontSize: "12px" }} className="font-bold uppercase ">
-              Fecha de nacimiento
-            </span>
-            <input type="date" {...register("birthdate")} />
-            {errors.birthdate?.message && (
-              <span className="text-xs font-semibold text-red-600">
-                {errors.birthdate.message}
-              </span>
-            )}
-          </div>
+
           <span className="text-xs font-light">
             ¿Olvidaste tu contraseña?
             {"  "}
@@ -315,8 +305,6 @@ const FormMiPerfil: React.FC<Props> = ({
         />
       </form>
 
-      {typeof businessData === "object" && (
-        <>
           <div className="flex flex-col gap-2 my-2 md:gap-0 w-fit h-fit"></div>
 
           <div className="flex items-center justify-center w-full mt-6 h-9">
@@ -337,6 +325,8 @@ const FormMiPerfil: React.FC<Props> = ({
               </button>
             )}
           </div>
+      {typeof businessData === "object" && (
+        <>
 
           {/* DIVIDER */}
           <div className="flex justify-center w-full my-7 md:my-12 h-fit ">
