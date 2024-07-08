@@ -11,9 +11,7 @@
     display: none;
 }
 
-.publicHeader{
-    background-image: url(../../public/headerbar.png);
-}
+
 
 .navLink {
     color: white;
