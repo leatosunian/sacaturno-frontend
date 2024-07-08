@@ -75,13 +75,11 @@ const FormRegistrate = () => {
             error: true,
             msg: "¡Usuario creado! Revisá tu correo y activá tu cuenta. Si no recibiste el correo, revisá tu correo no deseado.",
           });
-          hideAlert();
           setLoading(false);
         }
       } catch (error) {
         console.log(error);
         setLoading(false);
-
         setAlert({
           alertType: "ERROR_ALERT",
           error: true,
