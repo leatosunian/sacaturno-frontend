@@ -143,6 +143,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
         <AppointmentModal
           appointment={selectedAppointment}
           closeModalF={() => setAppointmentInfoModal(false)}
+          onDeleteAppointment={() => {}}
         />
       )}
       <div className="flex w-full h-full pt-8 px-7 sm:px-24 md:pt-16 md:px-24 lg:px-36 xl:px-60 2xl:px-80">
