@@ -13,12 +13,14 @@ interface props {
   appointmentData: IAppointment | undefined;
   servicesData: IService[] | undefined;
   closeModalF: () => void;
+  onNewAppointment: () => void;
 }
 
 const CreateAppointmentModal: React.FC<props> = ({
   appointmentData,
   closeModalF,
   servicesData,
+  onNewAppointment
 }) => {
   const router = useRouter();
   const [selectedService, setSelectedService] = useState<string | undefined>('')
@@ -50,7 +52,7 @@ const CreateAppointmentModal: React.FC<props> = ({
       appointmentData,
       authHeader
     );
-    console.log(savedAppointment);
+    onNewAppointment();
     router.refresh();
   };
 
@@ -112,7 +114,10 @@ const CreateAppointmentModal: React.FC<props> = ({
             </div>
 
             <div className="flex justify-center w-full mt-3 align-middle h-fit">
-              <button className={styles.button} onClick={saveAppointment}>
+              <button className={styles.button} onClick={() => {
+                saveAppointment()
+                closeModal()
+              }}>
                 Crear turno
               </button>
             </div>

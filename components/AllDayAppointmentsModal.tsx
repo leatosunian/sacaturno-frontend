@@ -15,6 +15,7 @@ interface IAllDayModalProps {
   business: IBusiness | undefined;
   services: IService[] | undefined;
   closeModalF: () => void;
+  onNewAppointment: () => void;
 }
 
 const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
@@ -22,6 +23,7 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
   business,
   services,
   closeModalF,
+  onNewAppointment,
 }) => {
   const router = useRouter();
   const [selectedService, setSelectedService] = useState<string | undefined>(
@@ -35,7 +37,6 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
   }, [services]);
 
   const saveAppointment = async () => {
-    closeModal();
     const dayAppointments: IAppointment[] = [];
     let inicio = dayjs(date)
       .hour(Number(business?.dayStart))
@@ -59,7 +60,6 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
       });
       inicio = finalTurno;
     }
-    console.log(dayAppointments);
     // REQUEST
     const token = localStorage.getItem("sacaturno_token");
     const authHeader = {
@@ -74,7 +74,7 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
       dayAppointments,
       authHeader
     );
-    console.log(savedAppointment);
+    onNewAppointment();
     router.refresh();
   };
 
@@ -94,10 +94,13 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
           <h4 className="mb-2 text-xl font-bold text-center uppercase md:text-2xl">
             Crear turnos
           </h4>
-          <span className="mb-4 text-sm font-semibold text-center uppercase md:text-md">{dayjs(date).format("dddd DD/MM ")}</span>
+          <span className="mb-4 text-sm font-semibold text-center uppercase md:text-md">
+            {dayjs(date).format("dddd DD/MM ")}
+          </span>
 
           <span className="mb-4 text-xs text-left md:text-sm">
-           &#128161; Seleccioná el servicio a prestar para crear todos los turnos del día
+            &#128161; Seleccioná el servicio a prestar para crear todos los
+            turnos del día
           </span>
 
           <div className="flex flex-col w-full gap-5 h-fit">
@@ -124,7 +127,13 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
             </div>
 
             <div className="flex justify-center w-full mt-3 align-middle h-fit">
-              <button className={styles.button} onClick={saveAppointment}>
+              <button
+                className={styles.button}
+                onClick={() => {
+                  closeModal();
+                  saveAppointment();
+                }}
+              >
                 Crear turnos
               </button>
             </div>

@@ -106,6 +106,7 @@ const CalendarTurnos: React.FC<Props> = ({
   const [date, setDate] = useState<Date>(now.toDate());
   const [expiredModal, setExpiredModal] = useState(false);
   const [dropdownActive, setDropdownActive] = useState(false);
+  const [loadingNewAppointments, setLoadingNewAppointments] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -121,6 +122,7 @@ const CalendarTurnos: React.FC<Props> = ({
 
   useEffect(() => {
     parseAppointments(appointmentsData);
+    setLoadingNewAppointments(false);
     return;
   }, [appointmentsData]);
 
@@ -291,22 +293,33 @@ const CalendarTurnos: React.FC<Props> = ({
 
   return (
     <>
+      {loadingNewAppointments && (
+        <div
+          style={{ height: "calc(100vh - 64px)" }}
+          className="absolute z-50 flex items-center justify-center w-full bg-white"
+        >
+          <div className="loader"></div>
+        </div>
+      )}
       {allDayAppointmentsModal && (
         <AllDayAppointmentsModal
           business={business}
           services={services}
           date={date}
+          onNewAppointment={() => setLoadingNewAppointments(true)}
           closeModalF={() => setAllDayAppointmentsModal(false)}
         />
       )}
       {eventModal && (
         <AppointmentModal
+          onDeleteAppointment={() => setLoadingNewAppointments(true)}
           appointment={eventData}
           closeModalF={() => setEventModal(false)}
         />
       )}
       {createAppointmentModal && (
         <CreateAppointmentModal
+          onNewAppointment={() => setLoadingNewAppointments(true)}
           appointmentData={createAppointmentData}
           servicesData={services}
           closeModalF={() => setCreateAppointmentModal(false)}
@@ -450,7 +463,7 @@ const CalendarTurnos: React.FC<Props> = ({
             onSelectEvent={(event) => {
               handleSelectEvent(event);
             }}
-            longPressThreshold={250}
+            longPressThreshold={1}
           />
         </div>
         {view === "day" && (

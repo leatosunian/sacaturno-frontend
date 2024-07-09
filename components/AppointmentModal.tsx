@@ -15,17 +15,21 @@ interface eventType2 {
   name: string | undefined;
   email: string | undefined;
   phone: number | undefined;
-  service: string | undefined
+  service: string | undefined;
   status?: "booked" | "unbooked" | undefined;
 }
 
 interface props {
   appointment: eventType2 | undefined;
   closeModalF: () => void;
+  onDeleteAppointment: () => void;
 }
 
-const AppointmentModal: React.FC<props> = ({ appointment, closeModalF }) => {
-
+const AppointmentModal: React.FC<props> = ({
+  appointment,
+  closeModalF,
+  onDeleteAppointment,
+}) => {
   const [isBooked, setIsBooked] = useState(false);
   const [clientData, setClientData] = useState<IUser>();
   const router = useRouter();
@@ -110,9 +114,7 @@ const AppointmentModal: React.FC<props> = ({ appointment, closeModalF }) => {
               >
                 Servicio a prestar
               </label>
-              <span className="text-sm">
-                {appointment?.service}
-              </span>
+              <span className="text-sm">{appointment?.service}</span>
             </div>
 
             {isBooked && (
@@ -151,7 +153,13 @@ const AppointmentModal: React.FC<props> = ({ appointment, closeModalF }) => {
           </div>
 
           {!isBooked && (
-            <button onClick={deleteAppointment} className={styles.buttonDelete}>
+            <button
+              onClick={() => {
+                deleteAppointment();
+                onDeleteAppointment();
+              }}
+              className={`${styles.buttonDelete} mt-5`}
+            >
               Eliminar turno
             </button>
           )}
