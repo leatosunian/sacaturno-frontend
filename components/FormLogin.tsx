@@ -1,5 +1,5 @@
 "use client";
-import { FormEventHandler, useState, useEffect } from "react";
+import { useState } from "react";
 import styles from "../app/css-modules/FormLogin.module.css";
 import stylesHome from "../app/css-modules/HomeWhite.module.css";
 import axiosReq from "@/config/axios";
@@ -45,67 +45,79 @@ const FormLogin = () => {
   const handleLogin = async (data: FieldValues) => {
     if (data) {
       setLoading(true);
-      const login = await axiosReq.post(`/user/login`, data);
+      try {
+        const login = await axiosReq.post(`/user/login`, data);
 
-      if (typeof login.data.response_data === "object") {
-        localStorage.setItem(
-          "sacaturno_userID",
-          login.data.response_data.userID
-        );
-        localStorage.setItem("sacaturno_token", login.data.response_data.token);
+        if (typeof login.data.response_data === "object") {
+          localStorage.setItem(
+            "sacaturno_userID",
+            login.data.response_data.userID
+          );
+          localStorage.setItem(
+            "sacaturno_token",
+            login.data.response_data.token
+          );
 
-        try {
-          const res = await fetch("/api/login", {
-            method: "POST",
-            body: JSON.stringify({
-              token: login.data.response_data.token,
+          try {
+            const res = await fetch("/api/login", {
+              method: "POST",
+              body: JSON.stringify({
+                token: login.data.response_data.token,
+                userID: login.data.response_data.userID,
+              }),
+              headers: {
+                "content-type": "application/json",
+              },
+            });
+            const loginData = {
               userID: login.data.response_data.userID,
-            }),
-            headers: {
-              "content-type": "application/json",
-            },
-          });
-          const loginData = {
-            userID: login.data.response_data.userID,
-            token: login.data.response_data.token,
-          };
-          localStorage.setItem("sacaturno_userID", loginData.userID);
-          localStorage.setItem("sacaturno_token", loginData.token);
-          saveAuthData(loginData);
-        } catch (error) {
-          setLoading(false);
+              token: login.data.response_data.token,
+            };
+            localStorage.setItem("sacaturno_userID", loginData.userID);
+            localStorage.setItem("sacaturno_token", loginData.token);
+            saveAuthData(loginData);
+          } catch (error) {
+            setLoading(false);
+            setAlert({
+              alertType: "ERROR_ALERT",
+              error: true,
+              msg: "Error al iniciar sesión",
+            });
+            return;
+          }
+
+          setAlert({ alertType: "ERROR_ALERT", error: false, msg: "" });
+          hideAlert();
+          router.push("/admin/dashboard");
+          router.refresh();
+          return;
+        }
+        if (login.data.response_data === "USER_NOT_VERIFIED") {
           setAlert({
             alertType: "ERROR_ALERT",
             error: true,
-            msg: "Error al iniciar sesión",
+            msg: "Debes confirmar tu correo para ingresar",
           });
+          hideAlert();
+          setLoading(false);
           return;
         }
-
-        setAlert({ alertType: "ERROR_ALERT", error: false, msg: "" });
-        hideAlert();
-        router.push("/admin/dashboard");
-        router.refresh();
-        return;
-      }
-      if (login.data.response_data === "USER_NOT_VERIFIED") {
+        if (login.data.response_data === "WRONG_PASSWORD" || "USER_NOT_FOUND") {
+          setAlert({
+            alertType: "ERROR_ALERT",
+            error: true,
+            msg: "Usuario o contraseña incorrectos",
+          });
+          hideAlert();
+          setLoading(false);
+          return;
+        }
+      } catch (error) {
         setAlert({
           alertType: "ERROR_ALERT",
           error: true,
-          msg: "Debes confirmar tu correo para ingresar",
+          msg: "Error al iniciar sesión",
         });
-        hideAlert();
-        setLoading(false);
-        return;
-      }
-      if (login.data.response_data === "WRONG_PASSWORD" || "USER_NOT_FOUND") {
-        setAlert({
-          alertType: "ERROR_ALERT",
-          error: true,
-          msg: "Usuario o contraseña incorrectos",
-        });
-        hideAlert();
-        setLoading(false);
         return;
       }
     }
@@ -127,7 +139,11 @@ const FormLogin = () => {
           <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
             Correo electrónico
           </span>
-          <input type="email" {...register("email")}  placeholder="Ingresá tu email"/>
+          <input
+            type="email"
+            {...register("email")}
+            placeholder="Ingresá tu email"
+          />
           {errors.email?.message && (
             <>
               <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
@@ -141,7 +157,11 @@ const FormLogin = () => {
           <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
             Contraseña
           </span>
-          <input type="password" {...register("password")} placeholder="Ingresá tu contraseña" />
+          <input
+            type="password"
+            {...register("password")}
+            placeholder="Ingresá tu contraseña"
+          />
           {errors.password?.message && (
             <>
               <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
@@ -171,7 +191,7 @@ const FormLogin = () => {
             </Link>
           </span>
           <span className="text-xs font-light">
-            ¿Olvidaste tu contraseña? 
+            ¿Olvidaste tu contraseña?
             {"  "}
             <Link
               className="font-semibold cursor-pointer blackOrangeHover"
@@ -194,7 +214,16 @@ const FormLogin = () => {
             </>
           )}
           {!loading && (
-            <button type="submit" className={`${stylesHome.btnAnimated}`} style={{fontSize:'12px', letterSpacing:'.5px', width:'100%', padding:'11px 0px'}}>
+            <button
+              type="submit"
+              className={`${stylesHome.btnAnimated}`}
+              style={{
+                fontSize: "12px",
+                letterSpacing: ".5px",
+                width: "100%",
+                padding: "11px 0px",
+              }}
+            >
               Ingresar
             </button>
           )}

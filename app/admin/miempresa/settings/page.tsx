@@ -9,7 +9,6 @@ import { MdOutlineWorkHistory } from "react-icons/md";
 import FormSettings from "@/components/FormSettings";
 import { FaArrowLeft } from "react-icons/fa6";
 import dayjs from "dayjs";
-import ISubscription from "@/interfaces/subscription.interface";
 
 export const metadata: Metadata = {
   title: "Servicios y suscripciones | SacaTurno",

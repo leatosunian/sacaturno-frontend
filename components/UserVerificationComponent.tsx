@@ -86,6 +86,7 @@ const UserVerificationComponent = ({ userData }: Props) => {
                     no dudes en{" "}
                     <Link
                       href={"mailto:leandrotosunian@hotmail.com"}
+                      target="_blank"
                       className="font-bold cursor-pointer"
                     >
                       contactarnos.

@@ -52,13 +52,12 @@ interface eventType2 {
   status?: "booked" | "unbooked" | undefined;
 }
 const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
-  var now = dayjs();
   const [loading, setLoading] = useState<boolean>(true);
   const [appointmentsData, setAppointmentsData] = useState<eventType[]>();
   const [appointmentInfoModal, setAppointmentInfoModal] =
     useState<boolean>(false);
   const [selectedAppointment, setSelectedAppointment] = useState<eventType2>();
-
+ 
   useEffect(() => {
     parseAppointments(businessData?.appointments);
     return;
@@ -119,7 +118,6 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
         if (appointmentObj.status === "booked") {
           appointmentsList.push(appointmentObj);
         }
-        /*appointmentsList.push(appointmentObj);*/
       }
     );
     setAppointmentsData(appointmentsList);
@@ -130,15 +128,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
 
   return (
     <>
-      {/* <div className="flex flex-col items-center justify-around w-full h-fit md:flex-row">
-        <div className="flex justify-center w-1/2 align-middle h-fit">
-          <Image style={{filter: 'drop-shadow( 16px 16px 25px rgba(0, 0, 0, .4))'}} src={illustration} className="w-20 md:w-96" alt="Illustration" />
-        </div>
-        <div className="flex w-1/2 align-middle h-fit">
-          <h4 className="text-4xl font-bold">¡Bienvenido {userData?.name}! </h4>
-        </div>
-      </div> */}
-
+      {/* APPOINTMENT INFO */}
       {appointmentInfoModal && (
         <AppointmentModal
           appointment={selectedAppointment}

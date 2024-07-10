@@ -1,4 +1,3 @@
-import styles from "@/app/css-modules/Dashboard.module.css";
 import DashboardComponent from "@/components/DashboardComponent";
 import axiosReq from "@/config/axios";
 import { IAppointment } from "@/interfaces/appointment.interface";
@@ -29,7 +28,6 @@ async function getBusinessData() {
       },
     });
     const appList:IAppointment[] = appointments.data
-    console.log(appList);
     
     return { business: business, appointments: appList };
   } catch (error: any) {

@@ -85,7 +85,7 @@ const FormSettings = ({
             description: formData.description,
           };
 
-          const createService = await axiosReq.post(
+          await axiosReq.post(
             "/business/service/create",
             newServiceData,
             authHeader
@@ -206,7 +206,11 @@ const FormSettings = ({
       );
       router.push(preference.data.init_point);
     } catch (error) {
-      console.log(error);
+      setAlert({
+        msg: "No se pudo generar el pago. Intente luego.",
+        error: true,
+        alertType: "ERROR_ALERT",
+      });
     }
   };
 

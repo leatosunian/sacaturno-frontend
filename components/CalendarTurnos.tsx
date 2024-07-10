@@ -114,9 +114,6 @@ const CalendarTurnos: React.FC<Props> = ({
     setBusiness(businessData);
     setServices(servicesData);
     parseAppointments(appointments);
-    //if (subscriptionData?.subscriptionType === "SC_EXPIRED") {
-    //  setExpiredModal(true);
-    //}
     return;
   }, [appointments, businessData, services, servicesData, subscriptionData]);
 
@@ -140,14 +137,6 @@ const CalendarTurnos: React.FC<Props> = ({
     if (subscriptionData?.subscriptionType === "SC_EXPIRED") {
       setExpiredModal(true);
     }
-    const token = localStorage.getItem("sacaturno_token");
-    const authHeader = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-        "Cache-Control": "no-store",
-      },
-    };
     const startDate = dayjs(start)
       .tz("America/Argentina/Buenos_Aires")
       .toDate();
@@ -159,7 +148,6 @@ const CalendarTurnos: React.FC<Props> = ({
       end: endDate,
       service: "",
     };
-    console.log("clicked");
 
     setCreateAppointmentModal(true);
     setCreateAppointmentData(appointmentData);
@@ -301,6 +289,7 @@ const CalendarTurnos: React.FC<Props> = ({
           <div className="loader"></div>
         </div>
       )}
+      {/* CREATE ALL DAY'S APPOINTMENTS */}
       {allDayAppointmentsModal && (
         <AllDayAppointmentsModal
           business={business}
@@ -310,6 +299,7 @@ const CalendarTurnos: React.FC<Props> = ({
           closeModalF={() => setAllDayAppointmentsModal(false)}
         />
       )}
+      {/* APPOINTMENT INFO */}
       {eventModal && (
         <AppointmentModal
           onDeleteAppointment={() => setLoadingNewAppointments(true)}
@@ -317,6 +307,7 @@ const CalendarTurnos: React.FC<Props> = ({
           closeModalF={() => setEventModal(false)}
         />
       )}
+      {/* CREATE SINGLE APPOINTMENT */}
       {createAppointmentModal && (
         <CreateAppointmentModal
           onNewAppointment={() => setLoadingNewAppointments(true)}
@@ -463,7 +454,7 @@ const CalendarTurnos: React.FC<Props> = ({
             onSelectEvent={(event) => {
               handleSelectEvent(event);
             }}
-            longPressThreshold={1}
+            longPressThreshold={250}
           />
         </div>
         {view === "day" && (

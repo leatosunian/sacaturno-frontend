@@ -69,6 +69,7 @@ const NewPasswordRecovery: React.FC<IProps> = ({ token }) => {
           error: true,
           msg: "Ocurrió un error al reestablecer tu contraseña. Intentá nuevamente.",
         });
+        hideAlert()
       }
     }
   };

@@ -1,8 +1,5 @@
 "use client";
 import styles from "@/app/css-modules/NoServicesModal.module.css";
-import Link from "next/link";
-import warningIcon from "@/public/warning.png";
-import Image from "next/image";
 import { IoIosAlert, IoMdClose } from "react-icons/io";
 
 interface props {

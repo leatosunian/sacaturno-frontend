@@ -47,13 +47,18 @@ const CreateAppointmentModal: React.FC<props> = ({
         "Cache-Control": "no-store",
       },
     };
-    const savedAppointment = await axiosReq.post(
-      "/appointment/create",
-      appointmentData,
-      authHeader
-    );
-    onNewAppointment();
-    router.refresh();
+    try {
+      const savedAppointment = await axiosReq.post(
+        "/appointment/create",
+        appointmentData,
+        authHeader
+      );
+      onNewAppointment();
+      router.refresh();
+      
+    } catch (error) {
+      closeModal()
+    }
   };
 
   const closeModal = () => {

@@ -9,7 +9,6 @@ import axiosReq from "@/config/axios";
 import { FieldValues, useForm } from "react-hook-form";
 import { businessSchema } from "@/app/schemas/businessSchema";
 import { LuSave } from "react-icons/lu";
-import { AiOutlineSchedule } from "react-icons/ai";
 import Alert from "./Alert";
 import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
@@ -205,7 +204,7 @@ const FormMiEmpresa = ({
   };
 
   const myLoader = ({ src }: { src: string }) => {
-    return `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${business?.image}`;
+    return `${process.env.BACKEND_URL}/user/getprofilepic/${business?.image}`;
   };
 
   return (

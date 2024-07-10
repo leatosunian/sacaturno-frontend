@@ -1,10 +1,8 @@
 "use client";
-import { NextPage } from "next";
 import styles from "../app/css-modules/FormMiPerfil.module.css";
 import Image from "next/image";
-import defaultImg from "/public/user.png";
 import { IUser } from "@/interfaces/user.interface";
-import { FormEventHandler, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { LuSave } from "react-icons/lu";
 import { FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -123,18 +121,27 @@ const FormMiPerfil: React.FC<Props> = ({
 
     if (data) {
       data._id = userID;
-      const updatedUser = await axiosReq.put(
-        "/user/editprofile",
-        data,
-        authHeader
-      );
-      console.log(updatedUser);
-      setAlert({
-        msg: "Los cambios han sido guardados",
-        error: true,
-        alertType: "OK_ALERT",
-      });
-      hideAlert();
+      try {
+        const updatedUser = await axiosReq.put(
+          "/user/editprofile",
+          data,
+          authHeader
+        );
+        console.log(updatedUser);
+        setAlert({
+          msg: "Los cambios han sido guardados",
+          error: true,
+          alertType: "OK_ALERT",
+        });
+        hideAlert();
+      } catch (error) {
+        setAlert({
+          msg: "No se pudo guardar los cambios",
+          error: true,
+          alertType: "ERROR_ALERT",
+        });
+        hideAlert();
+      }
     }
     setLoading(false);
   };

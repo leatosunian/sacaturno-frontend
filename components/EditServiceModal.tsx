@@ -1,5 +1,4 @@
 "use client";
-import { useRouter } from "next/navigation";
 import styles from "@/app/css-modules/BookAppointmentModal.module.css";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldValues, useForm } from "react-hook-form";
@@ -42,7 +41,6 @@ const EditServiceModal: React.FC<props> = ({
   } = useForm<formInputs>({
     resolver: zodResolver(createServiceSchema),
   });
-  const router = useRouter();
 
   useEffect(() => {
     setValue("name", serviceData?.name);

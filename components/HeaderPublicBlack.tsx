@@ -11,7 +11,7 @@ import sacaturno_logo from "@/public/st_logo_white.png";
 
 interface Props {}
 
-const HeaderPublic: NextPage<Props> = ({}) => {
+const HeaderPublicBlack: NextPage<Props> = ({}) => {
   const [active, setActive] = useState(false);
   const router = useRouter();
   const handleActiveNavBar = () => {
@@ -19,18 +19,6 @@ const HeaderPublic: NextPage<Props> = ({}) => {
   };
   const closeNavMenu = () => {
     setActive(false);
-  };
-  const logOut = async () => {
-    localStorage.removeItem("sacaturno_userID");
-    localStorage.removeItem("sacaturno_token");
-    try {
-      const res = await fetch("http://localhost:3000/api/logout", {
-        method: "POST",
-      });
-      router.push("/login");
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   return (
@@ -80,11 +68,6 @@ const HeaderPublic: NextPage<Props> = ({}) => {
               contactanos
             </Link>
           </div>
-          <div
-            onClick={logOut}
-            className="cursor-pointer ml-7"
-            title="Cerrar Sesión"
-          ></div>
         </div>
 
         {/* MOBILE NAV MENU */}
@@ -138,4 +121,4 @@ const HeaderPublic: NextPage<Props> = ({}) => {
   );
 };
 
-export default HeaderPublic;
+export default HeaderPublicBlack;

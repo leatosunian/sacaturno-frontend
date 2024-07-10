@@ -1,13 +1,14 @@
 import FormMiPerfil from "@/components/FormMiPerfil";
 import axiosReq from "@/config/axios";
-import { IBusiness } from "@/interfaces/business.interface";
 import dayjs from "dayjs";
 import { Metadata } from "next";
 import { cookies } from "next/headers";
+
 export const metadata: Metadata = {
   title: "Mi perfil | SacaTurno",
   description: "IT-related blog for devs",
 };
+
 const getUser = async () => {
   const cookieStore = cookies();
   const token = cookieStore.get("sacaturno_token");

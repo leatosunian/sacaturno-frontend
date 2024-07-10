@@ -26,7 +26,7 @@ const LoggedInHeader: NextPage<Props> = ({}) => {
     localStorage.removeItem("sacaturno_userID");
     localStorage.removeItem("sacaturno_token");
     try {
-      const res = await fetch(`/api/logout`, {
+      await fetch(`/api/logout`, {
         method: "POST",
       });
       router.push("/");

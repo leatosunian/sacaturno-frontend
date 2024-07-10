@@ -2,7 +2,6 @@
 import { useState } from "react";
 import styles from "../app/css-modules/FormLogin.module.css";
 import stylesHome from "../app/css-modules/HomeWhite.module.css";
-
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
 import Link from "next/link";
@@ -68,6 +67,7 @@ const PasswordRecovery = () => {
           error: true,
           msg: "Error al enviar correo. Intentá nuevamente.",
         });
+        hideAlert();
         setLoading(false);
         return;
       }

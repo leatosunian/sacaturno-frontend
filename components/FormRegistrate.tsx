@@ -57,7 +57,6 @@ const FormRegistrate = () => {
       setLoading(true);
       try {
         const registeredUser = await axiosReq.post("/user/create", data);
-        console.log(registeredUser);
         if (registeredUser.data.response_data === "USER_EXISTS") {
           setAlert({
             alertType: "ERROR_ALERT",

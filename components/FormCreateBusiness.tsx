@@ -1,18 +1,15 @@
 "use client";
 import styles from "@/app/css-modules/FormMiEmpresa.module.css";
-import Image from "next/image";
 import { timeOptions } from "@/helpers/timeOptions";
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axiosReq from "@/config/axios";
 import { FieldValues, useForm } from "react-hook-form";
-import { businessSchema } from "@/app/schemas/businessSchema";
 import { MdOutlineAddBusiness } from "react-icons/md";
 import Alert from "@/components/Alert";
 import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
 import { createBusinessSchema } from "@/app/schemas/createBusinessSchema";
-import dayjs from "dayjs";
 
 interface formInputs {
   name: string;

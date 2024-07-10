@@ -1,6 +1,4 @@
 "use client";
-import axiosReq from "@/config/axios";
-import { useRouter } from "next/navigation";
 import styles from "@/app/css-modules/BookAppointmentModal.module.css";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldValues, useForm } from "react-hook-form";
@@ -27,8 +25,6 @@ const CreateServiceModal: React.FC<props> = ({ closeModalF, onCreateService }) =
   } = useForm<formInputs>({
     resolver: zodResolver(createServiceSchema),
   });
-  const router = useRouter();
-
   const closeModal = (action: string) => {
     closeModalF();
   };
