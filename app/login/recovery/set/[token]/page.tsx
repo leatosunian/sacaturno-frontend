@@ -5,7 +5,6 @@ import sacaturno_logo from "@/public/st_logo_white.png";
 import Image from "next/image";
 import Link from "next/link";
 import { IoIosSearch } from "react-icons/io";
-import HeaderPublic from "@/components/HeaderPublic";
 import NewPasswordRecovery from "@/components/NewPasswordRecovery";
 import HeaderPublicBlack from "@/components/HeaderPublicBlack";
 
