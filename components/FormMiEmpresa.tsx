@@ -204,7 +204,7 @@ const FormMiEmpresa = ({
   };
 
   const myLoader = ({ src }: { src: string }) => {
-    return `${process.env.BACKEND_URL}/user/getprofilepic/${business?.image}`;
+    return `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${business?.image}`;
   };
 
   return (
