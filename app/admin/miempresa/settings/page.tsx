@@ -150,6 +150,7 @@ const Settings: NextPage = async ({}) => {
           <div className="flex flex-col justify-center w-full mt-5 h-fit">
             <div className={`${styles.cont} mb-5`}>
               <FormSettings
+              
                 businessData={data}
                 servicesData={services}
                 subscriptionData={subscription}
