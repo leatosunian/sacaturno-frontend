@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosReq = axios.create({
-    baseURL: process.env.BACKEND_URL
+    baseURL: 'https://sacaturno-server-production.up.railway.app/api'
     /*baseURL: 'http://localhost:4000/api'*/
 })
 
