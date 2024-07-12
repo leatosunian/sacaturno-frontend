@@ -38,6 +38,7 @@ interface eventType extends IAppointment {
   phone: number | undefined;
   service: string | undefined;
   status?: "booked" | "unbooked" | undefined;
+  price: number | undefined;
 }
 interface eventType2 {
   start: string;
@@ -50,6 +51,7 @@ interface eventType2 {
   phone: number | undefined;
   service: string | undefined;
   status?: "booked" | "unbooked" | undefined;
+  price: number | undefined;
 }
 const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -75,6 +77,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
       phone: event.phone,
       email: event.email,
       service: event.service,
+      price: event.price
     };
     setSelectedAppointment(eventDataObj);
     setAppointmentInfoModal(true);
@@ -100,6 +103,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
         email,
         phone,
         service,
+        price
       }) => {
         let appointmentObj: eventType;
         appointmentObj = {
@@ -114,6 +118,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
           email,
           phone,
           service,
+          price
         };
         if (appointmentObj.status === "booked") {
           appointmentsList.push(appointmentObj);
