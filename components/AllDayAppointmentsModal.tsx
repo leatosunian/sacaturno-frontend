@@ -26,15 +26,29 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
   onNewAppointment,
 }) => {
   const router = useRouter();
-  const [selectedService, setSelectedService] = useState<string | undefined>(
-    ""
-  );
+  const [selectedService, setSelectedService] = useState<{
+    name: string | undefined;
+    price: number | undefined;
+  }>();
 
   useEffect(() => {
     if (services && services[0]) {
-      setSelectedService(services[0].name);
+      setSelectedService({
+        name: services[0].name,
+        price: services[0].price,
+      });
     }
   }, [services]);
+
+  const handleSetSelectedService = (name: string) => {
+    const serviceSelectedObj = services?.find(
+      (service) => service.name === name
+    );
+    setSelectedService({
+      price: serviceSelectedObj?.price,
+      name: serviceSelectedObj?.name,
+    });
+  };
 
   const saveAppointment = async () => {
     const dayAppointments: IAppointment[] = [];
@@ -56,7 +70,8 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
         email: "",
         start: inicio.toDate(),
         end: finalTurno.toDate(),
-        service: selectedService,
+        service: selectedService?.name,
+        price: selectedService?.price
       });
       inicio = finalTurno;
     }
@@ -114,8 +129,8 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
                 Servicio a prestar
               </label>
               <select
-                value={selectedService}
-                onChange={(e) => setSelectedService(e.target.value)}
+                value={selectedService?.name}
+                onChange={(e) => handleSetSelectedService(e.target.value)}
                 id="appointmentDuration"
               >
                 {services?.map((service) => (

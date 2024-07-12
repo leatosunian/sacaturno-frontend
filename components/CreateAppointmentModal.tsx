@@ -1,5 +1,4 @@
 "use client";
-
 import axiosReq from "@/config/axios";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import dayjs from "dayjs";
@@ -20,22 +19,39 @@ const CreateAppointmentModal: React.FC<props> = ({
   appointmentData,
   closeModalF,
   servicesData,
-  onNewAppointment
+  onNewAppointment,
 }) => {
   const router = useRouter();
-  const [selectedService, setSelectedService] = useState<string | undefined>('')
+  const [selectedService, setSelectedService] = useState<{
+    name: string | undefined;
+    price: number | undefined;
+  }>();
 
   useEffect(() => {
-    if(servicesData && servicesData[0]) {
-      setSelectedService(servicesData[0].name)
+    if (servicesData && servicesData[0]) {
+      setSelectedService({
+        name: servicesData[0].name,
+        price: servicesData[0].price,
+      });
     }
-  }, [servicesData])
-  
+  }, [servicesData]);
+
   useEffect(() => {
-    if(appointmentData)
-    appointmentData.service = selectedService
-  }, [selectedService, appointmentData])
-  
+    if (appointmentData) {
+      appointmentData.service = selectedService?.name;
+      appointmentData.price = selectedService?.price;
+    }
+  }, [selectedService, appointmentData]);
+
+  const handleSetSelectedService = (name: string) => {
+    const serviceSelectedObj = servicesData?.find(
+      (service) => service.name === name
+    );
+    setSelectedService({
+      price: serviceSelectedObj?.price,
+      name: serviceSelectedObj?.name,
+    });
+  };
 
   const saveAppointment = async () => {
     closeModal();
@@ -48,16 +64,11 @@ const CreateAppointmentModal: React.FC<props> = ({
       },
     };
     try {
-      const savedAppointment = await axiosReq.post(
-        "/appointment/create",
-        appointmentData,
-        authHeader
-      );
+      await axiosReq.post("/appointment/create", appointmentData, authHeader);
       onNewAppointment();
       router.refresh();
-      
     } catch (error) {
-      closeModal()
+      closeModal();
     }
   };
 
@@ -104,25 +115,40 @@ const CreateAppointmentModal: React.FC<props> = ({
               </span>
             </div>
 
-            <div className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}>
+            <div
+              className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
+            >
               <label
                 style={{ fontSize: "12px" }}
                 className="mb-1 font-bold uppercase "
               >
                 Servicio a prestar
               </label>
-              <select value={selectedService} onChange={ e => setSelectedService(e.target.value)} id="appointmentDuration">
+              <select
+                value={selectedService?.name}
+                onChange={(e) => handleSetSelectedService(e.target.value)}
+                id="appointmentDuration"
+              >
                 {servicesData?.map((service) => (
-                  <option key={service._id} value={service.name}>{service.name}</option>
+                  <option
+                    key={service._id}
+                    onClick={(asd) => {}}
+                    value={service.name}
+                  >
+                    {service.name}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div className="flex justify-center w-full mt-3 align-middle h-fit">
-              <button className={styles.button} onClick={() => {
-                saveAppointment()
-                closeModal()
-              }}>
+              <button
+                className={styles.button}
+                onClick={() => {
+                  saveAppointment();
+                  closeModal();
+                }}
+              >
                 Crear turno
               </button>
             </div>

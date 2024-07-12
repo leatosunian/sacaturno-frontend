@@ -47,6 +47,7 @@ interface eventType {
   phone: number | undefined;
   service: string | undefined;
   status?: "booked" | "unbooked" | undefined;
+  price: number | undefined
 }
 
 interface eventType2 {
@@ -60,6 +61,7 @@ interface eventType2 {
   phone: number | undefined;
   service: string | undefined;
   status?: "booked" | "unbooked" | undefined;
+  price: number | undefined
 }
 
 interface IAllDayModalProps {
@@ -173,6 +175,7 @@ const CalendarTurnos: React.FC<Props> = ({
         email,
         phone,
         service,
+        price
       }) => {
         let appointmentObj: eventType;
         appointmentObj = {
@@ -187,6 +190,7 @@ const CalendarTurnos: React.FC<Props> = ({
           email,
           phone,
           service,
+          price
         };
         appointmentsList.push(appointmentObj);
       }
@@ -207,6 +211,7 @@ const CalendarTurnos: React.FC<Props> = ({
       phone: event.phone,
       email: event.email,
       service: event.service,
+      price: event.price
     };
     setEventData(eventDataObj);
     setEventModal(true);

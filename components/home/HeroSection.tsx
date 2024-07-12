@@ -22,7 +22,7 @@ const HeroSection = () => {
                 excepcional a tus clientes.
               </p>
               <p className="mb-2 text-sm font-normal text-gray-600 xl:text-xl sm:text-md md:text-base">
-                ¡Regístrate hoy mismo para obtener una prueba gratuita de 30
+                ¡Regístrate hoy mismo para obtener una prueba gratuita de 15
                 días! Cliqueá el boton debajo, creá tu
                 empresa y comenzá a gestionar tus turnos.
               </p>

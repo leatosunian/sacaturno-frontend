@@ -22,6 +22,7 @@ interface eventType2 {
   name: string | undefined;
   phone: number | undefined;
   businessEmail?: string | undefined;
+  price: number | undefined;
 }
 
 interface props {
@@ -163,6 +164,16 @@ const BookAppointmentModal: React.FC<props> = ({
                       Servicio
                     </label>
                     <span className="text-sm">{appointmentData?.service}</span>
+                  </div>
+
+                  <div className="flex flex-col w-fit h-fit">
+                    <label
+                      style={{ fontSize: "12px" }}
+                      className="font-bold uppercase "
+                    >
+                      Precio
+                    </label>
+                    <span className="text-sm">AR$ {appointmentData?.price}</span>
                   </div>
 
                   <form

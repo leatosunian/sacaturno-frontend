@@ -10,4 +10,5 @@ export interface IAppointment {
   name?: string;
   _id?: string;
   service: string | undefined;
+  price?: number | undefined
 }

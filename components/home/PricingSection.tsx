@@ -67,7 +67,7 @@ const PricingSection = () => {
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
                 <FaCheck size={12} />
                 <span className="text-xs text-black">
-                  Prueba gratuita por 30 días
+                  Prueba gratuita de 15 días
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
@@ -137,7 +137,7 @@ const PricingSection = () => {
               </h4>
               <div>
                 <span className="mr-1 text-2xl font-semibold lg:text-2xl">
-                  $6900
+                  $8700
                 </span>
                 <span className="text-sm text-gray-800">ARS/mes</span>
               </div>

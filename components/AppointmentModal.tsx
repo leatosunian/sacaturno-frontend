@@ -17,6 +17,7 @@ interface eventType2 {
   phone: number | undefined;
   service: string | undefined;
   status?: "booked" | "unbooked" | undefined;
+  price: number | undefined
 }
 
 interface props {
@@ -115,6 +116,15 @@ const AppointmentModal: React.FC<props> = ({
                 Servicio a prestar
               </label>
               <span className="text-sm">{appointment?.service}</span>
+            </div>
+            <div className="flex flex-col w-fit h-fit">
+              <label
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Precio
+              </label>
+              <span className="text-sm">AR$ {appointment?.price}</span>
             </div>
 
             {isBooked && (
