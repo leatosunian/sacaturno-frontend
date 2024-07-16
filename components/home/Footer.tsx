@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
       <div className="w-full h-fit">
         <div className={styles.footerContainer}>
           <div className="flex flex-col justify-between w-full h-full gap-12 px-4 py-12 sm:flex-row md:px-20 sm:px-12 lg:px-32 xl:px-52 md:gap-0">
-            <div className="flex flex-col items-center justify-center h-full mx-auto md:mx-0 w-fit">
+            <div className="flex flex-col items-center justify-center h-full m-auto md:mx-0 w-fit">
               <Image
                 className="hidden md:block"
                 src={logo}

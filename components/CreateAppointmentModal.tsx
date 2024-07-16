@@ -25,6 +25,7 @@ const CreateAppointmentModal: React.FC<props> = ({
   const [selectedService, setSelectedService] = useState<{
     name: string | undefined;
     price: number | undefined;
+    description: string | undefined;
   }>();
 
   useEffect(() => {
@@ -32,6 +33,7 @@ const CreateAppointmentModal: React.FC<props> = ({
       setSelectedService({
         name: servicesData[0].name,
         price: servicesData[0].price,
+        description: servicesData[0].description
       });
     }
   }, [servicesData]);
@@ -40,6 +42,7 @@ const CreateAppointmentModal: React.FC<props> = ({
     if (appointmentData) {
       appointmentData.service = selectedService?.name;
       appointmentData.price = selectedService?.price;
+      appointmentData.description = selectedService?.description;
     }
   }, [selectedService, appointmentData]);
 
@@ -50,6 +53,7 @@ const CreateAppointmentModal: React.FC<props> = ({
     setSelectedService({
       price: serviceSelectedObj?.price,
       name: serviceSelectedObj?.name,
+      description: serviceSelectedObj?.description,
     });
   };
 

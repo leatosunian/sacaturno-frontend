@@ -29,6 +29,7 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
   const [selectedService, setSelectedService] = useState<{
     name: string | undefined;
     price: number | undefined;
+    description: string | undefined;
   }>();
 
   useEffect(() => {
@@ -36,6 +37,7 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
       setSelectedService({
         name: services[0].name,
         price: services[0].price,
+        description: services[0].description,
       });
     }
   }, [services]);
@@ -47,6 +49,7 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
     setSelectedService({
       price: serviceSelectedObj?.price,
       name: serviceSelectedObj?.name,
+      description: serviceSelectedObj?.description,
     });
   };
 
@@ -71,7 +74,8 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
         start: inicio.toDate(),
         end: finalTurno.toDate(),
         service: selectedService?.name,
-        price: selectedService?.price
+        price: selectedService?.price,
+        description: selectedService?.description
       });
       inicio = finalTurno;
     }
@@ -84,7 +88,7 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
         "Cache-Control": "no-store",
       },
     };
-    const savedAppointment = await axiosReq.post(
+    await axiosReq.post(
       "/appointment/create/day",
       dayAppointments,
       authHeader

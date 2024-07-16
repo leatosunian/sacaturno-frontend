@@ -23,6 +23,7 @@ interface eventType2 {
   phone: number | undefined;
   businessEmail?: string | undefined;
   price: number | undefined;
+  description: string | undefined;
 }
 
 interface props {
@@ -106,7 +107,7 @@ const BookAppointmentModal: React.FC<props> = ({
         service: bookedAppointmentData.service,
         email: bookedAppointmentData.email,
         status: bookedAppointmentData.status,
-        businessEmail: businessData.email
+        businessEmail: businessData.email,
       };
 
       const canceledBooking = await axiosReq.put(
@@ -173,7 +174,21 @@ const BookAppointmentModal: React.FC<props> = ({
                     >
                       Precio
                     </label>
-                    <span className="text-sm">AR$ {appointmentData?.price}</span>
+                    <span className="text-sm">
+                      AR$ {appointmentData?.price}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col w-fit h-fit">
+                    <label
+                      style={{ fontSize: "12px" }}
+                      className="font-bold uppercase "
+                    >
+                      Descripción/Observaciones
+                    </label>
+                    <span className="text-sm">
+                      {appointmentData?.description}
+                    </span>
                   </div>
 
                   <form
@@ -300,6 +315,16 @@ const BookAppointmentModal: React.FC<props> = ({
                   Servicio
                 </label>
                 <span className="text-sm">{appointmentData?.service}</span>
+              </div>
+
+              <div className="flex flex-col w-fit h-fit">
+                <label
+                  style={{ fontSize: "12px" }}
+                  className="font-bold uppercase "
+                >
+                  Descripción/Observaciones
+                </label>
+                <span className="text-sm">{appointmentData?.description}</span>
               </div>
 
               <div className="flex flex-col w-fit h-fit">

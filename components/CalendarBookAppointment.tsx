@@ -40,7 +40,8 @@ interface eventType {
   email: string | undefined;
   phone: number | undefined;
   name: string | undefined;
-  price: number | undefined
+  price: number | undefined;
+  description: string | undefined;
 }
 
 interface eventType2 {
@@ -54,7 +55,8 @@ interface eventType2 {
   phone: number | undefined;
   name: string | undefined;
   status?: "booked" | "unbooked" | undefined;
-  price: number | undefined
+  price: number | undefined;
+  description: string | undefined;
 }
 
 type Keys = keyof typeof Views;
@@ -117,7 +119,8 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
         email,
         phone,
         name,
-        price
+        price,
+        description
       }) => {
         let appointmentObj: eventType;
         appointmentObj = {
@@ -132,7 +135,8 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
           email,
           name,
           phone,
-          price
+          price,
+          description
         };
         if (appointmentObj.status === "unbooked") {
           appointmentsList.push(appointmentObj);
@@ -159,7 +163,8 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
       email: event.email,
       phone: event.phone,
       name: event.name,
-      price: event.price
+      price: event.price,
+      description: event.description
     };
     setEventData(eventDataObj);
     setBookAppointmentModal(true);
