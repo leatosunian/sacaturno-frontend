@@ -41,3 +41,5 @@ next-env.d.ts
 # server 
 server
 /server
+backend
+/backend
