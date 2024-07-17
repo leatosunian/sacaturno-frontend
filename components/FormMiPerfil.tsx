@@ -234,7 +234,7 @@ const FormMiPerfil: React.FC<Props> = ({
             height={64}
             className="w-16 rounded-full"
             src={
-              `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/` +
+              `https://sacaturno-server-ereef.ondigitalocean.app/api/user/getprofilepic/` +
               profile?.profileImage
             }
             alt=""
