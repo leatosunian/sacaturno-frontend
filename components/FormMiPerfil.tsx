@@ -176,7 +176,7 @@ const FormMiPerfil: React.FC<Props> = ({
   };
 
   const myLoader = ({ src }: { src: string }) => {
-    return `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${profile?.profileImage}`;
+    return `https://sacaturno-server-ereef.ondigitalocean.app/api/user/getprofilepic/${profile?.profileImage}`;
   };
 
   const updateProfileImage = async (image: File) => {
