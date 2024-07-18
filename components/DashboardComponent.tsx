@@ -144,7 +144,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
       <div className="flex w-full h-full pt-8 px-7 sm:px-24 md:pt-16 md:px-24 lg:px-36 xl:px-60 2xl:px-80">
         <div className="flex flex-col w-full gap-7 md:gap-12 h-fit">
           <h4 className="text-2xl font-semibold md:text-3xl">
-            ¡Bienvenido, {userData?.name}!{" "}
+            ¡Bienvenido, {userData?.name}!
           </h4>
 
           <div className="flex flex-col gap-6">
