@@ -41,7 +41,7 @@ const PasswordRecovery = () => {
         const userData = await axiosReq.get(
           "/user/getbyemail/" + data.email
         );
-        if (userData.data === "BUSINESS_NOT_FOUND") {
+        if (userData.data.response_data === "USER_NOT_FOUND") {
           setAlert({
             alertType: "ERROR_ALERT",
             error: true,
@@ -51,11 +51,9 @@ const PasswordRecovery = () => {
           return;
         }
         // SEND RECOVERY EMAIL
-        const recovery = await axiosReq.post(
-          `/user/password/recovery/${userData.data._id}`
+        await axiosReq.post(
+          `/user/password/recovery/${userData.data.response_data._id}`
         );
-        console.log(recovery);
-        
         setLoading(false);
         setAlert({
           alertType: "OK_ALERT",
