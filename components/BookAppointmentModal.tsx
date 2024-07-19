@@ -179,18 +179,20 @@ const BookAppointmentModal: React.FC<props> = ({
                     </span>
                   </div>
 
-                  <div className="flex flex-col w-fit h-fit">
-                    <label
-                      style={{ fontSize: "12px" }}
-                      className="font-bold uppercase "
-                    >
-                      Descripción/Observaciones
-                    </label>
-                    <span className="text-sm">
-                      {appointmentData?.description}
-                    </span>
-                  </div>
-
+                  {appointmentData?.description !== "" && (
+                    <div className="flex flex-col w-fit h-fit">
+                      <label
+                        style={{ fontSize: "12px" }}
+                        className="font-bold uppercase "
+                      >
+                        Descripción/Observaciones
+                      </label>
+                      <span className="text-sm">
+                        {appointmentData?.description}
+                      </span>
+                    </div>
+                  )}
+                  
                   <form
                     onSubmit={handleSubmit((formData) => {
                       bookAppointment(formData);
