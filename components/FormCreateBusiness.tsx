@@ -10,6 +10,8 @@ import Alert from "@/components/Alert";
 import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
 import { createBusinessSchema } from "@/app/schemas/createBusinessSchema";
+import { BsFillCheckCircleFill } from "react-icons/bs";
+import { IoMdClose } from "react-icons/io";
 
 interface formInputs {
   name: string;
@@ -34,7 +36,7 @@ const FormCreateBusiness: React.FC = () => {
   });
   const [alert, setAlert] = useState<AlertInterface>();
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [isCreated, setIsCreated] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -42,8 +44,8 @@ const FormCreateBusiness: React.FC = () => {
     setValue("dayEnd", "17");
     setValue("appointmentDuration", "60");
     return () => {
-      setLoading(false)
-    }
+      setLoading(false);
+    };
   }, []);
 
   const handleSubmitClick = () => {
@@ -58,11 +60,11 @@ const FormCreateBusiness: React.FC = () => {
   const hideAlert = () => {
     setTimeout(() => {
       setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
-    }, 4000);
+    }, 3300);
   };
 
   const createBusiness = async (data: FieldValues) => {
-    setLoading(true)
+    setLoading(true);
     setAlert({
       msg: "",
       error: false,
@@ -91,14 +93,15 @@ const FormCreateBusiness: React.FC = () => {
             alertType: "ERROR_ALERT",
           });
           hideAlert();
-          setLoading(false)
+          setLoading(false);
           return;
         }
-        setAlert({
-          msg: "¡Empresa creada! Ahora añade un servicio.",
-          error: true,
-          alertType: "OK_ALERT",
-        });
+        setIsCreated(true)
+        //setAlert({
+        //  msg: "¡Empresa creada! Ahora añade un servicio.",
+        //  error: true,
+        //  alertType: "OK_ALERT",
+        //});
         hideAlert();
         setTimeout(() => {
           router.refresh();
@@ -106,7 +109,7 @@ const FormCreateBusiness: React.FC = () => {
         }, 4000);
       }
     } catch (error) {
-      setLoading(false)
+      setLoading(false);
       setAlert({
         msg: "Error al crear empresa",
         error: true,
@@ -118,6 +121,61 @@ const FormCreateBusiness: React.FC = () => {
 
   return (
     <>
+      {isCreated && (
+        <>
+          <div
+            className="absolute flex items-center justify-center modalCont"
+            style={{ top: "64px" }}
+          >
+            <div className="flex flex-col py-10 bg-white w-80 md:w-96 px-7 h-fit borderShadow">
+              <div className="flex flex-col items-center w-full gap-4 h-fit ">
+                <BsFillCheckCircleFill
+                  className="hidden md:block"
+                  size={70}
+                  color="#4bc720"
+                />
+                <BsFillCheckCircleFill
+                  className="block md:hidden"
+                  size={60}
+                  color="#4bc720"
+                />
+                <h4 className="mb-1 text-xl font-bold text-center uppercase ">
+                  ¡Creaste tu empresa!
+                </h4>
+              </div>
+
+              {/* <span>Hacé click en un turno para ver los detalles</span> */}
+              <div className="flex flex-col w-full gap-4 my-2 h-fit">
+                <div className="flex flex-col mb-8 text-center w-fit h-fit">
+                  <label
+                    style={{ fontSize: "14px" }}
+                    className="font-medium text-gray-500"
+                  >
+                    Ahora agregá un servicio antes de comenzar a cargar tus
+                    turnos
+                  </label>
+                </div>
+
+                <div
+                  style={{ height: "100%", width: "100%" }}
+                  className="flex items-center justify-center w-full"
+                >
+                  <div className="loaderSmall"></div>
+                </div>
+
+                <div className="flex flex-col mx-auto text-center w-fit h-fit">
+                  <label
+                    style={{ fontSize: "14px" }}
+                    className="font-medium text-gray-800"
+                  >
+                    Aguarde un instante...
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
       <form
         onSubmit={handleSubmit((data) => {
           createBusiness(data);
@@ -209,8 +267,9 @@ const FormCreateBusiness: React.FC = () => {
                 Link
               </span>
               <div className="flex items-center w-full gap-1 h-fit">
-                <span style={{ fontSize: "14px" }}
-                className="font-medium ">sacaturno.com.ar/</span>
+                <span style={{ fontSize: "14px" }} className="font-medium ">
+                  sacaturno.com.ar/
+                </span>
                 <input type="text" maxLength={30} {...register("slug")} />
               </div>
               {errors.slug?.message && (
