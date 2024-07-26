@@ -33,7 +33,7 @@ const Footer: React.FC = () => {
                   Nuestro servicio
                 </span>
                 <div className="flex flex-col gap-2 lg:gap-1">
-                  <Link href={''} className={`${styles.textHoverToOrange} text-xs`}>
+                  <Link href={'/#faq'} className={`${styles.textHoverToOrange} text-xs`}>
                     Preguntas frecuentes
                   </Link>
                   <Link href={'/faq/terminos'} className={`${styles.textHoverToOrange} text-xs`}>
@@ -41,9 +41,6 @@ const Footer: React.FC = () => {
                   </Link>
                   <Link href={'/faq/privacidad'} className={`${styles.textHoverToOrange} text-xs`}>
                     Política de privacidad
-                  </Link>
-                  <Link href={''} className={`${styles.textHoverToOrange} text-xs`}>
-                    Guía de uso
                   </Link>
                   <Link href={''} className={`${styles.textHoverToOrange} text-xs`}>
                     Contactanos

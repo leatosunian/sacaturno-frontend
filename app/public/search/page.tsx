@@ -10,7 +10,7 @@ import sacaturno_logo from "@/public/st_logo_white.png";
 import stylesHome from "@/app/css-modules/HomeWhite.module.css";
 import stylesLogin from "@/app/css-modules/login.module.css";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
-import HeaderPublicBlack from "@/components/HeaderPublicBlack";
+import HeaderPublicBlack from "@/components/home/HeaderPublicBlack";
 import { IoIosSearch } from "react-icons/io";
 import Link from "next/link";
 import Footer from "@/components/home/Footer";

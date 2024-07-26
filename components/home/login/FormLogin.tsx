@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import styles from "../app/css-modules/FormLogin.module.css";
-import stylesHome from "../app/css-modules/HomeWhite.module.css";
+import styles from "@/app/css-modules/FormLogin.module.css";
+import stylesHome from "@/app/css-modules/HomeWhite.module.css";
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
@@ -11,7 +11,7 @@ import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/app/schemas/loginSchema";
-import FormAlert from "./FormAlert";
+import FormAlert from "@/components/FormAlert";
 
 interface formInputs {
   password: string;
@@ -102,7 +102,7 @@ const FormLogin = () => {
           setLoading(false);
           return;
         }
-        if (login.data.response_data === "WRONG_PASSWORD" || "USER_NOT_FOUND") {
+        if (login.data.response_data === "WRONG_PASSWORD" || login.data.response_data === "USER_NOT_FOUND") {
           setAlert({
             alertType: "ERROR_ALERT",
             error: true,

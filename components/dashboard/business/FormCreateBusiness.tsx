@@ -11,7 +11,6 @@ import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
 import { createBusinessSchema } from "@/app/schemas/createBusinessSchema";
 import { BsFillCheckCircleFill } from "react-icons/bs";
-import { IoMdClose } from "react-icons/io";
 
 interface formInputs {
   name: string;
@@ -96,6 +95,7 @@ const FormCreateBusiness: React.FC = () => {
           setLoading(false);
           return;
         }
+        setLoading(false);
         setIsCreated(true)
         //setAlert({
         //  msg: "¡Empresa creada! Ahora añade un servicio.",

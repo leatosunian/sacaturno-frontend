@@ -16,12 +16,12 @@ const HeroSection = () => {
               Digitalizá la gestión de tu negocio
             </h4>
             <div>
-              <p className="mb-2 text-sm font-normal text-gray-600 xl:text-xl sm:text-md md:text-base">
-                Tu solución integral para la gestión de turnos. Simplificá tu
-                día a día, maximizá la eficiencia y ofrecé una experiencia
-                excepcional a tus clientes.
+              <p className="mb-3 text-sm font-medium text-gray-500 xl:text-xl sm:text-md md:text-base">
+                Tu solución para la gestión de turnos. Simplificá tu
+                día a día, maximizá tu eficiencia y ofrecé una experiencia
+                excepcional a tus clientes mediante la automatización de tus reservas con SacaTurno.
               </p>
-              <p className="mb-2 text-sm font-normal text-gray-600 xl:text-xl sm:text-md md:text-base">
+              <p className="mb-2 text-sm font-medium text-gray-500 xl:text-xl sm:text-md md:text-base">
                 ¡Regístrate hoy mismo para obtener una prueba gratuita de 15
                 días! Cliqueá el boton debajo, creá tu
                 empresa y comenzá a gestionar tus turnos.

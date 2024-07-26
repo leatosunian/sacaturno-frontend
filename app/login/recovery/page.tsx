@@ -5,8 +5,8 @@ import sacaturno_logo from "@/public/st_logo_white.png";
 import Image from "next/image";
 import Link from "next/link";
 import { IoIosSearch } from "react-icons/io";
-import PasswordRecovery from "@/components/PasswordRecovery";
-import HeaderPublicBlack from '@/components/HeaderPublicBlack';
+import PasswordRecovery from "@/components/home/passwordRecovery/PasswordRecovery";
+import HeaderPublicBlack from '@/components/home/HeaderPublicBlack';
 
 export const metadata: Metadata = {
   title: "Restablecer contraseña - SacaTurno",

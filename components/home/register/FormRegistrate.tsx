@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import styles from "../app/css-modules/FormRegistrate.module.css";
-import stylesHome from "../app/css-modules/HomeWhite.module.css";
+import styles from "@/app/css-modules/FormRegistrate.module.css";
+import stylesHome from "@/app/css-modules/HomeWhite.module.css";
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
 import { registerSchema } from "@/app/schemas/registerSchema";
@@ -9,7 +9,7 @@ import { FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import Link from "next/link";
-import FormAlert from "./FormAlert";
+import FormAlert from "../../FormAlert";
 
 interface formInputs {
   name: string;

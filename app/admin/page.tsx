@@ -1,4 +1,4 @@
-import LoggedInHeader from "@/components/LoggedInHeader";
+import LoggedInHeader from "@/components/dashboard/LoggedInHeader";
 
 export default function Turnos() {
     return (

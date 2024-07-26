@@ -1,11 +1,11 @@
 import styles from "@/app/css-modules/login.module.css";
 import stylesHome from '@/app/css-modules/HomeWhite.module.css'
-import FormRegistrate from "@/components/FormRegistrate";
+import FormRegistrate from "@/components/home/register/FormRegistrate";
 import Image from "next/image";
 import sacaturno_logo from "@/public/st_logo_white.png";
 import { IoIosSearch } from "react-icons/io";
 import Link from "next/link";
-import HeaderPublicBlack from '@/components/HeaderPublicBlack';
+import HeaderPublicBlack from '@/components/home/HeaderPublicBlack';
 import Footer from "@/components/home/Footer";
 
 export default function Register() {

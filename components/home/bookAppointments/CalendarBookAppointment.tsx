@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 import styles from "@/app/css-modules/CalendarBookAppointment.module.css";
 import BookAppointmentModal from "./BookAppointmentModal";
 import AlertInterface from "@/interfaces/alert.interface";
-import Alert from "./Alert";
+import Alert from "@/components/Alert";
 
 dayjs.locale("es-mx");
 const localizer = dayjsLocalizer(dayjs);

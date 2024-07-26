@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 import styles from "@/app/css-modules/CalendarTurnos.module.css";
 import CreateAppointmentModal from "./CreateAppointmentModal";
 import { IService } from "@/interfaces/service.interface";
-import NoServicesModal from "./NoServicesModal";
+import NoServicesModal from "../services/NoServicesModal";
 import ISubscription from "@/interfaces/subscription.interface";
 import ExpiredPlanModal from "./ExpiredPlanModal";
 import AllDayAppointmentsModal from "./AllDayAppointmentsModal";
@@ -449,7 +449,7 @@ const CalendarTurnos: React.FC<Props> = ({
             timeslots={1}
             step={Number(businessData.appointmentDuration)}
             onSelectSlot={({ action, start, end }) => {
-              if (action === "select" || "click") {
+              if (action === "select" || action === "click") {
                 saveNewAppointment({ start, end });
               }
             }}

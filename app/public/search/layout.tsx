@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import styles from '@/app/css-modules/login.module.css'
 
 export const metadata: Metadata = {
   title: "Buscar empresa | SacaTurno",

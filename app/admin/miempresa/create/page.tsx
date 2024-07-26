@@ -1,5 +1,11 @@
-import FormCreateBusiness from "@/components/FormCreateBusiness";
+import FormCreateBusiness from "@/components/dashboard/business/FormCreateBusiness";
 import styles from "@/app/css-modules/miempresa.module.css";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Crear empresa | SacaTurno",
+  description: "Aplicación de turnos online",
+};
 
 const CreateBusiness: React.FC = () => {
   return (

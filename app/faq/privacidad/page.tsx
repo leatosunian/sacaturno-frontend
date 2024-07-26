@@ -1,7 +1,13 @@
-import HeaderPublicBlack from "@/components/HeaderPublicBlack";
+import HeaderPublicBlack from "@/components/home/HeaderPublicBlack";
 import Footer from "@/components/home/Footer";
 import stylesHome from "@/app/css-modules/HomeWhite.module.css";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Política de privacidad | SacaTurno",
+  description: "Aplicación de turnos online",
+};
 
 const Privacidad = () => {
   return (

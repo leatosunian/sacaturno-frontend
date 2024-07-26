@@ -1,6 +1,6 @@
 import { Metadata, NextPage } from "next";
-import styles from "../../css-modules/miempresa.module.css";
-import FormMiEmpresa from "@/components/FormMiEmpresa";
+import styles from "@/app/css-modules/miempresa.module.css";
+import FormMiEmpresa from "@/components/dashboard/business/FormMiEmpresa";
 import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
 import { cookies } from "next/headers";

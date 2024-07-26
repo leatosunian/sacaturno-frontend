@@ -1,6 +1,6 @@
 "use client";
 import PricingSection from "@/components/home/PricingSection";
-import HeaderPublicBlack from "@/components/HeaderPublicBlack";
+import HeaderPublicBlack from "@/components/home/HeaderPublicBlack";
 import FAQSection from "@/components/home/FAQSection";
 import HeroSection from "@/components/home/HeroSection";
 import Footer from "@/components/home/Footer";
@@ -21,6 +21,7 @@ export default function Home() {
         </motion.div>
 
         <PricingSection />
+        <div id="faq"></div>
         {/* DIVIDER */}
         <div
           style={{
@@ -41,6 +42,7 @@ export default function Home() {
           className="block lg:hidden"
         ></div>
         {/* DIVIDER */}
+        
         <FAQSection />
         <div
           style={{

@@ -1,4 +1,4 @@
-import HeaderPublicBlack from "@/components/HeaderPublicBlack";
+import HeaderPublicBlack from "@/components/home/HeaderPublicBlack";
 
 export default function Layout({
   children,

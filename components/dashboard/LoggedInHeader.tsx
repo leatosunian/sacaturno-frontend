@@ -1,9 +1,10 @@
 "use client";
 import Link from "next/link";
 import { NextPage } from "next";
+import { IoIosLogOut } from "react-icons/io";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { RxCross2 } from "react-icons/rx";
-import styles from "../app/css-modules/header.module.css";
+import styles from "@/app/css-modules/LoggedInHeader.module.css";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -11,7 +12,7 @@ import sacaturno_logo from "@/public/st_logo_white.png";
 
 interface Props {}
 
-const HeaderPublicBlack: NextPage<Props> = ({}) => {
+const LoggedInHeader: NextPage<Props> = ({}) => {
   const [active, setActive] = useState(false);
   const router = useRouter();
   const handleActiveNavBar = () => {
@@ -20,26 +21,32 @@ const HeaderPublicBlack: NextPage<Props> = ({}) => {
   const closeNavMenu = () => {
     setActive(false);
   };
+  const logOut = async () => {
+    localStorage.removeItem("sacaturno_userID");
+    localStorage.removeItem("sacaturno_token");
+    try {
+      await fetch(`/api/logout`, {
+        method: "POST",
+      });
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <>
       <div
-        className={`fixed flex justify-between w-full h-16 px-6 text-white md:px-0 md:justify-around position-absolute border-bottom-2 `}
-        style={{
-          zIndex: "99999",
-          backdropFilter: "blur(6px)",
-          background: "rgba(0, 0, 0, 1)",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-        }}
+        className="flex justify-between w-full h-16 px-6 text-white md:px-0 md:justify-around position-absolute border-bottom-2"
+        style={{ backgroundColor: "#060606" }}
       >
-        <div className="flex items-center h-full gap-1 j ustify-center w-fit ">
-          {/* <FcCalendar size={34} />
-          <h1 className="text-md">SacaTurno</h1> */}
-          <Link href={"/"}>
+        <div className="flex items-center justify-center h-full gap-1 w-fit ">
+          <Link href={'/admin/dashboard'}>
+          
             <Image className="w-28" src={sacaturno_logo} alt="SacaTurno" />
           </Link>
         </div>
-
 
         <div className="items-center justify-center hidden gap-8 text-sm md:flex">
           <div>
@@ -47,26 +54,39 @@ const HeaderPublicBlack: NextPage<Props> = ({}) => {
               href="/public/search"
               className={`cursor-pointer ${styles.navLink}`}
             >
-              reservar turno
-            </Link>
-          </div>
-          <div>
-            <Link href="/login" className={`cursor-pointer ${styles.navLink}`}>
-              Iniciar sesión
+              Sacar turno
             </Link>
           </div>
           <div>
             <Link
-              href="/register"
+              href="/admin/miempresa"
               className={`cursor-pointer ${styles.navLink}`}
             >
-              registrarme
+              Mi empresa
             </Link>
           </div>
           <div>
-            <Link href="/login" className={`cursor-pointer ${styles.navLink}`}>
-              contactanos
+            <Link
+              href="/admin/misturnos"
+              className={`cursor-pointer ${styles.navLink}`}
+            >
+              Mis turnos
             </Link>
+          </div>
+          <div>
+            <Link
+              href="/admin/perfil"
+              className={`cursor-pointer ${styles.navLink}`}
+            >
+              Mi perfil
+            </Link>
+          </div>
+          <div
+            onClick={logOut}
+            className="cursor-pointer ml-7"
+            title="Cerrar Sesión"
+          >
+            <IoIosLogOut size={22} color="white" />
           </div>
         </div>
 
@@ -90,35 +110,48 @@ const HeaderPublicBlack: NextPage<Props> = ({}) => {
           <Link
             onClick={closeNavMenu}
             className="flex items-center h-12 text-xs font-medium uppercase"
+            href="/admin/dashboard"
+          >
+            Inicio
+          </Link>
+          <Link
+            onClick={closeNavMenu}
+            className="flex items-center h-12 text-xs font-medium uppercase"
             href="/public/search"
           >
-            reservar turno
+            Sacar turno
           </Link>
           <Link
             onClick={closeNavMenu}
             className="flex items-center h-12 text-xs font-medium uppercase"
-            href="/login"
+            href="/admin/miempresa"
           >
-            Iniciar sesión
+            Mi empresa
           </Link>
           <Link
             onClick={closeNavMenu}
             className="flex items-center h-12 text-xs font-medium uppercase"
-            href="/register"
+            href="/admin/misturnos"
           >
-            Registrarme
+            Mis turnos
           </Link>
           <Link
             onClick={closeNavMenu}
             className="flex items-center h-12 text-xs font-medium uppercase"
-            href="/register"
+            href="/admin/perfil"
           >
-            contactanos
+            Mi perfil
           </Link>
+          <span
+            onClick={logOut}
+            className="flex items-center h-12 text-xs font-medium uppercase"
+          >
+            Cerrar sesión
+          </span>
         </aside>
       </div>
     </>
   );
 };
 
-export default HeaderPublicBlack;
+export default LoggedInHeader;

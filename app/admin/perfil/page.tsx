@@ -1,4 +1,4 @@
-import FormMiPerfil from "@/components/FormMiPerfil";
+import FormMiPerfil from "@/components/dashboard/profile/FormMiPerfil";
 import axiosReq from "@/config/axios";
 import dayjs from "dayjs";
 import { Metadata } from "next";

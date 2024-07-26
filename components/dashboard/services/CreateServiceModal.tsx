@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldValues, useForm } from "react-hook-form";
 import { IoMdClose } from "react-icons/io";
 import { createServiceSchema } from "@/app/schemas/createServiceSchema";
+import { useState } from "react";
 
 interface formInputs {
   name: string;
@@ -13,11 +14,13 @@ interface formInputs {
 
 interface props {
   closeModalF: () => void;
-  onCreateService: (formData: formInputs) => void
+  onCreateService: (formData: formInputs) => void;
 }
 
-
-const CreateServiceModal: React.FC<props> = ({ closeModalF, onCreateService }) => {
+const CreateServiceModal: React.FC<props> = ({
+  closeModalF,
+  onCreateService,
+}) => {
   const {
     register,
     handleSubmit,
@@ -25,6 +28,9 @@ const CreateServiceModal: React.FC<props> = ({ closeModalF, onCreateService }) =
   } = useForm<formInputs>({
     resolver: zodResolver(createServiceSchema),
   });
+
+  const [loading, setLoading] = useState<boolean>(false);
+
   const closeModal = (action: string) => {
     closeModalF();
   };
@@ -40,8 +46,9 @@ const CreateServiceModal: React.FC<props> = ({ closeModalF, onCreateService }) =
   };
 
   const createService = async (formData: formInputs) => {
-    if(formData){
-      onCreateService(formData)
+    setLoading(true);
+    if (formData) {
+      onCreateService(formData);
     }
   };
 
@@ -76,7 +83,13 @@ const CreateServiceModal: React.FC<props> = ({ closeModalF, onCreateService }) =
                 >
                   Nombre
                 </span>
-                <input type="text" className="placeholder:text-xs" maxLength={30} {...register("name")} placeholder="Nombre del servicio" />
+                <input
+                  type="text"
+                  className="placeholder:text-xs"
+                  maxLength={30}
+                  {...register("name")}
+                  placeholder="Nombre del servicio"
+                />
                 {errors.name?.message && (
                   <span className="text-xs font-semibold text-red-600">
                     {" "}
@@ -93,7 +106,13 @@ const CreateServiceModal: React.FC<props> = ({ closeModalF, onCreateService }) =
                 </span>
                 <div className="flex items-center w-full gap-2 h-fit">
                   <span className="font-semibold text-md">AR$</span>
-                  <input type="number" maxLength={20} className="placeholder:text-xs"  placeholder="Precio del servicio" {...register("price")} />
+                  <input
+                    type="number"
+                    maxLength={20}
+                    className="placeholder:text-xs"
+                    placeholder="Precio del servicio"
+                    {...register("price")}
+                  />
                 </div>
                 {errors.price?.message && (
                   <span className="text-xs font-semibold text-red-600">
@@ -112,7 +131,12 @@ const CreateServiceModal: React.FC<props> = ({ closeModalF, onCreateService }) =
                   </span>
                   <span className="text-xs text-gray-500 ">(opcional)</span>
                 </div>
-                <textarea placeholder="Descripción del servicio" className="placeholder:text-xs"  {...register("description")} maxLength={140} />
+                <textarea
+                  placeholder="Descripción del servicio"
+                  className="placeholder:text-xs"
+                  {...register("description")}
+                  maxLength={140}
+                />
                 {errors.description?.message && (
                   <span className="text-xs font-semibold text-red-600">
                     {" "}
@@ -128,9 +152,21 @@ const CreateServiceModal: React.FC<props> = ({ closeModalF, onCreateService }) =
           </div>
 
           <div className="flex justify-center w-full align-middle mt-7 h-fit">
-            <button className={styles.button} onClick={handleSubmitClick}>
-              Crear servicio
-            </button>
+            {!loading && (
+              <button className={styles.button} onClick={handleSubmitClick}>
+                Crear servicio
+              </button>
+            )}
+            {loading && (
+              <>
+              <div
+                style={{ height: "100%", width: "100%" }}
+                className="flex items-center justify-center w-full"
+              >
+                <div className="loaderSmall"></div>
+              </div>
+            </>
+            )}
           </div>
         </div>
       </div>

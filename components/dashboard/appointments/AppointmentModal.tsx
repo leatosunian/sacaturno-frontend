@@ -32,7 +32,6 @@ const AppointmentModal: React.FC<props> = ({
   onDeleteAppointment,
 }) => {
   const [isBooked, setIsBooked] = useState(false);
-  const [clientData, setClientData] = useState<IUser>();
   const router = useRouter();
   const token = localStorage.getItem("sacaturno_token");
   const authHeader = {
@@ -41,14 +40,6 @@ const AppointmentModal: React.FC<props> = ({
       Authorization: `Bearer ${token}`,
       "Cache-Control": "no-store",
     },
-  };
-
-  const getClientData = async (clientID: string | undefined) => {
-    const clientDataReq = await axiosReq.get(
-      "/user/get/" + clientID,
-      authHeader
-    );
-    setClientData(clientDataReq.data.response_data);
   };
 
   useEffect(() => {

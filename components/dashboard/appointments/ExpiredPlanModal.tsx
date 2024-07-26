@@ -3,7 +3,7 @@ import styles from "@/app/css-modules/NoServicesModal.module.css";
 import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
 import { useRouter } from "next/navigation";
-import { IoIosAlert, IoMdClose } from "react-icons/io";
+import { IoIosAlert } from "react-icons/io";
 
 interface Props {
   businessData: IBusiness | undefined;

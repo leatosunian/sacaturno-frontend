@@ -6,9 +6,9 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { IService } from "@/interfaces/service.interface";
 import { MdOutlineWorkHistory } from "react-icons/md";
-import FormSettings from "@/components/FormSettings";
 import { FaArrowLeft } from "react-icons/fa6";
 import dayjs from "dayjs";
+import FormSettings from "@/components/dashboard/services/FormSettings";
 
 export const metadata: Metadata = {
   title: "Servicios y suscripciones | SacaTurno",
@@ -150,7 +150,6 @@ const Settings: NextPage = async ({}) => {
           <div className="flex flex-col justify-center w-full mt-5 h-fit">
             <div className={`${styles.cont} mb-5`}>
               <FormSettings
-              
                 businessData={data}
                 servicesData={services}
                 subscriptionData={subscription}

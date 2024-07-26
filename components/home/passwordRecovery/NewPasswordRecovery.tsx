@@ -8,7 +8,7 @@ import Link from "next/link";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormAlert from "./FormAlert";
+import FormAlert from "../../FormAlert";
 import { newPasswordRecoverySchema } from "@/app/schemas/newPasswordRecoverySchema";
 
 interface formInputs {

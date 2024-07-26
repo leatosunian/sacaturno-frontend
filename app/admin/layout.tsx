@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import LoggedInHeader from "@/components/LoggedInHeader";
+import LoggedInHeader from "@/components/dashboard/LoggedInHeader";
 
 
 export const metadata: Metadata = {

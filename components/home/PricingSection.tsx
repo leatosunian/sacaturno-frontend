@@ -12,7 +12,7 @@ const PricingSection = () => {
       <div className="flex flex-col items-center justify-center w-full gap-12 py-5 text-black h-fit lg:py-0 lg:h-screen">
         {/* HEADER */}
         <div className="w-full text-center h-fit">
-          <h3 className="mb-1 text-xl font-semibold text-black md:text-2xl">
+          <h3 className="mb-1 text-2xl font-semibold text-black md:text-3xl">
             Planes
           </h3>
           <span className="flex items-center justify-center gap-2 text-lg font-normal text-gray-600 px-7 md:px-0">

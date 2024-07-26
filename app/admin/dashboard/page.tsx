@@ -1,4 +1,4 @@
-import DashboardComponent from "@/components/DashboardComponent";
+import DashboardComponent from "@/components/dashboard/DashboardComponent";
 import axiosReq from "@/config/axios";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import { IBusiness } from "@/interfaces/business.interface";

@@ -14,7 +14,7 @@ import "dayjs/locale/es-mx";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import advanced from "dayjs/plugin/advancedFormat";
-import AppointmentModal from "./AppointmentModal";
+import AppointmentModal from "./appointments/AppointmentModal";
 
 interface Props {
   businessData:

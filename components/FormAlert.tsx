@@ -7,7 +7,7 @@ type Props = AlertInterface;
 const FormAlert: React.FC<Props> = ({ alertType, msg, error }) => {
   return (
     <>
-      <div className="flex items-center justify-center my-2 gap-2 w-fit h-fit">
+      <div className="flex items-center justify-center gap-2 my-2 w-fit h-fit">
         <div>
           {error && (
             <>

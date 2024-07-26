@@ -6,13 +6,13 @@ import { useEffect, useState } from "react";
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
-import Alert from "./Alert";
 import UpgradePlanModal from "./UpgradePlanModal";
 import { LuSearchX } from "react-icons/lu";
 import { TbPlaylistAdd } from "react-icons/tb";
 import CreateServiceModal from "./CreateServiceModal";
 import { IoMdMore } from "react-icons/io";
 import EditServiceModal from "./EditServiceModal";
+import Alert from "@/components/Alert";
 
 const FormSettings = ({
   businessData,

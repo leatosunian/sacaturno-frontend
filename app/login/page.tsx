@@ -1,12 +1,12 @@
 import { Metadata } from "next";
 import styles from "../css-modules/login.module.css";
 import stylesHome from "../css-modules/HomeWhite.module.css"
-import FormLogin from "@/components/FormLogin";
+import FormLogin from "@/components/home/login/FormLogin";
 import sacaturno_logo from "@/public/st_logo_white.png";
 import Image from "next/image";
 import Link from "next/link";
 import { IoIosSearch } from "react-icons/io";
-import HeaderPublicBlack from "@/components/HeaderPublicBlack";
+import HeaderPublicBlack from "@/components/home/HeaderPublicBlack";
 import Footer from "@/components/home/Footer";
 
 export const metadata: Metadata = {

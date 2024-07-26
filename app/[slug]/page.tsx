@@ -1,11 +1,10 @@
-import CalendarBookAppointment from "@/components/CalendarBookAppointment";
 import axiosReq from "@/config/axios";
-import { IAppointment } from "@/interfaces/appointment.interface";
 import { IBusiness } from "@/interfaces/business.interface";
-import { IService } from "@/interfaces/service.interface";
 import { IoIosAlert } from "react-icons/io";
 import { LuCalendarClock } from "react-icons/lu";
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
+import CalendarBookAppointment from "@/components/home/bookAppointments/CalendarBookAppointment";
+
 interface propsComponent {
   params: {
     slug: string;

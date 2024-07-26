@@ -1,5 +1,5 @@
 import axiosReq from "@/config/axios";
-import CalendarTurnos from "@/components/CalendarTurnos";
+import CalendarTurnos from "@/components/dashboard/appointments/CalendarTurnos";
 import { cookies } from "next/headers";
 import { IBusiness } from "@/interfaces/business.interface";
 import { IService } from "@/interfaces/service.interface";
