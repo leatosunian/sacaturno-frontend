@@ -1,15 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
-import styles from "../app/css-modules/FormLogin.module.css";
-import stylesHome from "../app/css-modules/HomeWhite.module.css";
+import styles from "@/app/css-modules/FormLogin.module.css";
+import stylesHome from "@/app/css-modules/HomeWhite.module.css";
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
 import Link from "next/link";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormAlert from "../../FormAlert";
+
 import { newPasswordRecoverySchema } from "@/app/schemas/newPasswordRecoverySchema";
+import FormAlert from "@/components/FormAlert";
 
 interface formInputs {
   password: string;

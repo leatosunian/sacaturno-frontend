@@ -8,8 +8,8 @@ import Link from "next/link";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormAlert from "../../FormAlert";
 import { passwordRecoverySchema } from "@/app/schemas/passwordRecoverySchema";
+import FormAlert from "@/components/FormAlert";
 
 interface formInputs {
   email: string;
