@@ -35,18 +35,19 @@
 .closeModal {
   color: red;
   cursor: pointer;
-  transform: translate(310px, -10px);
-  -webkit-transform: translate(310px, -10px);
-  -moz-transform: translate(310px, -10px);
-  -ms-transform: translate(310px, -10px);
-  -o-transform: translate(310px, -10px);
+  position: absolute;
+  transform: translate(410px, -10px);
+  -webkit-transform: translate(410px, -10px);
+  -moz-transform: translate(410px, -10px);
+  -ms-transform: translate(410px, -10px);
+  -o-transform: translate(410px, -10px);
 }
 
 .modalCont {
   background-color: rgb(255, 255, 255);
   z-index: 10000;
   position: absolute;
-  width: 100%;
+  width: 100%;  
   top: 0;
   height: 100vh;
   display: flex;
@@ -56,13 +57,71 @@
   backdrop-filter: blur(8px);
 }
 
+.helpCont {
+  display: flex ;
+  flex-direction: column;
+  height: 100%;
+  width: 30rem;
+  padding: 28px;
+  background-color: white;
+}
+
+.helpContScrollbar::-webkit-scrollbar {
+  margin-left: 5px;
+  width: 7px;
+  color: red;
+  transition: .3s all ease-in-out;
+}
+
+.helpContScrollbar::-webkit-scrollbar-track {
+  background: rgba(73, 73, 73, 0.168);
+  transition: .3s all ease-in-out;
+  border-radius: 100vw; 
+  -webkit-border-radius: 100vw;
+  -moz-border-radius: 100vw;
+  -ms-border-radius: 100vw;
+  -o-border-radius: 100vw;
+}
+
+.helpContScrollbar::-webkit-scrollbar-thumb {
+  /* background: linear-gradient(to bottom, #fe529457, #f76e6444); */
+  background-color: #dd49242c;
+  height: 20px;
+  border-radius: 100vw;
+  transition: .3s all ease-in-out;
+  -webkit-transition: .3s all ease-in-out;
+  -moz-transition: .3s all ease-in-out;
+  -ms-transition: .3s all ease-in-out;
+  -o-transition: .3s all ease-in-out;
+  -webkit-border-radius: 100vw;
+  -moz-border-radius: 100vw;
+  -ms-border-radius: 100vw;
+  -o-border-radius: 100vw;
+}
+
+.helpContScrollbar::-webkit-scrollbar-thumb:hover {
+  /* background: linear-gradient(to bottom, #fe5294b6, #f76e64a1); */
+  background-color: #dd4924;
+  transition: .3s all ease-in-out;
+  -webkit-transition: .3s all ease-in-out;
+  -moz-transition: .3s all ease-in-out;
+  -ms-transition: .3s all ease-in-out;
+  -o-transition: .3s all ease-in-out;
+}
+
 @media (max-width: 768px) {
   .closeModal {
-    transform: translate(250px, -12px);
+    transform: translate(270px, -12px);
     position: absolute;
-    -webkit-transform: translate(250px, -12px);
-    -moz-transform: translate(250px, -12px);
-    -ms-transform: translate(250px, -12px);
-    -o-transform: translate(250px, -12px);
+    -webkit-transform: translate(270px, -12px);
+    -moz-transform: translate(270px, -12px);
+    -ms-transform: translate(270px, -12px);
+    -o-transform: translate(270px, -12px);
+}
+  .helpCont {
+    display: flex ;
+    flex-direction: column;
+    height: 100%;
+    width: 21rem;
   }
 }

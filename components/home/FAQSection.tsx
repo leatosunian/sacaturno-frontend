@@ -32,7 +32,7 @@ const FAQSection = () => {
           />
           <Accordion
             title="Pagos en la aplicación"
-            answer="El servicio se abona mediante la pasarela de pago de Mercado Pago. Por lo tanto, todos los datos que ingreses no estarán a nuestra disposición. Tampoco tendrás que vincular tu tarjeta de crédito para activar tu período gratuito ni para futuros pagos automáticos del servicio."
+            answer="El servicio se abona mediante la pasarela de pago de Mercado Pago. Por lo tanto, todos los datos que ingreses no estarán a nuestro alcance y se mantendrán seguros en la plataforma de pago. Tampoco tendrás que vincular tu tarjeta de crédito para activar tu período gratuito ni para futuros pagos automáticos del servicio."
           />
           <Accordion
             title="No recibo los correos"

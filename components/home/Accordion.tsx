@@ -51,7 +51,7 @@ const Accordion = ({ title, answer }: { title: string; answer: string }) => {
             : "grid-rows-[0fr] opacity-0 px-0 py-0"
         }`}
       >
-        <p className={`overflow-hidden  ${accordionActive ? " py-3" : "py-0"}`}>
+        <p className={`overflow-hidden text-base  ${accordionActive ? " py-3" : "py-0"}`}>
           {answer}
         </p>
       </div>

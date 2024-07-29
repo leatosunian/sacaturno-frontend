@@ -25,6 +25,8 @@ import ExpiredPlanModal from "./ExpiredPlanModal";
 import AllDayAppointmentsModal from "./AllDayAppointmentsModal";
 import { LuCalendarPlus } from "react-icons/lu";
 import { IoMdMore } from "react-icons/io";
+import { IoInformationCircle } from "react-icons/io5";
+import HelpModal from "./HelpModal";
 
 dayjs.locale("es-mx");
 
@@ -47,7 +49,7 @@ interface eventType {
   phone: number | undefined;
   service: string | undefined;
   status?: "booked" | "unbooked" | undefined;
-  price: number | undefined
+  price: number | undefined;
 }
 
 interface eventType2 {
@@ -61,7 +63,7 @@ interface eventType2 {
   phone: number | undefined;
   service: string | undefined;
   status?: "booked" | "unbooked" | undefined;
-  price: number | undefined
+  price: number | undefined;
 }
 
 interface IAllDayModalProps {
@@ -104,6 +106,7 @@ const CalendarTurnos: React.FC<Props> = ({
   const [allDayAppointmentsModal, setAllDayAppointmentsModal] = useState(false);
   const [allDayAppointmentsData, setAllDayAppointmentsData] =
     useState<IAllDayModalProps>();
+  const [helpModal, setHelpModal] = useState(false);
   const [view, setView] = useState<(typeof Views)[Keys]>(Views.DAY);
   const [date, setDate] = useState<Date>(now.toDate());
   const [expiredModal, setExpiredModal] = useState(false);
@@ -175,7 +178,7 @@ const CalendarTurnos: React.FC<Props> = ({
         email,
         phone,
         service,
-        price
+        price,
       }) => {
         let appointmentObj: eventType;
         appointmentObj = {
@@ -190,7 +193,7 @@ const CalendarTurnos: React.FC<Props> = ({
           email,
           phone,
           service,
-          price
+          price,
         };
         appointmentsList.push(appointmentObj);
       }
@@ -211,7 +214,7 @@ const CalendarTurnos: React.FC<Props> = ({
       phone: event.phone,
       email: event.email,
       service: event.service,
-      price: event.price
+      price: event.price,
     };
     setEventData(eventDataObj);
     setEventModal(true);
@@ -324,6 +327,20 @@ const CalendarTurnos: React.FC<Props> = ({
       {servicesData.length === 0 && <NoServicesModal />}
       {expiredModal && <ExpiredPlanModal businessData={business} />}
 
+      {helpModal && <HelpModal onClose={() => setHelpModal(false)} />}
+
+      <div
+        style={{ position: "absolute", top: "87px", left: "20px" }}
+        className="flex flex-col overflow-hidden md:hidden"
+      >
+        <IoInformationCircle
+          onClick={() => setHelpModal(!helpModal)}
+          size={25}
+          className="block ml-auto text-gray-300 md:hidden"
+          style={{ marginRight: "6px" }}
+        />
+      </div>
+
       {/* mobile dropdown */}
       <div
         style={{ position: "absolute", top: "87px", right: "20px" }}
@@ -353,7 +370,7 @@ const CalendarTurnos: React.FC<Props> = ({
       {/* mobile dropdown */}
 
       <div className="flex flex-col w-full h-fit ">
-        <header className="flex items-center justify-center w-full mt-5 mb-3 md:mt-7 md:mb-7 h-fit">
+        <header className="flex items-center justify-center w-full mt-5 mb-3 md:mt-6 md:mb-5 h-fit">
           <h4 style={{ fontSize: "22px" }} className="font-bold uppercase ">
             Mis Turnos
           </h4>
@@ -462,14 +479,24 @@ const CalendarTurnos: React.FC<Props> = ({
             longPressThreshold={250}
           />
         </div>
-        {view === "day" && (
+
+        <div className="flex justify-between w-full mt-6 mb-12 h-fit">
           <button
-            className={`${styles.btnAddAll} hidden md:flex gap-2 items-center ml-auto mb-10 mt-3`}
-            onClick={() => handleSetAllDayAppointmentsModal()}
+            className={`${styles.btnAddAll} hidden md:flex gap-2 items-center`}
+            onClick={() => setHelpModal(!helpModal)}
           >
-            <LuCalendarPlus size={18} /> Crear turnos del día
+            <IoInformationCircle size={20} /> ¿Cómo agrego turnos?
           </button>
-        )}
+
+          {view === "day" && (
+            <button
+              className={`${styles.btnAddAll} hidden md:flex gap-2 items-center`}
+              onClick={() => handleSetAllDayAppointmentsModal()}
+            >
+              <LuCalendarPlus size={18} /> Crear turnos del día
+            </button>
+          )}
+        </div>
       </div>
     </>
   );
