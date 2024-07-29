@@ -36,11 +36,11 @@
   color: red;
   cursor: pointer;
   position: absolute;
-  transform: translate(410px, -10px);
-  -webkit-transform: translate(410px, -10px);
-  -moz-transform: translate(410px, -10px);
-  -ms-transform: translate(410px, -10px);
-  -o-transform: translate(410px, -10px);
+  transform: translate(430px, -10px);
+  -webkit-transform: translate(430px, -10px);
+  -moz-transform: translate(430px, -10px);
+  -ms-transform: translate(430px, -10px);
+  -o-transform: translate(430px, -10px);
 }
 
 .modalCont {
@@ -62,7 +62,7 @@
   flex-direction: column;
   height: 100%;
   width: 30rem;
-  padding: 28px;
+  padding: 28px 0;
   background-color: white;
 }
 
@@ -111,12 +111,12 @@
 
 @media (max-width: 768px) {
   .closeModal {
-    transform: translate(270px, -12px);
+    transform: translate(290px, -12px);
     position: absolute;
-    -webkit-transform: translate(270px, -12px);
-    -moz-transform: translate(270px, -12px);
-    -ms-transform: translate(270px, -12px);
-    -o-transform: translate(270px, -12px);
+    -webkit-transform: translate(290px, -12px);
+    -moz-transform: translate(290px, -12px);
+    -ms-transform: translate(290px, -12px);
+    -o-transform: translate(290px, -12px);
 }
   .helpCont {
     display: flex ;

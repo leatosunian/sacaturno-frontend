@@ -22,7 +22,7 @@ const HelpModal: React.FC<Props> = ({ onClose }) => {
             ¿Cómo cargo mis turnos?
           </h4>
 
-          <div className={`${styles.helpContScrollbar} flex flex-col gap-6 overflow-y-scroll`}>
+          <div className={`${styles.helpContScrollbar} flex flex-col gap-6 overflow-y-scroll px-5 md:px-8 md:mr-4 mr-2`}>
             <div className="flex flex-col w-full gap-4 my-2 h-fit">
               <div className="flex flex-col gap-2 w-fit h-fit">
                 <label
