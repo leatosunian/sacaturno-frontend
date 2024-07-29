@@ -1,4 +1,4 @@
-import UserVerificationComponent from "@/components/UserVerificationComponent";
+import UserVerificationComponent from "@/components/home/register/UserVerificationComponent";
 import axiosReq from "@/config/axios";
 import { Metadata } from "next";
 export const metadata: Metadata = {
