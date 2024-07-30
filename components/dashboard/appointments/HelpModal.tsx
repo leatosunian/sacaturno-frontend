@@ -32,7 +32,7 @@ const HelpModal: React.FC<Props> = ({ onClose }) => {
                   Crear un turno
                 </label>
                 <span className="text-sm">
-                  En tu celular, mantené presionado el casillero del horario de tu neuvo turno (hasta que el casillero se marque de gris), seleccioná el servicio que brindes en ese turno y hacé clic en &ldquo;Crear turno&ldquo;
+                  En tu celular, pulsá medio segundo en el casillero del horario de tu nuevo turno (hasta que el casillero se marque de gris), seleccioná el servicio que brindes en ese turno y hacé clic en &ldquo;Crear turno&ldquo;
                 </span>
                 <span className="mt-1 text-sm">
                   En tu computadora, cliqueá en el casillero del horario de tu nuevo turno, seleccioná el servicio que brindes en ese turno y hacé clic en &ldquo;Crear turno&ldquo;
