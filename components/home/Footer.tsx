@@ -42,9 +42,6 @@ const Footer: React.FC = () => {
                   <Link href={'/faq/privacidad'} className={`${styles.textHoverToOrange} text-xs`}>
                     Política de privacidad
                   </Link>
-                  <Link href={''} className={`${styles.textHoverToOrange} text-xs`}>
-                    Contactanos
-                  </Link>
                 </div>
               </div>
               <div className="flex flex-col gap-4 lg:gap-3 w-fit h-fit">

@@ -63,11 +63,6 @@ const HeaderPublicBlack: NextPage<Props> = ({}) => {
               registrarme
             </Link>
           </div>
-          <div>
-            <Link href="/login" className={`cursor-pointer ${styles.navLink}`}>
-              contactanos
-            </Link>
-          </div>
         </div>
 
         {/* MOBILE NAV MENU */}
@@ -107,13 +102,6 @@ const HeaderPublicBlack: NextPage<Props> = ({}) => {
             href="/register"
           >
             Registrarme
-          </Link>
-          <Link
-            onClick={closeNavMenu}
-            className="flex items-center h-12 text-xs font-medium uppercase"
-            href="/register"
-          >
-            contactanos
           </Link>
         </aside>
       </div>

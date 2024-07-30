@@ -38,6 +38,10 @@ const FAQSection = () => {
             title="No recibo los correos"
             answer="Los correos pueden llegar a la carpeta de spam o de correo no deseado. Recordá revisar esa carpeta o si estas teniendo problemas no dudes en contactarnos."
           />
+          <Accordion
+            title="Necesito ayuda"
+            answer="Ante cualquier duda o inconveniente con el servicio, no dudes en contactarnos al correo leandrotosunian@hotmail.com"
+          />
         </div>
       </div>
     </>

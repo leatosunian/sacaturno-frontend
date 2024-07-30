@@ -154,7 +154,7 @@ const EditServiceModal: React.FC<props> = ({
                     style={{ fontSize: "12px" }}
                     className="font-bold uppercase "
                   >
-                    Descripción
+                    Descripción/observaciones
                   </span>
                   <span className="text-xs text-gray-500 ">(opcional)</span>
                 </div>
