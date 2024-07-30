@@ -12,7 +12,7 @@ const FAQSection = () => {
               Preguntas frecuentes
             </h3>
             <span className="flex items-center justify-center gap-2 text-lg font-normal text-gray-600 px-7 md:px-0">
-              Pagá de manera segura mediante Mercado Pago
+              Respondemos tus dudas mas comunes 
             </span>
           </div>
         </header>
