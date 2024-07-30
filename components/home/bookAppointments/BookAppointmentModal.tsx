@@ -143,7 +143,7 @@ const BookAppointmentModal: React.FC<props> = ({
                 </h4>
 
                 {/* <span>Hacé click en un turno para ver los detalles</span> */}
-                <div className="flex flex-col w-full gap-4 h-fit">
+                <div className="flex flex-col w-full gap-3 h-fit">
                   <div className="flex flex-col w-fit h-fit">
                     <label
                       style={{ fontSize: "12px" }}
@@ -151,7 +151,7 @@ const BookAppointmentModal: React.FC<props> = ({
                     >
                       Fecha y hora
                     </label>
-                    <span className="text-sm">
+                    <span className="text-xs">
                       {appointmentData?.start}
                       {appointmentData?.end}
                     </span>
@@ -164,7 +164,7 @@ const BookAppointmentModal: React.FC<props> = ({
                     >
                       Servicio
                     </label>
-                    <span className="text-sm">{appointmentData?.service}</span>
+                    <span className="text-xs">{appointmentData?.service}</span>
                   </div>
 
                   <div className="flex flex-col w-fit h-fit">
@@ -174,7 +174,7 @@ const BookAppointmentModal: React.FC<props> = ({
                     >
                       Precio
                     </label>
-                    <span className="text-sm">
+                    <span className="text-xs">
                       AR$ {appointmentData?.price}
                     </span>
                   </div>
@@ -187,7 +187,7 @@ const BookAppointmentModal: React.FC<props> = ({
                       >
                         Descripción/Observaciones
                       </label>
-                      <span className="text-sm">
+                      <span className="text-xs">
                         {appointmentData?.description}
                       </span>
                     </div>
