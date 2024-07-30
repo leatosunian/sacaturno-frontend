@@ -191,7 +191,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
               className="flex flex-col w-full h-full gap-1 px-2 py-1"
               style={{ backgroundColor: "#dd4924" }}
             >
-              <span className="text-sm font-semibold">{event.title} </span>
+              <span className="text-xs md:text-sm font-semibold">{event.title} </span>
               <span style={{ fontSize: "10px" }}>{event.service} </span>
             </div>
           </>
@@ -308,7 +308,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
           </h4>
         </div>
 
-        <div className="fixed bottom-0 z-50 flex justify-center w-full ml-auto mr-auto -translate-y-8 md:hidden">
+        <div className="fixed bottom-0 z-50 flex justify-center w-full ml-auto mr-auto -translate-y-5 md:hidden">
           <button className={styles.btnWeekBlue} onClick={() => onPrevClick()}>
             Anterior
           </button>

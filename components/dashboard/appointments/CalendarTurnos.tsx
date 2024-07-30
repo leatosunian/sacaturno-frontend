@@ -427,7 +427,7 @@ const CalendarTurnos: React.FC<Props> = ({
           </h4>
         </div>
 
-        <div className="fixed bottom-0 z-50 flex flex-col items-center w-full ml-auto mr-auto -translate-y-8 md:hidden">
+        <div className="fixed bottom-0 z-50 flex flex-col items-center w-full ml-auto mr-auto -translate-y-5 md:hidden">
           <div className="flex flex-col gap-1 w-fit">
             <div className="">
               <button
