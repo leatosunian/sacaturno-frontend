@@ -36,7 +36,7 @@ const ExpiredPlanModal: React.FC<Props> = ({businessData}) => {
         data,
         authHeader
       );
-      router.push(preference.data.sandbox_init_point);
+      router.push(preference.data.init_point);
     } catch (error) {
       console.log(error);
     }
