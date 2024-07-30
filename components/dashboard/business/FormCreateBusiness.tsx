@@ -63,6 +63,15 @@ const FormCreateBusiness: React.FC = () => {
   };
 
   const createBusiness = async (data: FieldValues) => {
+    if(parseInt(data.dayStart) > parseInt(data.dayEnd)){
+      setAlert({
+        msg: "Formato de horario de atención incorrecto",
+        error: true,
+        alertType: "ERROR_ALERT",
+      });
+      hideAlert();
+      return 
+    }
     setLoading(true);
     setAlert({
       msg: "",

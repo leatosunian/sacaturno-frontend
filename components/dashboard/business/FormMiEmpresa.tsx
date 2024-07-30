@@ -153,7 +153,16 @@ const FormMiEmpresa = ({
     }
   };
 
-  const saveChanges = async (data: FieldValues) => {
+  const saveChanges = async (data: FieldValues) => {  
+    if(parseInt(data.dayStart) > parseInt(data.dayEnd)){
+      setAlert({
+        msg: "Formato de horario de atención incorrecto",
+        error: true,
+        alertType: "ERROR_ALERT",
+      });
+      hideAlert();
+      return 
+    }
     try {
       setLoading(true);
       const token = localStorage.getItem("sacaturno_token");
