@@ -1,5 +1,4 @@
 import axiosReq from "@/config/axios";
-import CalendarTurnos from "@/components/dashboard/appointments/CalendarTurnos";
 import { cookies } from "next/headers";
 import { IBusiness } from "@/interfaces/business.interface";
 import { IService } from "@/interfaces/service.interface";
@@ -9,11 +8,12 @@ import dayjs from "dayjs";
 import ISubscription from "@/interfaces/subscription.interface";
 import { IoIosAlert } from "react-icons/io";
 import { Metadata } from "next";
+import CreateScheduleCalendar from "@/components/dashboard/appointments/CreateSchedule";
 import { IDaySchedule } from "@/interfaces/daySchedule.interface";
 import { IAppointmentSchedule } from "@/interfaces/appointmentSchedule.interface";
 
 export const metadata: Metadata = {
-  title: "Mi agenda | SacaTurno",
+  title: "Mis turnos | SacaTurno",
   description: "IT-related blog for devs",
 };
 
@@ -35,25 +35,23 @@ const getAppointments = async () => {
   );
   const businessData: IBusiness = businessFetch.data;
 
-  const appointmentsFetch = await axiosReq.get(
-    `/appointment/get/${businessData._id}`,
-    authHeader
-  );
-
   const servicesFetch = await axiosReq.get(
     `/business/service/get/${businessData._id}`,
     authHeader
   );
   const services: IService[] = servicesFetch.data;
 
-
   const daysAndAppointmentsFetch = await axiosReq.get(
     `/schedule/get/${businessData._id}`,
     authHeader
   );
-  const scheduleDays = daysAndAppointmentsFetch.data.days;
-
-  return { appointments: appointmentsFetch.data, businessData, services, scheduleDays };
+  const daysAndAppointments: {days: IDaySchedule[], appointments: IAppointmentSchedule[]} = {
+    days: [],
+    appointments: []
+  }
+  daysAndAppointments.days = daysAndAppointmentsFetch.data.days;
+  daysAndAppointments.appointments = daysAndAppointmentsFetch.data.appointments;    
+  return { businessData, services , daysAndAppointments};
 };
 
 async function getSubscriptionData() {
@@ -89,21 +87,20 @@ async function getSubscriptionData() {
   }
 }
 
-const MisTurnos: React.FC = async () => {
+const CreateSchedule: React.FC = async () => {
   const data = await getAppointments();
   const subscription: ISubscription | undefined = await getSubscriptionData();
 
   return (
     <>
       <div className="flex flex-col justify-center gap-10 md:flex-row">
-        <div className="flex justify-center w-full h-full md:w-fit">
+        <div className={`${styles.scheduleConfigCont} flex justify-center w-full h-full md:w-fit `}>
           {data.businessData.name && (
-            <CalendarTurnos
-              appointments={data.appointments}
+            <CreateScheduleCalendar
               businessData={data.businessData}
               servicesData={data.services}
               subscriptionData={subscription}
-              scheduleDays={data.scheduleDays}
+              daysAndAppointments={data.daysAndAppointments}
             />
           )}
           {!data.businessData.name && (
@@ -126,4 +123,4 @@ const MisTurnos: React.FC = async () => {
   );
 };
 
-export default MisTurnos;
+export default CreateSchedule;

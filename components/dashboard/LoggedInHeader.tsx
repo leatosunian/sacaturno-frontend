@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import sacaturno_logo from "@/public/st_logo_white.png";
+import { FaChevronUp } from "react-icons/fa6";
 
 interface Props {}
 
@@ -42,13 +43,12 @@ const LoggedInHeader: NextPage<Props> = ({}) => {
         style={{ backgroundColor: "#060606" }}
       >
         <div className="flex items-center justify-center h-full gap-1 w-fit ">
-          <Link href={'/admin/dashboard'}>
-          
+          <Link href={"/admin/dashboard"}>
             <Image className="w-28" src={sacaturno_logo} alt="SacaTurno" />
           </Link>
         </div>
 
-        <div className="items-center justify-center hidden gap-8 text-sm md:flex">
+        <div className="items-center justify-center hidden gap-6 text-sm md:flex">
           <div>
             <Link
               href="/public/search"
@@ -65,13 +65,21 @@ const LoggedInHeader: NextPage<Props> = ({}) => {
               Mi empresa
             </Link>
           </div>
-          <div>
-            <Link
-              href="/admin/misturnos"
-              className={`cursor-pointer ${styles.navLink}`}
-            >
-              Mis turnos
-            </Link>
+          <div className={styles.dropdownNavLink}>
+            <div className={`${styles.dropdownTitle} flex gap-2 items-center `}>
+              <span  className={`cursor-pointer ${styles.navLinkNoHover} `} >
+                Mis turnos
+              </span>
+            </div>
+
+            <div className={styles.options}>
+              <div className={styles.option}>
+                <Link href={'/admin/misturnos'}>Mi agenda</Link>
+              </div>
+              <div className={styles.option}>
+                <Link href={'/admin/misturnos/create'}>Configurar agenda</Link>
+              </div>
+            </div>
           </div>
           <div>
             <Link

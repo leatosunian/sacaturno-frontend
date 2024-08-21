@@ -7,15 +7,18 @@ import styles from "@/app/css-modules/CreateAppointmentModal.module.css";
 import { IoMdClose } from "react-icons/io";
 import { IService } from "@/interfaces/service.interface";
 import { useEffect, useState } from "react";
+import updateLocale from "dayjs/plugin/updateLocale";
+import { IAppointmentSchedule } from "@/interfaces/appointmentSchedule.interface";
+import data from "../../../../shop-coding-test/server/src/data/data";
 
 interface props {
-  appointmentData: IAppointment | undefined;
+  appointmentData: IAppointmentSchedule | undefined;
   servicesData: IService[] | undefined;
   closeModalF: () => void;
-  onNewAppointment: () => void;
+  onNewAppointment: (newAppointment: IAppointmentSchedule) => void;
 }
 
-const CreateAppointmentModal: React.FC<props> = ({
+const CreateScheduleAppointmentModal: React.FC<props> = ({
   appointmentData,
   closeModalF,
   servicesData,
@@ -28,21 +31,36 @@ const CreateAppointmentModal: React.FC<props> = ({
     description: string | undefined;
   }>();
 
+  dayjs.extend(updateLocale);
+
+  dayjs.updateLocale("es", {
+    weekdays: [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ],
+  });
+
   useEffect(() => {
     if (servicesData && servicesData[0]) {
       setSelectedService({
         name: servicesData[0].name,
         price: servicesData[0].price,
-        description: servicesData[0].description
+        description: servicesData[0].description,
       });
     }
   }, [servicesData]);
 
   useEffect(() => {
     if (appointmentData) {
-      appointmentData.service = selectedService?.name;
-      appointmentData.price = selectedService?.price;
-      appointmentData.description = selectedService?.description;
+      appointmentData.service = selectedService?.name!;
+      appointmentData.price = selectedService?.price!;
+      appointmentData.description = selectedService?.description!;
+      appointmentData.dayScheduleID = appointmentData.dayScheduleID;
     }
   }, [selectedService, appointmentData]);
 
@@ -67,10 +85,29 @@ const CreateAppointmentModal: React.FC<props> = ({
         "Cache-Control": "no-store",
       },
     };
+    const data: IAppointmentSchedule = {
+      businessID: appointmentData?.businessID!,
+      day: appointmentData?.day!,
+      dayScheduleID: appointmentData?.dayScheduleID!,
+      price: selectedService?.price!,
+      description: selectedService?.description!,
+      ownerID: appointmentData?.ownerID!,
+      end: appointmentData?.end!,
+      start: appointmentData?.start!,
+      service: selectedService?.name!,
+      dayNumber: appointmentData?.dayNumber!
+    };
     try {
-      await axiosReq.post("/appointment/create", appointmentData, authHeader);
-      onNewAppointment();
-      router.refresh();
+      const newAppointment = await axiosReq.post(
+        "/schedule/appointment/create",
+        data,
+        authHeader
+      );
+
+      onNewAppointment(newAppointment.data);
+
+      closeModal();
+      //router.refresh();
     } catch (error) {
       closeModal();
     }
@@ -82,7 +119,7 @@ const CreateAppointmentModal: React.FC<props> = ({
 
   return (
     <>
-      <div className="absolute flex items-center justify-center text-black modalCont">
+      <div className="fixed flex items-center justify-center text-black -translate-y-16 modalCont">
         <div className="flex flex-col bg-white w-80 md:w-96 px-7 py-9 h-fit borderShadow">
           <IoMdClose
             className={styles.closeModal}
@@ -90,21 +127,21 @@ const CreateAppointmentModal: React.FC<props> = ({
             size={22}
           />
           <h4 className="mb-6 text-2xl font-bold text-center uppercase">
-            Nuevo turno
+            Agendar turno
           </h4>
           {/* <span>Hacé click en un turno para ver los detalles</span> */}
           <div className="flex flex-col w-full gap-5 h-fit">
-            <div className="flex flex-col w-fit h-fit">
+            {/* <div className="flex flex-col w-fit h-fit">
               <label
                 style={{ fontSize: "12px" }}
                 className="font-bold uppercase "
               >
-                Fecha
+                DÍA
               </label>
-              <span className="text-sm">
-                {dayjs(appointmentData?.start).format("dddd DD/MM ")}{" "}
+              <span className="text-sm capitalize-first-letter">
+                Todos los {dayjs(appointmentData?.start).format("dddd ")}{" "}
               </span>
-            </div>
+            </div> */}
 
             <div className="flex flex-col w-fit h-fit">
               <label
@@ -134,10 +171,7 @@ const CreateAppointmentModal: React.FC<props> = ({
                 id="appointmentDuration"
               >
                 {servicesData?.map((service) => (
-                  <option
-                    key={service._id}
-                    value={service.name}
-                  >
+                  <option key={service._id} value={service.name}>
                     {service.name}
                   </option>
                 ))}
@@ -162,4 +196,4 @@ const CreateAppointmentModal: React.FC<props> = ({
   );
 };
 
-export default CreateAppointmentModal;
+export default CreateScheduleAppointmentModal;

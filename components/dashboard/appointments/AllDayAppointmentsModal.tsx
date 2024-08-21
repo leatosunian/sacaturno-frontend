@@ -9,11 +9,13 @@ import { IoMdClose } from "react-icons/io";
 import { IService } from "@/interfaces/service.interface";
 import { useEffect, useState } from "react";
 import { IBusiness } from "@/interfaces/business.interface";
+import { IDaySchedule } from "@/interfaces/daySchedule.interface";
 
 interface IAllDayModalProps {
   date: Date;
   business: IBusiness | undefined;
   services: IService[] | undefined;
+  selectedDay: { dayStart: number; dayEnd: number; appointmentDuration: number; };
   closeModalF: () => void;
   onNewAppointment: () => void;
 }
@@ -24,6 +26,7 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
   services,
   closeModalF,
   onNewAppointment,
+  selectedDay
 }) => {
   const router = useRouter();
   const [selectedService, setSelectedService] = useState<{
@@ -56,14 +59,14 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
   const saveAppointment = async () => {
     const dayAppointments: IAppointment[] = [];
     let inicio = dayjs(date)
-      .hour(Number(business?.dayStart))
+      .hour(Number(selectedDay?.dayStart))
       .minute(0)
       .second(0);
-    const fin = dayjs(date).hour(Number(business?.dayEnd)).minute(0).second(0);
+    const fin = dayjs(date).hour(Number(selectedDay?.dayEnd)).minute(0).second(0);
 
     while (inicio.isBefore(fin)) {
       const finalTurno = inicio.add(
-        Number(business?.appointmentDuration),
+        Number(selectedDay?.appointmentDuration),
         "minute"
       );
       dayAppointments.push({

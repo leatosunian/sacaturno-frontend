@@ -19,6 +19,7 @@ import styles from "@/app/css-modules/CalendarBookAppointment.module.css";
 import BookAppointmentModal from "./BookAppointmentModal";
 import AlertInterface from "@/interfaces/alert.interface";
 import Alert from "@/components/Alert";
+import { IDaySchedule } from "@/interfaces/daySchedule.interface";
 
 dayjs.locale("es-mx");
 const localizer = dayjsLocalizer(dayjs);
@@ -26,6 +27,7 @@ const localizer = dayjsLocalizer(dayjs);
 interface Props {
   appointments: IAppointment[];
   businessData: IBusiness;
+  scheduleDays: IDaySchedule[];
 }
 
 interface eventType {
@@ -73,7 +75,11 @@ const messages = {
   time: "Hora",
 };
 
-const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
+const CalendarTurnos: React.FC<Props> = ({
+  appointments,
+  businessData,
+  scheduleDays,
+}) => {
   var now = dayjs();
   const localizer = dayjsLocalizer(dayjs);
   const [appointmentsData, setAppointmentsData] = useState<IAppointment[]>();
@@ -85,6 +91,11 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
   const [view, setView] = useState<(typeof Views)[Keys]>(Views.DAY);
   const [date, setDate] = useState<Date>(now.toDate());
   const [alert, setAlert] = useState<AlertInterface>();
+  const [selectedDaySchedule, setSelectedDaySchedule] = useState({
+    dayStart: 8,
+    dayEnd: 19,
+    appointmentDuration: 60,
+  });
 
   const router = useRouter();
   useEffect(() => {
@@ -98,6 +109,24 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
     parseAppointments(appointmentsData);
     return;
   }, [appointmentsData]);
+
+  useEffect(() => {
+    const day = dayjs(date)
+      .format("ddd")
+      .toUpperCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+    const dayNormalized = day.substring(0, day.length - 1);
+    const selectedDayDayData = scheduleDays.find(
+      (dayObj) => dayObj.day === dayNormalized
+    );
+    setSelectedDaySchedule({
+      dayStart: selectedDayDayData?.dayStart!,
+      dayEnd: selectedDayDayData?.dayEnd!,
+      appointmentDuration: selectedDayDayData?.appointmentDuration!,
+    });
+    return;
+  }, [date]);
 
   const parseAppointments = (appointments: IAppointment[] | undefined) => {
     dayjs.extend(timezone);
@@ -120,7 +149,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
         phone,
         name,
         price,
-        description
+        description,
       }) => {
         let appointmentObj: eventType;
         appointmentObj = {
@@ -136,7 +165,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
           name,
           phone,
           price,
-          description
+          description,
         };
         if (appointmentObj.status === "unbooked") {
           appointmentsList.push(appointmentObj);
@@ -164,7 +193,7 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
       phone: event.phone,
       name: event.name,
       price: event.price,
-      description: event.description
+      description: event.description,
     };
     setEventData(eventDataObj);
     setBookAppointmentModal(true);
@@ -191,7 +220,9 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
               className="flex flex-col w-full h-full gap-1 px-2 py-1"
               style={{ backgroundColor: "#dd4924" }}
             >
-              <span className="text-xs md:text-sm font-semibold">{event.title} </span>
+              <span className="text-xs md:text-sm font-semibold">
+                {event.title}{" "}
+              </span>
               <span style={{ fontSize: "10px" }}>{event.service} </span>
             </div>
           </>
@@ -266,20 +297,6 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
         <div className="flex-col hidden w-full mb-5 md:flex md:flex-row h-fit">
           <div className="flex w-1/3 h-fit">
             <button
-              className={styles.btnWeekBlue}
-              onClick={() => onPrevClick()}
-            >
-              Anterior
-            </button>
-            <button className={styles.btnDayBlue} onClick={() => onNextClick()}>
-              Siguiente
-            </button>
-          </div>
-          <h4 className="flex justify-center w-1/3 text-xl font-bold text-center uppercase">
-            {calendarDate}{" "}
-          </h4>
-          <div className="flex justify-end md:w-1/3 h-fit ">
-            <button
               className={
                 view !== Views.WEEK
                   ? styles.btnWeek
@@ -300,11 +317,25 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
               Dia
             </button>
           </div>
+          <h4 className="flex justify-center w-1/3 text-xl font-bold text-center uppercase">
+            {calendarDate}{" "}
+          </h4>
+          <div className="flex justify-end md:w-1/3 h-fit ">
+            <button
+              className={styles.btnWeekBlue}
+              onClick={() => onPrevClick()}
+            >
+              Anterior
+            </button>
+            <button className={styles.btnDayBlue} onClick={() => onNextClick()}>
+              Siguiente
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-col mb-2 md:hidden">
           <h4 className="w-full font-bold text-center uppercase text-md">
-            {calendarDate}{" "}
+            {calendarDate}
           </h4>
         </div>
 
@@ -332,10 +363,10 @@ const CalendarTurnos: React.FC<Props> = ({ appointments, businessData }) => {
             view={view}
             date={date}
             views={["week", "day"]}
-            min={new Date(0, 0, 0, Number(businessData.dayStart), 0, 0)}
-            max={new Date(0, 0, 0, Number(businessData.dayEnd), 0, 0)}
+            min={new Date(0, 0, 0, selectedDaySchedule.dayStart, 0, 0)}
+            max={new Date(0, 0, 0, selectedDaySchedule.dayEnd, 0, 0)}
             timeslots={1}
-            step={Number(businessData.appointmentDuration)}
+            step={selectedDaySchedule.appointmentDuration}
             onSelectSlot={() => {}}
             toolbar={false}
             selectable

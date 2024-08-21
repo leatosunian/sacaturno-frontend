@@ -13,7 +13,7 @@
   border-radius: 7px;
   font-size: 12px;
   text-transform: uppercase;
-  transition: all .3s ease-in-out;
+  transition: all 0.3s ease-in-out;
   -webkit-border-radius: 7px;
   -moz-border-radius: 7px;
   -ms-border-radius: 7px;
@@ -23,12 +23,12 @@
 .button:hover {
   color: #d92f04;
   border: 1px solid #d92f04;
-  background-color: white; 
-  transition: all .3s ease-in-out;
-  -webkit-transition: all .3s ease-in-out;
-  -moz-transition: all .3s ease-in-out;
-  -ms-transition: all .3s ease-in-out;
-  -o-transition: all .3s ease-in-out;
+  background-color: white;
+  transition: all 0.3s ease-in-out;
+  -webkit-transition: all 0.3s ease-in-out;
+  -moz-transition: all 0.3s ease-in-out;
+  -ms-transition: all 0.3s ease-in-out;
+  -o-transition: all 0.3s ease-in-out;
 }
 
 .formInputAppDuration select {
@@ -46,8 +46,6 @@
   -webkit-border-radius: 7px;
 }
 
-
-
 .closeModal {
   color: red;
   cursor: pointer;
@@ -59,6 +57,17 @@
   -o-transform: translate(310px, -15px);
 }
 
+.scheduleConfigCont {
+  width: 70%;
+  padding: 0;
+}
+@media (max-width: 1024px) {
+  .scheduleConfigCont {
+    width: 90%;
+  }
+}
+
+
 @media (max-width: 768px) {
   .closeModal {
     transform: translate(250px, -18px);
@@ -67,5 +76,9 @@
     -moz-transform: translate(250px, -18px);
     -ms-transform: translate(250px, -18px);
     -o-transform: translate(250px, -18px);
-}
+  }
+  .scheduleConfigCont {
+    width: 100%;
+    padding: 0 15px;
+  }
 }

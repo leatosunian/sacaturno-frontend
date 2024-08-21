@@ -63,14 +63,14 @@ const FormCreateBusiness: React.FC = () => {
   };
 
   const createBusiness = async (data: FieldValues) => {
-    if(parseInt(data.dayStart) > parseInt(data.dayEnd)){
+    if (parseInt(data.dayStart) > parseInt(data.dayEnd)) {
       setAlert({
         msg: "Formato de horario de atención incorrecto",
         error: true,
         alertType: "ERROR_ALERT",
       });
       hideAlert();
-      return 
+      return;
     }
     setLoading(true);
     setAlert({
@@ -105,7 +105,7 @@ const FormCreateBusiness: React.FC = () => {
           return;
         }
         setLoading(false);
-        setIsCreated(true)
+        setIsCreated(true);
         //setAlert({
         //  msg: "¡Empresa creada! Ahora añade un servicio.",
         //  error: true,
@@ -193,6 +193,9 @@ const FormCreateBusiness: React.FC = () => {
       >
         <div className="flex flex-col items-center justify-center w-full gap-10 md:gap-5 md:justify-around md:flex-row">
           <div className="flex flex-col justify-between w-full gap-5 md:w-1/2 ">
+            <h3 className="mb-3 text-xl font-bold uppercase ">
+              Datos de mi empresa
+            </h3>
             <div className={styles.formInput}>
               <span
                 style={{ fontSize: "12px" }}
@@ -284,87 +287,6 @@ const FormCreateBusiness: React.FC = () => {
               {errors.slug?.message && (
                 <span className="text-xs font-semibold text-red-600">
                   {errors.slug.message}
-                </span>
-              )}
-            </div>
-
-            <div className={styles.formInput}>
-              <span
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Horario de atención
-              </span>
-              <div className="flex items-end gap-3">
-                <div className="flex items-end gap-2">
-                  <span
-                    style={{ fontSize: "12px" }}
-                    className="font-bold uppercase "
-                  >
-                    Desde:
-                  </span>
-                  <select {...register("dayStart")} id="dayStart">
-                    {timeOptions.map((time) => (
-                      <option value={time.value} key={time.label}>
-                        {time.label}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.dayStart?.message && (
-                    <span className="text-xs font-semibold text-red-600">
-                      {errors.dayStart.message}
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-end gap-2">
-                  <span
-                    style={{ fontSize: "12px" }}
-                    className="font-bold uppercase "
-                  >
-                    Hasta:
-                  </span>
-                  <select {...register("dayEnd")} id="dayEnd">
-                    {timeOptions.map((time) => (
-                      <option value={time.value} key={time.label}>
-                        {time.label}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.dayEnd?.message && (
-                    <span className="text-xs font-semibold text-red-600">
-                      {errors.dayEnd.message}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.formInputAppDuration}>
-              <span
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Duración de cada turno
-              </span>
-              {/* <Select onChange={} options={durationOptions} /> */}
-              <select
-                className="formInputAppDuration"
-                {...register("appointmentDuration")}
-                id="appointmentDuration"
-              >
-                <option value="15">15 min</option>
-                <option value="30">30 min</option>
-                <option value="45">45 min</option>
-                <option value="60">1 h</option>
-                <option value="75">1:15 hs</option>
-                <option value="90">1:30 hs</option>
-                <option value="105">1:45 hs</option>
-                <option value="120">2 hs</option>
-              </select>
-              {errors.appointmentDuration?.message && (
-                <span className="text-xs font-semibold text-red-600">
-                  {errors.appointmentDuration.message}
                 </span>
               )}
             </div>

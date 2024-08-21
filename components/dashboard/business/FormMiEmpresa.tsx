@@ -23,9 +23,6 @@ interface formInputs {
   name: string;
   businessType: string;
   address: string;
-  appointmentDuration: string;
-  dayStart: string;
-  dayEnd: string;
   phone: string;
   email: string;
   slug: string;
@@ -59,9 +56,6 @@ const FormMiEmpresa = ({
     setValue("name", businessData.name);
     setValue("address", businessData.address);
     setValue("businessType", businessData.businessType);
-    setValue("dayStart", businessData.dayStart);
-    setValue("dayEnd", businessData.dayEnd);
-    setValue("appointmentDuration", businessData.appointmentDuration);
     setValue("slug", businessData.slug);
     return;
   }, [businessData]);
@@ -71,9 +65,6 @@ const FormMiEmpresa = ({
       setValue("name", business.name);
       setValue("address", business.address);
       setValue("businessType", business.businessType);
-      setValue("dayStart", business.dayStart);
-      setValue("dayEnd", business.dayEnd);
-      setValue("appointmentDuration", business.appointmentDuration);
       setValue("phone", business.phone.toString());
       setValue("email", business.email);
     }
@@ -153,15 +144,15 @@ const FormMiEmpresa = ({
     }
   };
 
-  const saveChanges = async (data: FieldValues) => {  
-    if(parseInt(data.dayStart) > parseInt(data.dayEnd)){
+  const saveChanges = async (data: FieldValues) => {
+    if (parseInt(data.dayStart) > parseInt(data.dayEnd)) {
       setAlert({
         msg: "Formato de horario de atención incorrecto",
         error: true,
         alertType: "ERROR_ALERT",
       });
       hideAlert();
-      return 
+      return;
     }
     try {
       setLoading(true);
@@ -198,7 +189,7 @@ const FormMiEmpresa = ({
           });
           hideAlert();
           setLoading(false);
-          router.refresh()
+          router.refresh();
           return;
         }
       }
@@ -346,98 +337,6 @@ const FormMiEmpresa = ({
                   {errors.slug.message}
                 </span>
               )}
-            </div>
-          </div>
-        </div>
-
-        {/* <div className="flex justify-start w-full h-fit">
-              <h3 className="font-bold uppercase text-md ">
-                Configuración de turnos
-              </h3>
-            </div> */}
-
-        <div className="flex flex-col items-start w-full gap-5 mt-4 lg:justify-center md:items-center lg:flex-row">
-          <div className={styles.formInputAppDuration}>
-            <span style={{ fontSize: "12px" }} className="font-bold uppercase ">
-              Duración de cada turno
-            </span>
-            {/* <Select onChange={} options={durationOptions} /> */}
-            <select
-              className="formInputAppDuration"
-              {...register("appointmentDuration")}
-              defaultValue={business?.appointmentDuration}
-              id="appointmentDuration"
-            >
-              <option value="15">15 min</option>
-              <option value="30">30 min</option>
-              <option value="45">45 min</option>
-              <option value="60">1 h</option>
-              <option value="75">1:15 hs</option>
-              <option value="90">1:30 hs</option>
-              <option value="105">1:45 hs</option>
-              <option value="120">2 hs</option>
-            </select>
-            {errors.appointmentDuration?.message && (
-              <span className="text-xs font-semibold text-red-600">
-                {errors.appointmentDuration.message}
-              </span>
-            )}
-          </div>
-
-          <div className={styles.formInputOpening}>
-            <span style={{ fontSize: "12px" }} className="font-bold uppercase ">
-              Horario de atención
-            </span>
-            <div className="flex items-end gap-3">
-              <div className="flex items-end gap-2">
-                <span
-                  style={{ fontSize: "12px" }}
-                  className="font-bold uppercase"
-                >
-                  Desde:
-                </span>
-                <select
-                  defaultValue={business?.dayStart}
-                  {...register("dayStart")}
-                  id="dayStart"
-                >
-                  {timeOptions.map((time) => (
-                    <option value={time.value} key={time.label}>
-                      {time.label}
-                    </option>
-                  ))}
-                </select>
-                {errors.dayStart?.message && (
-                  <span className="text-xs font-semibold text-red-600">
-                    {errors.dayStart.message}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex items-end gap-2">
-                <span
-                  style={{ fontSize: "12px" }}
-                  className="font-bold uppercase"
-                >
-                  Hasta:
-                </span>
-                <select
-                  defaultValue={business?.dayEnd}
-                  {...register("dayEnd")}
-                  id="dayEnd"
-                >
-                  {timeOptions.map((time) => (
-                    <option value={time.value} key={time.label}>
-                      {time.label}
-                    </option>
-                  ))}
-                </select>
-                {errors.dayEnd?.message && (
-                  <span className="text-xs font-semibold text-red-600">
-                    {errors.dayEnd.message}
-                  </span>
-                )}
-              </div>
             </div>
           </div>
         </div>

@@ -27,6 +27,12 @@ import { LuCalendarPlus } from "react-icons/lu";
 import { IoMdMore } from "react-icons/io";
 import { IoInformationCircle } from "react-icons/io5";
 import HelpModal from "./HelpModal";
+import { MdEditCalendar } from "react-icons/md";
+import { IDaySchedule } from "@/interfaces/daySchedule.interface";
+import { IAppointmentSchedule } from "@/interfaces/appointmentSchedule.interface";
+import Link from "next/link";
+import { FaArrowRight } from "react-icons/fa6";
+import { timeOptions } from "@/helpers/timeOptions";
 
 dayjs.locale("es-mx");
 
@@ -34,6 +40,7 @@ interface Props {
   appointments: IAppointment[];
   businessData: IBusiness;
   servicesData: IService[];
+  scheduleDays: IDaySchedule[];
   subscriptionData: ISubscription | undefined;
 }
 
@@ -92,6 +99,7 @@ const CalendarTurnos: React.FC<Props> = ({
   businessData,
   servicesData,
   subscriptionData,
+  scheduleDays,
 }) => {
   var now = dayjs();
   const localizer = dayjsLocalizer(dayjs);
@@ -112,6 +120,11 @@ const CalendarTurnos: React.FC<Props> = ({
   const [expiredModal, setExpiredModal] = useState(false);
   const [dropdownActive, setDropdownActive] = useState(false);
   const [loadingNewAppointments, setLoadingNewAppointments] = useState(true);
+  const [selectedDaySchedule, setSelectedDaySchedule] = useState({
+    dayStart: 8,
+    dayEnd: 22,
+    appointmentDuration: 30,
+  });
   const router = useRouter();
 
   useEffect(() => {
@@ -127,6 +140,24 @@ const CalendarTurnos: React.FC<Props> = ({
     setLoadingNewAppointments(false);
     return;
   }, [appointmentsData]);
+
+  useEffect(() => {
+    const day = dayjs(date)
+      .format("ddd")
+      .toUpperCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+    const dayNormalized = day.substring(0, day.length - 1);
+    const selectedDayDayData = scheduleDays.find(
+      (dayObj) => dayObj.day === dayNormalized
+    );
+    //setSelectedDaySchedule({
+    //  dayStart: selectedDayDayData?.dayStart!,
+    //  dayEnd: selectedDayDayData?.dayEnd!,
+    //  appointmentDuration: selectedDayDayData?.appointmentDuration!,
+    //});
+    return;
+  }, [date]);
 
   const saveNewAppointment = async ({
     start,
@@ -303,6 +334,7 @@ const CalendarTurnos: React.FC<Props> = ({
           business={business}
           services={services}
           date={date}
+          selectedDay={selectedDaySchedule}
           onNewAppointment={() => setLoadingNewAppointments(true)}
           closeModalF={() => setAllDayAppointmentsModal(false)}
         />
@@ -330,7 +362,7 @@ const CalendarTurnos: React.FC<Props> = ({
       {helpModal && <HelpModal onClose={() => setHelpModal(false)} />}
 
       <div
-        style={{ position: "absolute", top: "87px", left: "20px" }}
+        style={{ position: "absolute", top: "80px", left: "20px" }}
         className="flex flex-col overflow-hidden md:hidden"
       >
         <IoInformationCircle
@@ -343,8 +375,8 @@ const CalendarTurnos: React.FC<Props> = ({
 
       {/* mobile dropdown */}
       <div
-        style={{ position: "absolute", top: "87px", right: "20px" }}
-        className="flex flex-col overflow-hidden md:hidden"
+        style={{ position: "absolute", top: "80px", right: "20px" }}
+        className="flex flex-col  md:hidden"
       >
         <IoMdMore
           onClick={() => setDropdownActive(!dropdownActive)}
@@ -353,45 +385,144 @@ const CalendarTurnos: React.FC<Props> = ({
           style={{ marginRight: "6px" }}
         />
         {dropdownActive && (
-          <div className={styles.dropmenu}>
-            <LuCalendarPlus size={18} />
-            <span
-              onClick={() => {
-                setAllDayAppointmentsModal(true);
-                setDropdownActive(false);
-              }}
-              className="font-medium"
-            >
-              Crear turnos del día
-            </span>
-          </div>
+          <>
+            <div className={styles.dropmenuCont}>
+              <div className={styles.dropmenu}>
+                <MdEditCalendar size={18} />
+                <Link href={"/admin/misturnos/create"}>Configurar agenda</Link>
+              </div>
+              {/* <div style={{width: '100%'}}></div> */}
+              <div className={styles.dropmenu}>
+                <LuCalendarPlus size={18} />
+                <span
+                  onClick={() => {
+                    setAllDayAppointmentsModal(true);
+                    setDropdownActive(false);
+                  }}
+                  className="font-medium"
+                >
+                  Crear turnos del día
+                </span>
+              </div>
+              <div className={styles.dropmenu}>
+                <IoInformationCircle size={18} />
+                <span
+                  onClick={() => setHelpModal(!helpModal)}
+                  className="font-medium"
+                >
+                  Tutorial de uso
+                </span>
+              </div>
+            </div>
+          </>
         )}
       </div>
       {/* mobile dropdown */}
 
       <div className="flex flex-col w-full h-fit ">
-        <header className="flex items-center justify-center w-full mt-5 mb-3 md:mt-6 md:mb-5 h-fit">
-          <h4 style={{ fontSize: "22px" }} className="font-bold uppercase ">
-            Mis Turnos
+        <header className="flex items-center justify-center w-full mt-3 mb-1 md:mt-4 md:mb-1 h-fit">
+          <h4 style={{ fontSize: "20px" }} className="font-bold uppercase ">
+            Mi agenda
           </h4>
         </header>
 
-        <div className="flex-col hidden w-full mb-5 md:flex md:flex-row h-fit">
-          <div className="flex w-1/3 h-fit">
-            <button
-              className={styles.btnWeekBlue}
-              onClick={() => onPrevClick()}
-            >
-              Anterior
-            </button>
-            <button className={styles.btnDayBlue} onClick={() => onNextClick()}>
-              Siguiente
-            </button>
+        <div className="flex-col hidden w-full mb-2 md:flex md:flex-row h-fit items-end">
+          <div className="flex flex-col  w-1/3 md:flex-row h-fit">
+            <div className="flex gap-4  w-full ">
+              <div
+                className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
+              >
+                <label
+                  style={{ fontSize: "12px" }}
+                  className="font-bold uppercase "
+                >
+                  Desde:
+                </label>
+                <select
+                  defaultValue={selectedDaySchedule.dayStart}
+                  value={selectedDaySchedule.dayStart}
+                  onChange={(e) =>
+                    setSelectedDaySchedule({
+                      ...selectedDaySchedule,
+                      dayStart: Number(e.target.value),
+                    })
+                  }
+                  id="appointmentDuration"
+                >
+                  {timeOptions.map((time) => (
+                    <option value={time.value} key={time.label}>
+                      {time.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div
+                className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
+              >
+                <label
+                  style={{ fontSize: "12px" }}
+                  className="font-bold uppercase "
+                >
+                  Hasta:
+                </label>
+                <select
+                  defaultValue={selectedDaySchedule.dayEnd}
+                  onChange={(e) =>
+                    setSelectedDaySchedule({
+                      ...selectedDaySchedule,
+                      dayEnd: Number(e.target.value),
+                    })
+                  }
+                  value={selectedDaySchedule.dayEnd}
+                  id="appointmentDuration"
+                >
+                  {timeOptions.map((time) => (
+                    <option value={time.value} key={time.label}>
+                      {time.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div
+                className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
+              >
+                <label
+                  style={{ fontSize: "12px" }}
+                  className="font-bold uppercase "
+                >
+                  Duración
+                </label>
+
+                <select
+                  className="text-sm"
+                  defaultValue={selectedDaySchedule.appointmentDuration}
+                  value={selectedDaySchedule.appointmentDuration}
+                  onChange={(e) =>
+                    setSelectedDaySchedule({
+                      ...selectedDaySchedule,
+                      appointmentDuration: Number(e.target.value),
+                    })
+                  }
+                  id="appointmentDuration"
+                >
+                  <option value="15">15 min</option>
+                  <option value="30">30 min</option>
+                  <option value="45">45 min</option>
+                  <option value="60">1 h</option>
+                  <option value="75">1:15 hs</option>
+                  <option value="90">1:30 hs</option>
+                  <option value="105">1:45 hs</option>
+                  <option value="120">2 hs</option>
+                </select>
+              </div>
+            </div>
           </div>
-          <h4 className="flex justify-center w-1/3 text-xl font-bold text-center uppercase">
-            {calendarDate}{" "}
+
+          <h4 className="flex justify-center w-1/3 text-md font-bold text-center uppercase">
+            {calendarDate}
           </h4>
-          <div className="flex justify-end md:w-1/3 h-fit ">
+
+          <div className="flex justify-end h-fit w-1/3 ">
             <button
               className={
                 view !== Views.WEEK
@@ -412,17 +543,116 @@ const CalendarTurnos: React.FC<Props> = ({
             >
               Dia
             </button>
-            {/* <button
-              className={`${styles.btnAddAll} ml-1`}
-              onClick={() => setAllDayAppointmentsModal(true)}
+            <div className="flex w-fit h-fit ml-4">
+              <button
+                className={styles.btnWeekBlue}
+                onClick={() => onPrevClick()}
+              >
+                Anterior
+              </button>
+              <button
+                className={styles.btnDayBlue}
+                onClick={() => onNextClick()}
+              >
+                Siguiente
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex md:hidden w-full md:flex-row h-fit mb-3 mt-3">
+          <div className="flex justify-evenly  w-full ">
+            <div
+              className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
             >
-              <LuCalendarPlus size={21} />
-            </button> */}
+              <label
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Desde:
+              </label>
+              <select
+                defaultValue={selectedDaySchedule.dayStart}
+                value={selectedDaySchedule.dayStart}
+                onChange={(e) =>
+                  setSelectedDaySchedule({
+                    ...selectedDaySchedule,
+                    dayStart: Number(e.target.value),
+                  })
+                }
+                id="appointmentDuration"
+              >
+                {timeOptions.map((time) => (
+                  <option value={time.value} key={time.label}>
+                    {time.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div
+              className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
+            >
+              <label
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Hasta:
+              </label>
+              <select
+                defaultValue={selectedDaySchedule.dayEnd}
+                onChange={(e) =>
+                  setSelectedDaySchedule({
+                    ...selectedDaySchedule,
+                    dayEnd: Number(e.target.value),
+                  })
+                }
+                value={selectedDaySchedule.dayEnd}
+                id="appointmentDuration"
+              >
+                {timeOptions.map((time) => (
+                  <option value={time.value} key={time.label}>
+                    {time.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div
+              className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
+            >
+              <label
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Duración
+              </label>
+
+              <select
+                className="text-sm"
+                defaultValue={selectedDaySchedule.appointmentDuration}
+                value={selectedDaySchedule.appointmentDuration}
+                onChange={(e) =>
+                  setSelectedDaySchedule({
+                    ...selectedDaySchedule,
+                    appointmentDuration: Number(e.target.value),
+                  })
+                }
+                id="appointmentDuration"
+              >
+                <option value="15">15 min</option>
+                <option value="30">30 min</option>
+                <option value="45">45 min</option>
+                <option value="60">1 h</option>
+                <option value="75">1:15 hs</option>
+                <option value="90">1:30 hs</option>
+                <option value="105">1:45 hs</option>
+                <option value="120">2 hs</option>
+              </select>
+            </div>
           </div>
         </div>
 
         <div className="flex flex-col mb-2 md:hidden">
-          <h4 className="w-full font-bold text-center uppercase text-md">
+          <h4 className="w-full font-bold text-center uppercase text-sm md:text-md">
             {calendarDate}
           </h4>
         </div>
@@ -446,11 +676,13 @@ const CalendarTurnos: React.FC<Props> = ({
           </div>
         </div>
 
+
+
         <div className={styles.calendarContainer}>
           <Calendar
             components={components}
             localizer={localizer}
-            className={styles.calendarComponent}
+            className={styles.calendarComponentSchedule}
             events={parseAppointments(appointments)}
             startAccessor="start"
             endAccessor="end"
@@ -461,10 +693,10 @@ const CalendarTurnos: React.FC<Props> = ({
             view={view}
             date={date}
             views={["week", "day"]}
-            min={new Date(0, 0, 0, Number(businessData.dayStart), 0, 0)}
-            max={new Date(0, 0, 0, Number(businessData.dayEnd), 0, 0)}
+            min={new Date(0, 0, 0, selectedDaySchedule.dayStart, 0, 0)}
+            max={new Date(0, 0, 0, selectedDaySchedule.dayEnd, 0, 0)}
             timeslots={1}
-            step={Number(businessData.appointmentDuration)}
+            step={selectedDaySchedule.appointmentDuration}
             onSelectSlot={({ action, start, end }) => {
               if (action === "select" || action === "click") {
                 saveNewAppointment({ start, end });
@@ -488,14 +720,23 @@ const CalendarTurnos: React.FC<Props> = ({
             <IoInformationCircle size={20} /> ¿Cómo agrego turnos?
           </button>
 
-          {view === "day" && (
-            <button
-              className={`${styles.btnAddAll} hidden md:flex gap-2 items-center`}
-              onClick={() => handleSetAllDayAppointmentsModal()}
-            >
-              <LuCalendarPlus size={18} /> Crear turnos del día
-            </button>
-          )}
+          {/* <button
+            className={`${styles.btnAddAll} hidden md:flex gap-2 items-center`}
+            onClick={() => {
+              router.push("/admin/misturnos/create");
+            }}
+          >
+            <MdEditCalendar size={18} /> Configuración de agenda
+          </button> */}
+
+          <Link
+            className="md:flex hidden items-center gap-2  text-xs font-semibold uppercase"
+            style={{ color: "#dd4924" }}
+            href="/admin/misturnos/create"
+          >
+            configuración de agenda
+            <FaArrowRight />
+          </Link>
         </div>
       </div>
     </>

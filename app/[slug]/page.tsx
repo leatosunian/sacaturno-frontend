@@ -30,8 +30,12 @@ const getAppointments = async (ID: string) => {
     const appointments = await axiosReq.get(
       `/appointment/public/get/${businessData._id}`
     );
+    const scheduleDaysFetch = await axiosReq.get(
+      `/schedule/get/${businessData._id}`,
+    );
+    const scheduleDays = scheduleDaysFetch.data.days;
 
-    return { appointments: appointments.data, businessData };
+    return { appointments: appointments.data, businessData, scheduleDays };
   }
   return { appointments: {}, businessData };
 };
@@ -46,6 +50,7 @@ const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
             <CalendarBookAppointment
               appointments={data.appointments}
               businessData={data.businessData}
+              scheduleDays={data.scheduleDays}
             />
           )}
           {data.appointments.length === 0 && data.businessData.name && (
