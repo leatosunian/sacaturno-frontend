@@ -29,7 +29,6 @@ import { IoInformationCircle } from "react-icons/io5";
 import HelpModal from "./HelpModal";
 import { MdEditCalendar } from "react-icons/md";
 import { IDaySchedule } from "@/interfaces/daySchedule.interface";
-import { IAppointmentSchedule } from "@/interfaces/appointmentSchedule.interface";
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa6";
 import { timeOptions } from "@/helpers/timeOptions";
@@ -376,7 +375,7 @@ const CalendarTurnos: React.FC<Props> = ({
       {/* mobile dropdown */}
       <div
         style={{ position: "absolute", top: "80px", right: "20px" }}
-        className="flex flex-col  md:hidden"
+        className="flex flex-col md:hidden"
       >
         <IoMdMore
           onClick={() => setDropdownActive(!dropdownActive)}
@@ -426,9 +425,9 @@ const CalendarTurnos: React.FC<Props> = ({
           </h4>
         </header>
 
-        <div className="flex-col hidden w-full mb-2 md:flex md:flex-row h-fit items-end">
-          <div className="flex flex-col  w-1/3 md:flex-row h-fit">
-            <div className="flex gap-4  w-full ">
+        <div className="flex-col items-end hidden w-full mb-2 md:flex md:flex-row h-fit">
+          <div className="flex flex-col w-1/3 md:flex-row h-fit">
+            <div className="flex w-full gap-4 ">
               <div
                 className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
               >
@@ -518,11 +517,11 @@ const CalendarTurnos: React.FC<Props> = ({
             </div>
           </div>
 
-          <h4 className="flex justify-center w-1/3 text-md font-bold text-center uppercase">
+          <h4 className="flex justify-center w-1/3 font-bold text-center uppercase text-md">
             {calendarDate}
           </h4>
 
-          <div className="flex justify-end h-fit w-1/3 ">
+          <div className="flex justify-end w-1/3 h-fit ">
             <button
               className={
                 view !== Views.WEEK
@@ -543,7 +542,7 @@ const CalendarTurnos: React.FC<Props> = ({
             >
               Dia
             </button>
-            <div className="flex w-fit h-fit ml-4">
+            <div className="flex ml-4 w-fit h-fit">
               <button
                 className={styles.btnWeekBlue}
                 onClick={() => onPrevClick()}
@@ -560,8 +559,8 @@ const CalendarTurnos: React.FC<Props> = ({
           </div>
         </div>
 
-        <div className="flex md:hidden w-full md:flex-row h-fit mb-3 mt-3">
-          <div className="flex justify-evenly  w-full ">
+        <div className="flex w-full mt-3 mb-3 md:hidden md:flex-row h-fit">
+          <div className="flex w-full justify-evenly ">
             <div
               className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
             >
@@ -652,7 +651,7 @@ const CalendarTurnos: React.FC<Props> = ({
         </div>
 
         <div className="flex flex-col mb-2 md:hidden">
-          <h4 className="w-full font-bold text-center uppercase text-sm md:text-md">
+          <h4 className="w-full text-sm font-bold text-center uppercase md:text-md">
             {calendarDate}
           </h4>
         </div>
@@ -730,7 +729,7 @@ const CalendarTurnos: React.FC<Props> = ({
           </button> */}
 
           <Link
-            className="md:flex hidden items-center gap-2  text-xs font-semibold uppercase"
+            className="items-center hidden gap-2 text-xs font-semibold uppercase md:flex"
             style={{ color: "#dd4924" }}
             href="/admin/misturnos/create"
           >

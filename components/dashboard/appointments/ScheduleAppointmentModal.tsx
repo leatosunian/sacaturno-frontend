@@ -1,6 +1,5 @@
 "use client";
 import axiosReq from "@/config/axios";
-import { useState } from "react";
 import styles from "@/app/css-modules/AppointmentModal.module.css";
 import { useRouter } from "next/navigation";
 import { IAppointmentSchedule } from "@/interfaces/appointmentSchedule.interface";

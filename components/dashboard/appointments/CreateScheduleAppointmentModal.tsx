@@ -1,6 +1,5 @@
 "use client";
 import axiosReq from "@/config/axios";
-import { IAppointment } from "@/interfaces/appointment.interface";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import styles from "@/app/css-modules/CreateAppointmentModal.module.css";
@@ -9,7 +8,6 @@ import { IService } from "@/interfaces/service.interface";
 import { useEffect, useState } from "react";
 import updateLocale from "dayjs/plugin/updateLocale";
 import { IAppointmentSchedule } from "@/interfaces/appointmentSchedule.interface";
-import data from "../../../../shop-coding-test/server/src/data/data";
 
 interface props {
   appointmentData: IAppointmentSchedule | undefined;

@@ -1,5 +1,4 @@
 "use client";
-
 import axiosReq from "@/config/axios";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import dayjs from "dayjs";
@@ -9,7 +8,6 @@ import { IoMdClose } from "react-icons/io";
 import { IService } from "@/interfaces/service.interface";
 import { useEffect, useState } from "react";
 import { IBusiness } from "@/interfaces/business.interface";
-import { IDaySchedule } from "@/interfaces/daySchedule.interface";
 
 interface IAllDayModalProps {
   date: Date;
