@@ -23,9 +23,6 @@ import ExpiredPlanModal from "./ExpiredPlanModal";
 import { LuSave } from "react-icons/lu";
 import { IoInformationCircle } from "react-icons/io5";
 import HelpModal from "./HelpModal";
-import { timeOptions } from "@/helpers/timeOptions";
-import { IDaySchedule } from "../../../server/src/interfaces/daySchedule.interface";
-import { IAppointmentSchedule } from "../../../interfaces/appointmentSchedule.interface";
 import { FaArrowLeft, FaCircleInfo } from "react-icons/fa6";
 import CreateScheduleAppointmentModal from "./CreateScheduleAppointmentModal";
 import ScheduleAppointmentModal from "./ScheduleAppointmentModal";
@@ -33,6 +30,10 @@ import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
 import Alert from "@/components/Alert";
 import Link from "next/link";
+import { IDaySchedule } from "@/interfaces/daySchedule.interface";
+import { IAppointmentSchedule } from "@/interfaces/appointmentSchedule.interface";
+import { timeOptions } from "@/helpers/timeOptions";
+
 dayjs.locale("es-mx");
 
 interface Props {
@@ -278,7 +279,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
       return (
         <>
           <div
-            className=" flex flex-col h-full gap-1 px-2 py-1 w-fit"
+            className="flex flex-col h-full gap-1 px-2 py-1  w-fit"
             style={{ backgroundColor: "#dd4924" }}
           >
             <span className="text-xs font-medium ">{event.service} </span>
@@ -521,7 +522,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
         </header>
 
         <div className="flex flex-col w-full gap-2">
-          <h4 className="text-lg md:text-xl font-semibold">Horario de atención </h4>
+          <h4 className="text-lg font-semibold md:text-xl">Horario de atención </h4>
           {/* <span className="flex px-0 text-xs font-normal text-gray-600 md:text-sm md:px-7">
             Por cada día de la semana, ingresá el horario de trabajo, la
             duración de cada turno y creá los turnos del dia con el servicio que
@@ -535,7 +536,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
                   <FaCircleInfo color="lightblue" />
                 </div>
                 <div className="alertInfo-prompt-wrap">
-                  <p className="text-xs md:text-sm  font-normal text-blue-400">
+                  <p className="text-xs font-normal text-blue-400 md:text-sm">
                     Por cada día de la semana, ingresá el horario de trabajo, la
                     duración de cada turno y agregá los turnos y servicios que
                     ofrezcas.
@@ -684,10 +685,10 @@ const CreateScheduleCalendar: React.FC<Props> = ({
           )}
         </div>
 
-        <div className="flex w-full mt-10 md:mt-16 mb-10">
+        <div className="flex w-full mt-10 mb-10 md:mt-16">
           <div className="flex flex-col">
             <div className="flex flex-col gap-4 md:gap-8">
-              <h4 className="text-lg md:text-xl font-semibold">Automatizar turnos</h4>
+              <h4 className="text-lg font-semibold md:text-xl">Automatizar turnos</h4>
 
               <div className="flex gap-5">
                 <div className="flex flex-col">
@@ -822,7 +823,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
                     <FaCircleInfo color="lightblue" />
                   </div>
                   <div className="alertInfo-prompt-wrap">
-                    <p className="text-xs md:text-sm font-normal text-blue-400">
+                    <p className="text-xs font-normal text-blue-400 md:text-sm">
                       Activando esta función, los turnos se generan
                       automáticamente. Ingresá la cantidad de días que quieras
                       crear turnos y cuántos dias antes del último turno querés
@@ -842,7 +843,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
           </div>
         </div>
         <Link
-          className="flex items-center gap-2 text-xs font-semibold uppercase mr-auto"
+          className="flex items-center gap-2 mr-auto text-xs font-semibold uppercase"
           style={{ color: "#dd4924" }}
           href="/admin/misturnos"
         >

@@ -6,5 +6,6 @@ export interface IDaySchedule {
   dayStart: number;
   dayEnd: number;
   enabled: boolean;
+  _id?: string; 
 }
 
