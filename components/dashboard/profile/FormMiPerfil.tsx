@@ -175,7 +175,7 @@ const FormMiPerfil: React.FC<Props> = ({
   };
 
   const myLoader = ({ src }: { src: string }) => {
-    return `https://sacaturno-server-ereef.ondigitalocean.app/api/user/getprofilepic/${profile?.profileImage}`;
+    return `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${profile?.profileImage}`;
   };
 
   const updateProfileImage = async (image: File) => {
@@ -233,7 +233,7 @@ const FormMiPerfil: React.FC<Props> = ({
             height={64}
             className="w-16 rounded-full"
             src={
-              `https://sacaturno-server-ereef.ondigitalocean.app/api/user/getprofilepic/` +
+              `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/` +
               profile?.profileImage
             }
             alt=""

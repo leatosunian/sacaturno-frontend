@@ -204,7 +204,7 @@ const FormMiEmpresa = ({
   };
 
   const myLoader = ({ src }: { src: string }) => {
-    return `https://sacaturno-server-ereef.ondigitalocean.app/api/user/getprofilepic/${business?.image}`;
+    return `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${business?.image}`;
   };
 
   return (
@@ -231,7 +231,7 @@ const FormMiEmpresa = ({
               height={64}
               className="w-16 rounded-full"
               src={
-                `https://sacaturno-server-ereef.ondigitalocean.app/api/user/getprofilepic/` +
+                `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/` +
                 business?.image
               }
               alt=""
