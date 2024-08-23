@@ -4,18 +4,21 @@ export interface NextRequestPathname extends NextRequest {
   pathname: string;
 }
 
-export const middleware = async (req: NextRequestPathname, res: NextResponse) => {
+export const middleware = async (
+  req: NextRequestPathname,
+  res: NextResponse
+) => {
   const userID = req.cookies.get("sacaturno_userID");
   const token = req.cookies.get("sacaturno_token");
-  console.log('pathname ', req.nextUrl.pathname);
-  
+  //console.log('pathname ', req.nextUrl.pathname);
+
   /** no token cookie */
   if (req.nextUrl.pathname !== "/login") {
     if (!token) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
   }
-  
+
   /** prevent login page redirect loop */
   if (!token) {
     if (req.nextUrl.pathname === "/login") {
@@ -41,11 +44,11 @@ export const middleware = async (req: NextRequestPathname, res: NextResponse) =>
       method: "POST",
     });
     const data = await validUser.json();*/
-    console.log('validUser ', data);
+    //console.log('validUser ', data);
     if (data.userId === userID.value) {
       /** redirect to dashboard if login page is visited logged in */
       if (req.nextUrl.pathname === "/login") {
-        return NextResponse.redirect(new URL("/admin/misturnos", req.url));
+        return NextResponse.redirect(new URL("/admin/dashboard", req.url));
       }
       return NextResponse.next();
     }
@@ -57,5 +60,5 @@ export const middleware = async (req: NextRequestPathname, res: NextResponse) =>
 };
 
 export const config = {
-  matcher: ["/admin/miempresa", "/admin/perfil", "/admin/misturnos", "/login"],
+  matcher: ["/admin/business", "/admin/profile", "/admin/schedule", "/login"],
 };

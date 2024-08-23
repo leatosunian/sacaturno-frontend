@@ -279,7 +279,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
       return (
         <>
           <div
-            className="flex flex-col h-full gap-1 px-2 py-1  w-fit"
+            className="flex flex-col h-full gap-1 px-2 py-1 w-fit"
             style={{ backgroundColor: "#dd4924" }}
           >
             <span className="text-xs font-medium ">{event.service} </span>
@@ -415,6 +415,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
         alertType: "OK_ALERT",
       });
       hideAlert();
+      router.refresh()
       if (daysChanged.length > 0) saveModifiedScheduleDays();
       setLoadingNewAppointments(false);
     } catch (error) {
@@ -796,7 +797,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
 
                     <span className="text-xs font-semibold">
                       Tus próximos turnos se crearán el{" "}
-                      {dayjs(businessData.scheduleEnd).format("dddd DD/MM")}.
+                      {dayjs(businessData.scheduleEnd).subtract(businessData.scheduleAnticipation, 'day').format("dddd DD/MM")}.
                     </span>
                   </div>
                 </>

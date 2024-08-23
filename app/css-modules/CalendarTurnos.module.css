@@ -30,7 +30,8 @@
   -webkit-transition: all ease-in-out 0.3s;
   -moz-transition: all ease-in-out 0.3s;
   -ms-transition: all ease-in-out 0.3s;
-  -o-transition: all ease-in-out 0.3s;}
+  -o-transition: all ease-in-out 0.3s;
+}
 
 .calendarContainer {
   display: flex;
@@ -85,7 +86,8 @@
   -webkit-transition: all ease-in-out 0.3s;
   -moz-transition: all ease-in-out 0.3s;
   -ms-transition: all ease-in-out 0.3s;
-  -o-transition: all ease-in-out 0.3s;}
+  -o-transition: all ease-in-out 0.3s;
+}
 
 .btnAddAll {
   background-color: #dd4924;
@@ -304,12 +306,18 @@
 }
 
 @media (max-width: 768px) {
+  .calendarComponentSchedule {
+    margin: 0 10px;
+  }
+
   .daysOfWeekCont {
     width: 100%;
     margin: 0 0 15px 0;
   }
   .calendarContainer {
     width: 100vw;
+    box-shadow: none;
+    -webkit-box-shadow: none;
   }
   .calendarComponent {
     width: 100vw !important;

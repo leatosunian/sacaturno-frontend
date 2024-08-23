@@ -215,8 +215,8 @@ const FormMiPerfil: React.FC<Props> = ({
 
   return (
     <>
-      <div className="flex justify-center w-full mb-9 h-fit">
-        <h3 className="text-xl font-bold uppercase ">Información personal</h3>
+      <div className="flex justify-center w-full mb-5 h-fit">
+        <h3 className="text-lg font-bold uppercase ">Información personal</h3>
       </div>
       <form
         className={styles.form}

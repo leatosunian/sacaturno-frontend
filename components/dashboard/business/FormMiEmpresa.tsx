@@ -215,11 +215,11 @@ const FormMiEmpresa = ({
         })}
         className={styles.businessForm}
       >
-        <div className="flex justify-center w-full mb-5 h-fit">
-          <h3 className="text-xl font-bold uppercase ">Datos de mi empresa</h3>
+        <div className="flex justify-center w-full mb-5 md:mb-0 h-fit">
+          <h3 className="text-lg font-bold uppercase ">Datos de mi empresa</h3>
         </div>
 
-        <div className="flex flex-col items-center justify-center w-full gap-10 md:gap-5 md:justify-around md:flex-row">
+        <div className="flex flex-col items-center justify-center w-full gap-5 md:justify-around md:flex-row">
           <div
             onClick={handleClick}
             className="rounded-full inputFileFormProfile"

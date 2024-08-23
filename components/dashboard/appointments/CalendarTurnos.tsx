@@ -59,8 +59,8 @@ interface eventType {
 }
 
 interface eventType2 {
-  start: string;
-  end: string;
+  start: Date;
+  end: Date;
   title: string | undefined;
   clientID: string | "" | undefined;
   _id?: string | undefined;
@@ -235,8 +235,9 @@ const CalendarTurnos: React.FC<Props> = ({
     setDropdownActive(false);
     const eventDataObj: eventType2 = {
       _id: event._id,
-      start: dayjs(event.start).format("D [de] MMMM [|] HH:mm [hs]"),
-      end: dayjs(event.end).format("[-] HH:mm [hs]"),
+      //start: dayjs(event.start).format("dddd d [de] MMMM [|] HH:mm [hs]"),
+      start: event.start,
+      end: event.end,
       clientID: event.clientID,
       title: event.title,
       status: event.status,
@@ -388,7 +389,7 @@ const CalendarTurnos: React.FC<Props> = ({
             <div className={styles.dropmenuCont}>
               <div className={styles.dropmenu}>
                 <MdEditCalendar size={18} />
-                <Link href={"/admin/misturnos/create"}>Configurar agenda</Link>
+                <Link href={"/admin/schedule/settings"}>Configurar agenda</Link>
               </div>
               {/* <div style={{width: '100%'}}></div> */}
               <div className={styles.dropmenu}>
@@ -675,8 +676,6 @@ const CalendarTurnos: React.FC<Props> = ({
           </div>
         </div>
 
-
-
         <div className={styles.calendarContainer}>
           <Calendar
             components={components}
@@ -712,26 +711,26 @@ const CalendarTurnos: React.FC<Props> = ({
         </div>
 
         <div className="flex justify-between w-full mt-6 mb-12 h-fit">
-          <button
-            className={`${styles.btnAddAll} hidden md:flex gap-2 items-center`}
-            onClick={() => setHelpModal(!helpModal)}
-          >
-            <IoInformationCircle size={20} /> ¿Cómo agrego turnos?
-          </button>
+          <div className="flex gap-2">
+            <button
+              className={`${styles.btnAddAll} hidden md:flex gap-2 items-center`}
+              onClick={() => setHelpModal(!helpModal)}
+            >
+              <IoInformationCircle size={20} /> ¿Cómo agrego turnos?
+            </button>
 
-          {/* <button
-            className={`${styles.btnAddAll} hidden md:flex gap-2 items-center`}
-            onClick={() => {
-              router.push("/admin/misturnos/create");
-            }}
-          >
-            <MdEditCalendar size={18} /> Configuración de agenda
-          </button> */}
+            <button
+              className={`${styles.btnAddAll} hidden md:flex gap-2 items-center`}
+              onClick={() => handleSetAllDayAppointmentsModal()}
+            >
+              <LuCalendarPlus size={20} /> Crear turnos del día
+            </button>
+          </div>
 
           <Link
             className="items-center hidden gap-2 text-xs font-semibold uppercase md:flex"
             style={{ color: "#dd4924" }}
-            href="/admin/misturnos/create"
+            href="/admin/schedule/settings"
           >
             configuración de agenda
             <FaArrowRight />

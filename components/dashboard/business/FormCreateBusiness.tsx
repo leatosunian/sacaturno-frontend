@@ -114,7 +114,7 @@ const FormCreateBusiness: React.FC = () => {
         hideAlert();
         setTimeout(() => {
           router.refresh();
-          router.push("/admin/miempresa/settings");
+          router.push("/admin/business/settings");
         }, 4000);
       }
     } catch (error) {

@@ -59,7 +59,7 @@ const LoggedInHeader: NextPage<Props> = ({}) => {
           </div>
           <div>
             <Link
-              href="/admin/miempresa"
+              href="/admin/business"
               className={`cursor-pointer ${styles.navLink}`}
             >
               Mi empresa
@@ -74,16 +74,16 @@ const LoggedInHeader: NextPage<Props> = ({}) => {
 
             <div className={styles.options}>
               <div className={styles.option}>
-                <Link href={'/admin/misturnos'}>Mi agenda</Link>
+                <Link href={'/admin/schedule'}>Mi agenda</Link>
               </div>
               <div className={styles.option}>
-                <Link href={'/admin/misturnos/create'}>Configurar agenda</Link>
+                <Link href={'/admin/schedule/settings'}>Configurar agenda</Link>
               </div>
             </div>
           </div>
           <div>
             <Link
-              href="/admin/perfil"
+              href="/admin/profile"
               className={`cursor-pointer ${styles.navLink}`}
             >
               Mi perfil
@@ -132,21 +132,21 @@ const LoggedInHeader: NextPage<Props> = ({}) => {
           <Link
             onClick={closeNavMenu}
             className="flex items-center h-12 text-xs font-medium uppercase"
-            href="/admin/miempresa"
+            href="/admin/business"
           >
             Mi empresa
           </Link>
           <Link
             onClick={closeNavMenu}
             className="flex items-center h-12 text-xs font-medium uppercase"
-            href="/admin/misturnos"
+            href="/admin/schedule"
           >
             Mis turnos
           </Link>
           <Link
             onClick={closeNavMenu}
             className="flex items-center h-12 text-xs font-medium uppercase"
-            href="/admin/perfil"
+            href="/admin/profile"
           >
             Mi perfil
           </Link>

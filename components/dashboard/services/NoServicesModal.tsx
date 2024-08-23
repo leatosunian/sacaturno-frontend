@@ -22,7 +22,7 @@ const NoServicesModal: React.FC = () => {
               </label>
             </div>
           </div>
-          <Link href={'/admin/miempresa/settings'}>
+          <Link href={'/admin/business/settings'}>
             <button className={styles.button}>Crear servicio</button>
           </Link>
         </div>

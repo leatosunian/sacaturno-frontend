@@ -90,7 +90,7 @@ const MiEmpresa: NextPage<Props> = async ({}) => {
           <span className="font-semibold sm:text-lg md:text-xl">
             No tenés una empresa creada.
           </span>
-          <Link href="/admin/miempresa/create">
+          <Link href="/admin/business/create">
             <button className={styles.button}>Crear empresa</button>
           </Link>
         </div>
@@ -98,7 +98,7 @@ const MiEmpresa: NextPage<Props> = async ({}) => {
       {typeof data !== "string" && (
         <>
           <header className="flex justify-center w-full mt-5 mb-5 md:mt-7 md:mb-7 h-fit">
-            <h4 style={{ fontSize: "22px" }} className="font-bold uppercase ">
+            <h4 style={{ fontSize: "20px" }} className="font-bold uppercase ">
               Mi Empresa
             </h4>
           </header>
@@ -112,7 +112,7 @@ const MiEmpresa: NextPage<Props> = async ({}) => {
               <Link
                 className="flex items-center gap-2 text-xs font-semibold uppercase"
                 style={{ color: "#dd4924" }}
-                href="/admin/miempresa/settings"
+                href="/admin/business/settings"
               >
                 Mis servicios
                 <FaArrowRight />

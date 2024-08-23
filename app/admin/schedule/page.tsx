@@ -115,7 +115,7 @@ const MisTurnos: React.FC = async () => {
               <span className="font-semibold sm:text-lg text-md md:text-xl">
                 ¡Creá tu empresa para comenzar a cargar tus turnos!
               </span>
-              <Link href="/admin/miempresa/create">
+              <Link href="/admin/business/create">
                 <button className={styles.button}>Crear empresa</button>
               </Link>
             </div>

@@ -249,7 +249,7 @@ const FormSettings = ({
       {/* SERVICES SECTION */}
 
       <div className="flex flex-col w-full h-fit">
-        <h3 className="mb-8 text-xl font-bold text-center uppercase md:mb-4 ">
+        <h3 className="mb-4 text-lg font-bold text-center uppercase md:mb-3 ">
           Servicios
         </h3>
 

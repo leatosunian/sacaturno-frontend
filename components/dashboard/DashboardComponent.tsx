@@ -58,7 +58,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
   const [appointmentsData, setAppointmentsData] = useState<eventType[]>();
   const [appointmentInfoModal, setAppointmentInfoModal] =
     useState<boolean>(false);
-  const [selectedAppointment, setSelectedAppointment] = useState<eventType2>();
+  const [selectedAppointment, setSelectedAppointment] = useState<eventType>();
  
   useEffect(() => {
     parseAppointments(businessData?.appointments);
@@ -66,10 +66,10 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
   }, [businessData]);
 
   const handleSelectEvent = (event: eventType) => {
-    const eventDataObj: eventType2 = {
+    const eventDataObj: eventType = {
       _id: event._id,
-      start: dayjs(event.start).format("D [de] MMMM [|] HH:mm [hs]"),
-      end: dayjs(event.end).format("[-] HH:mm [hs]"),
+      start: event.start,
+      end: event.end,
       clientID: event.clientID,
       title: event.title,
       status: event.status,
@@ -153,7 +153,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
             </span>
 
             <div className="flex-col hidden gap-4 md:flex md:gap-16 md:flex-row">
-              <Link href="/admin/misturnos">
+              <Link href="/admin/schedule">
                 <div className="flex flex-col gap-1 md:gap-4">
                   <div
                     style={{ backgroundColor: "#dd4924" }}
@@ -167,11 +167,11 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                     </div>
                   </div>
                   <span className="text-sm font-semibold md:text-lg">
-                    Agregar turno
+                    Mi agenda
                   </span>
                 </div>
               </Link>
-              <Link href="/admin/miempresa">
+              <Link href="/admin/business">
                 <div className="flex flex-col gap-1 md:gap-4">
                   <div
                     style={{ backgroundColor: "#dd4924" }}
@@ -184,7 +184,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                   </span>
                 </div>
               </Link>
-              <Link href="/admin/miempresa/settings">
+              <Link href="/admin/business/settings">
                 <div className="flex flex-col gap-1 md:gap-4">
                   <div
                     style={{ backgroundColor: "#dd4924" }}
@@ -200,14 +200,14 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
             </div>
 
             <div className="flex flex-col gap-4 md:hidden md:gap-16 md:flex-row">
-              <Link href="/admin/misturnos">
+              <Link href="/admin/schedule">
                 <div className="flex flex-col gap-1 md:gap-4">
                   <div
                     style={{ backgroundColor: "#dd4924" }}
                     className="flex items-center justify-between w-full p-5 h-14 md:h-32 md:w-52 rounded-2xl"
                   >
                     <span className="text-sm font-medium text-white md:text-lg">
-                      Agregar turno
+                      Mi agenda
                     </span>
                     <div className="hidden md:flex">
                       <LuCalendarPlus size={45} color="white" />
@@ -218,7 +218,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                   </div>
                 </div>
               </Link>
-              <Link href="/admin/miempresa">
+              <Link href="/admin/business">
                 <div className="flex flex-col gap-1 md:gap-4">
                   <div
                     style={{ backgroundColor: "#dd4924" }}
@@ -237,7 +237,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                 </div>
               </Link>
 
-              <Link href="/admin/miempresa/settings">
+              <Link href="/admin/business/settings">
                 <div className="flex flex-col gap-1 md:gap-4">
                   <div
                     style={{ backgroundColor: "#dd4924" }}
