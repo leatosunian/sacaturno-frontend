@@ -171,6 +171,7 @@ const CalendarTurnos: React.FC<Props> = ({
     setDropdownActive(false);
     if (subscriptionData?.subscriptionType === "SC_EXPIRED") {
       setExpiredModal(true);
+      return
     }
     const startDate = dayjs(start)
       .tz("America/Argentina/Buenos_Aires")
@@ -357,7 +358,7 @@ const CalendarTurnos: React.FC<Props> = ({
         />
       )}
       {servicesData.length === 0 && <NoServicesModal />}
-      {expiredModal && <ExpiredPlanModal businessData={business} />}
+      {expiredModal && <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={business} />}
 
       {helpModal && <HelpModal onClose={() => setHelpModal(false)} />}
 
