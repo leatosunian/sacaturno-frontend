@@ -220,7 +220,7 @@ const CalendarTurnos: React.FC<Props> = ({
               className="flex flex-col w-full h-full gap-1 px-2 py-1"
               style={{ backgroundColor: "#dd4924" }}
             >
-              <span className="text-xs md:text-sm font-semibold">
+              <span className="text-xs font-semibold md:text-sm">
                 {event.title}{" "}
               </span>
               <span style={{ fontSize: "10px" }}>{event.service} </span>
@@ -374,7 +374,7 @@ const CalendarTurnos: React.FC<Props> = ({
             onSelectEvent={(event) => {
               handleSelectEvent(event);
             }}
-            longPressThreshold={1}
+            longPressThreshold={9999}
           />
         </div>
       </div>

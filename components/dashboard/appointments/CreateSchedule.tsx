@@ -245,6 +245,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     dayjs.extend(advanced);
     if (subscriptionData?.subscriptionType === "SC_EXPIRED") {
       setExpiredModal(true);
+      return
     }
     const startDate = dayjs(start)
       .tz("America/Argentina/Buenos_Aires")
@@ -495,8 +496,10 @@ const CreateScheduleCalendar: React.FC<Props> = ({
           closeModalF={() => setCreateAppointmentModal(false)}
         />
       )}
+      
       {servicesData.length === 0 && <NoServicesModal />}
-      {expiredModal && <ExpiredPlanModal businessData={business} />}
+      
+      {expiredModal && <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={business} />}
 
       {helpModal && <HelpModal onClose={() => setHelpModal(false)} />}
 

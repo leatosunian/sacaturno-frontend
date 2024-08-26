@@ -135,7 +135,7 @@ const MiPerifl = async () => {
   return (
     <>
       <header className="flex justify-center w-full mt-5 mb-5 md:mt-7 md:mb-7 h-fit">
-        <h4 style={{ fontSize: "22px" }} className="font-bold uppercase ">
+        <h4 style={{ fontSize: "20px" }} className="font-bold uppercase ">
           Mi Perfil
         </h4>
       </header>

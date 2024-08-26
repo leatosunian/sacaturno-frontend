@@ -179,7 +179,7 @@ export default function AdminHeader() {
               <div
                 onClick={logOut}
                 className="my-auto cursor-pointer"
-                style={{marginLeft:'35px'}}
+                style={{ marginLeft: "35px" }}
                 title="Cerrar Sesión"
               >
                 <IoIosLogOut size={22} color="white" />
@@ -210,6 +210,7 @@ export default function AdminHeader() {
       <div
         style={{
           transform: "translateY(63px)",
+          zIndex: "9999999",
         }}
         className={` fixed inset-0 z-50 md:hidden transition-opacity duration-300 ease-in-out ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -229,7 +230,7 @@ export default function AdminHeader() {
         >
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <Link
-              href="/public/seach"
+              href="/public/search"
               className="flex items-center gap-2 px-3 py-3 text-sm font-medium uppercase transition-colors duration-300 rounded-md backgroundOrangHover"
               onClick={() => setIsOpen(false)}
             >

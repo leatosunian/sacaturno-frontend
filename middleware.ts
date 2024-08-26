@@ -60,5 +60,5 @@ export const middleware = async (
 };
 
 export const config = {
-  matcher: ["/admin/business", "/admin/profile", "/admin/schedule", "/login"],
+  matcher: ["/admin/business", "/admin/dashboard", "/admin/profile", "/admin/schedule", "/login"],
 };

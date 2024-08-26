@@ -2,17 +2,19 @@
 import styles from "@/app/css-modules/NoServicesModal.module.css";
 import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { IoIosAlert } from "react-icons/io";
 
 interface Props {
   businessData: IBusiness | undefined;
+  onCloseModal: () => void;
 }
 
-const ExpiredPlanModal: React.FC<Props> = ({businessData}) => {
+const ExpiredPlanModal: React.FC<Props> = ({ businessData, onCloseModal}) => {
   const router = useRouter();
   console.log(businessData);
-  
+
   const handleMercadoPagoPreference = async () => {
     const token = localStorage.getItem("sacaturno_token");
     const authHeader = {
@@ -41,11 +43,16 @@ const ExpiredPlanModal: React.FC<Props> = ({businessData}) => {
       console.log(error);
     }
   };
-  
+
   return (
     <>
-      <div className={styles.modalCont} style={{height:'calc(100vh - 64px)', marginTop:'64px'}}>
-        <div className="flex flex-col px-5 py-10 text-black bg-white w-80 md:w-96 h-fit borderShadow">
+      <div
+        className="fixed flex items-center justify-center text-black -translate-y-16 modalCont "
+        onClick={onCloseModal}
+      >
+        <div
+          className="flex flex-col text-black bg-white w-80 md:w-96 p-7 h-fit borderShadow"
+        >
           <div className="flex flex-col items-center w-full gap-4 h-fit ">
             <IoIosAlert size={100} color="#d7a954" />
 
@@ -60,12 +67,20 @@ const ExpiredPlanModal: React.FC<Props> = ({businessData}) => {
                 style={{ fontSize: "14px" }}
                 className="font-normal text-center"
               >
-                Recuerda abonar tu suscripción al plan full para continuar creando nuevos turnos.
+                Recuerda abonar tu suscripción al plan full para continuar
+                creando nuevos turnos.
               </label>
             </div>
           </div>
 
-          <button onClick={handleMercadoPagoPreference} className={styles.button}>Renovar suscripción</button>
+          <div >
+            <button
+              onClick={handleMercadoPagoPreference}
+              className={styles.button}
+            >
+              Renovar suscripción
+            </button>
+          </div>
         </div>
       </div>
     </>
