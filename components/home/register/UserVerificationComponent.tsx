@@ -55,7 +55,7 @@ const UserVerificationComponent = ({ userData }: Props) => {
                   </p>
                   <p className="font-medium text-md md:text-lg">
                     &#128276; Te recordamos que ya dispones de un{" "}
-                    <b>período de prueba gratuito</b> de un mes.
+                    <b>período de prueba gratuito</b> de 15 días que se activará cuando crees tu empresa.
                   </p>
                 </div>
                 <Link
@@ -81,7 +81,7 @@ const UserVerificationComponent = ({ userData }: Props) => {
                     No se pudo activar tu cuenta. O tu cuenta ya fue activada u
                     ocurrió un error durante la verificación.
                   </p>
-                  <p className="font-medium text-sm md:text-base">
+                  <p className="text-sm font-medium md:text-base">
                     &#128161; Si estas teniendo problemas activando tu cuenta,
                     no dudes en{" "}
                     <Link

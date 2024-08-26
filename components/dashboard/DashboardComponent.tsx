@@ -329,7 +329,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                   <span className="px-5 text-xl font-semibold text-center md:px-0">
                     No tenés turnos pendientes para el dia de hoy.
                   </span>
-                  <Link href="/admin/misturnos">
+                  <Link href="/admin/schedule">
                     <button className={`${styles.button} px-7`}>
                       Ver agenda
                     </button>

@@ -5,8 +5,14 @@ import Link from "next/link";
 const NoServicesModal: React.FC = () => {
   return (
     <>
-      <div className="absolute flex items-center justify-center modalCont">
-        <div className="flex flex-col px-5 py-10 text-black bg-white w-80 md:w-96 h-fit borderShadow">
+      <div
+        className="absolute flex items-center justify-center modalCont "
+        style={{ top: "64px" }}
+      >
+        <div
+          className="flex flex-col text-black bg-white w-80 md:w-96 p-7 h-fit borderShadow"
+          style={{ transform: "translateY(-32px)" }}
+        >
           <h4 className="mb-6 text-xl font-bold text-center uppercase">
             No tenés servicios
           </h4>
@@ -22,7 +28,7 @@ const NoServicesModal: React.FC = () => {
               </label>
             </div>
           </div>
-          <Link href={'/admin/business/settings'}>
+          <Link href={"/admin/business/settings"}>
             <button className={styles.button}>Crear servicio</button>
           </Link>
         </div>

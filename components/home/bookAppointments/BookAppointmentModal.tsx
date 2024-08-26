@@ -123,8 +123,14 @@ const BookAppointmentModal: React.FC<props> = ({
   return (
     <>
       {!bookedModal && (
-        <div className="absolute flex items-center justify-center modalCont">
-          <div className="flex flex-col bg-white w-80 md:w-96 p-7 h-fit borderShadow">
+        <div
+          className="absolute flex items-center justify-center modalCont "
+          style={{ top: "64px" }}
+        >
+          <div
+            className="flex flex-col text-black bg-white w-80 md:w-96 p-7 h-fit borderShadow"
+            style={{ transform: "translateY(-32px)" }}
+          >
             {spinner && (
               <div className={styles.spinnerCont}>
                 <div className="z-50 loader"></div>
@@ -192,7 +198,7 @@ const BookAppointmentModal: React.FC<props> = ({
                       </span>
                     </div>
                   )}
-                  
+
                   <form
                     onSubmit={handleSubmit((formData) => {
                       bookAppointment(formData);

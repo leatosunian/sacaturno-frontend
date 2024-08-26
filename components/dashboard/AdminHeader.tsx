@@ -62,7 +62,13 @@ export default function AdminHeader() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <Link href={"/admin/dashboard"}>
+              <Link
+                href={"/admin/dashboard"}
+                onClick={() => {
+                  setIsOpen(false);
+                  setOpenDropdown("");
+                }}
+              >
                 <Image className="w-28" src={sacaturno_logo} alt="SacaTurno" />
               </Link>
             </div>
