@@ -219,7 +219,7 @@ const FormMiEmpresa = ({
           <h3 className="text-lg font-bold uppercase ">Datos de mi empresa</h3>
         </div>
 
-        <div className="flex flex-col items-center justify-center w-full gap-5 md:justify-around md:flex-row">
+        <div className="flex flex-col items-center justify-center w-full gap-6 md:justify-around md:flex-row">
           <div
             onClick={handleClick}
             className="rounded-full inputFileFormProfile"

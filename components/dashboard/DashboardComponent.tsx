@@ -1,8 +1,8 @@
 "use client";
 import { IBusiness } from "@/interfaces/business.interface";
 import { IUser } from "@/interfaces/user.interface";
-import { LuCalendarPlus } from "react-icons/lu";
-import { MdOutlineWorkOutline } from "react-icons/md";
+import { LuCalendarDays, LuCalendarPlus } from "react-icons/lu";
+import { MdCalendarMonth, MdOutlineWorkOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import Link from "next/link";
 import { IoMdMore } from "react-icons/io";
@@ -15,6 +15,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import advanced from "dayjs/plugin/advancedFormat";
 import AppointmentModal from "./appointments/AppointmentModal";
+import { TbCalendarCog } from "react-icons/tb";
 
 interface Props {
   businessData:
@@ -40,26 +41,14 @@ interface eventType extends IAppointment {
   status?: "booked" | "unbooked" | undefined;
   price: number | undefined;
 }
-interface eventType2 {
-  start: string;
-  end: string;
-  title: string | undefined;
-  clientID: string | "" | undefined;
-  _id?: string | undefined;
-  name: string | undefined;
-  email: string | undefined;
-  phone: number | undefined;
-  service: string | undefined;
-  status?: "booked" | "unbooked" | undefined;
-  price: number | undefined;
-}
+
 const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [appointmentsData, setAppointmentsData] = useState<eventType[]>();
   const [appointmentInfoModal, setAppointmentInfoModal] =
     useState<boolean>(false);
   const [selectedAppointment, setSelectedAppointment] = useState<eventType>();
- 
+
   useEffect(() => {
     parseAppointments(businessData?.appointments);
     return;
@@ -77,7 +66,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
       phone: event.phone,
       email: event.email,
       service: event.service,
-      price: event.price
+      price: event.price,
     };
     setSelectedAppointment(eventDataObj);
     setAppointmentInfoModal(true);
@@ -103,7 +92,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
         email,
         phone,
         service,
-        price
+        price,
       }) => {
         let appointmentObj: eventType;
         appointmentObj = {
@@ -118,7 +107,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
           email,
           phone,
           service,
-          price
+          price,
         };
         if (appointmentObj.status === "booked") {
           appointmentsList.push(appointmentObj);
@@ -141,7 +130,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
           onDeleteAppointment={() => {}}
         />
       )}
-      <div className="flex w-full h-full pt-8 px-7 sm:px-24 md:pt-16 md:px-24 lg:px-36 xl:px-60 2xl:px-80">
+      <div className={`${styles.dashboardComponentCont}`}>
         <div className="flex flex-col w-full gap-7 md:gap-12 h-fit">
           <h4 className="text-2xl font-semibold md:text-3xl">
             ¡Bienvenido, {userData?.name}!
@@ -160,14 +149,32 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                     className="flex items-end justify-end w-full h-20 p-5 md:h-32 md:w-40 xl:w-52 rounded-2xl"
                   >
                     <div className="hidden md:flex">
-                      <LuCalendarPlus size={40} color="white" />
+                      <LuCalendarDays size={40} color="white" />
                     </div>
                     <div className="flex md:hidden">
-                      <LuCalendarPlus size={30} color="white" />
+                      <LuCalendarDays size={30} color="white" />
                     </div>
                   </div>
                   <span className="text-sm font-semibold md:text-lg">
                     Mi agenda
+                  </span>
+                </div>
+              </Link>
+              <Link href="/admin/schedule/settings">
+                <div className="flex flex-col gap-1 md:gap-4">
+                  <div
+                    style={{ backgroundColor: "#dd4924" }}
+                    className="flex items-end justify-end w-full h-20 p-5 md:h-32 md:w-40 xl:w-52 rounded-2xl"
+                  >
+                    <div className="hidden md:flex">
+                      <TbCalendarCog size={40} color="white" />
+                    </div>
+                    <div className="flex md:hidden">
+                      <TbCalendarCog size={30} color="white" />
+                    </div>
+                  </div>
+                  <span className="text-sm font-semibold md:text-lg">
+                    Configurar mi agenda
                   </span>
                 </div>
               </Link>
@@ -180,7 +187,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                     <MdOutlineWorkOutline size={40} color="white" />
                   </div>
                   <span className="text-sm font-semibold md:text-lg">
-                    Editar empresa
+                    Mi empresa
                   </span>
                 </div>
               </Link>
@@ -193,7 +200,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                     <FaRegEdit size={40} color="white" />
                   </div>
                   <span className="text-sm font-semibold text-left md:text-lg">
-                    Editar servicios
+                    Mis servicios
                   </span>
                 </div>
               </Link>
@@ -210,10 +217,28 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                       Mi agenda
                     </span>
                     <div className="hidden md:flex">
-                      <LuCalendarPlus size={45} color="white" />
+                      <LuCalendarDays size={45} color="white" />
                     </div>
                     <div className="flex md:hidden">
-                      <LuCalendarPlus size={26} color="white" />
+                      <LuCalendarDays size={26} color="white" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+              <Link href="/admin/schedule/settings">
+                <div className="flex flex-col gap-1 md:gap-4">
+                  <div
+                    style={{ backgroundColor: "#dd4924" }}
+                    className="flex items-center justify-between w-full p-5 h-14 md:h-32 md:w-52 rounded-2xl"
+                  >
+                    <span className="text-sm font-medium text-white md:text-lg">
+                      Configurar mi agenda
+                    </span>
+                    <div className="hidden md:flex">
+                      <TbCalendarCog size={45} color="white" />
+                    </div>
+                    <div className="flex md:hidden">
+                      <TbCalendarCog size={26} color="white" />
                     </div>
                   </div>
                 </div>
@@ -225,7 +250,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                     className="flex items-center justify-between w-full p-5 h-14 md:h-32 md:w-52 rounded-2xl"
                   >
                     <span className="text-sm font-medium text-white md:text-lg">
-                      Editar empresa
+                      Mi empresa
                     </span>
                     <div className="hidden md:flex">
                       <MdOutlineWorkOutline size={45} color="white" />
@@ -244,7 +269,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                     className="flex items-center justify-between w-full p-5 h-14 md:h-32 md:w-52 rounded-2xl"
                   >
                     <span className="text-sm font-medium text-white md:text-lg">
-                      Editar servicios
+                      Mis servicios
                     </span>
                     <div className="hidden md:flex">
                       <FaRegEdit size={45} color="white" />
@@ -306,7 +331,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                   </span>
                   <Link href="/admin/misturnos">
                     <button className={`${styles.button} px-7`}>
-                      Ver mis turnos
+                      Ver agenda
                     </button>
                   </Link>
                 </div>

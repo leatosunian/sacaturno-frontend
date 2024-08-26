@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import LoggedInHeader from "@/components/dashboard/LoggedInHeader";
+import AdminHeader from "@/components/dashboard/AdminHeader";
 
 
 export const metadata: Metadata = {
@@ -15,7 +15,8 @@ export default function Layout({
   return (
       <>
         <div className="h-screen">
-          <LoggedInHeader/>
+          {/* <LoggedInHeader/> */}
+          <AdminHeader/>
           {children}
         </div> 
       </>

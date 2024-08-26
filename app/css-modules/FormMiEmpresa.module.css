@@ -204,8 +204,21 @@
     -o-transition: all .3s ease-in-out;
 }
 
+.dashboardComponentCont {
+    padding-top: 4rem ;
+    width: 80%;
+    height: fit-content;
+    display: flex;
+    margin: 0 auto;
+}
+
+
 
 @media (max-width: 768px) {
+    .dashboardComponentCont {
+        width: 100%;
+        padding: 35px 25px 0 ;
+    }
 
     
     .cont {

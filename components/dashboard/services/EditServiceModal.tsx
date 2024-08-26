@@ -85,7 +85,10 @@ const EditServiceModal: React.FC<props> = ({
         className="absolute flex items-center justify-center modalCont "
         style={{ top: "64px" }}
       >
-        <div className="flex flex-col bg-white w-80 md:w-96 p-7 h-fit borderShadow">
+        <div
+          className="flex flex-col text-black bg-white w-80 md:w-96 p-7 h-fit borderShadow"
+          style={{ transform: "translateY(-32px)" }}
+        >
           <IoMdClose
             className={styles.closeModal}
             onClick={() => closeModal("CLOSE")}
