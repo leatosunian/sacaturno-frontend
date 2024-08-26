@@ -79,12 +79,13 @@ const CreateScheduleCalendar: React.FC<Props> = ({
   const [selectedDaysToCreate, setSelectedDaysToCreate] = useState<number>(0);
   const [selectedAutomaticSchedule, setSelectedAutomaticSchedule] =
     useState<boolean>(false);
-  const [selectedAppointmentDuration, setSelectedAppointmentDuration] =
-    useState<number>(30);
+
   const [daysSchedule, setDaysSchedule] = useState<IDaySchedule[]>([]);
   const [appointmentsSchedule, setAppointmentsSchedule] =
     useState<IAppointmentSchedule[]>();
   const router = useRouter();
+  const [selectedAppointmentDuration, setSelectedAppointmentDuration] =
+  useState<number>(30);
   // ARRAY DE DIAS CON CAMBIOS PARA GUARDAR
   const [daysChanged, setDaysChanged] = useState<IDaySchedule[]>([]);
   // ARRAY DE TURNOS DEL DIA SELECCIONADO
@@ -230,7 +231,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
   }, [appointmentsSchedule]);
 
   useEffect(() => {
-    setSelectedDay({ dayName: "LUN", dayNumber: 1 });
+    setSelectedDay({ dayName: "MAR", dayNumber: 2 });
   }, []);
 
   const createNewAppointment = async ({
@@ -410,14 +411,14 @@ const CreateScheduleCalendar: React.FC<Props> = ({
         },
         authHeader
       );
+
+      if (daysChanged.length > 0) saveModifiedScheduleDays();
       setAlert({
         msg: "Cambios guardados con éxito",
         error: true,
         alertType: "OK_ALERT",
       });
       hideAlert();
-      router.refresh()
-      if (daysChanged.length > 0) saveModifiedScheduleDays();
       setLoadingNewAppointments(false);
     } catch (error) {
       setAlert({
