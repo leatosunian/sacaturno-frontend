@@ -73,7 +73,12 @@ export default function AdminHeader() {
               </Link>
             </div>
           </div>
-          <div className="hidden md:block">
+          <div
+            style={{
+              zIndex: "9999999"
+            }}
+            className="hidden md:block"
+          >
             <div className="flex items-baseline ml-10 space-x-4">
               <Link
                 href="/public/search"

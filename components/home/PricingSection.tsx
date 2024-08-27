@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 const PricingSection = () => {
   return (
     <>
-      <div className="flex flex-col items-center justify-center w-full gap-12 py-5 text-black h-fit lg:py-0 lg:h-screen">
+      <div className="flex flex-col items-center justify-center w-full gap-12 py-5 text-black h-fit lg:pt-40 lg:h-screen">
         {/* HEADER */}
         <div className="w-full text-center h-fit">
           <h3 className="mb-1 text-2xl font-semibold text-black md:text-3xl">

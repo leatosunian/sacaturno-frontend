@@ -11,6 +11,7 @@ import { IoIosAlert } from "react-icons/io";
 import { Metadata } from "next";
 import { IDaySchedule } from "@/interfaces/daySchedule.interface";
 import { IAppointmentSchedule } from "@/interfaces/appointmentSchedule.interface";
+import data from "../../../../shop-coding-test/server/src/data/data";
 
 export const metadata: Metadata = {
   title: "Mi agenda | SacaTurno",
@@ -26,6 +27,7 @@ const getAppointments = async () => {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token?.value}`,
       "Cache-Control": "no-store",
+      cache: "no-store"
     },
   };
 
@@ -34,11 +36,12 @@ const getAppointments = async () => {
     authHeader
   );
   const businessData: IBusiness = businessFetch.data;
+  console.log(process.env.SERVER_URL);
 
-  const appointmentsFetch = await axiosReq.get(
-    `/appointment/get/${businessData._id}`,
+  const appointmentsFetch = await fetch(
+    `${process.env.SERVER_URL}/appointment/get/${businessData._id}`,
     authHeader
-  );
+  ).then((response) => response.json());
 
   const servicesFetch = await axiosReq.get(
     `/business/service/get/${businessData._id}`,
@@ -46,14 +49,18 @@ const getAppointments = async () => {
   );
   const services: IService[] = servicesFetch.data;
 
-
   const daysAndAppointmentsFetch = await axiosReq.get(
     `/schedule/get/${businessData._id}`,
     authHeader
   );
   const scheduleDays = daysAndAppointmentsFetch.data.days;
 
-  return { appointments: appointmentsFetch.data, businessData, services, scheduleDays };
+  return {
+    appointments: appointmentsFetch,
+    businessData,
+    services,
+    scheduleDays,
+  };
 };
 
 async function getSubscriptionData() {

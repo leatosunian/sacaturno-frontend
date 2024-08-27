@@ -85,7 +85,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     useState<IAppointmentSchedule[]>();
   const router = useRouter();
   const [selectedAppointmentDuration, setSelectedAppointmentDuration] =
-  useState<number>(30);
+    useState<number>(30);
   // ARRAY DE DIAS CON CAMBIOS PARA GUARDAR
   const [daysChanged, setDaysChanged] = useState<IDaySchedule[]>([]);
   // ARRAY DE TURNOS DEL DIA SELECCIONADO
@@ -231,7 +231,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
   }, [appointmentsSchedule]);
 
   useEffect(() => {
-    setSelectedDay({ dayName: "MAR", dayNumber: 2 });
+    setSelectedDay({ dayName: "LUN", dayNumber: 1 });
   }, []);
 
   const createNewAppointment = async ({
@@ -246,7 +246,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     dayjs.extend(advanced);
     if (subscriptionData?.subscriptionType === "SC_EXPIRED") {
       setExpiredModal(true);
-      return
+      return;
     }
     const startDate = dayjs(start)
       .tz("America/Argentina/Buenos_Aires")
@@ -402,7 +402,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     };
     // guardar los datos de parametros de agenda automatica
     try {
-      const saveBusinessData = await axiosReq.put(
+      await axiosReq.put(
         "/business/schedule/parameters/" + business?._id,
         {
           scheduleAnticipation: selectedAnticipation,
@@ -420,6 +420,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
       });
       hideAlert();
       setLoadingNewAppointments(false);
+     
     } catch (error) {
       setAlert({
         msg: "Error al guardar cambios",
@@ -497,10 +498,15 @@ const CreateScheduleCalendar: React.FC<Props> = ({
           closeModalF={() => setCreateAppointmentModal(false)}
         />
       )}
-      
+
       {servicesData.length === 0 && <NoServicesModal />}
-      
-      {expiredModal && <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={business} />}
+
+      {expiredModal && (
+        <ExpiredPlanModal
+          onCloseModal={() => setExpiredModal(false)}
+          businessData={business}
+        />
+      )}
 
       {helpModal && <HelpModal onClose={() => setHelpModal(false)} />}
 
@@ -527,7 +533,9 @@ const CreateScheduleCalendar: React.FC<Props> = ({
         </header>
 
         <div className="flex flex-col w-full gap-2">
-          <h4 className="text-lg font-semibold md:text-xl">Horario de atención </h4>
+          <h4 className="text-lg font-semibold md:text-xl">
+            Horario de atención{" "}
+          </h4>
           {/* <span className="flex px-0 text-xs font-normal text-gray-600 md:text-sm md:px-7">
             Por cada día de la semana, ingresá el horario de trabajo, la
             duración de cada turno y creá los turnos del dia con el servicio que
@@ -693,7 +701,9 @@ const CreateScheduleCalendar: React.FC<Props> = ({
         <div className="flex w-full mt-10 mb-10 md:mt-16">
           <div className="flex flex-col">
             <div className="flex flex-col gap-4 md:gap-8">
-              <h4 className="text-lg font-semibold md:text-xl">Automatizar turnos</h4>
+              <h4 className="text-lg font-semibold md:text-xl">
+                Automatizar turnos
+              </h4>
 
               <div className="flex gap-5">
                 <div className="flex flex-col">
@@ -801,7 +811,10 @@ const CreateScheduleCalendar: React.FC<Props> = ({
 
                     <span className="text-xs font-semibold">
                       Tus próximos turnos se crearán el{" "}
-                      {dayjs(businessData.scheduleEnd).subtract(businessData.scheduleAnticipation, 'day').format("dddd DD/MM")}.
+                      {dayjs(businessData.scheduleEnd)
+                        .subtract(businessData.scheduleAnticipation, "day")
+                        .format("dddd DD/MM")}
+                      .
                     </span>
                   </div>
                 </>
@@ -850,7 +863,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
         <Link
           className="flex items-center gap-2 mr-auto text-xs font-semibold uppercase"
           style={{ color: "#dd4924" }}
-          href="/admin/misturnos"
+          href="/admin/schedule"
         >
           <FaArrowLeft />
           Mi agenda
