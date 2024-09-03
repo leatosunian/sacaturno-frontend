@@ -9,9 +9,6 @@ import dayjs from "dayjs";
 import ISubscription from "@/interfaces/subscription.interface";
 import { IoIosAlert } from "react-icons/io";
 import { Metadata } from "next";
-import { IDaySchedule } from "@/interfaces/daySchedule.interface";
-import { IAppointmentSchedule } from "@/interfaces/appointmentSchedule.interface";
-import data from "../../../../shop-coding-test/server/src/data/data";
 
 export const metadata: Metadata = {
   title: "Mi agenda | SacaTurno",

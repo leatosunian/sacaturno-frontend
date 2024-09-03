@@ -89,7 +89,7 @@ export default function AdminHeader() {
               >
                 Sacar turno
               </Link>
-              <div className="relative group">
+              <div className="relative group" style={{zIndex: '99999'}} >
                 <button
                   onClick={() => toggleDropdown("empresa")}
                   className="inline-flex items-center px-3 py-2 text-xs font-medium uppercase transition-colors duration-300 rounded-md backgroundOrangHover"
@@ -132,7 +132,7 @@ export default function AdminHeader() {
                   </Link>
                 </div>
               </div>
-              <div className="relative group">
+              <div className="relative group" style={{zIndex: '99999'}} >
                 <button
                   onClick={() => toggleDropdown("turnos")}
                   className="inline-flex items-center px-3 py-2 text-xs font-medium uppercase transition-colors duration-300 rounded-md backgroundOrangHover"
