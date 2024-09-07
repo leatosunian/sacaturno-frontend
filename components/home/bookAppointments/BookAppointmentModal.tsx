@@ -193,9 +193,9 @@ const BookAppointmentModal: React.FC<props> = ({
                       >
                         Descripción/Observaciones
                       </label>
-                      <span className="text-xs">
+                      <pre className="text-xs" style={{font:'inherit', fontSize:'12px'}}>
                         {appointmentData?.description}
-                      </span>
+                      </pre>
                     </div>
                   )}
 

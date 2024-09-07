@@ -14,7 +14,7 @@ interface propsComponent {
 export async function generateMetadata({
   params,
 }: propsComponent): Promise<Metadata> {
-  const slug = params.slug;
+  const slug = params.slug.toLowerCase();
   const businessFetch = await axiosReq.get(`/business/getbyslug/${slug}`);
   const businessData: IBusiness = businessFetch.data;
   return {

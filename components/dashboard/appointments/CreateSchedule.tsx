@@ -420,6 +420,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
       });
       hideAlert();
       setLoadingNewAppointments(false);
+      // 
      
     } catch (error) {
       setAlert({
