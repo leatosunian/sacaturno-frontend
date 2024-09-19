@@ -25,7 +25,7 @@ const PricingSection = () => {
           <motion.div
             initial={{ opacity: 0, x: 10 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ amount: "all", once: true }}
+            viewport={{ amount: "some", once: true }}
             transition={{ duration: 0.7, ease: "easeInOut" }}
             className={homeStyles.pricingCard}
           >
