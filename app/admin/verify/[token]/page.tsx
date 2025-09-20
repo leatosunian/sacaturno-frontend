@@ -14,6 +14,7 @@ interface propsComponent {
 const verifyUser = async (token: string) => {
   try {
     const verification = await axiosReq.post(`/user/verify/${token}`);
+    console.log('verification', verification.data);
     if (verification.data._id) {
       return verification.data;
     } else {

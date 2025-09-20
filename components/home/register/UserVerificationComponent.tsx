@@ -14,6 +14,7 @@ const UserVerificationComponent = ({ userData }: Props) => {
   const [isUser, setIsUser] = useState(false);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
+    console.log('userData', userData);
     setLoading(false)
     if (userData === undefined) {
       return setIsUser(false);
