@@ -31,7 +31,6 @@ async function getBusinessData() {
       `/business/get/${ownerID?.value}`,
       authHeader
     );
-
     return res.data;
   } catch (error: any) {
     const response_data = {
@@ -135,7 +134,7 @@ const Settings: NextPage = async ({}) => {
           <span className="font-semibold sm:text-lg md:text-xl">
             No tenés una empresa creada.
           </span>
-          <Link href="/admin/miempresa/create">
+          <Link href="/admin/business/create">
             <button className={styles.button}>Crear empresa</button>
           </Link>
         </div>

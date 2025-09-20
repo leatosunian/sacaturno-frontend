@@ -94,6 +94,7 @@ const FormCreateBusiness: React.FC = () => {
           data,
           authHeader
         );
+        
         if (updatedUser.data.businessData === "BUSINESS_EXISTS") {
           setAlert({
             msg: "Solo podes añadir una empresa",

@@ -65,29 +65,29 @@ const PricingSection = () => {
                 EL PLAN INCLUYE
               </h5>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
-                <FaCheck size={12} />
+                <FaCheck color="#dd4924" size={12} />
                 <span className="text-xs text-black">
                   Prueba gratuita de 15 días
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
-                <FaCheck size={12} />
+                <FaCheck color="#dd4924" size={12} />
                 <span className="text-xs text-black">
                   1 servicio por empresa
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
-                <FaCheck size={12} />
+                <FaCheck color="#dd4924" size={12} />
                 <span className="text-xs text-black">Un turno por horario</span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
-                <FaCheck size={12} />
+                <FaCheck color="#dd4924" size={12} />
                 <span className="text-xs text-black">
                   Notificaciones por email
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
-                <FaCheck size={12} />
+                <FaCheck color="#dd4924" size={12} />
                 <span className="text-xs text-black">Soporte 24/7</span>
               </div>
             </div>
@@ -137,7 +137,7 @@ const PricingSection = () => {
               </h4>
               <div>
                 <span className="mr-1 text-2xl font-semibold lg:text-2xl">
-                  $8700
+                  $11.860
                 </span>
                 <span className="text-sm text-gray-800">ARS/mes</span>
               </div>
@@ -156,25 +156,25 @@ const PricingSection = () => {
                 EL PLAN INCLUYE
               </h5>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
-                <FaCheck size={12} />
+                <FaCheck color="#dd4924" size={12} />
                 <span className="text-xs text-black">Turnos ilimitados</span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
-                <FaCheck size={12} />
+                <FaCheck color="#dd4924" size={12} />
                 <span className="text-xs text-black">Servicios ilimitados</span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
-                <FaCheck size={12} />
+                <FaCheck color="#dd4924" size={12} />
                 <span className="text-xs text-black">
                   Notificaciones por email
                 </span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
-                <FaCheck size={12} />
+                <FaCheck color="#dd4924" size={12} />
                 <span className="text-xs text-black">Soporte 24/7</span>
               </div>
               <div className="flex items-center justify-center gap-3 w-fit h-fit">
-                <FaCheck size={12} />
+                <FaCheck color="#dd4924" size={12} />
                 <span className="text-xs text-black">
                   Turnos simultáneos en un mismo horario
                 </span>

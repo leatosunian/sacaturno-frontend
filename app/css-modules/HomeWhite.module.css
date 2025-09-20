@@ -192,6 +192,29 @@
   -o-transition: .4s ease-in-out all;
 }
 
+.textOrangeHoverToWhite {
+  color: #dd4924;
+  font-weight: 500;
+  letter-spacing: -.2px;
+  cursor: pointer;
+  transition: .4s ease-in-out all;
+  -webkit-transition: .4s ease-in-out all;
+  -moz-transition: .4s ease-in-out all;
+  -ms-transition: .4s ease-in-out all;
+  -o-transition: .4s ease-in-out all;
+}
+
+.textOrangeHoverToWhite:hover {
+  color: #fff;
+  transition: .4s ease-in-out all;
+  -webkit-transition: .4s ease-in-out all;
+  -moz-transition: .4s ease-in-out all;
+  -ms-transition: .4s ease-in-out all;
+  -o-transition: .4s ease-in-out all;
+}
+
+
+
 .footerContainer {
   display: flex;
   flex-direction: column;
