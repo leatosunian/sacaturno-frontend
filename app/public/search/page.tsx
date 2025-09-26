@@ -25,7 +25,7 @@ const SearchBusiness: React.FC = () => {
   const router = useRouter();
 
   const myLoader = ({ src }: { src: string }) => {
-    return `https://sacaturno-server-ereef.ondigitalocean.app/api${src}`;
+    return `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${src}`;
   };
 
   const hideAlert = () => {
@@ -50,6 +50,7 @@ const SearchBusiness: React.FC = () => {
             "Cache-Control": "no-store",
           },
         });
+        console.log("search result", res.data);
         if (res.data === "BUSINESS_NOT_FOUND") {
           setAlert({
             msg: "No se encontraron resultados",
@@ -64,6 +65,7 @@ const SearchBusiness: React.FC = () => {
           setLoading(false);
           return setSearchResults(res.data);
         }
+
 
         /*return res.data;*/
       } catch (error: any) {
@@ -188,11 +190,11 @@ const SearchBusiness: React.FC = () => {
                           className="flex items-center w-full gap-4 px-4 h-14 backdrop-blur py-9 rounded-xl"
                         >
                           <Image
-                            loader={myLoader}
+                            loader={() => myLoader({ src: business.image })}
                             width={64}
                             height={64}
                             className="w-12 h-12 rounded-full"
-                            src={`/user/getprofilepic/${business.image}`}
+                            src={`https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${business.image}`}
                             alt=""
                           />
                           <div className="flex flex-col w-fit h-fit">

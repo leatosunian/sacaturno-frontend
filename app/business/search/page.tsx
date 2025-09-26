@@ -2,7 +2,7 @@
 import styles from "@/app/css-modules/miempresa.module.css";
 import { HiSearch } from "react-icons/hi";
 import Image from "next/image";
-import { ChangeEventHandler, useState } from "react";
+import { ChangeEventHandler, useEffect, useState } from "react";
 import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
 import AlertInterface from "@/interfaces/alert.interface";
@@ -18,7 +18,7 @@ const SearchBusiness: React.FC = () => {
   const router = useRouter();
 
   const myLoader = ({ src }: { src: string }) => {
-    return `https://sacaturno-server-production.up.railway.app/api${src}`;
+    return `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${src}`;
   };
 
   const hideAlert = () => {
@@ -57,7 +57,7 @@ const SearchBusiness: React.FC = () => {
           setLoading(false);
           return setSearchResults(res.data);
         }
-
+        console.log("search result", res.data);
         /*return res.data;*/
       } catch (error: any) {
         console.log(error);
@@ -65,6 +65,11 @@ const SearchBusiness: React.FC = () => {
       }
     }
   };
+
+  useEffect(() => {
+    console.log("search result")
+  }, [])
+
 
   return (
     <>
@@ -122,7 +127,7 @@ const SearchBusiness: React.FC = () => {
                   width={64}
                   height={64}
                   className="w-12 h-12 rounded-full"
-                  src={`/user/getprofilepic/${business.image}`}
+                  src={`https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${business.image}`}
                   alt=""
                 />
                 <div className="flex flex-col w-fit h-fit">

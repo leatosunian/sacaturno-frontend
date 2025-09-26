@@ -5,8 +5,11 @@ import {
   Views,
   dayjsLocalizer,
 } from "react-big-calendar";
+// @ts-ignore
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import dayjs from "dayjs";
+import Image from "next/image";
+
 import "dayjs/locale/es-mx";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -127,6 +130,11 @@ const CalendarTurnos: React.FC<Props> = ({
     });
     return;
   }, [date]);
+
+  const myLoader = ({ src }: { src: string }) => {
+    return `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${src}`;
+  };
+
 
   const parseAppointments = (appointments: IAppointment[] | undefined) => {
     dayjs.extend(timezone);
@@ -288,11 +296,21 @@ const CalendarTurnos: React.FC<Props> = ({
       )}
 
       <div className="flex flex-col w-full h-fit ">
-        <header className="flex flex-col items-center justify-center w-full mt-3 mb-3 md:mt-7 md:mb-7 h-fit">
-          <h4 className="text-xl font-bold uppercase md:text-2xl">
-            {business?.name}
-          </h4>
-          <span className="text-xs uppercase">Reservar turno</span>
+        <header className="flex flex-row items-center justify-center w-full gap-5 my-5 md:my-7 h-fit">
+          <Image
+            loader={() => myLoader({ src: business?.image! })}
+            width={64}
+            height={64}
+            className="w-12 h-12 rounded-full"
+            src={`https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${business?.image}`}
+            alt=""
+          />
+          <div className="flex flex-col items-start w-fit h-fit">
+            <h4 className="text-xl font-bold uppercase md:text-2xl">
+              {business?.name}
+            </h4>
+            <span className="text-xs uppercase">Reservar turno</span>
+          </div>
         </header>
         <div className="flex-col hidden w-full mb-5 md:flex md:flex-row h-fit">
           <div className="flex w-1/3 h-fit">
@@ -357,8 +375,8 @@ const CalendarTurnos: React.FC<Props> = ({
             startAccessor="start"
             endAccessor="end"
             messages={messages}
-            onView={() => {}}
-            onNavigate={() => {}}
+            onView={() => { }}
+            onNavigate={() => { }}
             showAllEvents={false}
             view={view}
             date={date}
@@ -367,7 +385,7 @@ const CalendarTurnos: React.FC<Props> = ({
             max={new Date(0, 0, 0, selectedDaySchedule.dayEnd, 0, 0)}
             timeslots={1}
             step={selectedDaySchedule.appointmentDuration}
-            onSelectSlot={() => {}}
+            onSelectSlot={() => { }}
             toolbar={false}
             selectable
             defaultView="day"
