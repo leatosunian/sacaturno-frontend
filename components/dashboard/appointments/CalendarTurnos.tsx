@@ -5,7 +5,7 @@ import {
   Views,
   dayjsLocalizer,
 } from "react-big-calendar";
-import "react-big-calendar/lib/css/react-big-calendar.css";
+
 import dayjs from "dayjs";
 import "dayjs/locale/es-mx";
 import { IAppointment } from "@/interfaces/appointment.interface";
@@ -32,7 +32,8 @@ import { IDaySchedule } from "@/interfaces/daySchedule.interface";
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa6";
 import { timeOptions } from "@/helpers/timeOptions";
-
+// @ts-ignore
+import "react-big-calendar/lib/css/react-big-calendar.css";
 dayjs.locale("es-mx");
 
 interface Props {

@@ -2,7 +2,6 @@
 import styles from "@/app/css-modules/NoServicesModal.module.css";
 import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { IoIosAlert } from "react-icons/io";
 

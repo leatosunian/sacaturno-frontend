@@ -13,7 +13,6 @@ import {
 import sacaturno_logo from "@/public/st_logo_white.png";
 import { RxCross2, RxHamburgerMenu } from "react-icons/rx";
 import { useRouter } from "next/navigation";
-import { HiLogout } from "react-icons/hi";
 import { IoIosLogOut } from "react-icons/io";
 
 export default function AdminHeader() {

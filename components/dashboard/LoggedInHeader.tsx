@@ -9,7 +9,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import sacaturno_logo from "@/public/st_logo_white.png";
-import { FaChevronUp } from "react-icons/fa6";
 
 interface Props {}
 
