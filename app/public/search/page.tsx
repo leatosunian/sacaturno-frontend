@@ -25,7 +25,7 @@ const SearchBusiness: React.FC = () => {
   const router = useRouter();
 
   const myLoader = ({ src }: { src: string }) => {
-    return `https://sacaturno-server-ereef.ondigitalocean.app/api${src}`;
+    return `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${src}`;
   };
 
   const hideAlert = () => {
@@ -192,7 +192,7 @@ const SearchBusiness: React.FC = () => {
                             width={64}
                             height={64}
                             className="w-12 h-12 rounded-full"
-                            src={`/user/getprofilepic/${business.image}`}
+                            src={`https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${business.image}`}
                             alt=""
                           />
                           <div className="flex flex-col w-fit h-fit">
