@@ -421,9 +421,23 @@ const CalendarTurnos: React.FC<Props> = ({
       {/* mobile dropdown */}
 
       <div className="flex flex-col w-full h-fit ">
-        <header className="flex items-center justify-center w-full mt-3 mb-1 md:mt-4 md:mb-1 h-fit">
-          <h4 style={{ fontSize: "20px" }} className="font-bold uppercase ">
-            Mi agenda
+         <header className="flex flex-col items-center justify-center w-full mt-4 mb-3 md:mt-5 md:mb-6 h-fit">
+          <h4
+            className="relative inline-block px-2 font-bold text-center uppercase"
+            style={{ fontSize: 20 }}
+          >
+            Mis turnos
+
+            {/* linea */}
+            <span
+              className="absolute left-0 right-0 mx-auto"
+              style={{
+                bottom: -2,    // gap entre texto y linea (ajustalo)
+                height: 2,     // grosor de la linea (ajustalo)
+                background: "#dd4924",
+                width: "60%",  // ancho opcional de la linea
+              }}
+            />
           </h4>
         </header>
 

@@ -134,11 +134,25 @@ const MiPerifl = async () => {
 
   return (
     <>
-      <header className="flex justify-center w-full mt-5 mb-5 md:mt-7 md:mb-7 h-fit">
-        <h4 style={{ fontSize: "20px" }} className="font-bold uppercase ">
-          Mi Perfil
-        </h4>
-      </header>
+           <header className="flex flex-col items-center justify-center w-full mt-5 mb-4 md:mt-5 md:mb-6 h-fit">
+            <h4
+              className="relative inline-block px-2 font-bold text-center uppercase"
+              style={{ fontSize: 20 }}
+            >
+              mi perfil
+
+              {/* linea */}
+              <span
+                className="absolute left-0 right-0 mx-auto"
+                style={{
+                  bottom: -2,    // gap entre texto y linea (ajustalo)
+                  height: 2,     // grosor de la linea (ajustalo)
+                  background: "#dd4924",
+                  width: "60%",  // ancho opcional de la linea
+                }}
+              />
+            </h4>
+          </header>
 
       <div className="flex justify-center w-full mt-5 h-fit">
         <div className="mb-10 perfilPageCont md:mb-20">

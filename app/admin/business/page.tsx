@@ -9,7 +9,7 @@ import { IService } from "@/interfaces/service.interface";
 import { MdOutlineWorkHistory } from "react-icons/md";
 import { FaArrowRight } from "react-icons/fa6";
 
-interface Props {}
+interface Props { }
 export const metadata: Metadata = {
   title: "Mi Empresa | SacaTurno",
   description: "Aplicación de turnos online",
@@ -75,7 +75,7 @@ async function getServicesData() {
   }
 }
 
-const MiEmpresa: NextPage<Props> = async ({}) => {
+const MiEmpresa: NextPage<Props> = async ({ }) => {
   const services: IService[] = await getServicesData();
   const data: IBusiness = await getBusinessData();
 
@@ -97,15 +97,29 @@ const MiEmpresa: NextPage<Props> = async ({}) => {
       )}
       {typeof data !== "string" && (
         <>
-          <header className="flex justify-center w-full mt-5 mb-5 md:mt-7 md:mb-7 h-fit">
-            <h4 style={{ fontSize: "20px" }} className="font-bold uppercase ">
-              Mi Empresa
+          <header className="flex flex-col items-center justify-center w-full mt-5 mb-4 md:mt-5 md:mb-6 h-fit">
+            <h4
+              className="relative inline-block px-2 font-bold text-center uppercase"
+              style={{ fontSize: 20 }}
+            >
+              mi empresa
+
+              {/* linea */}
+              <span
+                className="absolute left-0 right-0 mx-auto"
+                style={{
+                  bottom: -2,    // gap entre texto y linea (ajustalo)
+                  height: 2,     // grosor de la linea (ajustalo)
+                  background: "#dd4924",
+                  width: "60%",  // ancho opcional de la linea
+                }}
+              />
             </h4>
           </header>
           <div className="flex flex-col justify-center w-full mt-5 h-fit">
-            <div className={`${styles.cont}`}>
+            {/* <div className={`${styles.cont}`}> */}
               <FormMiEmpresa businessData={data} servicesData={services} />
-            </div>
+            {/* </div> */}
             <div
               className={`mx-auto flex justify-end my-9 h-fit lg:my-4 ${styles.configArrows}`}
             >
@@ -114,7 +128,7 @@ const MiEmpresa: NextPage<Props> = async ({}) => {
                 style={{ color: "#dd4924" }}
                 href="/admin/business/settings"
               >
-                Mis servicios
+                Servicios
                 <FaArrowRight />
               </Link>
             </div>

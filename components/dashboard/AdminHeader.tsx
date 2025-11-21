@@ -13,8 +13,10 @@ import {
 import sacaturno_logo from "@/public/st_logo_white.png";
 import { RxCross2, RxHamburgerMenu } from "react-icons/rx";
 import { useRouter } from "next/navigation";
-import { HiLogout } from "react-icons/hi";
-import { IoIosLogOut } from "react-icons/io";
+import { IoIosLogOut, IoIosSettings } from "react-icons/io";
+import { RiListSettingsLine } from "react-icons/ri";
+import { LuCalendarPlus } from "react-icons/lu";
+import { TbCalendarRepeat } from "react-icons/tb";
 
 export default function AdminHeader() {
   const [isOpen, setIsOpen] = useState(false);
@@ -80,101 +82,102 @@ export default function AdminHeader() {
             className="hidden md:block"
           >
             <div className="flex items-baseline ml-10 space-x-4">
-              <Link
-                href="/public/search"
-                onClick={() => {
-                  setOpenDropdown("");
-                }}
-                className="px-3 py-2 text-xs font-medium uppercase transition-colors duration-300 rounded-md backgroundOrangHover"
-              >
-                Sacar turno
-              </Link>
-              <div className="relative group" style={{zIndex: '99999'}} >
+              <div className="relative group" style={{ zIndex: '99999' }} >
+                <Link
+                  href="/admin/dashboard"
+                  className="px-3 py-2 mr-5 text-xs font-medium uppercase transition-colors duration-300 rounded-md backgroundOrangHover"
+                  onClick={() => {
+                    setOpenDropdown("");
+                  }}
+                >
+                  Home
+                </Link>
                 <button
                   onClick={() => toggleDropdown("empresa")}
                   className="inline-flex items-center px-3 py-2 text-xs font-medium uppercase transition-colors duration-300 rounded-md backgroundOrangHover"
                 >
                   Mi empresa
                   <BsChevronDown
-                    className={`ml-1 h-4 w-4 transition-transform duration-300 ${
-                      openDropdown === "empresa" ? "rotate-180" : ""
-                    }`}
+                    className={`ml-1 h-4 w-4 transition-transform duration-300 ${openDropdown === "empresa" ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
                 <div
                   style={{ outline: "1px solid rgba(255, 255, 255, 0.24)" }}
-                  className={`absolute left-0 mt-2 w-48 bg-black backdrop-blur-md bg-opacity-50 rounded-md shadow-lg  z-10 transition-all duration-300 ${
-                    openDropdown === "empresa"
-                      ? "opacity-100 translate-y-0 "
-                      : "opacity-0 -translate-y-2 pointer-events-none "
-                  }`}
+                  className={`absolute left-4 mt-2 w-48 bg-black backdrop-blur-md bg-opacity-50 rounded-md shadow-lg  z-10 transition-all duration-300 ${openDropdown === "empresa"
+                    ? "opacity-100 translate-y-0 "
+                    : "opacity-0 -translate-y-2 pointer-events-none "
+                    }`}
                 >
                   <Link
                     href="/admin/business"
                     style={{
                       borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
                     }}
-                    className="block px-4 py-3 text-xs uppercase transition-colors duration-300 rounded-t-md backgroundOrangHover"
+                    className="flex items-center gap-2 px-4 py-3 text-xs uppercase transition-colors duration-300 rounded-t-md backgroundOrangHover"
                     onClick={() => {
                       setOpenDropdown("");
                     }}
                   >
-                    Configurar empresa
+                    <IoIosSettings size={16} />
+                    General
                   </Link>
                   <Link
                     href="/admin/business/settings"
-                    className="block px-4 py-3 text-xs uppercase transition-colors duration-300 backgroundOrangHover rounded-b-md"
+                    className="flex items-center gap-2 px-4 py-3 text-xs uppercase transition-colors duration-300 backgroundOrangHover rounded-b-md"
                     onClick={() => {
                       setOpenDropdown("");
                     }}
                   >
-                    Mis servicios
+                    <RiListSettingsLine size={16}/>
+
+                    Servicios
                   </Link>
                 </div>
               </div>
-              <div className="relative group" style={{zIndex: '99999'}} >
+              <div className="relative group" style={{ zIndex: '99999' }} >
                 <button
                   onClick={() => toggleDropdown("turnos")}
                   className="inline-flex items-center px-3 py-2 text-xs font-medium uppercase transition-colors duration-300 rounded-md backgroundOrangHover"
                 >
-                  Mis turnos
+                  Mi agenda
                   <BsChevronDown
-                    className={`ml-1 h-4 w-4 transition-transform duration-300 ${
-                      openDropdown === "turnos" ? "rotate-180" : ""
-                    }`}
+                    className={`ml-1 h-4 w-4 transition-transform duration-300 ${openDropdown === "turnos" ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
                 <div
                   style={{ outline: "1px solid rgba(255, 255, 255, 0.24)" }}
-                  className={`absolute left-0 mt-2 w-48 bg-black backdrop-blur-md bg-opacity-50 rounded-md shadow-lg  z-10 transition-all duration-300 ${
-                    openDropdown === "turnos"
-                      ? "opacity-100 translate-y-0 "
-                      : "opacity-0 -translate-y-2 pointer-events-none "
-                  }`}
+                  className={`absolute left-0 mt-2 w-48 bg-black backdrop-blur-md bg-opacity-50 rounded-md shadow-lg  z-10 transition-all duration-300 ${openDropdown === "turnos"
+                    ? "opacity-100 translate-y-0 "
+                    : "opacity-0 -translate-y-2 pointer-events-none "
+                    }`}
                 >
                   <Link
                     href="/admin/schedule"
                     style={{
                       borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
                     }}
-                    className="block px-4 py-3 text-xs uppercase transition-colors duration-300 rounded-t-md backgroundOrangHover"
+                    className="flex items-center gap-2 px-4 py-3 text-xs uppercase transition-colors duration-300 rounded-t-md backgroundOrangHover"
                     onClick={() => {
                       setOpenDropdown("");
                     }}
                   >
-                    Mi agenda
+                    <LuCalendarPlus  size={16} />
+                    Turnos
                   </Link>
                   <Link
                     href="/admin/schedule/settings"
                     style={{
                       borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
                     }}
-                    className="block px-4 py-3 text-xs uppercase transition-colors duration-300 rounded-b-md backgroundOrangHover"
+                    className="flex items-center gap-2 px-4 py-3 text-xs uppercase transition-colors duration-300 rounded-b-md backgroundOrangHover"
                     onClick={() => {
                       setOpenDropdown("");
                     }}
                   >
-                    Configurar agenda
+                    <TbCalendarRepeat  size={16} />
+                    automatizar
                   </Link>
                 </div>
               </div>
@@ -223,9 +226,8 @@ export default function AdminHeader() {
           transform: "translateY(63px)",
           zIndex: "9999999",
         }}
-        className={` fixed inset-0 z-50 md:hidden transition-opacity duration-300 ease-in-out ${
-          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
+        className={` fixed inset-0 z-50 md:hidden transition-opacity duration-300 ease-in-out ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
       >
         {/* Blurred background */}
         <div
@@ -235,9 +237,8 @@ export default function AdminHeader() {
 
         {/* Menu content */}
         <div
-          className={`absolute top-0 pt-2 right-0 w-64 h-full bg-black bg-opacity-90 shadow-lg transform transition-transform duration-300 ease-in-out ${
-            isOpen ? "translate-x-0" : "translate-x-full"
-          }`}
+          className={`absolute top-0 pt-2 right-0 w-64 h-full bg-black bg-opacity-90 shadow-lg transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "translate-x-full"
+            }`}
         >
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <Link
@@ -251,24 +252,21 @@ export default function AdminHeader() {
             <div>
               <button
                 onClick={() => toggleDropdown("empresa")}
-                className={`"backgroundOrangHover px-3 py-3 rounded-md w-full text-sm font-medium uppercase transition-colors duration-300 flex gap-2 items-center ${
-                  openDropdown === "empresa" ? "backgroundOrange" : "bg-black"
-                }`}
+                className={`"backgroundOrangHover px-3 py-3 rounded-md w-full text-sm font-medium uppercase transition-colors duration-300 flex gap-2 items-center ${openDropdown === "empresa" ? "backgroundOrange" : "bg-black"
+                  }`}
               >
                 <CiShop size={16} />
                 Mi empresa
                 <BsChevronDown
-                  className={`h-4 w-4 ml-auto transition-transform duration-300 ${
-                    openDropdown === "empresa" ? "rotate-180" : ""
-                  }`}
+                  className={`h-4 w-4 ml-auto transition-transform duration-300 ${openDropdown === "empresa" ? "rotate-180" : ""
+                    }`}
                 />
               </button>
               <div
-                className={`pl-5 transition-all duration-300 ${
-                  openDropdown === "empresa"
-                    ? "max-h-40 opacity-100"
-                    : "max-h-0 opacity-0 overflow-hidden"
-                }`}
+                className={`pl-5 transition-all duration-300 ${openDropdown === "empresa"
+                  ? "max-h-40 opacity-100"
+                  : "max-h-0 opacity-0 overflow-hidden"
+                  }`}
               >
                 <Link
                   href="/admin/business"
@@ -289,24 +287,21 @@ export default function AdminHeader() {
             <div>
               <button
                 onClick={() => toggleDropdown("turnos")}
-                className={`backgroundOrangHover px-3 py-3 rounded-md w-full text-sm font-medium uppercase transition-colors duration-300 flex gap-2 items-center ${
-                  openDropdown === "turnos" ? "backgroundOrange" : "bg-black"
-                }`}
+                className={`backgroundOrangHover px-3 py-3 rounded-md w-full text-sm font-medium uppercase transition-colors duration-300 flex gap-2 items-center ${openDropdown === "turnos" ? "backgroundOrange" : "bg-black"
+                  }`}
               >
                 <CiCalendarDate size={16} />
                 Mis turnos
                 <BsChevronDown
-                  className={`h-4 w-4 ml-auto  transition-transform duration-300 ${
-                    openDropdown === "turnos" ? "rotate-180" : ""
-                  }`}
+                  className={`h-4 w-4 ml-auto  transition-transform duration-300 ${openDropdown === "turnos" ? "rotate-180" : ""
+                    }`}
                 />
               </button>
               <div
-                className={`pl-6 transition-all duration-300 ${
-                  openDropdown === "turnos"
-                    ? "max-h-40 opacity-100"
-                    : "max-h-0 opacity-0 overflow-hidden"
-                }`}
+                className={`pl-6 transition-all duration-300 ${openDropdown === "turnos"
+                  ? "max-h-40 opacity-100"
+                  : "max-h-0 opacity-0 overflow-hidden"
+                  }`}
               >
                 <Link
                   href="/admin/schedule"

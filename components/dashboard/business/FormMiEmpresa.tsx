@@ -13,6 +13,7 @@ import Alert from "../../Alert";
 import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
 import { IService } from "@/interfaces/service.interface";
+import { Card } from "@/components/ui/card";
 
 interface props {
   businessData: IBusiness;
@@ -213,13 +214,14 @@ const FormMiEmpresa = ({
         onSubmit={handleSubmit((data) => {
           saveChanges(data);
         })}
-        className={styles.businessForm}
+        
       >
-        <div className="flex justify-center w-full mb-5 md:mb-0 h-fit">
-          <h3 className="text-lg font-bold uppercase ">Datos de mi empresa</h3>
-        </div>
 
-        <div className="flex flex-col items-center justify-center w-full gap-6 md:justify-around md:flex-row">
+        {/* <h4 className="text-lg font-semibold md:text-xl">
+          Datos de mi empresa
+        </h4> */}
+
+        <Card className="flex flex-col items-center justify-center gap-6 p-5 mx-auto w-fit md:justify-around md:flex-row">
           <div
             onClick={handleClick}
             className="rounded-full inputFileFormProfile"
@@ -339,7 +341,7 @@ const FormMiEmpresa = ({
               )}
             </div>
           </div>
-        </div>
+        </Card>
 
         <button
           onClick={handleSubmitClick}

@@ -33,6 +33,7 @@ import Link from "next/link";
 import { IDaySchedule } from "@/interfaces/daySchedule.interface";
 import { IAppointmentSchedule } from "@/interfaces/appointmentSchedule.interface";
 import { timeOptions } from "@/helpers/timeOptions";
+import { Card } from "@/components/ui/card";
 
 dayjs.locale("es-mx");
 
@@ -121,9 +122,6 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     setSelectedDay({ dayName, dayNumber });
   };
 
-  useEffect(() => {
-    onSelectDay(selectedDay);
-  }, [selectedDay]);
 
   const onSelectDay = ({ dayName }: { dayName: string }) => {
     const dayObj = daysSchedule?.find(
@@ -131,6 +129,8 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     );
     if (dayObj) {
       setSelectedAppointmentDuration(dayObj?.appointmentDuration);
+      console.log(dayObj);
+      //setSelectedDay({ dayName: dayObj.day, dayNumber: dayObj.dayNumber });
       setSelectedDayEnd(dayObj?.dayEnd);
       setSelectedDayStart(dayObj?.dayStart);
       setSelectedDayID(dayObj?._id!);
@@ -142,8 +142,12 @@ const CreateScheduleCalendar: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    console.log(daysChanged);
-  }, [daysChanged]);
+    onSelectDay(selectedDay);
+  }, [selectedDay]);
+
+  useEffect(() => {
+    onSelectDay(selectedDay);
+  }, [selectedDayStart, selectedDayEnd]);
 
   useEffect(() => {
     setDaysSchedule(daysAndAppointments.days);
@@ -232,6 +236,9 @@ const CreateScheduleCalendar: React.FC<Props> = ({
 
   useEffect(() => {
     setSelectedDay({ dayName: "LUN", dayNumber: 1 });
+    onSelectDay({ dayName: "LUN" });
+    setSelectedDayEnd(daysSchedule[0]?.dayEnd);
+    setSelectedDayStart(daysSchedule[0]?.dayStart);
   }, []);
 
   const createNewAppointment = async ({
@@ -421,7 +428,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
       hideAlert();
       setLoadingNewAppointments(false);
       // 
-     
+
     } catch (error) {
       setAlert({
         msg: "Error al guardar cambios",
@@ -448,7 +455,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
         daysChanged,
         authHeader
       );
-    } catch (error) {}
+    } catch (error) { }
   };
 
   return (
@@ -524,187 +531,53 @@ const CreateScheduleCalendar: React.FC<Props> = ({
       </div>
 
       <div className="flex flex-col items-center w-full h-fit ">
-        <header className="flex flex-col items-center justify-center w-full mt-5 mb-4 md:mt-4 md:mb-5 h-fit">
+        <header className="flex flex-col items-center justify-center w-full mt-4 mb-4 md:mt-5 md:mb-6 h-fit">
           <h4
-            style={{ fontSize: "20px" }}
-            className="px-2 font-bold text-center uppercase "
+            className="relative inline-block px-2 font-bold text-center uppercase"
+            style={{ fontSize: 20 }}
           >
-            Configurar agenda
+            Automatizar agenda
+
+            {/* linea */}
+            <span
+              className="absolute left-0 right-0 mx-auto"
+              style={{
+                bottom: -2,    // gap entre texto y linea (ajustalo)
+                height: 2,     // grosor de la linea (ajustalo)
+                background: "#dd4924",
+                width: "60%",  // ancho opcional de la linea
+              }}
+            />
           </h4>
         </header>
 
-        <div className="flex flex-col w-full gap-2">
-          <h4 className="text-lg font-semibold md:text-xl">
-            Horario de atención{" "}
-          </h4>
-          {/* <span className="flex px-0 text-xs font-normal text-gray-600 md:text-sm md:px-7">
-            Por cada día de la semana, ingresá el horario de trabajo, la
-            duración de cada turno y creá los turnos del dia con el servicio que
-            ofrezcan.
-          </span> */}
-
-          <div className="mr-auto notifications-container-Info">
-            <div className="alertInfo">
-              <div className="flex">
-                <div className="flex-shrink-0 my-auto">
-                  <FaCircleInfo color="lightblue" />
-                </div>
-                <div className="alertInfo-prompt-wrap">
-                  <p className="text-xs font-normal text-blue-400 md:text-sm">
-                    Por cada día de la semana, ingresá el horario de trabajo, la
-                    duración de cada turno y agregá los turnos y servicios que
-                    ofrezcas.
-                    {/* <span className="cursor-pointer alertInfo-prompt-link">
-                    Actualizar suscripción
-                  </span> */}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col justify-between w-full mt-4 mb-4 md:flex-row h-fit">
-          {/* <button
-            className={`${styles.btnAddAll} hidden md:flex gap-2 items-center`}
-            onClick={() => setHelpModal(!helpModal)}
-          >
-            <IoInformationCircle size={20} /> ¿Cómo agrego turnos?
-          </button> */}
-
-          <div className={styles.daysOfWeekCont}>
-            {daysOfWeek.map((day) => (
-              <button
-                key={day.dayName}
-                className={`${styles.dayOfWeek} ${
-                  selectedDay.dayName === day.dayName
-                    ? `${styles.dayOfWeekSelected}`
-                    : ``
-                }`}
-                onClick={() => handleSelectDay(day)}
-              >
-                {day.dayName}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex justify-between gap-0 md:justify-normal md:gap-6">
-            <div
-              className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
-            >
-              <label
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Desde:
-              </label>
-              <select
-                defaultValue={selectedDayStart}
-                value={selectedDayStart}
-                onChange={handleSelectDayStart}
-                id="appointmentDuration"
-              >
-                {timeOptions.map((time) => (
-                  <option value={time.value} key={time.label}>
-                    {time.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div
-              className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
-            >
-              <label
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Hasta:
-              </label>
-              <select
-                defaultValue={selectedDayEnd}
-                onChange={handleSelectDayEnd}
-                value={selectedDayEnd}
-                id="appointmentDuration"
-              >
-                {timeOptions.map((time) => (
-                  <option value={time.value} key={time.label}>
-                    {time.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div
-              className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
-            >
-              <label
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Duración
-              </label>
-
-              <select
-                className="text-sm"
-                defaultValue={selectedAppointmentDuration}
-                value={selectedAppointmentDuration}
-                onChange={handleSelectAppointmentDuration}
-                id="appointmentDuration"
-              >
-                <option value="15">15 min</option>
-                <option value="30">30 min</option>
-                <option value="45">45 min</option>
-                <option value="60">1 h</option>
-                <option value="75">1:15 hs</option>
-                <option value="90">1:30 hs</option>
-                <option value="105">1:45 hs</option>
-                <option value="120">2 hs</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.scheduleCalendarContainer}>
-          {selectedDayAppointments && (
-            <>
-              <Calendar
-                components={components}
-                localizer={localizer}
-                className={styles.scheduleCalendarComponent}
-                events={parseAppointments(selectedDayAppointments)}
-                startAccessor="start"
-                endAccessor="end"
-                onView={() => {}}
-                onNavigate={() => {}}
-                showAllEvents={false}
-                view={view}
-                views={["week", "day"]}
-                min={new Date(0, 0, 0, Number(selectedDayStart), 0, 0)}
-                max={new Date(0, 0, 0, Number(selectedDayEnd), 0, 0)}
-                timeslots={1}
-                step={Number(selectedAppointmentDuration)}
-                onSelectSlot={({ action, start, end }) => {
-                  if (action === "select" || action === "click") {
-                    createNewAppointment({ start, end });
-                  }
-                }}
-                toolbar={false}
-                selectable
-                defaultView="day"
-                onSelectEvent={(event) => {
-                  handleSelectEvent(event);
-                }}
-                longPressThreshold={250}
-              />
-            </>
-          )}
-        </div>
-
-        <div className="flex w-full mt-10 mb-10 md:mt-16">
+        <Card className="flex w-full p-5 mt-3 mb-10 md:p-6 md:mt-0 md:mb-5">
           <div className="flex flex-col">
             <div className="flex flex-col gap-4 md:gap-8">
               <h4 className="text-lg font-semibold md:text-xl">
-                Automatizar turnos
+                Frecuencia y cantidad de días{" "}
               </h4>
+
+              <div className="mr-auto notifications-container-Info">
+                <div className="alertInfo">
+                  <div className="flex">
+                    <div className="flex-shrink-0 my-auto">
+                      <FaCircleInfo color="lightblue" />
+                    </div>
+                    <div className="alertInfo-prompt-wrap">
+                      <p className="text-xs font-normal text-blue-400 md:text-sm">
+                        Activando esta función, los turnos se generan
+                        automáticamente. Ingresá la cantidad de días que quieras
+                        crear turnos y cuántos dias antes del último turno querés
+                        volver a crear los turnos programados.
+                        {/* <span className="cursor-pointer alertInfo-prompt-link">
+                    Actualizar suscripción
+                  </span> */}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <div className="flex gap-5">
                 <div className="flex flex-col">
@@ -835,7 +708,24 @@ const CreateScheduleCalendar: React.FC<Props> = ({
               )}
             </div>
 
-            <div className="mt-10 mb-10 mr-auto notifications-container-Info">
+
+
+          </div>
+        </Card>
+
+        {/* horario de atencion mobile */}
+        <div className="block w-full p-0 h-hit md:hidden">
+          <div className="flex flex-col w-full gap-2">
+            <h4 className="text-lg font-semibold md:text-xl">
+              Horario de atención{" "}
+            </h4>
+            {/* <span className="flex px-0 text-xs font-normal text-gray-600 md:text-sm md:px-7">
+            Por cada día de la semana, ingresá el horario de trabajo, la
+            duración de cada turno y creá los turnos del dia con el servicio que
+            ofrezcan.
+          </span> */}
+
+            <div className="mr-auto notifications-container-Info">
               <div className="alertInfo">
                 <div className="flex">
                   <div className="flex-shrink-0 my-auto">
@@ -843,10 +733,9 @@ const CreateScheduleCalendar: React.FC<Props> = ({
                   </div>
                   <div className="alertInfo-prompt-wrap">
                     <p className="text-xs font-normal text-blue-400 md:text-sm">
-                      Activando esta función, los turnos se generan
-                      automáticamente. Ingresá la cantidad de días que quieras
-                      crear turnos y cuántos dias antes del último turno querés
-                      volver a crear los turnos programados.
+                      Por cada día de la semana, ingresá el horario de trabajo, la
+                      duración de cada turno y agregá los turnos y servicios que
+                      ofrezcas.
                       {/* <span className="cursor-pointer alertInfo-prompt-link">
                     Actualizar suscripción
                   </span> */}
@@ -855,19 +744,323 @@ const CreateScheduleCalendar: React.FC<Props> = ({
                 </div>
               </div>
             </div>
-            <button className={buttonStyles.button} onClick={saveChanges}>
-              <LuSave size={18} />
-              Guardar cambios
-            </button>
+          </div>
+
+          <div className="flex flex-col justify-between w-full mt-4 mb-4 md:flex-row h-fit">
+            {/* <button
+            className={`${styles.btnAddAll} hidden md:flex gap-2 items-center`}
+            onClick={() => setHelpModal(!helpModal)}
+          >
+            <IoInformationCircle size={20} /> ¿Cómo agrego turnos?
+          </button> */}
+
+            <div className={styles.daysOfWeekCont}>
+              {daysOfWeek.map((day) => (
+                <button
+                  key={day.dayName}
+                  className={`${styles.dayOfWeek} ${selectedDay.dayName === day.dayName
+                    ? `${styles.dayOfWeekSelected}`
+                    : ``
+                    }`}
+                  onClick={() => handleSelectDay(day)}
+                >
+                  {day.dayName}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex justify-between gap-0 md:justify-normal md:gap-6">
+              <div
+                className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
+              >
+                <label
+                  style={{ fontSize: "12px" }}
+                  className="font-bold uppercase "
+                >
+                  Desde:
+                </label>
+                <select
+                  defaultValue={selectedDayStart}
+                  value={selectedDayStart}
+                  onChange={handleSelectDayStart}
+                  id="appointmentDuration"
+                >
+                  {timeOptions.map((time) => (
+                    <option value={time.value} key={time.label}>
+                      {time.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div
+                className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
+              >
+                <label
+                  style={{ fontSize: "12px" }}
+                  className="font-bold uppercase "
+                >
+                  Hasta:
+                </label>
+                <select
+                  defaultValue={selectedDayEnd}
+                  onChange={handleSelectDayEnd}
+                  value={selectedDayEnd}
+                  id="appointmentDuration"
+                >
+                  {timeOptions.map((time) => (
+                    <option value={time.value} key={time.label}>
+                      {time.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div
+                className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
+              >
+                <label
+                  style={{ fontSize: "12px" }}
+                  className="font-bold uppercase "
+                >
+                  Duración
+                </label>
+
+                <select
+                  className="text-sm"
+                  defaultValue={selectedAppointmentDuration}
+                  value={selectedAppointmentDuration}
+                  onChange={handleSelectAppointmentDuration}
+                  id="appointmentDuration"
+                >
+                  <option value="15">15 min</option>
+                  <option value="30">30 min</option>
+                  <option value="45">45 min</option>
+                  <option value="60">1 h</option>
+                  <option value="75">1:15 hs</option>
+                  <option value="90">1:30 hs</option>
+                  <option value="105">1:45 hs</option>
+                  <option value="120">2 hs</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.scheduleCalendarContainer}>
+            {selectedDayAppointments && (
+              <>
+                <Calendar
+                  components={components}
+                  localizer={localizer}
+                  className={styles.scheduleCalendarComponent}
+                  events={parseAppointments(selectedDayAppointments)}
+                  startAccessor="start"
+                  endAccessor="end"
+                  onView={() => { }}
+                  onNavigate={() => { }}
+                  showAllEvents={false}
+                  view={view}
+                  views={["week", "day"]}
+                  min={new Date(0, 0, 0, Number(selectedDayStart), 0, 0)}
+                  max={new Date(0, 0, 0, Number(selectedDayEnd), 0, 0)}
+                  timeslots={1}
+                  step={Number(selectedAppointmentDuration)}
+                  onSelectSlot={({ action, start, end }) => {
+                    if (action === "select" || action === "click") {
+                      createNewAppointment({ start, end });
+                    }
+                  }}
+                  toolbar={false}
+                  selectable
+                  defaultView="day"
+                  onSelectEvent={(event) => {
+                    handleSelectEvent(event);
+                  }}
+                  longPressThreshold={250}
+                />
+              </>
+            )}
           </div>
         </div>
+
+        {/* horario de atencion desktop */}
+        <Card className="hidden w-full p-6 md:block h-hit">
+          <div className="flex flex-col w-full gap-2">
+            <h4 className="text-lg font-semibold md:text-xl">
+              Horario de atención{" "}
+            </h4>
+            {/* <span className="flex px-0 text-xs font-normal text-gray-600 md:text-sm md:px-7">
+            Por cada día de la semana, ingresá el horario de trabajo, la
+            duración de cada turno y creá los turnos del dia con el servicio que
+            ofrezcan.
+          </span> */}
+
+            <div className="mr-auto notifications-container-Info">
+              <div className="alertInfo">
+                <div className="flex">
+                  <div className="flex-shrink-0 my-auto">
+                    <FaCircleInfo color="lightblue" />
+                  </div>
+                  <div className="alertInfo-prompt-wrap">
+                    <p className="text-xs font-normal text-blue-400 md:text-sm">
+                      Por cada día de la semana, ingresá el horario de trabajo, la
+                      duración de cada turno y agregá los turnos y servicios que
+                      ofrezcas.
+                      {/* <span className="cursor-pointer alertInfo-prompt-link">
+                    Actualizar suscripción
+                  </span> */}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col justify-between w-full mt-4 mb-4 md:flex-row h-fit">
+            {/* <button
+            className={`${styles.btnAddAll} hidden md:flex gap-2 items-center`}
+            onClick={() => setHelpModal(!helpModal)}
+          >
+            <IoInformationCircle size={20} /> ¿Cómo agrego turnos?
+          </button> */}
+
+            <div className={styles.daysOfWeekCont}>
+              {daysOfWeek.map((day) => (
+                <button
+                  key={day.dayName}
+                  className={`${styles.dayOfWeek} ${selectedDay.dayName === day.dayName
+                    ? `${styles.dayOfWeekSelected}`
+                    : ``
+                    }`}
+                  onClick={() => handleSelectDay(day)}
+                >
+                  {day.dayName}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex justify-between gap-0 md:justify-normal md:gap-6">
+              <div
+                className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
+              >
+                <label
+                  style={{ fontSize: "12px" }}
+                  className="font-bold uppercase "
+                >
+                  Desde:
+                </label>
+                <select
+                  defaultValue={selectedDayStart}
+                  value={selectedDayStart}
+                  onChange={handleSelectDayStart}
+                  id="appointmentDuration"
+                >
+                  {timeOptions.map((time) => (
+                    <option value={time.value} key={time.label}>
+                      {time.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div
+                className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
+              >
+                <label
+                  style={{ fontSize: "12px" }}
+                  className="font-bold uppercase "
+                >
+                  Hasta:
+                </label>
+                <select
+                  defaultValue={selectedDayEnd}
+                  onChange={handleSelectDayEnd}
+                  value={selectedDayEnd}
+                  id="appointmentDuration"
+                >
+                  {timeOptions.map((time) => (
+                    <option value={time.value} key={time.label}>
+                      {time.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div
+                className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
+              >
+                <label
+                  style={{ fontSize: "12px" }}
+                  className="font-bold uppercase "
+                >
+                  Duración
+                </label>
+
+                <select
+                  className="text-sm"
+                  defaultValue={selectedAppointmentDuration}
+                  value={selectedAppointmentDuration}
+                  onChange={handleSelectAppointmentDuration}
+                  id="appointmentDuration"
+                >
+                  <option value="15">15 min</option>
+                  <option value="30">30 min</option>
+                  <option value="45">45 min</option>
+                  <option value="60">1 h</option>
+                  <option value="75">1:15 hs</option>
+                  <option value="90">1:30 hs</option>
+                  <option value="105">1:45 hs</option>
+                  <option value="120">2 hs</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.scheduleCalendarContainer}>
+            {selectedDayAppointments && (
+              <>
+                <Calendar
+                  components={components}
+                  localizer={localizer}
+                  className={styles.scheduleCalendarComponent}
+                  events={parseAppointments(selectedDayAppointments)}
+                  startAccessor="start"
+                  endAccessor="end"
+                  onView={() => { }}
+                  onNavigate={() => { }}
+                  showAllEvents={false}
+                  view={view}
+                  views={["week", "day"]}
+                  min={new Date(0, 0, 0, Number(selectedDayStart), 0, 0)}
+                  max={new Date(0, 0, 0, Number(selectedDayEnd), 0, 0)}
+                  timeslots={1}
+                  step={Number(selectedAppointmentDuration)}
+                  onSelectSlot={({ action, start, end }) => {
+                    if (action === "select" || action === "click") {
+                      createNewAppointment({ start, end });
+                    }
+                  }}
+                  toolbar={false}
+                  selectable
+                  defaultView="day"
+                  onSelectEvent={(event) => {
+                    handleSelectEvent(event);
+                  }}
+                  longPressThreshold={250}
+                />
+              </>
+            )}
+          </div>
+        </Card>
+
+        <button className={`${buttonStyles.button} my-14 `} onClick={saveChanges}>
+          <LuSave size={18} />
+          Guardar cambios
+        </button>
+
         <Link
           className="flex items-center gap-2 mr-auto text-xs font-semibold uppercase"
           style={{ color: "#dd4924" }}
           href="/admin/schedule"
         >
           <FaArrowLeft />
-          Mi agenda
+          Calendario de turnos
         </Link>
         <div className="my-5 md:my-10"></div>
       </div>

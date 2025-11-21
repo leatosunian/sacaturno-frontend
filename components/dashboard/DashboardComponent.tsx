@@ -130,9 +130,10 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
           onDeleteAppointment={() => {}}
         />
       )}
+      
       <div className={`${styles.dashboardComponentCont}`}>
         <div className="flex flex-col w-full gap-7 md:gap-12 h-fit">
-          <h4 className="text-2xl font-semibold md:text-3xl">
+          <h4 className="text-2xl font-bold md:text-3xl">
             ¡Bienvenido, {userData?.name}!
           </h4>
 
@@ -143,7 +144,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
 
             <div className="flex-col hidden gap-4 md:flex md:gap-16 md:flex-row">
               <Link href="/admin/schedule">
-                <div className="flex flex-col gap-1 md:gap-4">
+                <div className="flex flex-col gap-1 md:gap-2">
                   <div
                     style={{ backgroundColor: "#dd4924" }}
                     className="flex items-end justify-end w-full h-20 p-5 md:h-32 md:w-40 xl:w-52 rounded-2xl"
@@ -156,12 +157,12 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                     </div>
                   </div>
                   <span className="text-sm font-semibold md:text-lg">
-                    Mi agenda
+                    Calendario de turnos
                   </span>
                 </div>
               </Link>
               <Link href="/admin/schedule/settings">
-                <div className="flex flex-col gap-1 md:gap-4">
+                <div className="flex flex-col gap-1 md:gap-2">
                   <div
                     style={{ backgroundColor: "#dd4924" }}
                     className="flex items-end justify-end w-full h-20 p-5 md:h-32 md:w-40 xl:w-52 rounded-2xl"
@@ -174,12 +175,12 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                     </div>
                   </div>
                   <span className="text-sm font-semibold md:text-lg">
-                    Configurar mi agenda
+                    Configurar agenda
                   </span>
                 </div>
               </Link>
               <Link href="/admin/business">
-                <div className="flex flex-col gap-1 md:gap-4">
+                <div className="flex flex-col gap-1 md:gap-2">
                   <div
                     style={{ backgroundColor: "#dd4924" }}
                     className="flex items-end justify-end w-full h-20 p-5 md:h-32 md:w-40 xl:w-52 rounded-2xl"
@@ -192,7 +193,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                 </div>
               </Link>
               <Link href="/admin/business/settings">
-                <div className="flex flex-col gap-1 md:gap-4">
+                <div className="flex flex-col gap-1 md:gap-2">
                   <div
                     style={{ backgroundColor: "#dd4924" }}
                     className="flex items-end justify-end w-full h-20 p-5 md:h-32 md:w-40 xl:w-52 rounded-2xl"
