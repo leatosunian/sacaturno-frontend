@@ -129,7 +129,7 @@ export default function AdminHeader() {
                       setOpenDropdown("");
                     }}
                   >
-                    <RiListSettingsLine size={16}/>
+                    <RiListSettingsLine size={16} />
 
                     Servicios
                   </Link>
@@ -163,7 +163,7 @@ export default function AdminHeader() {
                       setOpenDropdown("");
                     }}
                   >
-                    <LuCalendarPlus  size={16} />
+                    <LuCalendarPlus size={16} />
                     Turnos
                   </Link>
                   <Link
@@ -176,7 +176,7 @@ export default function AdminHeader() {
                       setOpenDropdown("");
                     }}
                   >
-                    <TbCalendarRepeat  size={16} />
+                    <TbCalendarRepeat size={16} />
                     automatizar
                   </Link>
                 </div>
@@ -270,17 +270,19 @@ export default function AdminHeader() {
               >
                 <Link
                   href="/admin/business"
-                  className="flex px-3 pt-5 pb-3 text-xs font-medium uppercase transition-colors duration-300 rounded-md "
+                  className="flex gap-2 px-3 pt-5 pb-3 text-xs font-medium uppercase transition-colors duration-300 rounded-md "
                   onClick={() => setIsOpen(false)}
                 >
-                  Configurar empresa
+                  <IoIosSettings size={16} />
+                  General
                 </Link>
                 <Link
                   href="/admin/business/settings"
-                  className="flex px-3 pt-3 pb-2 text-xs font-medium uppercase transition-colors duration-300 rounded-md "
+                  className="flex gap-2 px-3 pt-3 pb-2 text-xs font-medium uppercase transition-colors duration-300 rounded-md "
                   onClick={() => setIsOpen(false)}
                 >
-                  Mis servicios
+                  <RiListSettingsLine size={16} />
+                  Servicios
                 </Link>
               </div>
             </div>
@@ -291,7 +293,7 @@ export default function AdminHeader() {
                   }`}
               >
                 <CiCalendarDate size={16} />
-                Mis turnos
+                Mi agenda
                 <BsChevronDown
                   className={`h-4 w-4 ml-auto  transition-transform duration-300 ${openDropdown === "turnos" ? "rotate-180" : ""
                     }`}
@@ -305,17 +307,19 @@ export default function AdminHeader() {
               >
                 <Link
                   href="/admin/schedule"
-                  className="block px-3 pt-5 pb-3 text-xs font-medium uppercase transition-colors duration-300 rounded-md"
+                  className="flex gap-2 px-3 pt-5 pb-3 text-xs font-medium uppercase transition-colors duration-300 rounded-md"
                   onClick={() => setIsOpen(false)}
                 >
-                  Mi agenda
+                  <LuCalendarPlus size={16} />
+                  Turnos
                 </Link>
                 <Link
                   href="/admin/schedule/settings"
-                  className="block px-3 pt-3 pb-2 text-xs font-medium uppercase transition-colors duration-300 rounded-md"
+                  className="flex gap-2 px-3 pt-3 pb-2 text-xs font-medium uppercase transition-colors duration-300 rounded-md"
                   onClick={() => setIsOpen(false)}
                 >
-                  Configurar agenda
+                  <TbCalendarRepeat size={16} />
+                  automatizar agenda
                 </Link>
               </div>
             </div>

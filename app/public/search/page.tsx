@@ -112,8 +112,20 @@ const SearchBusiness: React.FC = () => {
           >
             <div className={`${stylesLogin.loginCont}`}>
               <div className={stylesLogin.loginHeader}>
-                <h3 className="mb-2 text-2xl font-semibold uppercase lg:text-3xl">
+                <h3
+                  className="relative inline-block mb-3 text-2xl font-semibold uppercase xl:text-3xl px-auto"
+
+                >
                   Reservar turno
+                  <span
+                    className="absolute left-0 mx-auto"
+                    style={{
+                      bottom: 0,    // gap entre texto y linea (ajustalo)
+                      height: 2,     // grosor de la linea (ajustalo)
+                      background: "#dd4924",
+                      width: "40%",  // ancho opcional de la linea
+                    }}
+                  />
                 </h3>
                 <span className="text-xs text-left text-gray-500 lg:text-sm">
                   Ingresá el nombre de la empresa que estás buscando

@@ -182,7 +182,7 @@ const FormLogin = () => {
 
         <div className="flex flex-col gap-2 my-2 md:gap-0 w-fit h-fit">
           <span className="mb-3 text-xs font-light">
-            ¿No tenes cuenta?{"  "}
+            ¿No tenés cuenta?{"  "}
             <Link
               className="font-semibold cursor-pointer blackOrangeHover"
               href="/register"

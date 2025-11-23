@@ -18,7 +18,7 @@ export default function Login() {
   return (
     <>
       <HeaderPublicBlack />
-      <div style={{height:'calc(100vh - 64px)', paddingTop:'0px', marginBottom:'64px'}}>
+      <div style={{ height: 'calc(100vh - 64px)', paddingTop: '0px', marginBottom: '64px' }}>
         <div className="flex flex-col w-full h-screen lg:flex-row ">
 
 
@@ -48,9 +48,23 @@ export default function Login() {
           <div className={`flex justify-center w-full my-auto md:my-0 pt-10 md:pt-24 items-start md:items-center lg:pt-0 lg:mt-0 h-full lg:w-3/5 ${stylesHome.dottedBg}`}>
             <div className={styles.loginCont}>
               <div className={styles.loginHeader}>
-                <h3 className="mb-3 text-2xl font-semibold uppercase xl:text-3xl">
+
+                <h3
+                  className="relative inline-block mb-3 text-2xl font-semibold uppercase xl:text-3xl px-auto"
+                  
+                >
                   Iniciar Sesión
+                  <span
+                    className="absolute left-0 mx-auto"
+                    style={{
+                      bottom: 0,    // gap entre texto y linea (ajustalo)
+                      height: 2,     // grosor de la linea (ajustalo)
+                      background: "#dd4924",
+                      width: "40%",  // ancho opcional de la linea
+                    }}
+                  />
                 </h3>
+
                 <span className="text-xs text-center text-gray-500 lg:text-sm">
                   ¡Accedé a tu cuenta para gestionar tus turnos!
                 </span>
@@ -60,7 +74,7 @@ export default function Login() {
           </div>
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </>
   );
 }
