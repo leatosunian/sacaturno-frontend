@@ -8,9 +8,9 @@ const FAQSection = () => {
       <div className="flex flex-col items-center justify-center w-full gap-12 h-fit ">
         <header className="text-center">
           <div className="w-full text-center h-fit">
-            <h3 className="mb-1 text-2xl font-semibold text-black md:text-3xl">
+            <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
               Preguntas frecuentes
-            </h3>
+            </h2>
             <span className="flex items-center justify-center gap-2 text-lg font-normal text-gray-600 px-7 md:px-0">
               Respondemos tus dudas mas comunes 
             </span>

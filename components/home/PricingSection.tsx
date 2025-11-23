@@ -12,9 +12,9 @@ const PricingSection = () => {
       <div className="flex flex-col items-center justify-center w-full gap-12 py-5 text-black h-fit lg:pt-40 lg:h-screen">
         {/* HEADER */}
         <div className="w-full text-center h-fit">
-          <h3 className="mb-1 text-2xl font-semibold text-black md:text-3xl">
+          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
             Planes
-          </h3>
+          </h2>
           <span className="flex items-center justify-center gap-2 text-lg font-normal text-gray-600 px-7 md:px-0">
             <SiAdguard className="hidden md:block" color="" />
             Pagá de manera segura mediante Mercado Pago
