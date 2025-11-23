@@ -124,11 +124,11 @@ export default function Features() {
                     className="flex flex-col items-center justify-center mb-12 space-y-4 text-center"
                 >
                     <Badge className="rounded-full text-orange-600 bg-orange-50 px-4 py-1.5 text-sm font-medium" variant="secondary">
-                        Potenciá tu Negocio
+                        Ahorrá tu tiempo
                     </Badge>
                     <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Todo lo que necesitás para profesionalizar tus turnos</h2>
                     <p className="max-w-[800px] text-slate-600 dark:text-slate-300 md:text-lg">
-                        Olvidate de los mensajes de WhatsApp interminables y las agendas de papel. Sacaturno automatiza tus reservas para que vos te enfoques en brindar el mejor servicio.
+                        Olvidate de contestar decenas de mensajes y de anotar en agendas de papel. SacaTurno gestiona y automatiza tu proceso de reservas para que vos te enfoques en brindar el mejor servicio a tus clientes.
                     </p>
                 </motion.div>
 
