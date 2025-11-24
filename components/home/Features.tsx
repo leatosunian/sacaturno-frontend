@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { IoIosInfinite } from "react-icons/io";
+import { Badge } from "./Badge";
 
 const Zap: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -38,19 +39,7 @@ const Calendar: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     </svg>
 );
 
-const Badge: React.FC<React.HTMLAttributes<HTMLSpanElement> & { variant?: "primary" | "secondary" }> = ({ children, className = "", variant = "primary", ...rest }) => {
-    const base =
-        "inline-flex items-center rounded-full text-sm font-medium px-3 py-1.5 ";
-    const variants = {
-        primary: "bg-primary-100 text-primary-700",
-        secondary: "bg-gray-100 text-gray-800 dark:bg-gray-800/60 dark:text-gray-200",
-    };
-    return (
-        <span className={`${base} ${variants[variant]} ${className}`} {...rest}>
-            {children}
-        </span>
-    );
-};
+
 
 const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, className = "", ...rest }) => (
     <div

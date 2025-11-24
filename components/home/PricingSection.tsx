@@ -5,6 +5,7 @@ import { MdMoneyOff, MdOutlineAddBusiness } from "react-icons/md";
 import homeStyles from "@/app/css-modules/HomeWhite.module.css";
 import { SiAdguard } from "react-icons/si";
 import { motion } from "framer-motion";
+import { Badge } from "./Badge";
 
 const PricingSection = () => {
   return (
@@ -12,10 +13,13 @@ const PricingSection = () => {
       <div className="flex flex-col items-center justify-center w-full gap-12 py-5 text-black h-fit lg:pt-40 lg:h-screen">
         {/* HEADER */}
         <div className="w-full text-center h-fit">
-          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+          <Badge className="rounded-full text-orange-600 bg-orange-50 px-4 py-1.5 text-sm font-medium mb-4" variant="secondary">
             Planes
+          </Badge>
+          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+            Simple. Accesible. A tu medida.
           </h2>
-          <span className="flex items-center justify-center gap-2 text-lg font-normal text-gray-600 px-7 md:px-0">
+          <span className="flex items-center justify-center gap-2 mt-4 text-lg font-normal text-gray-600 px-7 md:px-0">
             <SiAdguard className="hidden md:block" color="" />
             Pagá de manera segura mediante Mercado Pago
           </span>
@@ -46,9 +50,9 @@ const PricingSection = () => {
 
               <div>
                 <span className="mr-1 text-2xl font-semibold lg:text-2xl">
-                  $0
+                  GRATIS
                 </span>
-                <span className="text-sm text-gray-800">ARS/mes</span>
+                {/* <span className="text-sm text-gray-800">ARS/mes</span> */}
               </div>
             </div>
 
@@ -109,7 +113,7 @@ const PricingSection = () => {
                 style={{ padding: " 13px 15px ", width: "100%" }}
               >
                 <MdOutlineAddBusiness size={24} />
-                Crear empresa
+                PROBAR GRATIS AHORA
               </Link>
             </div>
           </motion.div>
@@ -198,7 +202,7 @@ const PricingSection = () => {
                 style={{ padding: " 13px 15px ", width: "100%" }}
               >
                 <MdOutlineAddBusiness size={24} />
-                Crear empresa
+                COMENZAR AHORA
               </Link>
             </div>
           </motion.div>

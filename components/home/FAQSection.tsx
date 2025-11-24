@@ -1,6 +1,7 @@
 "use client";
 
 import Accordion from "@/components/home/Accordion";
+import { Badge } from "./Badge";
 
 const FAQSection = () => {
   return (
@@ -8,11 +9,14 @@ const FAQSection = () => {
       <div className="flex flex-col items-center justify-center w-full gap-12 h-fit ">
         <header className="text-center">
           <div className="w-full text-center h-fit">
+            <Badge className="rounded-full text-orange-600 bg-orange-50 px-4 py-1.5 text-sm font-medium mb-4" variant="secondary">
+              FAQ
+            </Badge>
             <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
               Preguntas frecuentes
             </h2>
-            <span className="flex items-center justify-center gap-2 text-lg font-normal text-gray-600 px-7 md:px-0">
-              Respondemos tus dudas mas comunes 
+            <span className="flex items-center justify-center gap-2 mt-2 text-lg font-normal text-gray-600 px-7 md:px-0">
+              Respondemos tus dudas mas comunes
             </span>
           </div>
         </header>

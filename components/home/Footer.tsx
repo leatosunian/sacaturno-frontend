@@ -62,7 +62,7 @@ const Footer: React.FC = () => {
 
           <div className="w-full pb-10 my-auto text-center md:pb-5 h-fit">
             <span className="text-sm font-normal text-white h-fit w-fit">
-              developed by{" "}
+              Desarrollado por{" "}
               <Link
                 className={styles.textOrangeHoverToWhite}
                 style={{fontWeight: "600"}}
