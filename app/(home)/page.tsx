@@ -6,6 +6,8 @@ import HeroSection from "@/components/home/HeroSection";
 import Footer from "@/components/home/Footer";
 import { AnimatePresence, motion } from "framer-motion";
 import Features from "@/components/home/Features";
+import Testimonials from "@/components/home/Testimonials";
+import CallToAction from "@/components/home/CallToAction";
 
 export default function Home() {
   return (
@@ -43,6 +45,32 @@ export default function Home() {
         <Features />
 
         <PricingSection />
+
+        {/* DIVIDER */}
+        <div
+          style={{
+            width: "40%",
+            height: "1px",
+            background: "rgba(255, 255, 255, 0.2)",
+            margin: "0px auto 5rem auto",
+          }}
+          className="hidden lg:block"
+        ></div>
+        <div
+          style={{
+            width: "40%",
+            height: "1px",
+            background: "rgba(255, 255, 255, 0.2)",
+            margin: "2rem auto",
+          }}
+          className="block lg:hidden"
+        ></div>
+
+        {/* DIVIDER */}
+
+
+        <Testimonials />
+
         <div id="faq"></div>
         {/* DIVIDER */}
         <div
@@ -86,6 +114,10 @@ export default function Home() {
           }}
           className="block lg:hidden"
         ></div>
+
+
+        <CallToAction />
+
         <Footer />
       </AnimatePresence>
     </>
