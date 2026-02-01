@@ -421,7 +421,7 @@ const CalendarTurnos: React.FC<Props> = ({
       {/* mobile dropdown */}
 
       <div className="flex flex-col w-full h-fit ">
-         <header className="flex flex-col items-center justify-center w-full mt-4 mb-3 md:mt-5 md:mb-6 h-fit">
+        <header className="flex flex-col items-center justify-center w-full mt-4 mb-3 md:mt-5 md:mb-6 h-fit">
           <h4
             className="relative inline-block px-2 font-bold text-center uppercase"
             style={{ fontSize: 20 }}
@@ -700,8 +700,8 @@ const CalendarTurnos: React.FC<Props> = ({
             startAccessor="start"
             endAccessor="end"
             messages={messages}
-            onView={() => {}}
-            onNavigate={() => {}}
+            onView={() => { }}
+            onNavigate={() => { }}
             showAllEvents={false}
             view={view}
             date={date}
@@ -729,16 +729,16 @@ const CalendarTurnos: React.FC<Props> = ({
           <div className="flex gap-2">
             <button
               className={`${styles.btnAddAll} hidden md:flex gap-2 items-center`}
-              onClick={() => setHelpModal(!helpModal)}
-            >
-              <IoInformationCircle size={20} /> ¿Cómo agrego turnos?
-            </button>
-
-            <button
-              className={`${styles.btnAddAll} hidden md:flex gap-2 items-center`}
               onClick={() => handleSetAllDayAppointmentsModal()}
             >
               <LuCalendarPlus size={20} /> Crear turnos del día
+            </button>
+
+            <button
+              className={` hidden md:flex gap-2 items-center text-blue-400 border rounded-lg text-sm px-2 font-medium`}
+              onClick={() => setHelpModal(!helpModal)}
+            >
+              <IoInformationCircle color="lightblue" size={20} /> ¿Cómo agrego turnos?
             </button>
           </div>
 

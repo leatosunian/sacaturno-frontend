@@ -6,4 +6,5 @@ export interface IUser {
   profileImage?: string;
   _id?: string;
   verified?: boolean;
+  isFirstLogin?: boolean;
 }

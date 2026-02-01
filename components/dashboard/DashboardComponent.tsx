@@ -1,9 +1,9 @@
 "use client";
 import { IBusiness } from "@/interfaces/business.interface";
 import { IUser } from "@/interfaces/user.interface";
-import { LuCalendarDays, LuCalendarPlus } from "react-icons/lu";
-import { MdCalendarMonth, MdOutlineWorkOutline } from "react-icons/md";
-import { FaRegEdit } from "react-icons/fa";
+import { LuCalendarDays } from "react-icons/lu";
+import { MdOutlineWorkOutline } from "react-icons/md";
+import { FaRegEdit, FaRegQuestionCircle } from "react-icons/fa";
 import Link from "next/link";
 import { IoMdMore } from "react-icons/io";
 import styles from "@/app/css-modules/FormMiEmpresa.module.css";
@@ -16,14 +16,18 @@ import timezone from "dayjs/plugin/timezone";
 import advanced from "dayjs/plugin/advancedFormat";
 import AppointmentModal from "./appointments/AppointmentModal";
 import { TbCalendarCog } from "react-icons/tb";
+import GuideDialog from "./GuideDialog";
+import { IoInformationCircle } from "react-icons/io5";
+import axiosReq from "@/config/axios";
+import router from "next/router";
 
 interface Props {
   businessData:
-    | {
-        business: IBusiness | undefined;
-        appointments: IAppointment[] | undefined;
-      }
-    | undefined;
+  | {
+    business: IBusiness | undefined;
+    appointments: IAppointment[] | undefined;
+  }
+  | undefined;
   userData: IUser | undefined;
 }
 
@@ -48,11 +52,20 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
   const [appointmentInfoModal, setAppointmentInfoModal] =
     useState<boolean>(false);
   const [selectedAppointment, setSelectedAppointment] = useState<eventType>();
+  const [openGuideDialog, setOpenGuideDialog] = useState<boolean>(false);
 
   useEffect(() => {
     parseAppointments(businessData?.appointments);
     return;
   }, [businessData]);
+
+  useEffect(() => {
+    if (userData?.isFirstLogin) {
+      setOpenGuideDialog(true);
+    }
+
+  }, [userData])
+
 
   const handleSelectEvent = (event: eventType) => {
     const eventDataObj: eventType = {
@@ -120,6 +133,30 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
     return appointmentsList;
   };
 
+  async function checkFirstLogin() {
+    setOpenGuideDialog(false);
+    // fetch PUT para actualizar el campo firstLogin del usuario a false
+    try {
+      const token = localStorage.getItem("sacaturno_token");
+      const res = await axiosReq.put(
+        `/user/firstlogin/${userData?._id}`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            "Cache-Control": "no-store",
+          },
+        }
+      );
+      console.log("First login status updated:", res.data);
+      router.reload();
+
+    } catch (error) {
+      console.error("Error updating first login status:", error);
+    }
+  }
+
   return (
     <>
       {/* APPOINTMENT INFO */}
@@ -127,14 +164,17 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
         <AppointmentModal
           appointment={selectedAppointment}
           closeModalF={() => setAppointmentInfoModal(false)}
-          onDeleteAppointment={() => {}}
+          onDeleteAppointment={() => { }}
         />
       )}
-      
+
+      {/* GUIDE DIALOG */}
+      <GuideDialog onClose={checkFirstLogin} openGuideDialog={openGuideDialog} isFirstLogin={userData?.isFirstLogin} />
+
       <div className={`${styles.dashboardComponentCont}`}>
         <div className="flex flex-col w-full gap-7 md:gap-12 h-fit">
           <h4 className="text-2xl font-bold md:text-3xl">
-            ¡Bienvenido, {userData?.name}!
+            👋 ¡Bienvenido, {userData?.name}!
           </h4>
 
           <div className="flex flex-col gap-6">
@@ -205,7 +245,15 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                   </span>
                 </div>
               </Link>
+
             </div>
+
+            <button
+              className={` hidden md:flex gap-2 items-center text-blue-400 border rounded-lg text-sm px-2 font-medium w-fit py-1 h-9 `}
+              onClick={() => setOpenGuideDialog(!openGuideDialog)}
+            >
+              <IoInformationCircle color="lightblue" size={20} />¿Cómo utilizo la plataforma?
+            </button>
 
             <div className="flex flex-col gap-4 md:hidden md:gap-16 md:flex-row">
               <Link href="/admin/schedule">
@@ -281,6 +329,23 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                   </div>
                 </div>
               </Link>
+
+              <div className="flex flex-col gap-1 md:gap-4">
+                <div
+                  style={{ backgroundColor: "white" }}
+                  className="flex items-center justify-between w-full p-5 border h-14 md:h-32 md:w-52 rounded-2xl"
+                  onClick={() => setOpenGuideDialog(!openGuideDialog)}>
+                  <span className="text-sm font-semibold text-blue-400 md:text-lg">
+                    ¿Cómo utilizo la plataforma?
+                  </span>
+                  <div className="hidden md:flex">
+                    <FaRegQuestionCircle size={45} color="lightblue" />
+                  </div>
+                  <div className="flex md:hidden">
+                    <FaRegQuestionCircle size={26} color="lightblue" />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -351,6 +416,9 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
           </div>
         </div>
       </div>
+
+
+
     </>
   );
 };

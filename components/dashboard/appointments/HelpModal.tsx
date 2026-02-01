@@ -3,6 +3,8 @@ import styles from "@/app/css-modules/NoServicesModal.module.css";
 import { IoMdClose } from "react-icons/io";
 import Image from "next/image";
 import addmultiple from "@/public/addmultiple.gif";
+import { FaExternalLinkAlt } from "react-icons/fa";
+import Link from "next/link";
 
 interface Props {
   onClose: () => void;
@@ -25,100 +27,110 @@ const HelpModal: React.FC<Props> = ({ onClose }) => {
           <div
             className={`${styles.helpContScrollbar} flex flex-col gap-6 overflow-y-scroll px-5 md:px-8 md:mr-4 mr-2`}
           >
+            {/* TURNOS AUTOMÁTICOS */}
             <div className="flex flex-col w-full gap-4 my-2 h-fit">
-              <h4 className="text-base font-bold text-center uppercase ">
-                Turnos automáticos
+              <h4 className="text-lg font-bold uppercase">
+                ⚡ Turnos automáticos <span className="text-sm font-normal text-gray-400 lowercase"> (recomendado)</span>
               </h4>
-              <div className="flex flex-col gap-2 w-fit h-fit">
-                {/* <label
-                  style={{ fontSize: "14px" }}
-                  className="font-bold uppercase "
-                >
-                  Crear todos los turnos del día
-                </label> */}
-                <span className="text-sm">
-                  - Ingresá a <b>Configuración de Agenda</b>
+
+              <div className="flex flex-col gap-4 w-fit h-fit">
+                <span className="flex flex-col gap-2 text-sm sm:flex-row">
+                  <b className="text-orange-600">1.</b> Ingresá a
+                  <Link
+                    href={"/admin/schedule/settings"}
+                    className="flex items-center gap-1 font-semibold hover:underline underline-offset-2"
+                  >
+                    <FaExternalLinkAlt size={12} />
+                    Configuración de agenda
+                  </Link>
                 </span>
+
                 <span className="text-sm">
-                  - Configurá tu <b>horario de atención</b>: por cada día de la
-                  semana, ingresá el horario de trabajo, la duración de cada
-                  turno y agregá los turnos y servicios que ofrezcas
+                  <b className="text-orange-600">2.</b>  Configurá tu <b>horario de atención</b>:
+                  definí los días y horarios de trabajo, la duración de cada turno
+                  y los servicios que ofrecés.
                 </span>
+
                 <span className="text-sm">
-                  - Debajo, en la sección de <b>Automatizar turnos</b>, habilitá
-                  la opción <b>Crear turnos automaticamente</b>
+                  <b className="text-orange-600">3.</b>  En la sección <b>Automatizar turnos</b>, activá la opción
+                  <b> Crear turnos automáticamente</b>.
                 </span>
+
                 <span className="text-sm">
-                  - Seleccioná la cantidad de días que quieras crear turnos y
-                  cuántos dias antes del último turno querés volver a crear los
-                  turnos programados
+                  <b className="text-orange-600">4.</b> Elegí cuántos días querés generar turnos y
+                  cuántos días antes del último turno el sistema debe volver
+                  a crearlos.
                 </span>
+
                 <span className="text-sm">
-                  <b>&#127881; ¡Y listo!</b> A partir del día que habilites la
-                  función se crearán los turnos agregados en el horario de
-                  atención
+                  <b>🎉 ¡Listo!</b> A partir de ese momento, los turnos se
+                  crearán de forma automática según tu configuración.
                 </span>
               </div>
             </div>
 
+            {/* TURNOS MANUALES */}
             <div className="flex flex-col w-full gap-4 my-2 h-fit">
-              <h4 className="text-base font-bold text-center uppercase ">
-                agregar turnos manualmente
+              <h4 className="text-lg font-bold text-center uppercase">
+                ✍️ Turnos manuales
               </h4>
-              <div className="flex flex-col gap-2 w-fit h-fit">
-                {/* <label
-                  style={{ fontSize: "14px" }}
-                  className="font-bold uppercase "
-                >
-                  Crear todos los turnos del día
-                </label> */}
+
+              <div className="flex flex-col gap-3 w-fit h-fit">
                 <span className="text-sm">
-                  Si preferís no automatizar tus turnos y querés crearlos manualmente, tenés que ingresar a <b>Mi agenda</b> y agregar los turnos que desees.
-                </span>
-                <span className="text-sm">
-                  Para variar la duración de los turnos, podés cambiar el intervalo a los minutos que desees (ej. 30 minutos).
+                  Si preferís mayor control, podés crear tus turnos manualmente
+                  desde <b>Mi agenda</b>, eligiendo el día y horario que desees.
                 </span>
 
+                <span className="text-sm">
+                  También podés modificar la duración de los turnos cambiando
+                  el intervalo (por ejemplo: 15, 30 o 60 minutos).
+                </span>
               </div>
             </div>
 
+            {/* USO DEL PANEL */}
             <div className="flex flex-col w-full gap-4 my-2 h-fit">
               <div className="flex flex-col gap-2 w-fit h-fit">
-                <h4 className="text-base mb-4 font-bold text-center uppercase ">
-                  Cómo usar el panel
+                <h4 className="mb-4 text-lg font-bold text-center uppercase">
+                  🧭 Cómo usar la agenda
                 </h4>
+
                 <label
                   style={{ fontSize: "14px" }}
-                  className="font-bold uppercase "
+                  className="font-bold uppercase"
                 >
                   Agregar un turno
                 </label>
+
                 <span className="text-sm">
-                  En tu celular, mantené pulso el
-                  casillero del horario de tu nuevo turno (hasta que el
-                  casillero se marque de gris), seleccioná el servicio que
-                  brindes en ese turno y hacé clic en <b>Crear turno</b>
+                  <b>Desde el celular:</b> mantené presionado el horario deseado
+                  hasta que se marque en gris, seleccioná el servicio y tocá
+                  <b> Crear turno</b>.
                 </span>
+
                 <span className="mt-1 text-sm">
-                  En tu computadora, cliqueá en el casillero del horario de tu
-                  nuevo turno, seleccioná el servicio que brindes en ese turno y
-                  hacé clic en <b>Crear turno</b>
+                  <b>Desde la computadora:</b> hacé clic en el horario,
+                  elegí el servicio y presioná <b>Crear turno</b>.
                 </span>
               </div>
             </div>
 
+            {/* COMBINAR HORARIOS */}
             <div className="flex flex-col w-full gap-4 my-2 h-fit">
               <div className="flex flex-col gap-2 w-fit h-fit">
                 <label
                   style={{ fontSize: "14px" }}
-                  className="font-bold uppercase "
+                  className="font-bold uppercase"
                 >
-                  Combinar horarios
+                  Combinar horarios (turnos largos)
                 </label>
+
                 <span className="text-sm">
-                  <b>Mantené presionado</b> el casillero de la hora de inicio del turno
-                  y <b>arrastrá</b> hasta el horario que quieras que finalice.
+                  Para crear un turno más largo,
+                  <b> mantené presionado</b> el horario de inicio y
+                  <b> arrastrá</b> hasta el horario de finalización.
                 </span>
+
                 <Image
                   alt="Agregar turno largo"
                   className="w-5/6 mt-2 rounded-xl"
@@ -127,6 +139,7 @@ const HelpModal: React.FC<Props> = ({ onClose }) => {
               </div>
             </div>
           </div>
+
         </div>
 
         {/* <span>Hacé click en un turno para ver los detalles</span> */}
