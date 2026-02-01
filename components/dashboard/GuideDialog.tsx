@@ -129,10 +129,10 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
                 </span>
               </div>
             </div>
-            <Separator className="my-5" />
 
             {/* CTA */}
             {isFirstLogin && (<>
+              <Separator className="my-5" />
               <div className="flex flex-col w-full gap-3 pb-8 text-center h-fit">
                 <h4 className="text-3xl font-bold 2xl:text-3xl ">
                   🎉 ¡Listo para empezar!
