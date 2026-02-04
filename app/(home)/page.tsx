@@ -69,7 +69,7 @@ export default function Home() {
             width: "40%",
             height: "1px",
             background: "rgba(255, 255, 255, 0.2)",
-            margin: "0px auto 5rem auto",
+            margin: "0px auto 6.5rem auto",
           }}
           className="hidden overflow-hidden lg:block "
         ></div>
@@ -88,14 +88,13 @@ export default function Home() {
 
         <Testimonials />
 
-        <div id="faq"></div>
         {/* DIVIDER */}
         <div
           style={{
             width: "40%",
             height: "1px",
             background: "rgba(255, 255, 255, 0.2)",
-            margin: "0px auto 5rem auto",
+            margin: "0px auto 6.5rem auto",
           }}
           className="hidden lg:block"
         ></div>
