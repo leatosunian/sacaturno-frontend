@@ -21,6 +21,7 @@ const CreateAppointmentModal: React.FC<props> = ({
   servicesData,
   onNewAppointment,
 }) => {
+
   const router = useRouter();
   const [selectedService, setSelectedService] = useState<{
     name: string | undefined;
@@ -28,6 +29,7 @@ const CreateAppointmentModal: React.FC<props> = ({
     description: string | undefined;
   }>();
 
+  // Set selected service on component mount or when servicesData changes
   useEffect(() => {
     if (servicesData && servicesData[0]) {
       setSelectedService({
@@ -38,6 +40,7 @@ const CreateAppointmentModal: React.FC<props> = ({
     }
   }, [servicesData]);
 
+  // Update appointmentData when selectedService changes
   useEffect(() => {
     if (appointmentData) {
       appointmentData.service = selectedService?.name;
@@ -46,6 +49,7 @@ const CreateAppointmentModal: React.FC<props> = ({
     }
   }, [selectedService, appointmentData]);
 
+  // Function to handle service selection
   const handleSetSelectedService = (name: string) => {
     const serviceSelectedObj = servicesData?.find(
       (service) => service.name === name
@@ -57,6 +61,7 @@ const CreateAppointmentModal: React.FC<props> = ({
     });
   };
 
+  // Function to save the appointment
   const saveAppointment = async () => {
     closeModal();
     const token = localStorage.getItem("sacaturno_token");
@@ -76,6 +81,7 @@ const CreateAppointmentModal: React.FC<props> = ({
     }
   };
 
+  // Function to close the modal
   const closeModal = () => {
     closeModalF();
   };

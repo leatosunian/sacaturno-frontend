@@ -6,11 +6,12 @@ import homeStyles from "@/app/css-modules/HomeWhite.module.css";
 import { SiAdguard } from "react-icons/si";
 import { motion } from "framer-motion";
 import { Badge } from "./Badge";
+import { BsArrowRightShort } from "react-icons/bs";
 
 const PricingSection = () => {
   return (
     <>
-      <div className="flex flex-col items-center justify-center w-full gap-12 py-5 text-black h-fit lg:pt-40 lg:h-screen">
+      <div className="flex flex-col items-center justify-center w-full gap-12 text-black h-fit ">
         {/* HEADER */}
         <div className="w-full text-center h-fit">
           <Badge className="rounded-full text-orange-600 bg-orange-50 px-4 py-1.5 text-sm font-medium mb-4" variant="secondary">
@@ -109,11 +110,10 @@ const PricingSection = () => {
               <Link
                 href="/register"
                 type="submit"
-                className={`${homeStyles.btnAnimated} font-normal`}
-                style={{ padding: " 13px 15px ", width: "100%" }}
+                className={`${homeStyles.btnAnimated} w-full  text-sm font-medium md:font-semibold rounded-xl gap-2`}
               >
-                <MdOutlineAddBusiness size={24} />
-                PROBAR GRATIS AHORA
+                Comenzar Prueba Gratuita
+                <BsArrowRightShort size={24} />
               </Link>
             </div>
           </motion.div>
@@ -198,11 +198,10 @@ const PricingSection = () => {
               <Link
                 href="/register"
                 type="submit"
-                className={`${homeStyles.btnAnimated} font-normal`}
-                style={{ padding: " 13px 15px ", width: "100%" }}
+                className={`${homeStyles.btnAnimated} w-full text-sm font-medium md:font-semibold rounded-xl gap-2`}
               >
-                <MdOutlineAddBusiness size={24} />
-                COMENZAR AHORA
+                Comenzar Plan Full
+                <BsArrowRightShort size={24} />
               </Link>
             </div>
           </motion.div>

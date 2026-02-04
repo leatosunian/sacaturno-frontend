@@ -39,20 +39,16 @@ export default function Home() {
             background: "rgba(255, 255, 255, 0.2)",
             margin: "2rem auto",
           }}
-          className="block lg:hidden"
+          className="block overflow-hidden lg:hidden"
         ></div>
 
         <Features />
-
-        <PricingSection />
-
-        {/* DIVIDER */}
         <div
           style={{
             width: "40%",
             height: "1px",
             background: "rgba(255, 255, 255, 0.2)",
-            margin: "0px auto 5rem auto",
+            margin: "0px auto 8rem auto",
           }}
           className="hidden lg:block"
         ></div>
@@ -63,7 +59,28 @@ export default function Home() {
             background: "rgba(255, 255, 255, 0.2)",
             margin: "2rem auto",
           }}
-          className="block lg:hidden"
+          className="block overflow-hidden lg:hidden"
+        ></div>
+        <PricingSection />
+
+        {/* DIVIDER */}
+        <div
+          style={{
+            width: "40%",
+            height: "1px",
+            background: "rgba(255, 255, 255, 0.2)",
+            margin: "0px auto 5rem auto",
+          }}
+          className="hidden overflow-hidden lg:block "
+        ></div>
+        <div
+          style={{
+            width: "40%",
+            height: "1px",
+            background: "rgba(255, 255, 255, 0.2)",
+            margin: "2rem auto",
+          }}
+          className="block overflow-hidden lg:hidden "
         ></div>
 
         {/* DIVIDER */}

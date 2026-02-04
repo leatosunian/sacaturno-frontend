@@ -43,7 +43,7 @@ const CallToAction: FC = () => {
                             Schedule a Demo
                         </Button> */}
                     </div>
-                    <p className="mt-4 text-sm text-primary-foreground/80">
+                    <p className="mt-4 text-base text-primary-foreground/80">
                         15 días de prueba full. Sin costos ocultos. Cancelá cuando quieras.
                     </p>
                 </motion.div>

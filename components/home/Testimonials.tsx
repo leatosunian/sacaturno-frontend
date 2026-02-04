@@ -60,7 +60,7 @@ const testimonials: Testimonial[] = [
 export default function Testimonials() {
     return (
         // section content centered on the x axis using flex + justify-center.
-        <section id="testimonials" className="flex justify-center w-full py-20 ">
+        <section id="testimonials" className="flex justify-center w-full bg-white ">
             {/* Constrain width and center content with max-w; keeps layout responsive */}
             <div className="w-full px-4 max-w-7xl md:px-6">
                 <motion.div

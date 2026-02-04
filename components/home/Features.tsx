@@ -103,7 +103,7 @@ const features = [
 
 export default function Features() {
     return (
-        <section id="features" className="w-full py-20 md:py-0">
+        <section id="features" className="w-full ">
             <div className="px-4 mx-auto max-w-7xl md:px-6">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

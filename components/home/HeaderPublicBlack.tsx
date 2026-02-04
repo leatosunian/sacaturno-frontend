@@ -8,10 +8,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import sacaturno_logo from "@/public/st_logo_white.png";
+import { MdLogin, MdSearch } from "react-icons/md";
 
-interface Props {}
+interface Props { }
 
-const HeaderPublicBlack: NextPage<Props> = ({}) => {
+const HeaderPublicBlack: NextPage<Props> = ({ }) => {
   const [active, setActive] = useState(false);
   const router = useRouter();
   const handleActiveNavBar = () => {
@@ -36,31 +37,46 @@ const HeaderPublicBlack: NextPage<Props> = ({}) => {
           {/* <FcCalendar size={34} />
           <h1 className="text-md">SacaTurno</h1> */}
           <Link href={"/"}>
-            <Image className="w-28" src={sacaturno_logo} alt="SacaTurno" />
+            <Image className="hidden w-32 md:block " src={sacaturno_logo} alt="SacaTurno" />
+            <Image className="block w-28 md:hidden" src={sacaturno_logo} alt="SacaTurno" />
           </Link>
         </div>
 
 
-        <div className="items-center justify-center hidden gap-8 text-sm md:flex">
-          <div>
+        <div className="items-center justify-center hidden gap-12 text-sm md:flex">
+          {/* <div>
             <Link
               href="/public/search"
-              className={`cursor-pointer ${styles.navLink}`}
+              className="text-xs font-semibold transition-all duration-100 ease-in-out cursor-pointer hover:text-orange-600 hover:transition-all hover:duration-100 "
             >
-              reservar turno
-            </Link>
-          </div>
-          <div>
-            <Link href="/login" className={`cursor-pointer ${styles.navLink}`}>
-              Iniciar sesión
+              Reservar turno
             </Link>
           </div>
           <div>
             <Link
               href="/register"
-              className={`cursor-pointer ${styles.navLink}`}
+              className="text-xs font-semibold transition-all duration-100 ease-in-out cursor-pointer hover:text-orange-600 hover:transition-all hover:duration-100 "
             >
-              registrarme
+              Crear cuenta
+            </Link>
+          </div> */}
+
+          <div className="flex gap-4">
+            <Link href="/public/search" className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-all duration-300 ease-in-out bg-black border border-white rounded-lg cursor-pointer border-opacity-30 hover:bg-orange-600 hover:border-orange-600 hover:transition-all hover:duration-300 ">
+              <MdSearch className="" size={16} />
+              Buscar negocio
+            </Link>
+
+            <Link href="/login" className="flex items-center gap-2 px-3 py-2 text-xs font-semibold transition-all duration-300 ease-in-out bg-black border border-white rounded-lg cursor-pointer border-opacity-30 hover:bg-orange-600 hover:border-orange-600 hover:transition-all hover:duration-300 ">
+              <MdLogin className="" size={16} />
+              Iniciar sesión
+            </Link>
+
+            <Link
+              href="/register"
+              className="px-4 py-2 text-xs font-semibold transition-all duration-300 ease-in-out bg-orange-600 rounded-lg cursor-pointer hover:bg-white hover:border-orange-600 hover:text-orange-600 hover:transition-all hover:duration-300 "
+            >
+              Probar gratis
             </Link>
           </div>
         </div>
