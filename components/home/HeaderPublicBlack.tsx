@@ -92,33 +92,33 @@ const HeaderPublicBlack: NextPage<Props> = ({ }) => {
         <div className={active ? styles.overlayActive : styles.overlay}></div>
 
         <aside className={active ? styles.activeAside : styles.aside}>
+          {/* CLOSE BUTTON  */}
           <div
             onClick={handleActiveNavBar}
             className="flex items-center justify-end w-full h-16 md:hidden"
           >
             <RxCross2 size={28} color="white" />
           </div>
-          <Link
-            onClick={closeNavMenu}
-            className="flex items-center h-12 text-xs font-medium uppercase"
-            href="/public/search"
-          >
-            reservar turno
-          </Link>
-          <Link
-            onClick={closeNavMenu}
-            className="flex items-center h-12 text-xs font-medium uppercase"
-            href="/login"
-          >
-            Iniciar sesión
-          </Link>
-          <Link
-            onClick={closeNavMenu}
-            className="flex items-center h-12 text-xs font-medium uppercase"
-            href="/register"
-          >
-            Registrarme
-          </Link>
+
+          <div className="flex flex-col gap-4 mt-4">
+            {/* NAV LINKS */}
+            <Link href="/public/search" className="flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold transition-all duration-300 ease-in-out bg-black border border-white rounded-lg cursor-pointer border-opacity-30 hover:bg-orange-600 hover:border-orange-600 hover:transition-all hover:duration-300 ">
+              <MdSearch className="" size={16} />
+              Buscar negocio
+            </Link>
+
+            <Link href="/login" className="flex items-center gap-2 px-3 py-2.5 text-xs font-semibold transition-all duration-300 ease-in-out bg-black border border-white rounded-lg cursor-pointer border-opacity-30 hover:bg-orange-600 hover:border-orange-600 hover:transition-all hover:duration-300 ">
+              <MdLogin className="" size={16} />
+              Iniciar sesión
+            </Link>
+
+            <Link
+              href="/register"
+              className="w-full px-4 py-2.5 text-xs font-semibold transition-all duration-300 ease-in-out bg-orange-600 rounded-lg cursor-pointer hover:bg-white hover:border-orange-600 hover:text-orange-600 hover:transition-all hover:duration-300 flex justify-center items-center"
+            >
+              Probar gratis ahora
+            </Link>
+          </div>
         </aside>
       </div>
     </>
