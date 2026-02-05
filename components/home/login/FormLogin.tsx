@@ -216,9 +216,9 @@ const FormLogin = () => {
           {!loading && (
             <button
               type="submit"
-              className={`${stylesHome.btnAnimated}`}
+              className={`${stylesHome.btnAnimated} rounded-lg`}
               style={{
-                fontSize: "12px",
+                fontSize: "13px",
                 letterSpacing: ".5px",
                 width: "100%",
                 padding: "11px 0px",
