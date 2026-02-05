@@ -17,6 +17,20 @@ import { IoIosLogOut, IoIosSettings } from "react-icons/io";
 import { RiListSettingsLine } from "react-icons/ri";
 import { LuCalendarPlus } from "react-icons/lu";
 import { TbCalendarRepeat } from "react-icons/tb";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
 
 export default function AdminHeader() {
   const [isOpen, setIsOpen] = useState(false);
@@ -75,131 +89,99 @@ export default function AdminHeader() {
               </Link>
             </div>
           </div>
-          <div
-            style={{
-              zIndex: "9999999"
-            }}
-            className="hidden md:block"
-          >
-            <div className="flex items-baseline ml-10 space-x-4">
-              <div className="relative group" style={{ zIndex: '99999' }} >
-                <Link
-                  href="/admin/dashboard"
-                  className="px-3 py-2 mr-5 text-xs font-medium uppercase transition-colors duration-300 rounded-md backgroundOrangHover"
-                  onClick={() => {
-                    setOpenDropdown("");
-                  }}
-                >
-                  Home
-                </Link>
-                <button
-                  onClick={() => toggleDropdown("empresa")}
-                  className="inline-flex items-center px-3 py-2 text-xs font-medium uppercase transition-colors duration-300 rounded-md backgroundOrangHover"
-                >
+
+          <div style={{ zIndex: "9999999" }} className="items-center hidden gap-4 md:flex">
+
+            <Button variant="outline" className="text-xs text-white bg-black dark hover:bg-orange-600" >
+              <Link
+                href="/admin/dashboard"
+                onClick={() => {
+                  setOpenDropdown("");
+                }}
+              >
+                Home
+              </Link>
+            </Button>
+
+            <DropdownMenu onOpenChange={() => toggleDropdown("empresa")}>
+              <DropdownMenuTrigger className="text-xs text-white bg-black dark hover:bg-orange-600" asChild>
+                <Button variant="outline" className="focus:outline-none ">
                   Mi empresa
                   <BsChevronDown
-                    className={`ml-1 h-4 w-4 transition-transform duration-300 ${openDropdown === "empresa" ? "rotate-180" : ""
+                    className={` h-4 w-4 transition-transform duration-300 ${openDropdown === "empresa" ? "rotate-180" : ""
                       }`}
                   />
-                </button>
-                <div
-                  style={{ outline: "1px solid rgba(255, 255, 255, 0.24)" }}
-                  className={`absolute left-4 mt-2 w-48 bg-black backdrop-blur-md bg-opacity-50 rounded-md shadow-lg  z-10 transition-all duration-300 ${openDropdown === "empresa"
-                    ? "opacity-100 translate-y-0 "
-                    : "opacity-0 -translate-y-2 pointer-events-none "
-                    }`}
-                >
-                  <Link
-                    href="/admin/business"
-                    style={{
-                      borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
-                    }}
-                    className="flex items-center gap-2 px-4 py-3 text-xs uppercase transition-colors duration-300 rounded-t-md backgroundOrangHover"
-                    onClick={() => {
-                      setOpenDropdown("");
-                    }}
-                  >
-                    <IoIosSettings size={16} />
-                    General
-                  </Link>
-                  <Link
-                    href="/admin/business/settings"
-                    className="flex items-center gap-2 px-4 py-3 text-xs uppercase transition-colors duration-300 backgroundOrangHover rounded-b-md"
-                    onClick={() => {
-                      setOpenDropdown("");
-                    }}
-                  >
-                    <RiListSettingsLine size={16} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <Link className="flex items-center w-full gap-2" href="/admin/business">
+                  <DropdownMenuItem className="w-full mb-1">
+                    <IoIosSettings size={17} />
+                    Ajustes
+                  </DropdownMenuItem>
+                </Link>
 
+                <Link className="flex items-center w-full gap-2" href="/admin/business/settings">
+                  <DropdownMenuItem className="w-full">
+                    <RiListSettingsLine size={17} className="w-full" />
                     Servicios
-                  </Link>
-                </div>
-              </div>
-              <div className="relative group" style={{ zIndex: '99999' }} >
-                <button
-                  onClick={() => toggleDropdown("turnos")}
-                  className="inline-flex items-center px-3 py-2 text-xs font-medium uppercase transition-colors duration-300 rounded-md backgroundOrangHover"
-                >
+                  </DropdownMenuItem>
+                </Link>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu onOpenChange={() => toggleDropdown("turnos")}>
+              <DropdownMenuTrigger className="text-xs text-white bg-black dark hover:bg-orange-600" asChild>
+                <Button variant="outline">
                   Mi agenda
                   <BsChevronDown
-                    className={`ml-1 h-4 w-4 transition-transform duration-300 ${openDropdown === "turnos" ? "rotate-180" : ""
+                    className={` h-4 w-4 transition-transform duration-300 ${openDropdown === "turnos" ? "rotate-180" : ""
                       }`}
                   />
-                </button>
-                <div
-                  style={{ outline: "1px solid rgba(255, 255, 255, 0.24)" }}
-                  className={`absolute left-0 mt-2 w-48 bg-black backdrop-blur-md bg-opacity-50 rounded-md shadow-lg  z-10 transition-all duration-300 ${openDropdown === "turnos"
-                    ? "opacity-100 translate-y-0 "
-                    : "opacity-0 -translate-y-2 pointer-events-none "
-                    }`}
-                >
-                  <Link
-                    href="/admin/schedule"
-                    style={{
-                      borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
-                    }}
-                    className="flex items-center gap-2 px-4 py-3 text-xs uppercase transition-colors duration-300 rounded-t-md backgroundOrangHover"
-                    onClick={() => {
-                      setOpenDropdown("");
-                    }}
-                  >
-                    <LuCalendarPlus size={16} />
-                    Turnos
-                  </Link>
-                  <Link
-                    href="/admin/schedule/settings"
-                    style={{
-                      borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
-                    }}
-                    className="flex items-center gap-2 px-4 py-3 text-xs uppercase transition-colors duration-300 rounded-b-md backgroundOrangHover"
-                    onClick={() => {
-                      setOpenDropdown("");
-                    }}
-                  >
-                    <TbCalendarRepeat size={16} />
-                    automatizar
-                  </Link>
-                </div>
-              </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <Link className="flex items-center w-full gap-2" href="/admin/schedule">
+                  <DropdownMenuItem className="w-full mb-1">
+                    <LuCalendarPlus size={17} />
+                    Agenda de turnos
+                  </DropdownMenuItem>
+                </Link>
+
+                <Link className="flex items-center w-full gap-2" href="/admin/schedule/settings">
+                  <DropdownMenuItem >
+                    <TbCalendarRepeat size={18} className="w-full" />
+                    Automatizar agenda
+                  </DropdownMenuItem>
+                </Link>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button variant="outline" className="text-xs text-white bg-black dark hover:bg-orange-600" >
               <Link
                 href="/admin/profile"
-                className="px-3 py-2 text-xs font-medium uppercase transition-colors duration-300 rounded-md backgroundOrangHover"
                 onClick={() => {
                   setOpenDropdown("");
                 }}
               >
                 Mi perfil
               </Link>
-              <div
-                onClick={logOut}
-                className="my-auto cursor-pointer"
-                style={{ marginLeft: "35px" }}
-                title="Cerrar Sesión"
-              >
-                <IoIosLogOut size={22} color="white" />
-              </div>
-            </div>
+            </Button>
+
+            <Button onClick={logOut} variant="outline" className="text-xs text-white bg-orange-600 dark hover:bg-white hover:text-orange-600 w-fit" >
+              <Link
+                href="/admin/profile"
+                className="flex items-center gap-2"
+                onClick={() => {
+                  setOpenDropdown("");
+                }}
+              > <IoIosLogOut size={40} className="font-bold" />
+                Cerrar sesión
+              </Link>
+            </Button>
+
           </div>
+
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -217,6 +199,7 @@ export default function AdminHeader() {
               )}
             </button>
           </div>
+
         </div>
       </div>
 
@@ -344,6 +327,6 @@ export default function AdminHeader() {
           </div>
         </div>
       </div>
-    </nav>
+    </nav >
   );
 }
