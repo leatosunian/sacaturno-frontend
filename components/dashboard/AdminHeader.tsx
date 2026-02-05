@@ -92,16 +92,17 @@ export default function AdminHeader() {
 
           <div style={{ zIndex: "9999999" }} className="items-center hidden gap-4 md:flex">
 
-            <Button variant="outline" className="text-xs text-white bg-black dark hover:bg-orange-600" >
-              <Link
-                href="/admin/dashboard"
-                onClick={() => {
-                  setOpenDropdown("");
-                }}
-              >
+            <Link
+              href="/admin/dashboard"
+              className="w-fit h-fit"
+              onClick={() => {
+                setOpenDropdown("");
+              }}
+            >
+              <Button variant="outline" className="text-xs text-white bg-black dark hover:bg-orange-600" >
                 Home
-              </Link>
-            </Button>
+              </Button>
+            </Link>
 
             <DropdownMenu onOpenChange={() => toggleDropdown("empresa")}>
               <DropdownMenuTrigger className="text-xs text-white bg-black dark hover:bg-orange-600" asChild>
