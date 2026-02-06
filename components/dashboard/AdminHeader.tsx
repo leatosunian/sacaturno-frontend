@@ -170,8 +170,6 @@ export default function AdminHeader() {
             </Button>
 
             <Button onClick={logOut} variant="outline" className="text-xs text-white bg-orange-600 dark hover:bg-white hover:text-orange-600 w-fit" >
-              <Link
-                href="/admin/profile"
                 className="flex items-center gap-2"
                 onClick={() => {
                   setOpenDropdown("");

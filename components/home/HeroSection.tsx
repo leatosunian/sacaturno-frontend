@@ -13,14 +13,18 @@ const HeroSection = () => {
         <div className="flex flex-col h-full w-fit md:flex-row ">
           <div className="flex flex-col justify-around w-full h-full gap-8 my-auto md:gap-10 2xl:gap-14 md:h-fit">
             <h4 className="text-4xl font-bold md:text-5xl lg:text-5xl 2xl:text-6xl ">
-              Optimizá la agenda de tu negocio.
+              {/* Optimizá la agenda de tu negocio. */}
+              {/* La forma más simple de gestionar turnos. */}
+              {/* Ahorrá tiempo con tu agenda online profesional. */}
+              Optimizá tu agenda y ahorrá tiempo.
             </h4>
             <div>
               <p className="mb-3 text-sm font-medium text-gray-500 2xl:text-lg md:text-base">
-                Automatizá tus reservas, organizá tu agenda y dejá que tus clientes reserven solos, las 24 hs. Con SacaTurno, ahorrás tiempo, ganás eficiencia y mejorás la experiencia de tus clientes desde el primer día.
+                {/* Automatizá tus reservas, organizá tu agenda y dejá que tus clientes reserven solos, las 24 hs. Con SacaTurno, ahorrás tiempo, ganás eficiencia y mejorás la experiencia de tus clientes desde el primer día. */}
+                Ofrecé a tus clientes una forma moderna y profesional de reservar turnos desde cualquier dispositivo y simplificá la gestión de tu agenda con reservas online rápidas y centralizadas.
               </p>
               <p className="mb-2 text-sm font-medium text-gray-500 2xl:text-lg md:text-base">
-                Empezá hoy con una prueba gratuita de 15 días. Creá tu empresa y comenzá a recibir turnos online en minutos.
+                Empezá hoy con una prueba gratuita de 15 días. Creá tu empresa y automatizá tu agenda ahora.
               </p>
             </div>
 
