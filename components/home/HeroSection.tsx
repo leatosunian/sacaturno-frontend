@@ -38,7 +38,6 @@ const HeroSection = () => {
                   className={`${styles.btnAnimated} text-sm font-medium md:font-semibold rounded-xl gap-3`}
                 >
                   <MdOutlineAddBusiness size={24} />
-
                   Comenzar prueba gratuita
                 </Link>
 

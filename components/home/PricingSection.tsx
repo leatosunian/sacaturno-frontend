@@ -141,7 +141,7 @@ const PricingSection = () => {
               </h4>
               <div>
                 <span className="mr-1 text-2xl font-semibold lg:text-2xl">
-                  $11.860
+                  $12.890
                 </span>
                 <span className="text-sm text-gray-800">ARS/mes</span>
               </div>
