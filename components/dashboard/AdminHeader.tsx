@@ -169,14 +169,9 @@ export default function AdminHeader() {
               </Link>
             </Button>
 
-            <Button onClick={logOut} variant="outline" className="text-xs text-white bg-orange-600 dark hover:bg-white hover:text-orange-600 w-fit" >
-                className="flex items-center gap-2"
-                onClick={() => {
-                  setOpenDropdown("");
-                }}
-              > <IoIosLogOut size={40} className="font-bold" />
-                Cerrar sesión
-              </Link>
+            <Button onClick={logOut} variant="outline" className="text-xs text-white bg-orange-600 dark hover:bg-white hover:text-orange-600 w-fit">
+              <IoIosLogOut size={40} className="font-bold" />
+              Cerrar sesión
             </Button>
 
           </div>

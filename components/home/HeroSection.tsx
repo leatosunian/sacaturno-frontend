@@ -16,7 +16,8 @@ const HeroSection = () => {
               {/* Optimizá la agenda de tu negocio. */}
               {/* La forma más simple de gestionar turnos. */}
               {/* Ahorrá tiempo con tu agenda online profesional. */}
-              Optimizá tu agenda y ahorrá tiempo.
+              {/* Optimizá tu agenda y ahorrá tiempo. */}
+              Automatizá tu agenda, tu tiempo vale.
             </h4>
             <div>
               <p className="mb-3 text-sm font-medium text-gray-500 2xl:text-lg md:text-base">
