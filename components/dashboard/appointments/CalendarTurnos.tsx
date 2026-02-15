@@ -32,6 +32,7 @@ import { IDaySchedule } from "@/interfaces/daySchedule.interface";
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa6";
 import { timeOptions } from "@/helpers/timeOptions";
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 dayjs.locale("es-mx");
 
@@ -158,6 +159,7 @@ const CalendarTurnos: React.FC<Props> = ({
     return;
   }, [date]);
 
+  // save new appointment
   const saveNewAppointment = async ({
     start,
     end,
@@ -189,6 +191,7 @@ const CalendarTurnos: React.FC<Props> = ({
     setCreateAppointmentData(appointmentData);
   };
 
+  // parse appointments' values to show in calendar
   const parseAppointments = (appointments: IAppointment[] | undefined) => {
     dayjs.extend(timezone);
     dayjs.extend(utc);
@@ -232,6 +235,7 @@ const CalendarTurnos: React.FC<Props> = ({
     return appointmentsList;
   };
 
+  // handle select event (show appointment info)
   const handleSelectEvent = (event: eventType) => {
     setDropdownActive(false);
     const eventDataObj: eventType2 = {
@@ -329,35 +333,51 @@ const CalendarTurnos: React.FC<Props> = ({
           <div className="loader"></div>
         </div>
       )}
+
       {/* CREATE ALL DAY'S APPOINTMENTS */}
-      {allDayAppointmentsModal && (
-        <AllDayAppointmentsModal
-          business={business}
-          services={services}
-          date={date}
-          selectedDay={selectedDaySchedule}
-          onNewAppointment={() => setLoadingNewAppointments(true)}
-          closeModalF={() => setAllDayAppointmentsModal(false)}
-        />
-      )}
+      <Dialog open={allDayAppointmentsModal} onOpenChange={() => { setAllDayAppointmentsModal(false) }} >
+        <DialogContent className="sm:w-fit w-[93vw] ">
+          <AllDayAppointmentsModal
+            business={business}
+            services={services}
+            date={date}
+            selectedDay={selectedDaySchedule}
+            onNewAppointment={() => setLoadingNewAppointments(true)}
+            closeModalF={() => setAllDayAppointmentsModal(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
       {/* APPOINTMENT INFO */}
-      {eventModal && (
-        <AppointmentModal
-          onDeleteAppointment={() => setLoadingNewAppointments(true)}
-          appointment={eventData}
-          closeModalF={() => setEventModal(false)}
-        />
-      )}
+      <Dialog open={eventModal} onOpenChange={() => { setEventModal(false) }} >
+        <DialogContent className="sm:w-[470px] w-[93vw] ">
+          <AppointmentModal
+            onDeleteAppointment={() => setLoadingNewAppointments(true)}
+            appointment={eventData}
+            closeModalF={() => setEventModal(false)}
+
+          />
+        </DialogContent>
+      </Dialog>
+
       {/* CREATE SINGLE APPOINTMENT */}
-      {createAppointmentModal && (
-        <CreateAppointmentModal
-          onNewAppointment={() => setLoadingNewAppointments(true)}
-          appointmentData={createAppointmentData}
-          servicesData={services}
-          closeModalF={() => setCreateAppointmentModal(false)}
-        />
-      )}
+      <Dialog open={createAppointmentModal} onOpenChange={() => { setCreateAppointmentModal(false) }} >
+        <DialogContent className="sm:w-fit w-[93vw] ">
+          <CreateAppointmentModal
+            onNewAppointment={() => setLoadingNewAppointments(true)}
+            closeModalF={() => setCreateAppointmentModal(false)}
+            appointmentData={createAppointmentData}
+            servicesData={services}
+          />
+        </DialogContent>
+      </Dialog>
+
+
+
       {servicesData.length === 0 && <NoServicesModal />}
+
+
+
       {expiredModal && <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={business} />}
 
       {helpModal && <HelpModal onClose={() => setHelpModal(false)} />}

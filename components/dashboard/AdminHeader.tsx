@@ -90,7 +90,7 @@ export default function AdminHeader() {
             </div>
           </div>
 
-          <div style={{ zIndex: "9999999" }} className="items-center hidden gap-4 md:flex">
+          <div className="items-center hidden gap-4 md:flex">
 
             <Link
               href="/admin/dashboard"

@@ -124,7 +124,7 @@ const MiEmpresa: NextPage<Props> = async ({ }) => {
               className={`mx-auto flex justify-end my-9 h-fit lg:my-4 ${styles.configArrows}`}
             >
               <Link
-                className="flex items-center gap-2 text-xs font-semibold uppercase"
+                className="flex items-center gap-2 mt-2 text-xs font-semibold uppercase"
                 style={{ color: "#dd4924" }}
                 href="/admin/business/settings"
               >

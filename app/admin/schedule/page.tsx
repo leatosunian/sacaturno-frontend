@@ -33,12 +33,11 @@ const getAppointments = async () => {
     authHeader
   );
   const businessData: IBusiness = businessFetch.data;
-  console.log(process.env.SERVER_URL);
 
-  const appointmentsFetch = await fetch(
-    `${process.env.SERVER_URL}/appointment/get/${businessData._id}`,
+  const appointmentsFetch = await axiosReq.get(
+    `/appointment/get/${businessData._id}`,
     authHeader
-  ).then((response) => response.json());
+  );
 
   const servicesFetch = await axiosReq.get(
     `/business/service/get/${businessData._id}`,
@@ -53,7 +52,7 @@ const getAppointments = async () => {
   const scheduleDays = daysAndAppointmentsFetch.data.days;
 
   return {
-    appointments: appointmentsFetch,
+    appointments: appointmentsFetch.data,
     businessData,
     services,
     scheduleDays,

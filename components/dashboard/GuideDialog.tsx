@@ -14,8 +14,8 @@ interface Props {
 const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }) => {
   return (
     <>
-      <Dialog open={openGuideDialog} onOpenChange={onClose}>
-        <DialogContent className={`overflow-y-scroll max-w-[92vw] rounded-lg sm:max-w-4xl max-h-[90vh] ${styles.helpContScrollbar} px-7 md:px-10 `}>
+      <Dialog open={openGuideDialog} onOpenChange={onClose} >
+        <DialogContent style={{zIndex:'9999999999999999999999999999999999999999999999999999999999999'}} className={` overflow-y-scroll max-w-[92vw] rounded-lg sm:max-w-4xl max-h-[90vh] ${styles.helpContScrollbar} px-7 md:px-10 `}>
           <div className="flex flex-col items-center w-full gap-5 h-fit">
             {isFirstLogin && (<>
               <div className="flex flex-col w-full gap-3 my-2 text-center md:my-4 h-fit">
@@ -44,7 +44,7 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
             {/* PASO 1 */}
             <div className="flex flex-col w-full gap-4 my-2 h-fit">
               <h4 className="text-lg font-bold md:text-xl ">
-                🏢 1. Creá tu empresa
+                <b className="font-bold text-orange-600">1.</b> Creá tu empresa
               </h4>
 
               <div className="flex flex-col gap-3 w-fit h-fit">
@@ -74,7 +74,7 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
             {/* PASO 2 */}
             <div className="flex flex-col w-full gap-4 my-2 h-fit">
               <h4 className="text-lg font-bold md:text-xl ">
-                🧩 2. Agregá tus servicios
+                <b className="font-bold text-orange-600">2.</b> Agregá tus servicios
               </h4>
 
               <div className="flex flex-col gap-3 w-fit h-fit">
@@ -105,7 +105,7 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
             {/* PASO 3 */}
             <div className="flex flex-col w-full gap-4 my-2 h-fit">
               <h4 className="text-lg font-bold md:text-xl ">
-                📅 3. Cargá tus turnos en la agenda
+                <b className="font-bold text-orange-600">3.</b> Cargá tus turnos en la agenda
               </h4>
 
               <div className="flex flex-col gap-3 w-fit h-fit">

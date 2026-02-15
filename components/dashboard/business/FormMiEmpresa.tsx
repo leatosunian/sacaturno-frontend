@@ -14,6 +14,7 @@ import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
 import { IService } from "@/interfaces/service.interface";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface props {
   businessData: IBusiness;
@@ -210,18 +211,36 @@ const FormMiEmpresa = ({
 
   return (
     <>
-      <form
-        onSubmit={handleSubmit((data) => {
-          saveChanges(data);
-        })}
-        
-      >
 
-        {/* <h4 className="text-lg font-semibold md:text-xl">
+
+      {/* <h4 className="text-lg font-semibold md:text-xl">
           Datos de mi empresa
         </h4> */}
 
-        <Card className="flex flex-col items-center justify-center gap-6 p-5 mx-auto w-fit md:justify-around md:flex-row">
+      <Card className="flex flex-col mx-auto gap-7 w-fit p-7">
+        <h4
+          className="relative inline-block w-full px-2 mx-auto text-xl font-bold text-center uppercase"
+        >
+          Datos de mi empresa
+          {/* linea */}
+          <span
+            className="absolute left-0 right-0 mx-auto"
+            style={{
+              bottom: -2,    // gap entre texto y linea (ajustalo)
+              height: 2,     // grosor de la linea (ajustalo)
+              background: "#dd4924",
+              width: "20%",  // ancho opcional de la linea
+            }}
+          />
+        </h4>
+
+        <form
+          className="flex flex-col items-center justify-center gap-6 mx-auto w-fit md:justify-around md:flex-row"
+          onSubmit={handleSubmit((data) => {
+            saveChanges(data);
+          })}
+
+        >
           <div
             onClick={handleClick}
             className="rounded-full inputFileFormProfile"
@@ -341,43 +360,49 @@ const FormMiEmpresa = ({
               )}
             </div>
           </div>
-        </Card>
+          <button
+            onClick={handleSubmitClick}
+            className={"inputSubmitField hidden "}
+          />
 
-        <button
-          onClick={handleSubmitClick}
-          className={"inputSubmitField hidden "}
-        />
-      </form>
+        </form>
 
-      <div className="flex items-center justify-center w-full mt-7 md:mt-8 h-9">
-        {loading && (
-          <>
-            <div
-              style={{ height: "100%", width: "100%" }}
-              className="flex items-center justify-center w-full"
-            >
-              <div className="loaderSmall"></div>
-            </div>
-          </>
-        )}
-        {!loading && (
-          <button onClick={handleSubmitClick} className={styles.button}>
-            <LuSave size={18} />
-            Guardar cambios
-          </button>
-        )}
-      </div>
+        <div className="flex items-center justify-center w-full mt-2 h-9">
+          {loading && (
+            <>
+              <div
+                style={{ height: "100%", width: "100%" }}
+                className="flex items-center justify-center w-full"
+              >
+                <div className="loaderSmall"></div>
+              </div>
+            </>
+          )}
+          {!loading && (
+            <Button
+              className="w-full px-0 text-white bg-orange-600 border-none rounded-lg shadow-xl outline-none sm:px-10 sm:w-fit h-11 hover:bg-orange-700 "
+              onClick={handleSubmitClick}>
+              <LuSave size={18} />
+              Guardar cambios
+            </Button>
+          )}
+        </div>
+      </Card >
+
+
 
       {/* ALERT */}
-      {alert?.error && (
-        <div className="flex justify-center w-full h-fit">
-          <Alert
-            error={alert?.error}
-            msg={alert?.msg}
-            alertType={alert?.alertType}
-          />
-        </div>
-      )}
+      {
+        alert?.error && (
+          <div className="flex justify-center w-full h-fit">
+            <Alert
+              error={alert?.error}
+              msg={alert?.msg}
+              alertType={alert?.alertType}
+            />
+          </div>
+        )
+      }
     </>
   );
 };

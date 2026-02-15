@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import Link from "next/link";
 import { FaWhatsapp } from "react-icons/fa6";
 import { IAppointment } from "@/interfaces/appointment.interface";
+import { Button } from "@/components/ui/button";
 
 interface eventType2 {
   start: Date;
@@ -39,14 +40,14 @@ interface eventType extends IAppointment {
 
 interface props {
   appointment: eventType2 | undefined;
-  closeModalF: () => void;
   onDeleteAppointment: () => void;
+  closeModalF: () => void;
 }
 
 const AppointmentModal: React.FC<props> = ({
   appointment,
-  closeModalF,
   onDeleteAppointment,
+  closeModalF
 }) => {
   const [isBooked, setIsBooked] = useState(false);
   const router = useRouter();
@@ -65,9 +66,7 @@ const AppointmentModal: React.FC<props> = ({
     }
   }, [appointment]);
 
-  const closeModal = () => {
-    closeModalF();
-  };
+
 
   const deleteAppointment = async () => {
     try {
@@ -83,144 +82,166 @@ const AppointmentModal: React.FC<props> = ({
 
   return (
     <>
-      <div
-        className="absolute flex items-center justify-center modalCont"
-        onClick={closeModal}
-      >
-        <div
-          className="flex flex-col text-black bg-white w-80 md:w-96 p-7 h-fit borderShadow"
-          style={{ transform: "translateY(-32px)" }}
-        >
-          {isBooked && (
+
+      <div className="flex flex-col items-center w-full gap-5 pb-1 h-fit">
+
+        {isBooked && (
+          <>
+            <div className="flex flex-col justify-center w-full gap-1 h-fit">
+
+              <h4
+                className="relative inline-block w-full px-2 mx-auto text-2xl font-bold text-center uppercase"
+                style={{ fontSize: 22 }}
+              >
+                Turno reservado
+
+                {/* linea */}
+                <span
+                  className="absolute left-0 right-0 mx-auto"
+                  style={{
+                    bottom: -2,    // gap entre texto y linea 
+                    height: 2,     // grosor de la linea
+                    background: "#dd4924",
+                    width: "30%",  // ancho opcional de la linea
+                  }}
+                />
+              </h4>
+              <span className="mt-5 text-lg font-bold text-center uppercase">
+                &#128197; {"  "}
+                {dayjs(appointment?.start).format("dddd DD [de] MMMM ")}
+              </span>
+              <span className="font-medium text-center ">
+                {dayjs(appointment?.start).format("HH:mm [hs]")} -{" "}
+                {dayjs(appointment?.end).format("HH:mm [hs]")}
+              </span>
+            </div>
+          </>
+        )}
+
+        {!isBooked && (
+          <h4
+            className="relative inline-block w-full px-2 mx-auto text-xl font-bold text-center uppercase"
+            style={{ fontSize: 20 }}
+          >
+            Datos del turno
+            {/* linea */}
+            <span
+              className="absolute left-0 right-0 mx-auto"
+              style={{
+                bottom: -2,    // gap entre texto y linea (ajustalo)
+                height: 2,     // grosor de la linea (ajustalo)
+                background: "#dd4924",
+                width: "30%",  // ancho opcional de la linea
+              }}
+            />
+          </h4>
+
+        )}
+
+        {/* <span>Hacé click en un turno para ver los detalles</span> */}
+        <div className="flex flex-col w-full gap-5 h-fit">
+          {!isBooked && (
             <>
-              <div className="flex flex-col justify-center w-full mb-4 h-fit">
-                <h4 className="mb-3 text-xl font-bold text-center uppercase ">
-                  Turno reservado
-                </h4>
-                <span className="text-sm font-bold text-center uppercase">
-                  &#128197; {"  "}
-                  {dayjs(appointment?.start).format("dddd d [de] MMMM ")}
-                </span>
-                <span className="text-sm text-center">
-                  {dayjs(appointment?.start).format("HH:mm [hs]")} -{" "}
+              <div className="flex flex-col w-fit h-fit">
+                <label
+                  className="text-sm font-bold uppercase"
+                >
+                  Fecha y hora
+                </label>
+                <span className="font-medium capitalize-first-letter">
+                  {dayjs(appointment?.start).format("dddd d [de] MMMM | HH:mm [hs]")} -{" "}
                   {dayjs(appointment?.end).format("HH:mm [hs]")}
                 </span>
               </div>
             </>
           )}
-
-          {!isBooked && (
-            <h4 className="mb-6 text-xl font-bold text-center uppercase">
-              Datos del turno
-            </h4>
-          )}
-
-          {/* <span>Hacé click en un turno para ver los detalles</span> */}
-          <div className="flex flex-col gap-4 w-fit h-fit">
-            {!isBooked && (
-              <>
-                <div className="flex flex-col w-fit h-fit">
-                  <label
-                    style={{ fontSize: "12px" }}
-                    className="font-bold uppercase "
-                  >
-                    Fecha y hora
-                  </label>
-                  <span className="text-sm capitalize-first-letter">
-                    {dayjs(appointment?.start).format("dddd d [de] MMMM  ")}
-                  </span>
-                </div>
-              </>
-            )}
-            <div className="flex flex-col w-fit h-fit">
-              <label
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Servicio
-              </label>
-              <span className="text-sm">{appointment?.service}</span>
-            </div>
-            <div className="flex flex-col w-fit h-fit">
-              <label
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Precio
-              </label>
-              <span className="text-sm">AR$ {appointment?.price}</span>
-            </div>
-
-            {isBooked && (
-              <>
-                <div className="flex flex-col w-fit h-fit">
-                  <label
-                    style={{ fontSize: "12px" }}
-                    className="font-bold uppercase "
-                  >
-                    Nombre del cliente
-                  </label>
-                  <span className="text-sm">{appointment?.name} </span>
-                </div>
-
-                <div className="flex flex-col w-fit h-fit">
-                  <label
-                    style={{ fontSize: "12px" }}
-                    className="font-bold uppercase "
-                  >
-                    Teléfono
-                  </label>
-                  <span className="text-sm">{appointment?.phone}</span>
-                </div>
-
-                <div className="flex flex-col w-fit h-fit">
-                  <label
-                    style={{ fontSize: "12px" }}
-                    className="font-bold uppercase "
-                  >
-                    Email
-                  </label>
-                  <span className="text-sm">{appointment?.email} </span>
-                </div>
-              </>
-            )}
+          <div className="flex flex-col w-fit h-fit">
+            <label
+              className="text-sm font-bold uppercase"
+            >
+              Servicio
+            </label>
+            <span className="font-medium ">{appointment?.service}</span>
           </div>
-
+          <div className="flex flex-col w-fit h-fit">
+            <label
+              className="text-sm font-bold uppercase"
+            >
+              Precio
+            </label>
+            <span className="font-medium">$ {appointment?.price?.toLocaleString()}</span>
+          </div>
+          {/*  */}
           {isBooked && (
             <>
-              <div
-                style={{
-                  width: "100%",
-                  height: "1px",
-                  backgroundColor: "rgb(178 178 178 / 55%)",
-                  margin: "20px auto",
-                }}
-              ></div>
-              <Link
-                target="_blank"
-                href={`https://wa.me/54${appointment?.phone}`}
-              >
-                <div className="button2">
-                  <FaWhatsapp color="green" size={22} />
-                  <span className="text-gray-700">Iniciar chat</span>
-                </div>
-              </Link>
+              <div className="flex flex-col w-fit h-fit">
+                <label
+                  className="text-sm font-bold uppercase"
+                >
+                  Nombre del cliente
+                </label>
+                <span className="font-medium">{appointment?.name} </span>
+              </div>
+
+              <div className="flex flex-col w-fit h-fit">
+                <label
+                  className="text-sm font-bold uppercase"
+
+                >
+                  Teléfono
+                </label>
+                <span className="font-medium">+54 {appointment?.phone}</span>
+              </div>
+
+              <div className="flex flex-col w-fit h-fit">
+                <label
+                  className="text-sm font-bold uppercase"
+                >
+                  Email
+                </label>
+                <span className="font-medium">{appointment?.email} </span>
+              </div>
             </>
           )}
-
-          {!isBooked && (
-            <button
-              onClick={() => {
-                deleteAppointment();
-                onDeleteAppointment();
-              }}
-              className={`${styles.buttonDelete} mt-6`}
-            >
-              Eliminar turno
-            </button>
-          )}
         </div>
-      </div>
+
+        {isBooked && (
+          <>
+            <div
+              style={{
+                width: "100%",
+                height: "1px",
+                backgroundColor: "rgb(178 178 178 / 55%)",
+                margin: "5px auto",
+              }}
+            ></div>
+            <Link
+              target="_blank"
+              href={`https://wa.me/54${appointment?.phone}`}
+              className="flex items-center w-full gap-2 h-fit"
+            >
+              <Button
+                className="w-full text-white bg-orange-600 border-none rounded-lg shadow-2xl outline-none h-11 hover:bg-orange-700 ">
+                <FaWhatsapp color="green" />
+                Iniciar chat en WhatsApp
+              </Button>
+
+            </Link>
+          </>
+        )}
+
+        {!isBooked && (
+          <Button
+            onClick={() => {
+              deleteAppointment();
+              onDeleteAppointment();
+              closeModalF()
+            }}
+            className="w-full mt-1 text-white bg-orange-600 border-none rounded-lg shadow-2xl outline-none h-11 hover:bg-orange-700 ">
+            Eliminar turno
+          </Button>
+        )}
+      </div >
     </>
   );
 };

@@ -1,6 +1,5 @@
 "use client";
 import styles from "@/app/css-modules/FormMiEmpresa.module.css";
-import { timeOptions } from "@/helpers/timeOptions";
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axiosReq from "@/config/axios";
@@ -11,6 +10,8 @@ import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
 import { createBusinessSchema } from "@/app/schemas/createBusinessSchema";
 import { BsFillCheckCircleFill } from "react-icons/bs";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from '@/components/ui/button';
 
 interface formInputs {
   name: string;
@@ -87,6 +88,7 @@ const FormCreateBusiness: React.FC = () => {
           Authorization: `Bearer ${token}`,
         },
       };
+      //console.log('   DATA ENVIADA:', data);
       if (data) {
         data.ownerID = userID;
         const updatedUser = await axiosReq.post(
@@ -94,7 +96,7 @@ const FormCreateBusiness: React.FC = () => {
           data,
           authHeader
         );
-        
+        //console.log('   RESPUESTA DEL SERVIDOR:', updatedUser);
         if (updatedUser.data.businessData === "BUSINESS_EXISTS") {
           setAlert({
             msg: "Solo podes añadir una empresa",
@@ -133,11 +135,9 @@ const FormCreateBusiness: React.FC = () => {
     <>
       {isCreated && (
         <>
-          <div
-            className="absolute flex items-center justify-center modalCont"
-            style={{ top: "64px" }}
-          >
-            <div className="flex flex-col py-10 bg-white w-80 md:w-96 px-7 h-fit borderShadow">
+          <Dialog open={isCreated} >
+
+            <DialogContent className="flex flex-col py-10 bg-white w-80 md:w-96 px-7 h-fit borderShadow">
               <div className="flex flex-col items-center w-full gap-4 h-fit ">
                 <BsFillCheckCircleFill
                   className="hidden md:block"
@@ -182,18 +182,18 @@ const FormCreateBusiness: React.FC = () => {
                   </label>
                 </div>
               </div>
-            </div>
-          </div>
+            </DialogContent>
+          </Dialog>
         </>
       )}
       <form
         onSubmit={handleSubmit((data) => {
           createBusiness(data);
         })}
-        className={styles.businessForm}
+        className={"flex flex-col items-center justify-center w-full gap-3 mt-5  md:justify-around "}
       >
         <div className="flex flex-col items-center justify-center w-full gap-10 md:gap-5 md:justify-around md:flex-row">
-          <div className="flex flex-col justify-between w-full gap-5 md:w-1/2 ">
+          <div className="flex flex-col justify-between w-full gap-5 px-0 md:px-7 ">
             <h3 className="mb-3 text-xl font-bold uppercase ">
               Datos de mi empresa
             </h3>
@@ -264,7 +264,7 @@ const FormCreateBusiness: React.FC = () => {
               >
                 Teléfono de contacto
               </span>
-              <input type="text" {...register("phone")} maxLength={40} />
+              <input type="number" {...register("phone")} maxLength={40} />
               {errors.phone?.message && (
                 <span className="text-xs font-semibold text-red-600">
                   {errors.phone.message}
@@ -286,7 +286,7 @@ const FormCreateBusiness: React.FC = () => {
                 <input type="text" maxLength={30} {...register("slug")} />
               </div>
               {errors.slug?.message && (
-                <span className="text-xs font-semibold text-red-600">
+                <span className="overflow-hidden text-xs font-semibold text-red-600">
                   {errors.slug.message}
                 </span>
               )}
@@ -303,7 +303,7 @@ const FormCreateBusiness: React.FC = () => {
         </div>
       </form>
 
-      <div className="flex items-center justify-center w-full h-9">
+      <div className="flex items-center justify-center w-full mb-8 h-9">
         {loading && (
           <>
             <div
@@ -315,10 +315,11 @@ const FormCreateBusiness: React.FC = () => {
           </>
         )}
         {!loading && (
-          <button onClick={handleSubmitClick} className={styles.button}>
-            <MdOutlineAddBusiness size={20} />
+          <Button onClick={handleSubmitClick} 
+          className="w-full mx-0 mt-1 text-white bg-orange-600 border-none rounded-lg shadow-2xl outline-none sm:mx-7 h-11 hover:bg-orange-700 ">
+            <MdOutlineAddBusiness size={30} />
             Crear empresa
-          </button>
+          </Button>
         )}
       </div>
 

@@ -7,6 +7,19 @@ import styles from "@/app/css-modules/CreateAppointmentModal.module.css";
 import { IoMdClose } from "react-icons/io";
 import { IService } from "@/interfaces/service.interface";
 import { useEffect, useState } from "react";
+import { CiCalendar } from "react-icons/ci";
+import { FaCalendar, FaRegClock } from "react-icons/fa6";
+import { LuCalendar } from "react-icons/lu";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface props {
   appointmentData: IAppointment | undefined;
@@ -88,80 +101,104 @@ const CreateAppointmentModal: React.FC<props> = ({
 
   return (
     <>
-      <div className="absolute flex items-center justify-center text-black modalCont">
-        <div className="flex flex-col bg-white w-80 md:w-96 px-7 py-9 h-fit borderShadow">
-          <IoMdClose
-            className={styles.closeModal}
-            onClick={closeModal}
-            size={22}
+      <div className="flex flex-col items-center w-full gap-8 pb-1 h-fit">
+        <h4
+          className="relative inline-block w-full px-2 mx-auto text-2xl font-bold text-center uppercase"
+          style={{ fontSize: 22 }}
+        >
+          Nuevo turno
+          {/* linea */}
+          <span
+            className="absolute left-0 right-0 mx-auto"
+            style={{
+              bottom: -2,    // gap entre texto y linea 
+              height: 2,     // grosor de la linea
+              background: "#dd4924",
+              width: "30%",  // ancho opcional de la linea
+            }}
           />
-          <h4 className="mb-6 text-2xl font-bold text-center uppercase">
-            Nuevo turno
-          </h4>
-          {/* <span>Hacé click en un turno para ver los detalles</span> */}
-          <div className="flex flex-col w-full gap-5 h-fit">
-            <div className="flex flex-col w-fit h-fit">
-              <label
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Fecha
-              </label>
-              <span className="text-sm">
-                {dayjs(appointmentData?.start).format("dddd DD/MM ")}{" "}
-              </span>
-            </div>
+        </h4>
 
-            <div className="flex flex-col w-fit h-fit">
-              <label
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Hora
-              </label>
-              <span className="text-sm">
-                {dayjs(appointmentData?.start).format("HH:mm [hs] ")}{" "}
-                {dayjs(appointmentData?.end).format("[a] HH:mm [hs]")}
-              </span>
-            </div>
-
-            <div
-              className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
+        {/* <span>Hacé click en un turno para ver los detalles</span> */}
+        <div className="flex flex-col w-full gap-6 h-fit">
+          <div className="flex flex-col gap-2 w-fit h-fit">
+            <label
+              className="text-sm font-bold uppercase"
             >
-              <label
-                style={{ fontSize: "12px" }}
-                className="mb-1 font-bold uppercase "
-              >
-                Servicio a prestar
-              </label>
-              <select
-                value={selectedService?.name}
-                onChange={(e) => handleSetSelectedService(e.target.value)}
-                id="appointmentDuration"
-              >
-                {servicesData?.map((service) => (
-                  <option
-                    key={service._id}
-                    value={service.name}
-                  >
-                    {service.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex justify-center w-full mt-3 align-middle h-fit">
-              <button
-                className={styles.button}
-                onClick={() => {
-                  saveAppointment();
-                  closeModal();
-                }}
-              >
-                Crear turno
-              </button>
+              Fecha
+            </label>
+            <div className="flex items-center gap-2">
+              <LuCalendar color="#9ca3af" size={20} />
+              <span className="text-sm font-medium text-gray-800 capitalize-first-letter">
+                {dayjs(appointmentData?.start).format("dddd DD [de] MMMM ")}{" "}
+              </span>
             </div>
           </div>
+
+          <div className="flex flex-col gap-2 w-fit h-fit">
+            <label
+              className="text-sm font-bold uppercase"
+            >
+              Horario
+            </label>
+            <div className="flex items-center gap-2">
+              <FaRegClock color="#9ca3af" size={20} />
+              <span className="text-sm font-medium text-gray-800">
+                {dayjs(appointmentData?.start).format("HH:mm [hs] ")}{" "}
+                {dayjs(appointmentData?.end).format("[-] HH:mm [hs]")}
+              </span>
+            </div>
+          </div>
+
+          <div
+            className={`flex flex-col w-full gap-1 h-fit ${styles.formInputAppDuration} `}
+          >
+            <label
+              className="text-sm font-bold uppercase "
+            >
+              Servicio a prestar
+            </label>
+            {/* <select
+              value={selectedService?.name}
+              onChange={(e) => handleSetSelectedService(e.target.value)}
+              id="appointmentDuration"
+            >
+              {servicesData?.map((service) => (
+                <option
+                  key={service._id}
+                  value={service.name}
+                >
+                  {service.name}
+                </option>
+              ))}
+            </select> */}
+            <Select value={selectedService?.name} onValueChange={(value) => handleSetSelectedService(value)}>
+              <SelectTrigger className="w-full ">
+                <SelectValue placeholder="Select a fruit" />
+              </SelectTrigger>
+              <SelectContent className="w-full">
+                <SelectGroup>
+                  <SelectLabel>Servicios</SelectLabel>
+                  {servicesData?.map((service) => (
+                    <SelectItem key={service._id} value={service.name!}>
+                      {service.name}
+                    </SelectItem>
+                  ))}
+
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+
+          <Button
+            className="w-full text-white bg-orange-600 border-none rounded-lg shadow-xl outline-none h-11 hover:bg-orange-700 "
+            onClick={() => {
+              saveAppointment();
+              closeModal();
+            }}>
+            Crear turno
+          </Button>
         </div>
       </div>
     </>

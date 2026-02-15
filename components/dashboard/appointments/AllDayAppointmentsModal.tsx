@@ -4,13 +4,22 @@ import { IAppointment } from "@/interfaces/appointment.interface";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import styles from "@/app/css-modules/CreateAppointmentModal.module.css";
-import { IoMdClose } from "react-icons/io";
 import { IService } from "@/interfaces/service.interface";
 import { useEffect, useState } from "react";
 import { IBusiness } from "@/interfaces/business.interface";
 import { timeOptions } from "@/helpers/timeOptions";
 import AlertInterface from "@/interfaces/alert.interface";
 import Alert from "@/components/Alert";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface IAllDayModalProps {
   date: Date;
@@ -123,7 +132,7 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
       },
     };
     await axiosReq.post("/appointment/create/day", dayAppointments, authHeader);
-    
+
     router.refresh();
   };
 
@@ -133,165 +142,218 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
 
   return (
     <>
-      <div className="absolute flex items-center justify-center modalCont">
-        <div
-          className="flex flex-col text-black bg-white w-80 md:w-96 p-7 h-fit borderShadow"
-          style={{ transform: "translateY(-32px)" }}
+      <div className="flex flex-col items-center w-full gap-5 h-fit">
+        <h4
+          className="relative inline-block px-2 mx-auto text-xl font-bold text-center uppercase w-fit"
+          style={{ fontSize: 20 }}
         >
-          <IoMdClose
-            className={styles.closeModal}
-            onClick={closeModal}
-            size={22}
+          Crear turnos
+          {/* linea */}
+          <span
+            className="absolute left-0 right-0 mx-auto"
+            style={{
+              bottom: -2,    // gap entre texto y linea (ajustalo)
+              height: 2,     // grosor de la linea (ajustalo)
+              background: "#dd4924",
+              width: "60%",  // ancho opcional de la linea
+            }}
           />
-          <h4 className="mb-2 text-xl font-bold text-center uppercase md:text-2xl">
-            Crear turnos
-          </h4>
-          <span className="mb-4 text-sm font-semibold text-center uppercase md:text-md">
-            {dayjs(date).format("dddd DD [de] MMMM ")}
-          </span>
+        </h4>
 
-          <span className="mb-4 text-xs text-left md:text-sm">
-            &#128161; Seleccioná el servicio a prestar para crear todos los
-            turnos del día
-          </span>
+        <span className="text-lg font-semibold text-center uppercase md:text-md">
+          &#128197; {"  "}{dayjs(date).format("dddd DD [de] MMMM ")}
+        </span>
 
-          <div className="flex w-full mt-3 md:flex-row h-fit">
-            <div className="flex flex-col w-full h-fit gap-7">
-              <div className="flex flex-col w-full gap-3 h-fit ">
-                <div
-                  className={`flex flex-col w-full h-fit ${styles.formInputAppDuration} `}
-                >
-                  <label
-                    style={{ fontSize: "12px" }}
-                    className="mb-1 font-bold uppercase "
-                  >
-                    Servicio a prestar
-                  </label>
-                  <select
-                    value={selectedService?.name}
-                    style={{ width: "100%" }}
-                    onChange={(e) => handleSetSelectedService(e.target.value)}
-                    id="appointmentDuration"
-                  >
-                    {services?.map((service) => (
-                      <option key={service._id} value={service.name}>
-                        {service.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div
-                  className={`flex flex-col w-full h-fit ${styles.formInputAppDuration} `}
-                >
-                  <label
-                    style={{ fontSize: "12px" }}
-                    className="font-bold uppercase "
-                  >
-                    Desde:
-                  </label>
-                  <select
-                    defaultValue={selectedDaySchedule.dayStart}
-                    value={selectedDaySchedule.dayStart}
-                    style={{ width: "100%" }}
-                    onChange={(e) =>
-                      setSelectedDaySchedule({
-                        ...selectedDaySchedule,
-                        dayStart: Number(e.target.value),
-                      })
-                    }
-                    id="appointmentDuration"
-                  >
-                    {timeOptions.map((time) => (
-                      <option value={time.value} key={time.label}>
-                        {time.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div
-                  className={`flex flex-col w-full h-fit ${styles.formInputAppDuration} `}
-                >
-                  <label
-                    style={{ fontSize: "12px" }}
-                    className="font-bold uppercase "
-                  >
-                    Hasta:
-                  </label>
-                  <select
-                    defaultValue={selectedDaySchedule.dayEnd}
-                    style={{ width: "100%" }}
-                    onChange={(e) =>
-                      setSelectedDaySchedule({
-                        ...selectedDaySchedule,
-                        dayEnd: Number(e.target.value),
-                      })
-                    }
-                    value={selectedDaySchedule.dayEnd}
-                    id="appointmentDuration"
-                  >
-                    {timeOptions.map((time) => (
-                      <option value={time.value} key={time.label}>
-                        {time.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div
-                  className={`flex flex-col w-full h-fit ${styles.formInputAppDuration} `}
-                >
-                  <label
-                    style={{ fontSize: "12px" }}
-                    className="font-bold uppercase "
-                  >
-                    Duración de cada turno
-                  </label>
+        <span className="text-xs font-medium text-left md:text-sm">
+          &#128161; Seleccioná el servicio a prestar para crear todos los
+          turnos del día.
+        </span>
 
-                  <select
-                    className="text-sm"
-                    style={{ width: "100%" }}
-                    defaultValue={selectedDaySchedule.appointmentDuration}
-                    value={selectedDaySchedule.appointmentDuration}
-                    onChange={(e) =>
-                      setSelectedDaySchedule({
-                        ...selectedDaySchedule,
-                        appointmentDuration: Number(e.target.value),
-                      })
-                    }
-                    id="appointmentDuration"
-                  >
-                    <option value="15">15 min</option>
-                    <option value="30">30 min</option>
-                    <option value="45">45 min</option>
-                    <option value="60">1 h</option>
-                    <option value="75">1:15 hs</option>
-                    <option value="90">1:30 hs</option>
-                    <option value="105">1:45 hs</option>
-                    <option value="120">2 hs</option>
-                  </select>
-                </div>
-              </div>
-              <button
-                className={styles.button}
-                onClick={() => {
-                  saveAppointment();
-                }}
+        <div className="flex w-full md:flex-row h-fit">
+          <div className="flex flex-col w-full h-fit gap-7">
+            <div className="flex flex-col w-full gap-4 h-fit ">
+              <div
+                className={`flex flex-col w-full h-fit ${styles.formInputAppDuration} `}
               >
-                Crear turnos
-              </button>
+                <label
+                  className="mb-1 text-sm font-bold uppercase"
+                >
+                  Servicio a prestar
+                </label>
+
+                <Select
+                  value={selectedService?.name}
+                  onValueChange={(value) => { handleSetSelectedService(value) }}
+                >
+                  <SelectTrigger className="w-full ">
+                    <SelectValue placeholder="Seleccionar servicio" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Servicios</SelectLabel>
+                      {services?.map((service) => (
+                        <SelectItem key={service._id} value={service.name!}>
+                          {service.name}
+                        </SelectItem>
+                      ))}
+
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+
+              </div>
+              <div
+                className={`flex flex-col w-full h-fit ${styles.formInputAppDuration} `}
+              >
+                <label
+                  className="mb-1 text-sm font-bold uppercase"
+                >
+                  Desde:
+                </label>
+
+                {/* select day start */}
+                <Select
+                  value={selectedDaySchedule.dayStart.toString()}
+                  onValueChange={(value) => {
+                    setSelectedDaySchedule({
+                      ...selectedDaySchedule,
+                      dayStart: parseInt(value),
+                    })
+                  }}
+                >
+                  <SelectTrigger className="w-full ">
+                    <SelectValue placeholder="Seleccionar hora de inicio" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {timeOptions?.map((time) => (
+                        <SelectItem key={time.value} value={time.value.toString()}>
+                          {time.label}
+                        </SelectItem>
+                      ))}
+
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+
+
+
+              </div>
+              <div
+                className={`flex flex-col w-full h-fit ${styles.formInputAppDuration} `}
+              >
+                <label
+                  className="mb-1 text-sm font-bold uppercase"
+                >
+                  Hasta:
+                </label>
+
+                {/* select day end */}
+                <Select
+                  value={selectedDaySchedule.dayEnd.toString()}
+                  onValueChange={(value) => {
+                    setSelectedDaySchedule({
+                      ...selectedDaySchedule,
+                      dayEnd: parseInt(value),
+                    })
+                  }}
+                >
+                  <SelectTrigger className="w-full ">
+                    <SelectValue placeholder="Seleccionar hora de fin" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {timeOptions?.map((time) => (
+                        <SelectItem key={time.value} value={time.value.toString()}>
+                          {time.label}
+                        </SelectItem>
+                      ))}
+
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+
+
+
+              </div>
+              <div
+                className={`flex flex-col w-full h-fit ${styles.formInputAppDuration} `}
+              >
+                <label
+                  className="mb-1 text-sm font-bold uppercase "
+                >
+                  Duración de cada turno
+                </label>
+
+
+                {/* appointment duration */}
+                <Select
+                  value={selectedDaySchedule.appointmentDuration.toString()}
+                  onValueChange={(value) => {
+                    setSelectedDaySchedule({
+                      ...selectedDaySchedule,
+                      appointmentDuration: parseInt(value),
+                    })
+                  }}
+                >
+                  <SelectTrigger className="w-full ">
+                    <SelectValue placeholder="Seleccionar duración de turno" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="15">15 min</SelectItem>
+                      <SelectItem value="30">30 min</SelectItem>
+                      <SelectItem value="45">45 min</SelectItem>
+                      <SelectItem value="60">1 h</SelectItem>
+                      <SelectItem value="75">1:15 hs</SelectItem>
+                      <SelectItem value="90">1:30 hs</SelectItem>
+                      <SelectItem value="105">1:45 hs</SelectItem>
+                      <SelectItem value="120">2 hs</SelectItem>
+                      <SelectItem value="135">2:15 hs</SelectItem>
+                      <SelectItem value="150">2:30 hs</SelectItem>
+                      <SelectItem value="165">2:45 hs</SelectItem>
+                      <SelectItem value="180">3 hs</SelectItem>
+                      <SelectItem value="195">3:15 hs</SelectItem>
+                      <SelectItem value="210">3:30 hs</SelectItem>
+                      <SelectItem value="225">3:45 hs</SelectItem>
+                      <SelectItem value="240">4 hs</SelectItem>
+                      <SelectItem value="255">4:15 hs</SelectItem>
+                      <SelectItem value="270">4:30 hs</SelectItem>
+                      <SelectItem value="285">4:45 hs</SelectItem>
+                      <SelectItem value="300">5 hs</SelectItem>
+
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+
+
+
+              </div>
             </div>
+
+            <Button
+              onClick={() => {
+                saveAppointment();
+              }}
+              className="w-full mt-1 text-white bg-orange-600 border-none rounded-lg shadow-xl shadow-2xl outline-none h-11 hover:bg-orange-700 ">
+              Crear turnos del día
+            </Button>
+
           </div>
         </div>
-      </div>
+      </div >
       {/* ALERT */}
-      {alert?.error && (
-        <div className="absolute flex justify-center w-full h-fit">
-          <Alert
-            error={alert?.error}
-            msg={alert?.msg}
-            alertType={alert?.alertType}
-          />
-        </div>
-      )}
+      {
+        alert?.error && (
+          <div className="absolute flex justify-center w-full h-fit">
+            <Alert
+              error={alert?.error}
+              msg={alert?.msg}
+              alertType={alert?.alertType}
+            />
+          </div>
+        )
+      }
     </>
   );
 };

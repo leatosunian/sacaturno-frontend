@@ -8,6 +8,7 @@ import { IService } from "@/interfaces/service.interface";
 import { useEffect } from "react";
 import { LuSave } from "react-icons/lu";
 import { IoTrashBinOutline } from "react-icons/io5";
+import { Button } from "@/components/ui/button";
 
 interface formInputs {
   name: string | undefined;
@@ -17,7 +18,6 @@ interface formInputs {
 
 interface props {
   serviceData: IService | undefined;
-  closeModalF: () => void;
   onDeleteService: (serviceID: string | undefined) => void;
   onEditService: (editedService: {
     id: string | undefined;
@@ -28,7 +28,6 @@ interface props {
 }
 
 const EditServiceModal: React.FC<props> = ({
-  closeModalF,
   onEditService,
   onDeleteService,
   serviceData,
@@ -49,9 +48,6 @@ const EditServiceModal: React.FC<props> = ({
     return;
   }, [serviceData]);
 
-  const closeModal = (action: string) => {
-    closeModalF();
-  };
 
   const handleSubmitClick = () => {
     const fileInput = document.querySelector(
@@ -81,122 +77,128 @@ const EditServiceModal: React.FC<props> = ({
 
   return (
     <>
-      <div
-        className="absolute flex items-center justify-center modalCont "
-        style={{ top: "64px" }}
-      >
-        <div
-          className="flex flex-col text-black bg-white w-80 md:w-96 p-7 h-fit borderShadow"
-          style={{ transform: "translateY(-32px)" }}
-        >
-          <IoMdClose
-            className={styles.closeModal}
-            onClick={() => closeModal("CLOSE")}
-            size={22}
-          />
-          <h4 className="mb-6 text-xl font-bold text-center uppercase ">
-            Editar servicio
-          </h4>
+      <div className="flex flex-col items-center w-full gap-7 h-fit">
 
-          {/* <span>Hacé click en un turno para ver los detalles</span> */}
-          <div className="flex flex-col w-full gap-4 h-fit">
-            <form
-              onSubmit={handleSubmit((formData) => {
-                editService(formData);
-              })}
-              className="flex flex-col justify-between w-full gap-4 "
-            >
-              <div className={styles.formInput}>
-                <span
-                  style={{ fontSize: "12px" }}
-                  className="font-bold uppercase"
-                >
-                  Nombre
+
+        <h4
+          className="relative inline-block px-2 mx-auto text-xl font-bold text-center uppercase w-fit"
+          style={{ fontSize: 22 }}
+        >
+          Editar servicio
+          {/* linea */}
+          <span
+            className="absolute left-0 right-0 mx-auto"
+            style={{
+              bottom: -2,    // gap entre texto y linea (ajustalo)
+              height: 2,     // grosor de la linea (ajustalo)
+              background: "#dd4924",
+              width: "60%",  // ancho opcional de la linea
+            }}
+          />
+        </h4>
+
+        {/* <span>Hacé click en un turno para ver los detalles</span> */}
+        <div className="flex flex-col w-full gap-4 h-fit">
+          <form
+            onSubmit={handleSubmit((formData) => {
+              editService(formData);
+            })}
+            className="flex flex-col justify-between w-full gap-4 "
+          >
+            <div className={styles.formInput}>
+              <span
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase"
+              >
+                Nombre
+              </span>
+              <input
+                type="text"
+                className="placeholder:text-xs"
+                maxLength={30}
+                {...register("name")}
+                placeholder="Nombre del servicio"
+              />
+              {errors.name?.message && (
+                <span className="text-xs font-semibold text-red-600">
+                  {" "}
+                  {errors.name.message}{" "}
                 </span>
+              )}
+            </div>
+            <div className={styles.formInput}>
+              <span
+                style={{ fontSize: "12px" }}
+                className="font-bold uppercase "
+              >
+                Precio
+              </span>
+              <div className="flex items-center w-full gap-2 h-fit">
+                <span className="font-semibold text-md">AR$</span>
                 <input
-                  type="text"
+                  type="number"
+                  maxLength={20}
                   className="placeholder:text-xs"
-                  maxLength={30}
-                  {...register("name")}
-                  placeholder="Nombre del servicio"
+                  placeholder="Precio del servicio"
+                  {...register("price")}
                 />
-                {errors.name?.message && (
-                  <span className="text-xs font-semibold text-red-600">
-                    {" "}
-                    {errors.name.message}{" "}
-                  </span>
-                )}
               </div>
-              <div className={styles.formInput}>
+              {errors.price?.message && (
+                <span className="text-xs font-semibold text-red-600">
+                  {" "}
+                  {errors.price?.message}{" "}
+                </span>
+              )}
+            </div>
+            <div className={styles.formInput}>
+              <div className="flex items-center gap-1">
                 <span
                   style={{ fontSize: "12px" }}
                   className="font-bold uppercase "
                 >
-                  Precio
+                  Descripción/observaciones
                 </span>
-                <div className="flex items-center w-full gap-2 h-fit">
-                  <span className="font-semibold text-md">AR$</span>
-                  <input
-                    type="number"
-                    maxLength={20}
-                    className="placeholder:text-xs"
-                    placeholder="Precio del servicio"
-                    {...register("price")}
-                  />
-                </div>
-                {errors.price?.message && (
-                  <span className="text-xs font-semibold text-red-600">
-                    {" "}
-                    {errors.price?.message}{" "}
-                  </span>
-                )}
+                <span className="text-xs text-gray-500 ">(opcional)</span>
               </div>
-              <div className={styles.formInput}>
-                <div className="flex items-center gap-1">
-                  <span
-                    style={{ fontSize: "12px" }}
-                    className="font-bold uppercase "
-                  >
-                    Descripción/observaciones
-                  </span>
-                  <span className="text-xs text-gray-500 ">(opcional)</span>
-                </div>
-                <textarea
-                  placeholder="Descripción del servicio"
-                  className="placeholder:text-xs"
-                  {...register("description")}
-                  maxLength={140}
-                />
-                {errors.description?.message && (
-                  <span className="text-xs font-semibold text-red-600">
-                    {" "}
-                    {errors.description?.message}{" "}
-                  </span>
-                )}
-              </div>
-              <button
-                onClick={handleSubmitClick}
-                className={"inputSubmitField hidden "}
+              <textarea
+                placeholder="Descripción del servicio"
+                className="placeholder:text-xs"
+                {...register("description")}
+                maxLength={140}
               />
-            </form>
-          </div>
-
-          <div className="flex justify-center w-full gap-2 align-middle mt-7 h-fit">
+              {errors.description?.message && (
+                <span className="text-xs font-semibold text-red-600">
+                  {" "}
+                  {errors.description?.message}{" "}
+                </span>
+              )}
+            </div>
             <button
-              onClick={handleDeleteService}
-              className={styles.buttonRed}
-            >
-              <IoTrashBinOutline size={18} />
-              Eliminar
-            </button>
-            <button onClick={handleSubmitClick} className={styles.button}>
-              <LuSave size={18} />
-              Guardar
-            </button>
-          </div>
+              onClick={handleSubmitClick}
+              className={"inputSubmitField hidden "}
+            />
+          </form>
         </div>
-      </div>
-      div
+
+        <div className="flex justify-center w-full gap-5 align-middle h-fit">
+
+          <Button
+            className="w-full text-white bg-red-600 border-none rounded-lg shadow-xl outline-none h-11 hover:bg-red-700 "
+            onClick={handleDeleteService}>
+            <IoTrashBinOutline size={18} />
+            Eliminar
+          </Button>
+
+
+          <Button
+            className="w-full text-white bg-orange-600 border-none rounded-lg shadow-xl outline-none h-11 hover:bg-orange-700 "
+            onClick={handleSubmitClick}>
+            <LuSave size={18} />
+            Guardar
+          </Button>
+        </div>
+
+      </div >
     </>
   );
 };

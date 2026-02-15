@@ -90,6 +90,8 @@ async function getSubscriptionData() {
       authHeader
     );
 
+    console.log(subscriptionData.data);
+
     if (subscriptionData.data) {
       const subscription = {
         businessID: subscriptionData.data.businessID,
@@ -161,16 +163,14 @@ const Settings: NextPage = async ({ }) => {
             </h4>
           </header>
           <div className="flex flex-col justify-center w-full mt-5 h-fit">
-            <div className={`${styles.cont} w-fit mb-5`}>
-              <FormSettings
-                businessData={data}
-                servicesData={services}
-                subscriptionData={subscription}
-              />
-            </div>
+            <FormSettings
+              businessData={data}
+              servicesData={services}
+              subscriptionData={subscription}
+            />
 
             <div
-              className={`mx-auto flex justify-start my-3 h-fit lg:my-4 ${styles.configArrows}`}
+              className={`mx-auto flex justify-start my-3 mt-7 h-fit lg:my-4 ${styles.configArrows}`}
             >
               <Link
                 className="flex items-center gap-2 text-xs font-semibold uppercase"
