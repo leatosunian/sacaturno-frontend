@@ -27,10 +27,7 @@ const HeaderPublicBlack: NextPage<Props> = ({ }) => {
       <div
         className={`fixed flex justify-between w-full h-16 px-6 text-white md:px-0 md:justify-around position-absolute border-bottom-2 `}
         style={{
-          zIndex: "99999",
-          backdropFilter: "blur(6px)",
-          background: "rgba(0, 0, 0, 1)",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+          background: "#060606",
         }}
       >
         <div className="flex items-center h-full gap-1 j ustify-center w-fit ">

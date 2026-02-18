@@ -1,5 +1,6 @@
 "use client";
 import styles from "@/app/css-modules/NoServicesModal.module.css";
+import { Button } from "@/components/ui/button";
 import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
 import Link from "next/link";
@@ -11,7 +12,7 @@ interface Props {
   onCloseModal: () => void;
 }
 
-const ExpiredPlanModal: React.FC<Props> = ({ businessData, onCloseModal}) => {
+const ExpiredPlanModal: React.FC<Props> = ({ businessData, onCloseModal }) => {
   const router = useRouter();
   console.log(businessData);
 
@@ -46,42 +47,44 @@ const ExpiredPlanModal: React.FC<Props> = ({ businessData, onCloseModal}) => {
 
   return (
     <>
-      <div
-        className="fixed flex items-center justify-center text-black -translate-y-16 modalCont "
-        onClick={onCloseModal}
-      >
-        <div
-          className="flex flex-col text-black bg-white w-80 md:w-96 p-7 h-fit borderShadow"
-        >
-          <div className="flex flex-col items-center w-full gap-4 h-fit ">
-            <IoIosAlert size={100} color="#d7a954" />
+      <div className="flex flex-col items-center w-full gap-8 pb-1 h-fit">
 
-            <h4 className="mb-6 text-xl font-bold text-center uppercase ">
-              Tu suscripción ha vencido
-            </h4>
-          </div>
-          {/* <span>Hacé click en un turno para ver los detalles</span> */}
-          <div className="flex flex-col gap-4 mb-7 w-fit h-fit">
-            <div className="flex flex-col w-fit h-fit">
-              <label
-                style={{ fontSize: "14px" }}
-                className="font-normal text-center"
-              >
-                Recuerda abonar tu suscripción al plan full para continuar
-                creando nuevos turnos.
-              </label>
-            </div>
-          </div>
-
-          <div >
-            <button
-              onClick={handleMercadoPagoPreference}
-              className={styles.button}
+        <div className="flex flex-col items-center w-full gap-4 h-fit ">
+          <IoIosAlert size={100} color="#d7a954" />
+          <h4
+            className="relative inline-block w-full px-2 mx-auto text-2xl font-bold text-center uppercase"
+            style={{ fontSize: 22 }}
+          >
+            Tu suscripción ha vencido
+            <span
+              className="absolute left-0 right-0 mx-auto"
+              style={{
+                bottom: -2,
+                height: 2,
+                background: "#dd4924",
+                width: "30%",
+              }}
+            />
+          </h4>
+        </div>
+        {/* <span>Hacé click en un turno para ver los detalles</span> */}
+        <div className="flex flex-col gap-4 w-fit h-fit">
+          <div className="flex flex-col w-fit h-fit">
+            <label
+              style={{ fontSize: "15px" }}
+              className="font-medium text-center"
             >
-              Renovar suscripción
-            </button>
+              Recuerda abonar tu suscripción al Plan Full para continuar
+              creando nuevos turnos.
+            </label>
           </div>
         </div>
+
+        <Button
+          onClick={handleMercadoPagoPreference}
+          className="w-full mt-2 text-white bg-orange-600 border-none rounded-lg shadow-xl outline-none h-11 hover:bg-orange-700"            >
+          Renovar suscripción
+        </Button>
       </div>
     </>
   );

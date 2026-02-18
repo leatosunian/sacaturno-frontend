@@ -392,7 +392,7 @@ const FormSettings = ({
 
               {subscriptionData.subscriptionType === "SC_FREE" && (
                 <>
-                  <div className="w-full mx-auto mt-5 mb-2 notifications-container md:w-5/6 lg:w-4/6">
+                  <div className="w-full mx-auto mt-2 mb-1 notifications-container ">
                     <div className="alert">
                       <div className="flex">
                         <div className="flex-shrink-0">

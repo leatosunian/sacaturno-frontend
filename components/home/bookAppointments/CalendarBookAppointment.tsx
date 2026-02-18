@@ -20,6 +20,7 @@ import BookAppointmentModal from "./BookAppointmentModal";
 import AlertInterface from "@/interfaces/alert.interface";
 import Alert from "@/components/Alert";
 import { IDaySchedule } from "@/interfaces/daySchedule.interface";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 dayjs.locale("es-mx");
 const localizer = dayjsLocalizer(dayjs);
@@ -279,13 +280,16 @@ const CalendarTurnos: React.FC<Props> = ({
 
   return (
     <>
-      {bookAppointmentModal && (
-        <BookAppointmentModal
-          businessData={businessData}
-          appointmentData={eventData}
-          closeModalF={(action) => handleCancelBooking(action)}
-        />
-      )}
+
+      <Dialog open={bookAppointmentModal} onOpenChange={() => setBookAppointmentModal(false)} >
+        <DialogContent className="sm:w-[460px]  w-[93vw]">
+          <BookAppointmentModal
+            businessData={businessData}
+            appointmentData={eventData}
+            closeModalF={(action) => handleCancelBooking(action)}
+          />
+        </DialogContent>
+      </Dialog>
 
       <div className="flex flex-col w-full h-fit ">
         <header className="flex flex-col items-center justify-center w-full mt-3 mb-3 md:mt-7 md:mb-7 h-fit">
@@ -357,8 +361,8 @@ const CalendarTurnos: React.FC<Props> = ({
             startAccessor="start"
             endAccessor="end"
             messages={messages}
-            onView={() => {}}
-            onNavigate={() => {}}
+            onView={() => { }}
+            onNavigate={() => { }}
             showAllEvents={false}
             view={view}
             date={date}
@@ -367,7 +371,7 @@ const CalendarTurnos: React.FC<Props> = ({
             max={new Date(0, 0, 0, selectedDaySchedule.dayEnd, 0, 0)}
             timeslots={1}
             step={selectedDaySchedule.appointmentDuration}
-            onSelectSlot={() => {}}
+            onSelectSlot={() => { }}
             toolbar={false}
             selectable
             defaultView="day"

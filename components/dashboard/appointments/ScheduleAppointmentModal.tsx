@@ -4,6 +4,8 @@ import styles from "@/app/css-modules/AppointmentModal.module.css";
 import { useRouter } from "next/navigation";
 import { IAppointmentSchedule } from "@/interfaces/appointmentSchedule.interface";
 import dayjs from "dayjs";
+import { FaRegClock } from "react-icons/fa";
+import { Button } from "@/components/ui/button";
 
 interface props {
   appointment: IAppointmentSchedule | undefined;
@@ -36,7 +38,7 @@ const ScheduleAppointmentModal: React.FC<props> = ({
         "/schedule/appointment/delete/" + appointment?._id,
         authHeader
       );
-      closeModal()
+      closeModal();
       onDeleteAppointment(deletedAppointment.data);
     } catch (error) {
       console.log(error);
@@ -45,69 +47,57 @@ const ScheduleAppointmentModal: React.FC<props> = ({
 
   return (
     <>
-      <div
-        className="fixed flex items-center justify-center text-black -translate-y-16 modalCont"
-        onClick={closeModal}
-      >
-        <div className="flex flex-col text-black bg-white w-80 md:w-96 p-7 h-fit borderShadow">
-          <h4 className="mb-6 text-xl font-bold text-center uppercase">
-            Datos del turno
-          </h4>
-          {/* <span>Hacé click en un turno para ver los detalles</span> */}
-          <div className="flex flex-col gap-4 mb-2 w-fit h-fit">
-            {/* <div className="flex flex-col w-fit h-fit">
-              <label
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Día
-              </label>
-              <span className="text-sm capitalize-first-letter">
-                Todos los {appointment?.day}
-              </span>
-              <span className="text-sm capitalize-first-letter"></span>
-            </div> */}
-            <div className="flex flex-col w-fit h-fit">
-              <label
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Hora
-              </label>
-              <span className="text-sm capitalize-first-letter">
+      <div className="flex flex-col items-center w-full gap-8 pb-1 h-fit">
+        <h4
+          className="relative inline-block w-full px-2 mx-auto text-2xl font-bold text-center uppercase"
+          style={{ fontSize: 22 }}
+        >
+          Información del turno
+          {/* linea */}
+          <span
+            className="absolute left-0 right-0 mx-auto"
+            style={{
+              bottom: -2,
+              height: 2,
+              background: "#dd4924",
+              width: "30%",
+            }}
+          />
+        </h4>
+
+        <div className="flex flex-col w-full gap-6 h-fit">
+          <div className="flex flex-col gap-2 w-fit h-fit">
+            <label className="text-sm font-bold uppercase">Día y horario</label>
+            <div className="flex items-center gap-2">
+              <FaRegClock color="#9ca3af" size={18} />
+              <span className="text-sm font-medium text-gray-800">
+                {dayjs(appointment?.start).format("DD [de] MMMM ")}
                 {dayjs(appointment?.start).format("HH:mm")} hs a{" "}
                 {dayjs(appointment?.end).format("HH:mm")} hs
               </span>
-              <span className="text-sm capitalize-first-letter"></span>
-            </div>
-            <div className="flex flex-col w-fit h-fit">
-              <label
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Servicio a prestar
-              </label>
-              <span className="text-sm">{appointment?.service}</span>
-            </div>
-            <div className="flex flex-col w-fit h-fit">
-              <label
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Precio
-              </label>
-              <span className="text-sm">AR$ {appointment?.price}</span>
             </div>
           </div>
 
-          <button
+          <div className="flex flex-col gap-2 w-fit h-fit">
+            <label className="text-sm font-bold uppercase">
+              Servicio a prestar
+            </label>
+            <span className="text-sm">{appointment?.service}</span>
+          </div>
+
+          <div className="flex flex-col gap-2 w-fit h-fit">
+            <label className="text-sm font-bold uppercase">Precio</label>
+            <span className="text-sm">$ {appointment?.price.toLocaleString()}</span>
+          </div>
+
+          <Button
+            className="w-full mt-2 text-white bg-red-600 border-none rounded-lg shadow-xl outline-none h-11 hover:bg-red-700"
             onClick={() => {
               deleteAppointment();
             }}
-            className={`${styles.buttonDelete} mt-5`}
           >
-            ELIMINAR TURNO
-          </button>
+            Eliminar turno
+          </Button>
         </div>
       </div>
     </>

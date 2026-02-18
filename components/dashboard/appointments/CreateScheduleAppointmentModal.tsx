@@ -3,11 +3,21 @@ import axiosReq from "@/config/axios";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import styles from "@/app/css-modules/CreateAppointmentModal.module.css";
-import { IoMdClose } from "react-icons/io";
 import { IService } from "@/interfaces/service.interface";
 import { useEffect, useState } from "react";
 import updateLocale from "dayjs/plugin/updateLocale";
 import { IAppointmentSchedule } from "@/interfaces/appointmentSchedule.interface";
+import { FaRegClock } from "react-icons/fa6";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface props {
   appointmentData: IAppointmentSchedule | undefined;
@@ -93,7 +103,7 @@ const CreateScheduleAppointmentModal: React.FC<props> = ({
       end: appointmentData?.end!,
       start: appointmentData?.start!,
       service: selectedService?.name!,
-      dayNumber: appointmentData?.dayNumber!
+      dayNumber: appointmentData?.dayNumber!,
     };
     try {
       const newAppointment = await axiosReq.post(
@@ -105,7 +115,6 @@ const CreateScheduleAppointmentModal: React.FC<props> = ({
       onNewAppointment(newAppointment.data);
 
       closeModal();
-      //router.refresh();
     } catch (error) {
       closeModal();
     }
@@ -117,77 +126,70 @@ const CreateScheduleAppointmentModal: React.FC<props> = ({
 
   return (
     <>
-      <div className="fixed flex items-center justify-center text-black -translate-y-16 modalCont">
-        <div className="flex flex-col bg-white w-80 md:w-96 px-7 py-9 h-fit borderShadow">
-          <IoMdClose
-            className={styles.closeModal}
-            onClick={closeModal}
-            size={22}
+      <div className="flex flex-col items-center w-full gap-8 pb-1 h-fit">
+        <h4
+          className="relative inline-block w-full px-2 mx-auto text-2xl font-bold text-center uppercase"
+          style={{ fontSize: 22 }}
+        >
+          Nuevo turno
+          {/* linea */}
+          <span
+            className="absolute left-0 right-0 mx-auto"
+            style={{
+              bottom: -2,
+              height: 2,
+              background: "#dd4924",
+              width: "30%",
+            }}
           />
-          <h4 className="mb-6 text-2xl font-bold text-center uppercase">
-            Agendar turno
-          </h4>
-          {/* <span>Hacé click en un turno para ver los detalles</span> */}
-          <div className="flex flex-col w-full gap-5 h-fit">
-            {/* <div className="flex flex-col w-fit h-fit">
-              <label
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                DÍA
-              </label>
-              <span className="text-sm capitalize-first-letter">
-                Todos los {dayjs(appointmentData?.start).format("dddd ")}{" "}
-              </span>
-            </div> */}
+        </h4>
 
-            <div className="flex flex-col w-fit h-fit">
-              <label
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Hora
-              </label>
-              <span className="text-sm">
+        <div className="flex flex-col w-full gap-6 h-fit">
+          
+          <div className="flex flex-col gap-2 w-fit h-fit">
+            <label className="text-sm font-bold uppercase">Horario</label>
+            <div className="flex items-center gap-2">
+              <FaRegClock color="#9ca3af" size={20} />
+              <span className="text-sm font-medium text-gray-800">
                 {dayjs(appointmentData?.start).format("HH:mm [hs] ")}{" "}
                 {dayjs(appointmentData?.end).format("[a] HH:mm [hs]")}
               </span>
             </div>
-
-            <div
-              className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
-            >
-              <label
-                style={{ fontSize: "12px" }}
-                className="mb-1 font-bold uppercase "
-              >
-                Servicio a prestar
-              </label>
-              <select
-                value={selectedService?.name}
-                onChange={(e) => handleSetSelectedService(e.target.value)}
-                id="appointmentDuration"
-              >
-                {servicesData?.map((service) => (
-                  <option key={service._id} value={service.name}>
-                    {service.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex justify-center w-full mt-3 align-middle h-fit">
-              <button
-                className={styles.button}
-                onClick={() => {
-                  saveAppointment();
-                  closeModal();
-                }}
-              >
-                Crear turno
-              </button>
-            </div>
           </div>
+
+          <div className="flex flex-col w-full gap-2 h-fit">
+            <label className="text-sm font-bold uppercase">
+              Servicio a prestar
+            </label>
+            <Select
+              value={selectedService?.name}
+              onValueChange={(value) => handleSetSelectedService(value)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Seleccionar servicio" />
+              </SelectTrigger>
+              <SelectContent className="w-full">
+                <SelectGroup>
+                  <SelectLabel>Servicios</SelectLabel>
+                  {servicesData?.map((service) => (
+                    <SelectItem key={service._id} value={service.name!}>
+                      {service.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button
+            className="w-full mt-2 text-white bg-orange-600 border-none rounded-lg shadow-xl outline-none h-11 hover:bg-orange-700"
+            onClick={() => {
+              saveAppointment();
+              closeModal();
+            }}
+          >
+            Crear turno
+          </Button>
         </div>
       </div>
     </>

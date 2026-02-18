@@ -162,7 +162,7 @@ const Settings: NextPage = async ({ }) => {
               />
             </h4>
           </header>
-          <div className="flex flex-col justify-center w-full mt-5 h-fit">
+          <div className="flex flex-col justify-center w-full gap-4 mt-5 h-fit">
             <FormSettings
               businessData={data}
               servicesData={services}
@@ -170,7 +170,7 @@ const Settings: NextPage = async ({ }) => {
             />
 
             <div
-              className={`mx-auto flex justify-start my-3 mt-7 h-fit lg:my-4 ${styles.configArrows}`}
+              className={`mx-auto flex justify-start my-5 h-fit lg:my-8 ${styles.configArrows}`}
             >
               <Link
                 className="flex items-center gap-2 text-xs font-semibold uppercase"
@@ -178,7 +178,7 @@ const Settings: NextPage = async ({ }) => {
                 href="/admin/business"
               >
                 <FaArrowLeft />
-                General
+                Ajustes de mi empresa
               </Link>
             </div>
             {/* SPACER */}

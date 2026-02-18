@@ -34,6 +34,9 @@ import { IDaySchedule } from "@/interfaces/daySchedule.interface";
 import { IAppointmentSchedule } from "@/interfaces/appointmentSchedule.interface";
 import { timeOptions } from "@/helpers/timeOptions";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 dayjs.locale("es-mx");
 
@@ -468,55 +471,77 @@ const CreateScheduleCalendar: React.FC<Props> = ({
           <div className="loader"></div>
         </div>
       )}
+
       {/* APPOINTMENT INFO */}
-      {eventModal && (
-        <ScheduleAppointmentModal
-          onDeleteAppointment={(deletedAppointment) => {
-            setSelectedDayAppointments((dayAppointments) => {
-              const updatedAppointments = dayAppointments?.filter(
-                (app) => app._id !== deletedAppointment._id
-              );
-              return updatedAppointments;
-            });
-            setLoadingNewAppointments(true);
-            setAppointmentsSchedule((dayAppointments) => {
-              const updatedAppointments = dayAppointments?.filter(
-                (app) => app._id !== deletedAppointment._id
-              );
-              return updatedAppointments;
-            });
-          }}
-          appointment={eventData}
-          closeModalF={() => setEventModal(false)}
-        />
-      )}
+
+
+      <Dialog open={eventModal} onOpenChange={() => { setEventModal(false) }} >
+        <DialogContent className="sm:w-[400px] w-[93vw]">
+          <ScheduleAppointmentModal
+            onDeleteAppointment={(deletedAppointment) => {
+              setSelectedDayAppointments((dayAppointments) => {
+                const updatedAppointments = dayAppointments?.filter(
+                  (app) => app._id !== deletedAppointment._id
+                );
+                return updatedAppointments;
+              });
+              setLoadingNewAppointments(true);
+              setAppointmentsSchedule((dayAppointments) => {
+                const updatedAppointments = dayAppointments?.filter(
+                  (app) => app._id !== deletedAppointment._id
+                );
+                return updatedAppointments;
+              });
+            }}
+            appointment={eventData}
+            closeModalF={() => setEventModal(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
       {/* CREATE SINGLE APPOINTMENT */}
-      {createAppointmentModal && (
-        <CreateScheduleAppointmentModal
-          onNewAppointment={(newAppointment) => {
-            setSelectedDayAppointments([
-              ...selectedDayAppointments!,
-              newAppointment,
-            ]);
-            setAppointmentsSchedule([...appointmentsSchedule!, newAppointment]);
-            //setLoadingNewAppointments(true);
-          }}
-          appointmentData={createAppointmentData}
-          servicesData={services}
-          closeModalF={() => setCreateAppointmentModal(false)}
-        />
-      )}
+      <Dialog open={createAppointmentModal} onOpenChange={() => { setCreateAppointmentModal(false) }} >
+        <DialogContent className="sm:w-[400px] w-[93vw]">
+          <CreateScheduleAppointmentModal
+            onNewAppointment={(newAppointment) => {
+              setSelectedDayAppointments([
+                ...selectedDayAppointments!,
+                newAppointment,
+              ]);
+              setAppointmentsSchedule([...appointmentsSchedule!, newAppointment]);
+              //setLoadingNewAppointments(true);
+            }}
+            appointmentData={createAppointmentData}
+            servicesData={services}
+            closeModalF={() => setCreateAppointmentModal(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
-      {servicesData.length === 0 && <NoServicesModal />}
 
-      {expiredModal && (
-        <ExpiredPlanModal
-          onCloseModal={() => setExpiredModal(false)}
-          businessData={business}
-        />
-      )}
 
-      {helpModal && <HelpModal onClose={() => setHelpModal(false)} />}
+      <Dialog open={servicesData.length === 0}>
+        <DialogContent className="sm:w-[400px] w-[93vw]">
+          <NoServicesModal />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={expiredModal}>
+        <DialogTitle></DialogTitle>
+        <DialogContent className="sm:w-[400px] w-[93vw]">
+          <ExpiredPlanModal
+            onCloseModal={() => setExpiredModal(false)}
+            businessData={business}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* HELP MODAL */}
+      <Dialog open={helpModal} onOpenChange={() => { setHelpModal(false) }} >
+        <DialogContent className="sm:w-[1000px] w-[93vw] px-0 pb-0" >
+          <HelpModal onClose={() => setHelpModal(false)} />
+        </DialogContent>
+      </Dialog>
 
       <div
         style={{ position: "absolute", top: "87px", left: "20px" }}
@@ -1049,10 +1074,12 @@ const CreateScheduleCalendar: React.FC<Props> = ({
           </div>
         </Card>
 
-        <button className={`${buttonStyles.button} my-14 `} onClick={saveChanges}>
+        <Button
+          className="px-10 my-10 text-white bg-orange-600 border-none rounded-lg shadow-xl outline-none w-fit h-11 hover:bg-orange-700 "
+          onClick={saveChanges}>
           <LuSave size={18} />
           Guardar cambios
-        </button>
+        </Button>
 
         <Link
           className="flex items-center gap-2 mr-auto text-xs font-semibold uppercase"

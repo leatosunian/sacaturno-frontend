@@ -20,14 +20,7 @@ import { TbCalendarRepeat } from "react-icons/tb";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
@@ -251,7 +244,7 @@ export default function AdminHeader() {
                   onClick={() => setIsOpen(false)}
                 >
                   <IoIosSettings size={16} />
-                  General
+                  Ajustes
                 </Link>
                 <Link
                   href="/admin/business/settings"
@@ -288,7 +281,7 @@ export default function AdminHeader() {
                   onClick={() => setIsOpen(false)}
                 >
                   <LuCalendarPlus size={16} />
-                  Turnos
+                  Agenda de turnos
                 </Link>
                 <Link
                   href="/admin/schedule/settings"
@@ -296,7 +289,7 @@ export default function AdminHeader() {
                   onClick={() => setIsOpen(false)}
                 >
                   <TbCalendarRepeat size={16} />
-                  automatizar agenda
+                  Automatizar agenda
                 </Link>
               </div>
             </div>

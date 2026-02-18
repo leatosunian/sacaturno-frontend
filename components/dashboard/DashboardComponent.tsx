@@ -20,6 +20,7 @@ import GuideDialog from "./GuideDialog";
 import { IoInformationCircle } from "react-icons/io5";
 import axiosReq from "@/config/axios";
 import router from "next/router";
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 interface Props {
   businessData:
@@ -160,16 +161,22 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
   return (
     <>
       {/* APPOINTMENT INFO */}
-      {appointmentInfoModal && (
-        <AppointmentModal
-          appointment={selectedAppointment}
-          closeModalF={() => setAppointmentInfoModal(false)}
-          onDeleteAppointment={() => { }}
-        />
-      )}
+      <Dialog open={appointmentInfoModal} onOpenChange={() => setAppointmentInfoModal(false)} >
+        <DialogContent className="sm:w-[460px]  w-[93vw]">
+          <AppointmentModal
+            appointment={selectedAppointment}
+            closeModalF={() => setAppointmentInfoModal(false)}
+            onDeleteAppointment={() => { }}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* GUIDE DIALOG */}
-      <GuideDialog onClose={checkFirstLogin} openGuideDialog={openGuideDialog} isFirstLogin={userData?.isFirstLogin} />
+      <GuideDialog
+        onClose={checkFirstLogin}
+        openGuideDialog={openGuideDialog}
+        isFirstLogin={userData?.isFirstLogin}
+      />
 
       <div className={`${styles.dashboardComponentCont}`}>
         <div className="flex flex-col w-full gap-7 md:gap-12 h-fit">
@@ -359,7 +366,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                   {appointmentsData &&
                     appointmentsData.map((appointment) => (
                       <div key={appointment._id} className="flex items-center">
-                        <span className="text-xs font-semibold">
+                        <span className="text-sm font-semibold">
                           {dayjs(appointment.start).format("HH:mm [hs] ")}
                         </span>
                         <div
@@ -371,10 +378,10 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                           className="mx-5"
                         ></div>
                         <div className="flex flex-col w-fit h-fit">
-                          <span className="text-sm font-semibold">
+                          <span className="text-sm font-semibold sm:text-base">
                             {appointment.name}
                           </span>
-                          <span className="text-xs font-normal text-gray-500">
+                          <span className="text-xs font-normal text-gray-500 sm:text-sm">
                             {appointment.service}
                           </span>
                         </div>

@@ -355,14 +355,13 @@ const CalendarTurnos: React.FC<Props> = ({
             onDeleteAppointment={() => setLoadingNewAppointments(true)}
             appointment={eventData}
             closeModalF={() => setEventModal(false)}
-
           />
         </DialogContent>
       </Dialog>
 
       {/* CREATE SINGLE APPOINTMENT */}
       <Dialog open={createAppointmentModal} onOpenChange={() => { setCreateAppointmentModal(false) }} >
-        <DialogContent className="sm:w-fit w-[93vw] ">
+        <DialogContent className="sm:w-[350px] w-[93vw]">
           <CreateAppointmentModal
             onNewAppointment={() => setLoadingNewAppointments(true)}
             closeModalF={() => setCreateAppointmentModal(false)}
@@ -372,15 +371,18 @@ const CalendarTurnos: React.FC<Props> = ({
         </DialogContent>
       </Dialog>
 
-
-
+      {/* NO SERVICES MODAL */}
       {servicesData.length === 0 && <NoServicesModal />}
 
-
-
+      {/* EXPIRED PLAN MODAL ----- TEST ------ */}
       {expiredModal && <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={business} />}
 
-      {helpModal && <HelpModal onClose={() => setHelpModal(false)} />}
+      {/* HELP MODAL */}
+      <Dialog open={helpModal} onOpenChange={() => { setHelpModal(false) }} >
+        <DialogContent className="sm:w-[1000px] w-[93vw] px-0 pb-0" >
+          <HelpModal onClose={() => setHelpModal(false)} />
+        </DialogContent>
+      </Dialog>
 
       <div
         style={{ position: "absolute", top: "80px", left: "20px" }}
