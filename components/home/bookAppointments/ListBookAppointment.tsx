@@ -11,6 +11,7 @@ import BookAppointmentModal from "./BookAppointmentModal"
 import axiosReq from "@/config/axios"
 import { TimeSlotMobile } from "./ListBookAppointment/TimeSlotMobile"
 import { TimeSlot } from "./ListBookAppointment/TimeSlot"
+import Link from "next/link"
 
 // ── Timezone config ─────────────────────────────────────────
 const ARG_TZ_OFFSET_HOURS = -3 // Buenos Aires (UTC-3)
@@ -604,13 +605,13 @@ export default function ListBookAppointment({
               &copy; 2025 sacaturno. Todos los derechos reservados.
             </p>
             <div className="flex gap-6">
-              <a href="#" className="text-xs transition-colors text-muted-foreground hover:text-foreground">
+              <Link href="/faq/terminos" className="text-xs transition-colors text-muted-foreground hover:text-foreground">
                 Terminos
-              </a>
-              <a href="#" className="text-xs transition-colors text-muted-foreground hover:text-foreground">
+              </Link>
+              <a href="/faq/privacidad" className="text-xs transition-colors text-muted-foreground hover:text-foreground">
                 Privacidad
               </a>
-              <a href="#" className="text-xs transition-colors text-muted-foreground hover:text-foreground">
+              <a href="https://api.whatsapp.com/send?phone=5492235423025" target="_blank" className="text-xs transition-colors text-muted-foreground hover:text-foreground">
                 Contacto
               </a>
             </div>
