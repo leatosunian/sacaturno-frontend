@@ -282,7 +282,7 @@ const CalendarTurnos: React.FC<Props> = ({
   return (
     <>
 
-      <Dialog open={bookAppointmentModal} onOpenChange={() => setBookAppointmentModal(false)} >
+      {/* <Dialog open={bookAppointmentModal} onOpenChange={() => setBookAppointmentModal(false)} >
         <DialogContent className="sm:w-[460px]  w-[93vw]">
           <BookAppointmentModal
             businessData={businessData}
@@ -290,7 +290,7 @@ const CalendarTurnos: React.FC<Props> = ({
             closeModalF={(action) => handleCancelBooking(action)}
           />
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
       <div className="flex flex-col w-full h-fit ">
         <header className="flex flex-col items-center justify-center w-full mt-3 mb-3 md:mt-7 md:mb-7 h-fit">
