@@ -28,12 +28,10 @@ const HeaderPublicBlack: NextPage<Props> = ({ }) => {
         className={`fixed flex justify-between w-full h-16 px-6 text-white md:px-0 md:justify-around position-absolute border-bottom-2 `}
         style={{
           background: "#060606",
-          zIndex: "99999999999",
+          zIndex: "50",
         }}
       >
         <div className="flex items-center h-full gap-1 j ustify-center w-fit ">
-          {/* <FcCalendar size={34} />
-          <h1 className="text-md">SacaTurno</h1> */}
           <Link href={"/"}>
             <Image className="hidden w-32 md:block " src={sacaturno_logo} alt="SacaTurno" />
             <Image className="block w-28 md:hidden" src={sacaturno_logo} alt="SacaTurno" />
@@ -42,23 +40,6 @@ const HeaderPublicBlack: NextPage<Props> = ({ }) => {
 
 
         <div className="items-center justify-center hidden gap-12 text-sm md:flex">
-          {/* <div>
-            <Link
-              href="/public/search"
-              className="text-xs font-semibold transition-all duration-100 ease-in-out cursor-pointer hover:text-orange-600 hover:transition-all hover:duration-100 "
-            >
-              Reservar turno
-            </Link>
-          </div>
-          <div>
-            <Link
-              href="/register"
-              className="text-xs font-semibold transition-all duration-100 ease-in-out cursor-pointer hover:text-orange-600 hover:transition-all hover:duration-100 "
-            >
-              Crear cuenta
-            </Link>
-          </div> */}
-
           <div className="flex gap-4">
             <Link href="/public/search" className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-all duration-300 ease-in-out bg-black border border-white rounded-lg cursor-pointer border-opacity-30 hover:bg-orange-600 hover:border-orange-600 hover:transition-all hover:duration-300 ">
               <MdSearch className="" size={16} />
@@ -80,6 +61,8 @@ const HeaderPublicBlack: NextPage<Props> = ({ }) => {
         </div>
 
         {/* MOBILE NAV MENU */}
+
+        {/* hamburguer menu icon */}
         <div
           onClick={handleActiveNavBar}
           className="flex items-center justify-center h-16 w-fit md:hidden"
@@ -88,20 +71,23 @@ const HeaderPublicBlack: NextPage<Props> = ({ }) => {
           <RxHamburgerMenu size={25} color="white" />
         </div>
 
+        {/* overlay for blurring background */}
         <div className={active ? styles.overlayActive : styles.overlay}></div>
 
-        <aside style={{ zIndex: "99999999999999999" }} className={active ? styles.activeAside : styles.aside}>
+        {/* aside container */}
+        <aside style={{ zIndex: "100" }} className={active ? styles.activeAside : styles.aside}>
           {/* CLOSE BUTTON  */}
           <div
             onClick={handleActiveNavBar}
 
-            style={{ zIndex: "99999999999999999" }}
+            style={{ zIndex: "110" }}
             className="flex items-center justify-end w-full h-16 md:hidden"
           >
             <RxCross2 size={28} color="white" />
           </div>
 
-          <div className="flex flex-col gap-4 mt-4" style={{ zIndex: "99999999999999999" }}>
+          {/* links */}
+          <div className="flex flex-col gap-4 mt-4" style={{ zIndex: "110" }}>
             {/* NAV LINKS */}
             <Link href="/public/search" className="flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold transition-all duration-300 ease-in-out bg-black border border-white rounded-lg cursor-pointer border-opacity-30 hover:bg-orange-600 hover:border-orange-600 hover:transition-all hover:duration-300 ">
               <MdSearch className="" size={16} />

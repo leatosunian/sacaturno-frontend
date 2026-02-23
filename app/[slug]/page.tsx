@@ -4,6 +4,7 @@ import { IoIosAlert } from "react-icons/io";
 import { LuCalendarClock } from "react-icons/lu";
 import { Metadata } from "next";
 import CalendarBookAppointment from "@/components/home/bookAppointments/CalendarBookAppointment";
+import ListBookAppointment from "@/components/home/bookAppointments/ListBookAppointment";
 
 interface propsComponent {
   params: {
@@ -45,15 +46,18 @@ const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
   return (
     <>
       <div className="flex flex-col justify-center gap-10 md:flex-row">
-        <div className="flex justify-center w-full h-full mt-16 md:w-fit">
-          {data.appointments.length > 0 && (
-            <CalendarBookAppointment
+        <div className="flex justify-center w-full h-full mt-16 md:w-full">
+          {/* <CalendarBookAppointment
               appointments={data.appointments}
               businessData={data.businessData}
               scheduleDays={data.scheduleDays}
-            />
-          )}
-          {data.appointments.length === 0 && data.businessData.name && (
+            /> */}
+          <ListBookAppointment
+            appointments={data.appointments}
+            businessData={data.businessData}
+            scheduleDays={data.scheduleDays}
+          />
+          {/* {data.appointments.length === 0 && data.businessData.name && (
             <div
               style={{ height: "calc(100vh - 64px)" }}
               className="flex flex-col items-center justify-center w-full gap-6"
@@ -63,7 +67,7 @@ const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
                 <b>{data.businessData.name} </b>no tiene turnos disponibles.
               </span>
             </div>
-          )}
+          )} */}
           {!data.businessData.name && (
             <div
               style={{ height: "calc(100vh - 64px)" }}

@@ -101,6 +101,7 @@ const CalendarTurnos: React.FC<Props> = ({
   const router = useRouter();
   useEffect(() => {
     setAppointmentsData(appointments);
+    console.log(appointments);
     setBusiness(businessData);
     parseAppointments(appointments);
     return;
@@ -337,13 +338,14 @@ const CalendarTurnos: React.FC<Props> = ({
           </div>
         </div>
 
+        {/* mobile */}
         <div className="flex flex-col mb-2 md:hidden">
           <h4 className="w-full font-bold text-center uppercase text-md">
             {calendarDate}
           </h4>
         </div>
 
-        <div className="fixed bottom-0 z-50 flex justify-center w-full ml-auto mr-auto -translate-y-5 md:hidden">
+        <div className="fixed bottom-0 z-10 flex justify-center w-full ml-auto mr-auto -translate-y-5 md:hidden">
           <button className={styles.btnWeekBlue} onClick={() => onPrevClick()}>
             Anterior
           </button>
