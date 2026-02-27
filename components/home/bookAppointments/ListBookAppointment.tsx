@@ -614,7 +614,7 @@ export default function ListBookAppointment({
         <footer className="hidden px-8 py-5 border-t bg-muted/50 md:block border-border">
           <div className="flex items-center justify-between max-w-6xl mx-auto">
             <p className="text-xs text-muted-foreground">
-              &copy; 2025 sacaturno. Todos los derechos reservados.
+              &copy; 2026 SacaTurno. Todos los derechos reservados.
             </p>
             <div className="flex gap-6">
               <Link href="/faq/terminos" className="text-xs transition-colors text-muted-foreground hover:text-foreground">
