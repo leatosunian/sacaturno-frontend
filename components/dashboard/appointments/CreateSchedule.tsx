@@ -578,7 +578,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
 
         <Card className="flex w-full p-5 mt-3 mb-10 md:p-6 md:mt-0 md:mb-5">
           <div className="flex flex-col">
-            <div className="flex flex-col gap-4 md:gap-8">
+            <div className="flex flex-col gap-4 ">
               <h4 className="text-lg font-semibold md:text-xl">
                 Frecuencia y cantidad de días{" "}
               </h4>
@@ -908,7 +908,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
 
         {/* horario de atencion desktop */}
         <Card className="hidden w-full p-6 md:block h-hit">
-          <div className="flex flex-col w-full gap-2">
+          <div className="flex flex-col w-full gap-4">
             <h4 className="text-lg font-semibold md:text-xl">
               Horario de atención{" "}
             </h4>

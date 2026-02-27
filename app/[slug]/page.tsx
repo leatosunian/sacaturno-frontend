@@ -1,9 +1,7 @@
 import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
 import { IoIosAlert } from "react-icons/io";
-import { LuCalendarClock } from "react-icons/lu";
 import { Metadata } from "next";
-import CalendarBookAppointment from "@/components/home/bookAppointments/CalendarBookAppointment";
 import ListBookAppointment from "@/components/home/bookAppointments/ListBookAppointment";
 
 interface propsComponent {
@@ -34,11 +32,11 @@ const getAppointments = async (ID: string) => {
     const scheduleDaysFetch = await axiosReq.get(
       `/schedule/get/${businessData._id}`,
     );
-    const scheduleDays = scheduleDaysFetch.data.days;
+    const scheduleDays = scheduleDaysFetch?.data?.days ?? [];
 
-    return { appointments: appointments.data, businessData, scheduleDays };
+    return { appointments: appointments.data ?? [], businessData, scheduleDays };
   }
-  return { appointments: {}, businessData };
+  return { appointments: [], businessData, scheduleDays: [] };
 };
 
 const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
@@ -52,11 +50,13 @@ const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
               businessData={data.businessData}
               scheduleDays={data.scheduleDays}
             /> */}
-          <ListBookAppointment
-            appointments={data.appointments}
-            businessData={data.businessData}
-            scheduleDays={data.scheduleDays}
-          />
+          {data.businessData.name &&
+            <ListBookAppointment
+              appointments={data.appointments}
+              businessData={data.businessData}
+              scheduleDays={data.scheduleDays}
+            />
+          }
           {/* {data.appointments.length === 0 && data.businessData.name && (
             <div
               style={{ height: "calc(100vh - 64px)" }}
@@ -76,7 +76,7 @@ const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
               <IoIosAlert size={100} color="#d7a954" />
               <span className="sm:text-lg text-md md:text-xl">
                 La empresa
-                <b> {params.slug} </b>no existe.
+                <b className="capitalize"> {params.slug} </b>no existe.
               </span>
             </div>
           )}
