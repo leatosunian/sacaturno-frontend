@@ -5,4 +5,5 @@ export interface IService {
   ownerID?: string | undefined;
   price: number | undefined;
   description: string | undefined;
+  duration?: number | undefined;
 }

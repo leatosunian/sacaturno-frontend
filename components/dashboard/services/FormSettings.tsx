@@ -51,6 +51,7 @@ const FormSettings = ({
     name: string;
     price: number;
     description: string;
+    duration?: number;
   }) => {
     if (
       subscriptionData.subscriptionType === "SC_FREE" &&
@@ -82,6 +83,7 @@ const FormSettings = ({
             ownerID: businessData?.ownerID,
             price: formData.price,
             description: formData.description,
+            duration: formData.duration,
           };
 
           await axiosReq.post(
@@ -149,6 +151,7 @@ const FormSettings = ({
     name: string | undefined;
     description: string | undefined;
     price: number | undefined;
+    duration?: number | undefined;
   }) => {
     setEditServiceModal(false);
     setLoading(true);

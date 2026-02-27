@@ -156,7 +156,7 @@ export default function ListBookAppointment({
   // ── Schedule for current day ──
   const daySchedule = useMemo(() => {
     const key = SCHEDULE_DAY_KEYS[getDayIndex(currentDateStr)]
-    return scheduleDays.find((d) => d.day === key) ?? {
+    const defaultSchedule: IDaySchedule = {
       day: key,
       dayStart: 9,
       dayEnd: 20,
@@ -165,7 +165,19 @@ export default function ListBookAppointment({
       businessID: "",
       ownerID: "",
     }
+    return scheduleDays.find((d) => d.day === key) ?? defaultSchedule
   }, [currentDateStr, scheduleDays])
+
+  // ── Get selected service object ──
+  const selectedServiceObj = useMemo(() => {
+    return services.find((svc) => svc.name === selectedService)
+  }, [services, selectedService])
+
+  // ── Get display duration ──
+  const displayDuration: number = useMemo(() => {
+    const serviceDuration = selectedServiceObj?.duration
+    return typeof serviceDuration === 'number' ? serviceDuration : daySchedule.appointmentDuration
+  }, [selectedServiceObj, daySchedule])
 
   // ── Formatted appointments for current day (with service filter) ──
   const dayAppointments = useMemo(() => {
@@ -396,7 +408,7 @@ export default function ListBookAppointment({
               )}
 
               {/* Info Card */}
-              <div className="p-4 border border-orange-200 border-dashed rounded-xl bg-orange-50">
+              {/* <div className="p-4 border border-orange-200 border-dashed rounded-xl bg-orange-50">
                 <div className="flex gap-3">
                   <Info className="mt-0.5 size-4 shrink-0 text-orange-500" />
                   <p className="text-xs leading-relaxed text-muted-foreground">
@@ -405,7 +417,7 @@ export default function ListBookAppointment({
                     5 minutos antes.
                   </p>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Right Column – Time Slots */}
@@ -417,7 +429,7 @@ export default function ListBookAppointment({
                     Horarios Disponibles
                   </h2>
                   {selectedService && (
-                    <span className="text-xs font-semibold text-orange-500">
+                    <span className="text-sm font-semibold text-orange-500">
                       {selectedService}
                     </span>
                   )}

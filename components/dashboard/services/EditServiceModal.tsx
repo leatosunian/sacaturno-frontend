@@ -9,11 +9,19 @@ import { useEffect } from "react";
 import { LuSave } from "react-icons/lu";
 import { IoTrashBinOutline } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface formInputs {
   name: string | undefined;
   price: number | undefined;
   description: string | undefined;
+  duration?: number | undefined;
 }
 
 interface props {
@@ -24,6 +32,7 @@ interface props {
     name: string | undefined;
     description: string | undefined;
     price: number | undefined;
+    duration?: number | undefined;
   }) => void;
 }
 
@@ -36,6 +45,7 @@ const EditServiceModal: React.FC<props> = ({
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<formInputs>({
     resolver: zodResolver(createServiceSchema),
@@ -45,8 +55,8 @@ const EditServiceModal: React.FC<props> = ({
     setValue("name", serviceData?.name);
     setValue("price", serviceData?.price);
     setValue("description", serviceData?.description);
-    return;
-  }, [serviceData]);
+    setValue("duration", serviceData?.duration);
+  }, [serviceData, setValue]);
 
 
   const handleSubmitClick = () => {
@@ -66,6 +76,7 @@ const EditServiceModal: React.FC<props> = ({
         description: formData.description,
         price: formData.price,
         id: serviceData?._id,
+        duration: formData.duration,
       };
       onEditService(data);
     }
@@ -170,6 +181,55 @@ const EditServiceModal: React.FC<props> = ({
                 <span className="text-xs font-semibold text-red-600">
                   {" "}
                   {errors.description?.message}{" "}
+                </span>
+              )}
+            </div>
+            <div className={styles.formInput}>
+              <div className="flex items-center gap-1">
+                <span
+                  style={{ fontSize: "12px" }}
+                  className="font-bold uppercase "
+                >
+                  Duración
+                </span>
+                <span className="text-xs text-gray-500 ">(opcional)</span>
+              </div>
+              <Select
+                value={watch("duration") ? String(watch("duration")) : ""}
+                onValueChange={(value) =>
+                  setValue("duration", value ? Number(value) : undefined)
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Seleccionar duración" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240].map(
+                    (minutes) => {
+                      const hours = Math.floor(minutes / 60)
+                      const mins = minutes % 60
+                      const formatDuration = () => {
+                        if (hours === 0) {
+                          return `${minutes} minutos`
+                        } else if (mins === 0) {
+                          return `${hours} hora${hours > 1 ? 's' : ''}`
+                        } else {
+                          return `${hours}:${mins.toString().padStart(2, '0')} horas`
+                        }
+                      }
+                      return (
+                        <SelectItem key={minutes} value={String(minutes)}>
+                          {formatDuration()}
+                        </SelectItem>
+                      )
+                    }
+                  )}
+                </SelectContent>
+              </Select>
+              {errors.duration?.message && (
+                <span className="text-xs font-semibold text-red-600">
+                  {" "}
+                  {errors.duration?.message}{" "}
                 </span>
               )}
             </div>
