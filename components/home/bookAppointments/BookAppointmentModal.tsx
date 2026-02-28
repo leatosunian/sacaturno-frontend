@@ -272,7 +272,7 @@ export default function BookAppointmentModal({
             </Card>
             <Card className="py-4 border-none shadow-none bg-muted/50">
               <CardContent className="flex flex-col gap-1 px-4">
-                <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
+                <span className="font-bold tracking-wider uppercase ext-xs">
                   Precio
                 </span>
                 <span className="text-sm font-bold text-orange-500">

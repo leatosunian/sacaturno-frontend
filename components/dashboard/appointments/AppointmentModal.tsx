@@ -139,7 +139,7 @@ const AppointmentModal: React.FC<props> = ({
         )}
 
         {/* <span>Hacé click en un turno para ver los detalles</span> */}
-        <div className="flex flex-col w-full gap-5 h-fit">
+        <div className="flex flex-col w-full gap-5 mt-2 h-fit">
           {!isBooked && (
             <>
               <div className="flex flex-col w-fit h-fit">
@@ -161,7 +161,7 @@ const AppointmentModal: React.FC<props> = ({
             >
               Servicio
             </label>
-            <span className="font-medium ">{appointment?.service}</span>
+            <span className="font-normal ">{appointment?.service}</span>
           </div>
           <div className="flex flex-col w-fit h-fit">
             <label
@@ -169,7 +169,7 @@ const AppointmentModal: React.FC<props> = ({
             >
               Precio
             </label>
-            <span className="font-medium">$ {appointment?.price?.toLocaleString()}</span>
+            <span className="font-normal">$ {appointment?.price?.toLocaleString()}</span>
           </div>
           {/*  */}
           {isBooked && (

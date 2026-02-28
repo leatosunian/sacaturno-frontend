@@ -109,6 +109,8 @@ const CreateScheduleCalendar: React.FC<Props> = ({
 
   const [selectedDayID, setSelectedDayID] = useState<string>("");
 
+  const [loadingButton, setLoadingButton] = useState(false);
+
   const hideAlert = () => {
     setTimeout(() => {
       setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
@@ -392,6 +394,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
   };
 
   const saveChanges = async () => {
+    setLoadingButton(true);
     if (selectedAnticipation >= selectedDaysToCreate) {
       setAlert({
         msg: "Elige una anticipación menor a los dias a crear",
@@ -401,7 +404,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
       hideAlert();
       return;
     }
-    setLoadingNewAppointments(true);
+    //setLoadingNewAppointments(true);
     const token = localStorage.getItem("sacaturno_token");
     const authHeader = {
       headers: {
@@ -429,8 +432,10 @@ const CreateScheduleCalendar: React.FC<Props> = ({
         alertType: "OK_ALERT",
       });
       hideAlert();
-      setLoadingNewAppointments(false);
-      // 
+      setLoadingButton(false);
+      window.location.reload();
+      //setLoadingNewAppointments(false);
+      
 
     } catch (error) {
       setAlert({
@@ -439,6 +444,8 @@ const CreateScheduleCalendar: React.FC<Props> = ({
         alertType: "ERROR_ALERT",
       });
       hideAlert();
+      setLoadingButton(false);
+
       setLoadingNewAppointments(false);
     }
   };
@@ -1074,13 +1081,32 @@ const CreateScheduleCalendar: React.FC<Props> = ({
           </div>
         </Card>
 
-        <Button
-          className="px-10 my-10 text-white bg-orange-600 border-none rounded-lg shadow-xl outline-none w-fit h-11 hover:bg-orange-700 "
-          onClick={saveChanges}>
-          <LuSave size={18} />
-          Guardar cambios
-        </Button>
+        {/* save changes button */}
+        <div className="flex flex-col gap-4 mx-auto h-fit w-fit mt-7 md:flex-row">
+          {!loadingButton && (
+            <Button
+              className="px-10 my-10 text-white bg-orange-600 border-none rounded-lg shadow-xl outline-none w-fit h-11 hover:bg-orange-700 "
+              onClick={saveChanges}>
+              <LuSave size={18} />
+              Guardar cambios
+            </Button>
+          )}
+          {loadingButton && (
+            <>
+              <div
+                style={{
+                  height: "100%",
+                  width: "100%",
+                }}
+                className="flex items-center justify-center w-full px-10 mb-11 mt-14 h-11"
+              >
+                <div className="loaderSmall"></div>
+              </div>
+            </>
+          )}
+        </div>
 
+        {/* left button -- go to schedule -- */}
         <Link
           className="flex items-center gap-2 mr-auto text-xs font-semibold uppercase"
           style={{ color: "#dd4924" }}
@@ -1089,6 +1115,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
           <FaArrowLeft />
           Calendario de turnos
         </Link>
+        {/* divider */}
         <div className="my-5 md:my-10"></div>
       </div>
 
