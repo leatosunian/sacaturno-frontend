@@ -6,7 +6,7 @@ import Link from "next/link";
 const NoServicesModal: React.FC = () => {
   return (
     <>
-      <div className="flex flex-col items-center w-full gap-8 pb-1 h-fit">
+      <div className="flex flex-col items-center w-full gap-10 pt-3 h-fit">
         <h4
           className="relative inline-block w-full px-2 mx-auto text-2xl font-bold text-center uppercase"
           style={{ fontSize: 22 }}

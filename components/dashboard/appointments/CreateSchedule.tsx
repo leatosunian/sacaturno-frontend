@@ -154,6 +154,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     onSelectDay(selectedDay);
   }, [selectedDayStart, selectedDayEnd]);
 
+  // seteo de los datos obtenidos de la base de datos al estado del componente
   useEffect(() => {
     setDaysSchedule(daysAndAppointments.days);
     setAppointmentsSchedule(daysAndAppointments.appointments);
@@ -176,6 +177,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     daysAndAppointments,
   ]);
 
+  // PARSEO DE LOS TURNOS PARA MOSTRAR EN EL CALENDARIO, SE USA CUANDO SE OBTIENEN LOS TURNOS DE LA BASE DE DATOS Y CUANDO SE SELECCIONA UN DIA
   const parseAppointments = (
     appointments: IAppointmentSchedule[] | undefined
   ) => {
@@ -234,11 +236,13 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     return appointmentsList;
   };
 
+  
   useEffect(() => {
     setLoadingNewAppointments(false);
     return;
   }, [appointmentsSchedule]);
 
+  // PARSEO DE LOS TURNOS PARA MOSTRAR EN EL CALENDARIO, SE USA CUANDO SE OBTIENEN LOS TURNOS DE LA BASE DE DATOS Y CUANDO SE SELECCIONA UN DIA
   useEffect(() => {
     setSelectedDay({ dayName: "LUN", dayNumber: 1 });
     onSelectDay({ dayName: "LUN" });
@@ -246,6 +250,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     setSelectedDayStart(daysSchedule[0]?.dayStart);
   }, []);
 
+  // FUNCION PARA CREAR UN NUEVO TURNO, SE USA EN EL CALENDARIO CUANDO SE HACE CLICK EN UN HORARIO DISPONIBLE
   const createNewAppointment = async ({
     start,
     end,
@@ -288,6 +293,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     setEventModal(true);
   };
 
+  // componente para renderizar cada turno en el calendario, se usa en el componente de calendario
   const components: any = {
     event: ({ event }: EventProps<IAppointmentSchedule>) => {
       return (
@@ -307,6 +313,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     },
   };
 
+  // FUNCION PARA SELECCIONAR LA DURACION DE LOS TURNOS, SE USA EN EL SELECT DE DURACION DE TURNOS
   const handleSelectAppointmentDuration: React.ChangeEventHandler<
     HTMLSelectElement
   > = (e) => {
@@ -319,6 +326,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     });
   };
 
+  // VALIDACION PARA QUE EL HORARIO DE INICIO NO SEA POSTERIOR O IGUAL AL HORARIO DE FIN
   const handleSelectDayStart: React.ChangeEventHandler<HTMLSelectElement> = (
     e
   ) => {
@@ -334,6 +342,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     });
   };
 
+  // VALIDACION PARA QUE EL HORARIO DE FIN NO SEA ANTERIOR O IGUAL AL HORARIO DE INICIO
   const handleSelectDayEnd: React.ChangeEventHandler<HTMLSelectElement> = (
     e
   ) => {
@@ -349,6 +358,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     });
   };
 
+  // FUNCION PARA EDITAR LOS DIAS DE LA AGENDA, SE USA EN LOS SELECT DE HORARIO DE INICIO, HORARIO DE FIN Y DURACION DE TURNOS
   const editDaySchedule = ({
     day,
     dayStart,
@@ -393,6 +403,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     });
   };
 
+  // FUNCION PARA GUARDAR LOS CAMBIOS DE LA AGENDA AUTOMATICA Y LOS DIAS DE LA AGENDA
   const saveChanges = async () => {
     setLoadingButton(true);
     if (selectedAnticipation >= selectedDaysToCreate) {
@@ -435,7 +446,8 @@ const CreateScheduleCalendar: React.FC<Props> = ({
       setLoadingButton(false);
       window.location.reload();
       //setLoadingNewAppointments(false);
-      
+
+
 
     } catch (error) {
       setAlert({
@@ -450,6 +462,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     }
   };
 
+  // FUNCION PARA GUARDAR LOS DIAS DE LA AGENDA QUE FUERON MODIFICADOS, SE USA EN LA FUNCION DE GUARDAR CAMBIOS
   const saveModifiedScheduleDays = async () => {
     try {
       const token = localStorage.getItem("sacaturno_token");
@@ -480,8 +493,6 @@ const CreateScheduleCalendar: React.FC<Props> = ({
       )}
 
       {/* APPOINTMENT INFO */}
-
-
       <Dialog open={eventModal} onOpenChange={() => { setEventModal(false) }} >
         <DialogContent className="sm:w-[400px] w-[93vw]">
           <ScheduleAppointmentModal
@@ -526,9 +537,9 @@ const CreateScheduleCalendar: React.FC<Props> = ({
       </Dialog>
 
 
-
+      {/* NO SERVICES MODAL */}
       <Dialog open={servicesData.length === 0}>
-        <DialogContent className="sm:w-[400px] w-[93vw]">
+        <DialogContent className="sm:w-[460px] w-[93vw]">
           <NoServicesModal />
         </DialogContent>
       </Dialog>

@@ -6,8 +6,9 @@ import { IBusiness } from "@/interfaces/business.interface";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { IService } from "@/interfaces/service.interface";
-import { MdOutlineWorkHistory } from "react-icons/md";
+import { MdOutlineAddBusiness, MdOutlineWorkHistory } from "react-icons/md";
 import { FaArrowRight } from "react-icons/fa6";
+import { Button } from "@/components/ui/button";
 
 interface Props { }
 export const metadata: Metadata = {
@@ -91,7 +92,10 @@ const MiEmpresa: NextPage<Props> = async ({ }) => {
             No tenés una empresa creada.
           </span>
           <Link href="/admin/business/create">
-            <button className={styles.button}>Crear empresa</button>
+            <Button className="w-full px-10 mt-1 text-white bg-orange-600 border-none rounded-lg shadow-2xl outline-none h-11 hover:bg-orange-700 ">
+              <MdOutlineAddBusiness size={30} />
+              Crear empresa
+            </Button>
           </Link>
         </div>
       )}
@@ -118,7 +122,7 @@ const MiEmpresa: NextPage<Props> = async ({ }) => {
           </header>
           <div className="flex flex-col justify-center w-full mt-5 h-fit">
             {/* <div className={`${styles.cont}`}> */}
-              <FormMiEmpresa businessData={data} servicesData={services} />
+            <FormMiEmpresa businessData={data} servicesData={services} />
             {/* </div> */}
             <div
               className={`mx-auto flex justify-end my-9 h-fit lg:my-4 ${styles.configArrows}`}
