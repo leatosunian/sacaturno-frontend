@@ -236,7 +236,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     return appointmentsList;
   };
 
-  
+
   useEffect(() => {
     setLoadingNewAppointments(false);
     return;
@@ -491,6 +491,12 @@ const CreateScheduleCalendar: React.FC<Props> = ({
           <div className="loader"></div>
         </div>
       )}
+
+      <Dialog open={subscriptionData?.subscriptionType === "SC_EXPIRED"} >
+        <DialogContent className="sm:w-[460px] w-[93vw]">
+          <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={business} />
+        </DialogContent>
+      </Dialog>
 
       {/* APPOINTMENT INFO */}
       <Dialog open={eventModal} onOpenChange={() => { setEventModal(false) }} >

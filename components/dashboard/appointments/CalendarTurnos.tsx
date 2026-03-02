@@ -380,7 +380,13 @@ const CalendarTurnos: React.FC<Props> = ({
       </Dialog>
 
       {/* EXPIRED PLAN MODAL ----- TEST ------ */}
-      {expiredModal && <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={business} />}
+      {/* {expiredModal && <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={business} />} */}
+
+      <Dialog open={expiredModal} onOpenChange={() => { setExpiredModal(false) }} >
+        <DialogContent className="sm:w-[460px] w-[93vw]">
+          <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={business} />
+        </DialogContent>
+      </Dialog>
 
       {/* HELP MODAL */}
       <Dialog open={helpModal} onOpenChange={() => { setHelpModal(false) }} >

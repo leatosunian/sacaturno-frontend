@@ -151,16 +151,17 @@ export default function AdminHeader() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="outline" className="text-xs text-white bg-black dark hover:bg-orange-600" >
-              <Link
-                href="/admin/profile"
-                onClick={() => {
-                  setOpenDropdown("");
-                }}
-              >
+            <Link
+              href="/admin/profile" 
+              className="w-fit h-fit"
+              onClick={() => {
+                setOpenDropdown("");
+              }}
+            >
+              <Button variant="outline" className="text-xs text-white bg-black dark hover:bg-orange-600" >
                 Mi perfil
-              </Link>
-            </Button>
+              </Button>
+            </Link>
 
             <Button onClick={logOut} variant="outline" className="text-xs text-white bg-orange-600 dark hover:bg-white hover:text-orange-600 w-fit">
               <IoIosLogOut size={40} className="font-bold" />
