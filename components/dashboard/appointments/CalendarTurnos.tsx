@@ -289,6 +289,7 @@ const CalendarTurnos: React.FC<Props> = ({
     },
   };
 
+  
   const onNextClick = useCallback(() => {
     if (view === Views.DAY) {
       setDate(dayjs(date).add(1, "day").toDate());

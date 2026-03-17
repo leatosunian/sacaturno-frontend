@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <div className={`${montserrat.className} `}>
-      <AuthProvider>{children}</AuthProvider>
+      {children}
     </div>
   );
 }
