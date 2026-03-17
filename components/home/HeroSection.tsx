@@ -56,7 +56,7 @@ const HeroSection = () => {
               {/* <span>o</span> */}
               <div className="flex justify-center w-full sm:w-fit ">
                 <Link
-                  href="/public/search"
+                  href="/login"
                   type="submit"
                   className={`${styles.btnAnimatedWhite} w-full sm:w-fit text-sm font-medium md:font-semibold rounded-xl gap-2`}
                 >

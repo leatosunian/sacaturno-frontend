@@ -55,6 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("sacaturno_token");
+    setLoading(false); 
   }, []);
 
   return (
