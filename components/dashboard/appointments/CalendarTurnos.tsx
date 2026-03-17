@@ -32,9 +32,14 @@ import { IDaySchedule } from "@/interfaces/daySchedule.interface";
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa6";
 import { timeOptions } from "@/helpers/timeOptions";
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { toast } from "sonner";
+import axiosReq from "@/config/axios";
 
 dayjs.locale("es-mx");
+dayjs.extend(timezone);
+dayjs.extend(utc);
+dayjs.extend(advanced);
 
 interface Props {
   appointments: IAppointment[];
@@ -73,13 +78,6 @@ interface eventType2 {
   price: number | undefined;
 }
 
-interface IAllDayModalProps {
-  date: Date;
-  business: IBusiness;
-  services: IService[];
-  closeModalF: () => void;
-}
-
 type Keys = keyof typeof Views;
 
 const messages = {
@@ -94,6 +92,17 @@ const messages = {
   time: "Hora",
 };
 
+const getAuthHeader = () => {
+  const token = localStorage.getItem("sacaturno_token");
+  return {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      "Cache-Control": "no-store",
+    },
+  };
+};
+
 const CalendarTurnos: React.FC<Props> = ({
   appointments,
   businessData,
@@ -101,19 +110,16 @@ const CalendarTurnos: React.FC<Props> = ({
   subscriptionData,
   scheduleDays,
 }) => {
-  var now = dayjs();
+  const now = dayjs();
   const localizer = dayjsLocalizer(dayjs);
-  const [appointmentsData, setAppointmentsData] = useState<IAppointment[]>();
-  const [business, setBusiness] = useState<IBusiness>();
-  const [services, setServices] = useState<IService[]>();
+  const [appointmentsData, setAppointmentsData] = useState<IAppointment[]>(appointments);
+  const [business, setBusiness] = useState<IBusiness>(businessData);
+  const [services, setServices] = useState<IService[]>(servicesData);
   const [eventModal, setEventModal] = useState(false);
   const [eventData, setEventData] = useState<eventType2 | undefined>();
   const [createAppointmentModal, setCreateAppointmentModal] = useState(false);
-  const [createAppointmentData, setCreateAppointmentData] =
-    useState<IAppointment>();
+  const [createAppointmentData, setCreateAppointmentData] = useState<IAppointment>();
   const [allDayAppointmentsModal, setAllDayAppointmentsModal] = useState(false);
-  const [allDayAppointmentsData, setAllDayAppointmentsData] =
-    useState<IAllDayModalProps>();
   const [helpModal, setHelpModal] = useState(false);
   const [view, setView] = useState<(typeof Views)[Keys]>(Views.DAY);
   const [date, setDate] = useState<Date>(now.toDate());
@@ -127,120 +133,142 @@ const CalendarTurnos: React.FC<Props> = ({
   });
   const router = useRouter();
 
+  // Sync external prop changes (e.g. after router.refresh()) into state
   useEffect(() => {
     setAppointmentsData(appointments);
     setBusiness(businessData);
     setServices(servicesData);
-    parseAppointments(appointments);
-    return;
-  }, [appointments, businessData, services, servicesData, subscriptionData]);
+  }, [appointments, businessData, servicesData]);
 
+  // Hide full-screen loader once state is populated on initial mount
   useEffect(() => {
-    parseAppointments(appointmentsData);
     setLoadingNewAppointments(false);
-    return;
+  }, []);
+
+  // Parse appointments for the calendar (memoized to avoid recalculating on every render)
+  const parsedEvents = useMemo(() => {
+    return appointmentsData.map(
+      ({ start, end, title, clientID, businessID, _id, status, name, email, phone, service, price }) => ({
+        start: dayjs(start).tz("America/Argentina/Buenos_Aires").toDate(),
+        end: dayjs(end).tz("America/Argentina/Buenos_Aires").toDate(),
+        title,
+        clientID,
+        status,
+        businessID,
+        _id,
+        name,
+        email,
+        phone,
+        service,
+        price,
+      })
+    );
   }, [appointmentsData]);
 
-  useEffect(() => {
-    const day = dayjs(date)
-      .format("ddd")
-      .toUpperCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
-    const dayNormalized = day.substring(0, day.length - 1);
-    const selectedDayDayData = scheduleDays.find(
-      (dayObj) => dayObj.day === dayNormalized
-    );
-    //setSelectedDaySchedule({
-    //  dayStart: selectedDayDayData?.dayStart!,
-    //  dayEnd: selectedDayDayData?.dayEnd!,
-    //  appointmentDuration: selectedDayDayData?.appointmentDuration!,
-    //});
-    return;
-  }, [date]);
+  // ─── API handlers (all mutations live here) ───────────────────────────────
 
-  // save new appointment
-  const saveNewAppointment = async ({
-    start,
-    end,
-  }: {
-    start: Date;
-    end: Date;
-  }) => {
-    dayjs.extend(timezone);
-    dayjs.extend(utc);
-    dayjs.extend(advanced);
+  const handleSaveAppointment = async (appointmentData: IAppointment) => {
+    setCreateAppointmentModal(false);
+
+    const tempId = `temp_${Date.now()}`;
+    const optimisticAppointment: IAppointment = {
+      ...appointmentData,
+      title: "Cargando...",
+      _id: tempId,
+      status: "unbooked",
+    };
+
+    // Optimistic add
+    setAppointmentsData((prev) => [...prev, optimisticAppointment]);
+
+    const toastId = toast.loading("Creando turno...", { position: "top-center" });
+
+    try {
+      await axiosReq.post("/appointment/create", appointmentData, getAuthHeader());
+      toast.success("Turno creado correctamente", { id: toastId, position: "top-center" });
+      router.refresh(); // syncs real _id and server state into appointmentsData via the useEffect above
+    } catch {
+      // Rollback
+      setAppointmentsData((prev) => prev.filter((a) => a._id !== tempId));
+      toast.error("No se pudo crear el turno", { id: toastId, position: "top-center" });
+    }
+  };
+
+  const handleDeleteAppointment = async (id: string) => {
+    setEventModal(false);
+
+    // Save a copy in case we need to rollback
+    const removedAppointment = appointmentsData.find((a) => a._id === id);
+
+    // Optimistic remove
+    setAppointmentsData((prev) => prev.filter((a) => a._id !== id));
+
+    const toastId = toast.loading("Eliminando turno...", { position: "top-center" });
+
+    try {
+      await axiosReq.delete(`/appointment/delete/${id}`, getAuthHeader());
+      toast.success("Turno eliminado correctamente", { id: toastId, position: "top-center" });
+      router.refresh();
+    } catch {
+      // Rollback
+      if (removedAppointment) {
+        setAppointmentsData((prev) => [...prev, removedAppointment]);
+      }
+      toast.error("No se pudo eliminar el turno", { id: toastId, position: "top-center" });
+    }
+  };
+
+  const handleSaveDayAppointments = async (dayAppointments: IAppointment[]) => {
+    setAllDayAppointmentsModal(false);
+
+    const tempIds = dayAppointments.map((_, i) => `temp_day_${Date.now()}_${i}`);
+    const optimisticAppointments = dayAppointments.map((a, i) => ({
+      ...a,
+      _id: tempIds[i],
+    }));
+
+    // Optimistic bulk add
+    setAppointmentsData((prev) => [...prev, ...optimisticAppointments]);
+
+    const toastId = toast.loading("Creando turnos del día...", { position: "top-center" });
+
+    try {
+      await axiosReq.post("/appointment/create/day", dayAppointments, getAuthHeader());
+      toast.success("Turnos del día creados correctamente", { id: toastId, position: "top-center" });
+      router.refresh();
+    } catch {
+      // Rollback all temp appointments
+      setAppointmentsData((prev) => prev.filter((a) => !tempIds.includes(a._id ?? "")));
+      toast.error("No se pudieron crear los turnos", { id: toastId, position: "top-center" });
+    }
+  };
+
+  // ─── Slot selection (opens CreateAppointmentModal) ────────────────────────
+
+  const saveNewAppointment = async ({ start, end }: { start: Date; end: Date }) => {
     setDropdownActive(false);
     if (subscriptionData?.subscriptionType === "SC_EXPIRED") {
       setExpiredModal(true);
-      return
+      return;
     }
-    const startDate = dayjs(start)
-      .tz("America/Argentina/Buenos_Aires")
-      .toDate();
+    const startDate = dayjs(start).tz("America/Argentina/Buenos_Aires").toDate();
     const endDate = dayjs(end).tz("America/Argentina/Buenos_Aires").toDate();
-
     const appointmentData: IAppointment = {
       businessID: business?._id,
       start: startDate,
       end: endDate,
       service: "",
     };
-
     setCreateAppointmentModal(true);
     setCreateAppointmentData(appointmentData);
   };
 
-  // parse appointments' values to show in calendar
-  const parseAppointments = (appointments: IAppointment[] | undefined) => {
-    dayjs.extend(timezone);
-    dayjs.extend(utc);
-    dayjs.extend(advanced);
+  // ─── Event click ──────────────────────────────────────────────────────────
 
-    let appointmentsList: eventType[] = [];
-
-    appointments?.map(
-      ({
-        start,
-        end,
-        title,
-        clientID,
-        businessID,
-        _id,
-        status,
-        name,
-        email,
-        phone,
-        service,
-        price,
-      }) => {
-        let appointmentObj: eventType;
-        appointmentObj = {
-          start: dayjs(start).tz("America/Argentina/Buenos_Aires").toDate(),
-          end: dayjs(end).tz("America/Argentina/Buenos_Aires").toDate(),
-          title,
-          clientID,
-          status,
-          businessID,
-          _id,
-          name,
-          email,
-          phone,
-          service,
-          price,
-        };
-        appointmentsList.push(appointmentObj);
-      }
-    );
-    return appointmentsList;
-  };
-
-  // handle select event (show appointment info)
   const handleSelectEvent = (event: eventType) => {
     setDropdownActive(false);
-    const eventDataObj: eventType2 = {
+    setEventData({
       _id: event._id,
-      //start: dayjs(event.start).format("dddd d [de] MMMM [|] HH:mm [hs]"),
       start: event.start,
       end: event.end,
       clientID: event.clientID,
@@ -251,8 +279,7 @@ const CalendarTurnos: React.FC<Props> = ({
       email: event.email,
       service: event.service,
       price: event.price,
-    };
-    setEventData(eventDataObj);
+    });
     setEventModal(true);
   };
 
@@ -260,60 +287,45 @@ const CalendarTurnos: React.FC<Props> = ({
     event: ({ event }: EventProps<eventType>) => {
       if (event.status === "booked") {
         return (
-          <>
-            <div
-              className="flex flex-col h-full gap-1 px-2 py-1 w-fit"
-              style={{ backgroundColor: "rgb(203 137 121)" }}
-            >
-              <span className="text-xs md:text-sm ">{event.name} </span>
-              <span style={{ fontSize: "10px" }}>{event.service} </span>
-            </div>
-          </>
+          <div
+            className="flex flex-col h-full gap-1 px-2 py-1 w-fit"
+            style={{ backgroundColor: "rgb(203 137 121)" }}
+          >
+            <span className="text-xs md:text-sm">{event.name}</span>
+            <span style={{ fontSize: "10px" }}>{event.service}</span>
+          </div>
         );
       }
       if (event.status === "unbooked") {
         return (
-          <>
-            <div
-              className="flex flex-col w-full h-full gap-1 px-2 py-1"
-              style={{ backgroundColor: "#dd4924" }}
-            >
-              <span className="text-xs font-semibold md:text-sm ">
-                {event.title}{" "}
-              </span>
-              <span style={{ fontSize: "10px" }}>{event.service} </span>
-            </div>
-          </>
+          <div
+            className="flex flex-col w-full h-full gap-1 px-2 py-1"
+            style={{ backgroundColor: "#dd4924" }}
+          >
+            <span className="text-xs font-semibold md:text-sm">{event.title}</span>
+            <span style={{ fontSize: "10px" }}>{event.service}</span>
+          </div>
         );
       }
     },
   };
 
-  
   const onNextClick = useCallback(() => {
-    if (view === Views.DAY) {
-      setDate(dayjs(date).add(1, "day").toDate());
-    }
-    if (view === Views.WEEK) {
-      setDate(dayjs(date).add(1, "week").toDate());
-    }
+    if (view === Views.DAY) setDate(dayjs(date).add(1, "day").toDate());
+    if (view === Views.WEEK) setDate(dayjs(date).add(1, "week").toDate());
   }, [view, date]);
 
   const onPrevClick = useCallback(() => {
-    if (view === Views.DAY) {
-      setDate(dayjs(date).subtract(1, "day").toDate());
-    }
-    if (view === Views.WEEK) {
-      setDate(dayjs(date).subtract(1, "week").toDate());
-    }
+    if (view === Views.DAY) setDate(dayjs(date).subtract(1, "day").toDate());
+    if (view === Views.WEEK) setDate(dayjs(date).subtract(1, "week").toDate());
   }, [view, date]);
 
   const calendarDate = useMemo(() => {
-    if (view === Views.DAY) return dayjs(date).format("dddd D [de] MMMM ");
+    if (view === Views.DAY) return dayjs(date).format("dddd D [de] MMMM");
     if (view === Views.WEEK) {
       const weekStart = dayjs(date).startOf("week");
       const weekEnd = dayjs(date).endOf("week");
-      return `${weekStart.format("D")} a ${weekEnd.format("D [de] MMMM ")}`;
+      return `${weekStart.format("D")} a ${weekEnd.format("D [de] MMMM")}`;
     }
   }, [view, date]);
 
@@ -336,35 +348,35 @@ const CalendarTurnos: React.FC<Props> = ({
       )}
 
       {/* CREATE ALL DAY'S APPOINTMENTS */}
-      <Dialog open={allDayAppointmentsModal} onOpenChange={() => { setAllDayAppointmentsModal(false) }} >
-        <DialogContent className="sm:w-fit w-[93vw] ">
+      <Dialog open={allDayAppointmentsModal} onOpenChange={() => setAllDayAppointmentsModal(false)}>
+        <DialogContent className="sm:w-fit w-[93vw]">
           <AllDayAppointmentsModal
             business={business}
             services={services}
             date={date}
             selectedDay={selectedDaySchedule}
-            onNewAppointment={() => setLoadingNewAppointments(true)}
+            onSave={handleSaveDayAppointments}
             closeModalF={() => setAllDayAppointmentsModal(false)}
           />
         </DialogContent>
       </Dialog>
 
       {/* APPOINTMENT INFO */}
-      <Dialog open={eventModal} onOpenChange={() => { setEventModal(false) }} >
-        <DialogContent className="sm:w-[470px] w-[93vw] ">
+      <Dialog open={eventModal} onOpenChange={() => setEventModal(false)}>
+        <DialogContent className="sm:w-[470px] w-[93vw]">
           <AppointmentModal
-            onDeleteAppointment={() => setLoadingNewAppointments(true)}
             appointment={eventData}
+            onDelete={handleDeleteAppointment}
             closeModalF={() => setEventModal(false)}
           />
         </DialogContent>
       </Dialog>
 
       {/* CREATE SINGLE APPOINTMENT */}
-      <Dialog open={createAppointmentModal} onOpenChange={() => { setCreateAppointmentModal(false) }} >
+      <Dialog open={createAppointmentModal} onOpenChange={() => setCreateAppointmentModal(false)}>
         <DialogContent className="sm:w-[350px] w-[93vw]">
           <CreateAppointmentModal
-            onNewAppointment={() => setLoadingNewAppointments(true)}
+            onSave={handleSaveAppointment}
             closeModalF={() => setCreateAppointmentModal(false)}
             appointmentData={createAppointmentData}
             servicesData={services}
@@ -373,33 +385,28 @@ const CalendarTurnos: React.FC<Props> = ({
       </Dialog>
 
       {/* NO SERVICES MODAL */}
-
-      <Dialog open={servicesData.length === 0} >
+      <Dialog open={servicesData.length === 0}>
         <DialogContent className="sm:w-[460px] w-[93vw]">
           <NoServicesModal />
         </DialogContent>
       </Dialog>
 
-      {/* EXPIRED PLAN MODAL ----- TEST ------ */}
-      {/* {expiredModal && <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={business} />} */}
-
-      <Dialog open={expiredModal} onOpenChange={() => { setExpiredModal(false) }} >
+      {/* EXPIRED PLAN MODAL */}
+      <Dialog open={expiredModal} onOpenChange={() => setExpiredModal(false)}>
         <DialogContent className="sm:w-[460px] w-[93vw]">
           <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={business} />
         </DialogContent>
       </Dialog>
 
       {/* HELP MODAL */}
-      <Dialog open={helpModal} onOpenChange={() => { setHelpModal(false) }} >
-        <DialogContent className="sm:w-[1000px] w-[93vw] px-0 pb-0" >
+      <Dialog open={helpModal} onOpenChange={() => setHelpModal(false)}>
+        <DialogContent className="sm:w-[1000px] w-[93vw] px-0 pb-0">
           <HelpModal onClose={() => setHelpModal(false)} />
         </DialogContent>
       </Dialog>
 
-      <div
-        style={{ position: "absolute", top: "80px", left: "20px" }}
-        className="flex flex-col overflow-hidden md:hidden"
-      >
+      {/* info icon mobile */}
+      <div style={{ position: "absolute", top: "80px", left: "20px" }} className="flex flex-col overflow-hidden md:hidden">
         <IoInformationCircle
           onClick={() => setHelpModal(!helpModal)}
           size={25}
@@ -409,10 +416,7 @@ const CalendarTurnos: React.FC<Props> = ({
       </div>
 
       {/* mobile dropdown */}
-      <div
-        style={{ position: "absolute", top: "80px", right: "20px" }}
-        className="flex flex-col md:hidden"
-      >
+      <div style={{ position: "absolute", top: "80px", right: "20px" }} className="flex flex-col md:hidden">
         <IoMdMore
           onClick={() => setDropdownActive(!dropdownActive)}
           size={25}
@@ -420,140 +424,54 @@ const CalendarTurnos: React.FC<Props> = ({
           style={{ marginRight: "6px" }}
         />
         {dropdownActive && (
-          <>
-            <div className={styles.dropmenuCont}>
-              <div className={styles.dropmenu}>
-                <MdEditCalendar size={18} />
-                <Link href={"/admin/schedule/settings"}>Configurar agenda</Link>
-              </div>
-              {/* <div style={{width: '100%'}}></div> */}
-              <div className={styles.dropmenu}>
-                <LuCalendarPlus size={18} />
-                <span
-                  onClick={() => {
-                    setAllDayAppointmentsModal(true);
-                    setDropdownActive(false);
-                  }}
-                  className="font-medium"
-                >
-                  Crear turnos del día
-                </span>
-              </div>
-              <div className={styles.dropmenu}>
-                <IoInformationCircle size={18} />
-                <span
-                  onClick={() => setHelpModal(!helpModal)}
-                  className="font-medium"
-                >
-                  Tutorial de uso
-                </span>
-              </div>
+          <div className={styles.dropmenuCont}>
+            <div className={styles.dropmenu}>
+              <MdEditCalendar size={18} />
+              <Link href={"/admin/schedule/settings"}>Configurar agenda</Link>
             </div>
-          </>
+            <div className={styles.dropmenu}>
+              <LuCalendarPlus size={18} />
+              <span onClick={() => { setAllDayAppointmentsModal(true); setDropdownActive(false); }} className="font-medium">
+                Crear turnos del día
+              </span>
+            </div>
+            <div className={styles.dropmenu}>
+              <IoInformationCircle size={18} />
+              <span onClick={() => setHelpModal(!helpModal)} className="font-medium">
+                Tutorial de uso
+              </span>
+            </div>
+          </div>
         )}
       </div>
-      {/* mobile dropdown */}
 
-      <div className="flex flex-col w-full h-fit ">
+      <div className="flex flex-col w-full h-fit">
         <header className="flex flex-col items-center justify-center w-full mt-4 mb-3 md:mt-5 md:mb-6 h-fit">
-          <h4
-            className="relative inline-block px-2 font-bold text-center uppercase"
-            style={{ fontSize: 20 }}
-          >
+          <h4 className="relative inline-block px-2 font-bold text-center uppercase" style={{ fontSize: 20 }}>
             Mis turnos
-
-            {/* linea */}
-            <span
-              className="absolute left-0 right-0 mx-auto"
-              style={{
-                bottom: -2,    // gap entre texto y linea (ajustalo)
-                height: 2,     // grosor de la linea (ajustalo)
-                background: "#dd4924",
-                width: "60%",  // ancho opcional de la linea
-              }}
-            />
+            <span className="absolute left-0 right-0 mx-auto" style={{ bottom: -2, height: 2, background: "#dd4924", width: "60%" }} />
           </h4>
         </header>
 
+        {/* desktop controls */}
         <div className="flex-col items-end hidden w-full mb-2 md:flex md:flex-row h-fit">
           <div className="flex flex-col w-1/3 md:flex-row h-fit">
-            <div className="flex w-full gap-4 ">
-              <div
-                className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
-              >
-                <label
-                  style={{ fontSize: "12px" }}
-                  className="font-bold uppercase "
-                >
-                  Desde:
-                </label>
-                <select
-                  defaultValue={selectedDaySchedule.dayStart}
-                  value={selectedDaySchedule.dayStart}
-                  onChange={(e) =>
-                    setSelectedDaySchedule({
-                      ...selectedDaySchedule,
-                      dayStart: Number(e.target.value),
-                    })
-                  }
-                  id="appointmentDuration"
-                >
-                  {timeOptions.map((time) => (
-                    <option value={time.value} key={time.label}>
-                      {time.label}
-                    </option>
-                  ))}
+            <div className="flex w-full gap-4">
+              <div className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration}`}>
+                <label style={{ fontSize: "12px" }} className="font-bold uppercase">Desde:</label>
+                <select value={selectedDaySchedule.dayStart} onChange={(e) => setSelectedDaySchedule({ ...selectedDaySchedule, dayStart: Number(e.target.value) })}>
+                  {timeOptions.map((time) => <option value={time.value} key={time.label}>{time.label}</option>)}
                 </select>
               </div>
-              <div
-                className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
-              >
-                <label
-                  style={{ fontSize: "12px" }}
-                  className="font-bold uppercase "
-                >
-                  Hasta:
-                </label>
-                <select
-                  defaultValue={selectedDaySchedule.dayEnd}
-                  onChange={(e) =>
-                    setSelectedDaySchedule({
-                      ...selectedDaySchedule,
-                      dayEnd: Number(e.target.value),
-                    })
-                  }
-                  value={selectedDaySchedule.dayEnd}
-                  id="appointmentDuration"
-                >
-                  {timeOptions.map((time) => (
-                    <option value={time.value} key={time.label}>
-                      {time.label}
-                    </option>
-                  ))}
+              <div className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration}`}>
+                <label style={{ fontSize: "12px" }} className="font-bold uppercase">Hasta:</label>
+                <select value={selectedDaySchedule.dayEnd} onChange={(e) => setSelectedDaySchedule({ ...selectedDaySchedule, dayEnd: Number(e.target.value) })}>
+                  {timeOptions.map((time) => <option value={time.value} key={time.label}>{time.label}</option>)}
                 </select>
               </div>
-              <div
-                className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
-              >
-                <label
-                  style={{ fontSize: "12px" }}
-                  className="font-bold uppercase "
-                >
-                  Duración
-                </label>
-
-                <select
-                  className="text-sm"
-                  defaultValue={selectedDaySchedule.appointmentDuration}
-                  value={selectedDaySchedule.appointmentDuration}
-                  onChange={(e) =>
-                    setSelectedDaySchedule({
-                      ...selectedDaySchedule,
-                      appointmentDuration: Number(e.target.value),
-                    })
-                  }
-                  id="appointmentDuration"
-                >
+              <div className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration}`}>
+                <label style={{ fontSize: "12px" }} className="font-bold uppercase">Duración</label>
+                <select className="text-sm" value={selectedDaySchedule.appointmentDuration} onChange={(e) => setSelectedDaySchedule({ ...selectedDaySchedule, appointmentDuration: Number(e.target.value) })}>
                   <option value="15">15 min</option>
                   <option value="30">30 min</option>
                   <option value="45">45 min</option>
@@ -567,126 +485,36 @@ const CalendarTurnos: React.FC<Props> = ({
             </div>
           </div>
 
-          <h4 className="flex justify-center w-1/3 font-bold text-center uppercase text-md">
-            {calendarDate}
-          </h4>
+          <h4 className="flex justify-center w-1/3 font-bold text-center uppercase text-md">{calendarDate}</h4>
 
-          <div className="flex justify-end w-1/3 h-fit ">
-            <button
-              className={
-                view !== Views.WEEK
-                  ? styles.btnWeek
-                  : `${styles.btnSelected} ${styles.btnWeek} `
-              }
-              onClick={() => setView(Views.WEEK)}
-            >
-              Semana
-            </button>
-            <button
-              className={
-                view !== Views.DAY
-                  ? styles.btnDay
-                  : `${styles.btnSelected} ${styles.btnDay} `
-              }
-              onClick={() => setView(Views.DAY)}
-            >
-              Dia
-            </button>
+          <div className="flex justify-end w-1/3 h-fit">
+            <button className={view !== Views.WEEK ? styles.btnWeek : `${styles.btnSelected} ${styles.btnWeek}`} onClick={() => setView(Views.WEEK)}>Semana</button>
+            <button className={view !== Views.DAY ? styles.btnDay : `${styles.btnSelected} ${styles.btnDay}`} onClick={() => setView(Views.DAY)}>Dia</button>
             <div className="flex ml-4 w-fit h-fit">
-              <button
-                className={styles.btnWeekBlue}
-                onClick={() => onPrevClick()}
-              >
-                Anterior
-              </button>
-              <button
-                className={styles.btnDayBlue}
-                onClick={() => onNextClick()}
-              >
-                Siguiente
-              </button>
+              <button className={styles.btnWeekBlue} onClick={onPrevClick}>Anterior</button>
+              <button className={styles.btnDayBlue} onClick={onNextClick}>Siguiente</button>
             </div>
           </div>
         </div>
 
+        {/* mobile controls */}
         <div className="flex w-full mt-3 mb-3 md:hidden md:flex-row h-fit">
-          <div className="flex w-full justify-evenly ">
-            <div
-              className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
-            >
-              <label
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Desde:
-              </label>
-              <select
-                defaultValue={selectedDaySchedule.dayStart}
-                value={selectedDaySchedule.dayStart}
-                onChange={(e) =>
-                  setSelectedDaySchedule({
-                    ...selectedDaySchedule,
-                    dayStart: Number(e.target.value),
-                  })
-                }
-                id="appointmentDuration"
-              >
-                {timeOptions.map((time) => (
-                  <option value={time.value} key={time.label}>
-                    {time.label}
-                  </option>
-                ))}
+          <div className="flex w-full justify-evenly">
+            <div className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration}`}>
+              <label style={{ fontSize: "12px" }} className="font-bold uppercase">Desde:</label>
+              <select value={selectedDaySchedule.dayStart} onChange={(e) => setSelectedDaySchedule({ ...selectedDaySchedule, dayStart: Number(e.target.value) })}>
+                {timeOptions.map((time) => <option value={time.value} key={time.label}>{time.label}</option>)}
               </select>
             </div>
-            <div
-              className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
-            >
-              <label
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Hasta:
-              </label>
-              <select
-                defaultValue={selectedDaySchedule.dayEnd}
-                onChange={(e) =>
-                  setSelectedDaySchedule({
-                    ...selectedDaySchedule,
-                    dayEnd: Number(e.target.value),
-                  })
-                }
-                value={selectedDaySchedule.dayEnd}
-                id="appointmentDuration"
-              >
-                {timeOptions.map((time) => (
-                  <option value={time.value} key={time.label}>
-                    {time.label}
-                  </option>
-                ))}
+            <div className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration}`}>
+              <label style={{ fontSize: "12px" }} className="font-bold uppercase">Hasta:</label>
+              <select value={selectedDaySchedule.dayEnd} onChange={(e) => setSelectedDaySchedule({ ...selectedDaySchedule, dayEnd: Number(e.target.value) })}>
+                {timeOptions.map((time) => <option value={time.value} key={time.label}>{time.label}</option>)}
               </select>
             </div>
-            <div
-              className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
-            >
-              <label
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Duración
-              </label>
-
-              <select
-                className="text-sm"
-                defaultValue={selectedDaySchedule.appointmentDuration}
-                value={selectedDaySchedule.appointmentDuration}
-                onChange={(e) =>
-                  setSelectedDaySchedule({
-                    ...selectedDaySchedule,
-                    appointmentDuration: Number(e.target.value),
-                  })
-                }
-                id="appointmentDuration"
-              >
+            <div className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration}`}>
+              <label style={{ fontSize: "12px" }} className="font-bold uppercase">Duración</label>
+              <select className="text-sm" value={selectedDaySchedule.appointmentDuration} onChange={(e) => setSelectedDaySchedule({ ...selectedDaySchedule, appointmentDuration: Number(e.target.value) })}>
                 <option value="15">15 min</option>
                 <option value="30">30 min</option>
                 <option value="45">45 min</option>
@@ -701,26 +529,14 @@ const CalendarTurnos: React.FC<Props> = ({
         </div>
 
         <div className="flex flex-col mb-2 md:hidden">
-          <h4 className="w-full text-sm font-bold text-center uppercase md:text-md">
-            {calendarDate}
-          </h4>
+          <h4 className="w-full text-sm font-bold text-center uppercase md:text-md">{calendarDate}</h4>
         </div>
 
         <div className="fixed bottom-0 z-50 flex flex-col items-center w-full ml-auto mr-auto -translate-y-5 md:hidden">
           <div className="flex flex-col gap-1 w-fit">
-            <div className="">
-              <button
-                className={styles.btnWeekBlue}
-                onClick={() => onPrevClick()}
-              >
-                Anterior
-              </button>
-              <button
-                className={styles.btnDayBlue}
-                onClick={() => onNextClick()}
-              >
-                Siguiente
-              </button>
+            <div>
+              <button className={styles.btnWeekBlue} onClick={onPrevClick}>Anterior</button>
+              <button className={styles.btnDayBlue} onClick={onNextClick}>Siguiente</button>
             </div>
           </div>
         </div>
@@ -730,12 +546,12 @@ const CalendarTurnos: React.FC<Props> = ({
             components={components}
             localizer={localizer}
             className={styles.calendarComponentSchedule}
-            events={parseAppointments(appointments)}
+            events={parsedEvents}          // ← usa el state, no la prop directamente
             startAccessor="start"
             endAccessor="end"
             messages={messages}
-            onView={() => { }}
-            onNavigate={() => { }}
+            onView={() => {}}
+            onNavigate={() => {}}
             showAllEvents={false}
             view={view}
             date={date}
@@ -752,37 +568,22 @@ const CalendarTurnos: React.FC<Props> = ({
             toolbar={false}
             selectable
             defaultView="day"
-            onSelectEvent={(event) => {
-              handleSelectEvent(event);
-            }}
+            onSelectEvent={handleSelectEvent}
             longPressThreshold={250}
           />
         </div>
 
         <div className="flex justify-between w-full mt-6 mb-12 h-fit">
           <div className="flex gap-2">
-            <button
-              className={`${styles.btnAddAll} hidden md:flex gap-2 items-center`}
-              onClick={() => handleSetAllDayAppointmentsModal()}
-            >
+            <button className={`${styles.btnAddAll} hidden md:flex gap-2 items-center`} onClick={handleSetAllDayAppointmentsModal}>
               <LuCalendarPlus size={20} /> Crear turnos del día
             </button>
-
-            <button
-              className={` hidden md:flex gap-2 items-center text-blue-400 border rounded-lg text-sm px-2 font-medium`}
-              onClick={() => setHelpModal(!helpModal)}
-            >
+            <button className="items-center hidden gap-2 px-2 text-sm font-medium text-blue-400 border rounded-lg md:flex" onClick={() => setHelpModal(!helpModal)}>
               <IoInformationCircle color="lightblue" size={20} /> ¿Cómo agrego turnos?
             </button>
           </div>
-
-          <Link
-            className="items-center hidden gap-2 text-xs font-semibold uppercase md:flex"
-            style={{ color: "#dd4924" }}
-            href="/admin/schedule/settings"
-          >
-            configuración de agenda
-            <FaArrowRight />
+          <Link className="items-center hidden gap-2 text-xs font-semibold uppercase md:flex" style={{ color: "#dd4924" }} href="/admin/schedule/settings">
+            configuración de agenda <FaArrowRight />
           </Link>
         </div>
       </div>
