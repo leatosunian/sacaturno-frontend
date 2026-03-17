@@ -166,7 +166,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
           <AppointmentModal
             appointment={selectedAppointment}
             closeModalF={() => setAppointmentInfoModal(false)}
-            onDeleteAppointment={() => { }}
+            onDelete={() => { }}
           />
         </DialogContent>
       </Dialog>
