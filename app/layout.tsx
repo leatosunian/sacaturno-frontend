@@ -10,7 +10,7 @@ const montserrat = Montserrat({ subsets: ["latin"] });
 export const metadata: Metadata = {
   metadataBase: new URL("https://sacaturno.com.ar"),
   title: {
-    default: "SacaTurno | Tu app de turnos online",
+    default: "Tu app de turnos online",
     template: "%s | SacaTurno",
   },
   description:

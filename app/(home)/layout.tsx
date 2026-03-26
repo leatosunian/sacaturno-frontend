@@ -5,7 +5,7 @@ import { AuthProvider } from "../context/authContext";
 const montserrat = Montserrat({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SacaTurno | Tu app de turnos online",
+  title: "Tu app de turnos online",
   description:
     "SacaTurno es la app de turnos online para negocios argentinos. Automatizá tus reservas, organizá tu agenda y dejá que tus clientes reserven solos, las 24 hs.",
   openGraph: {
