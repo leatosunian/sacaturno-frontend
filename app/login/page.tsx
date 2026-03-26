@@ -9,11 +9,6 @@ import { IoIosSearch } from "react-icons/io";
 import HeaderPublicBlack from "@/components/home/HeaderPublicBlack";
 import Footer from "@/components/home/Footer";
 
-export const metadata: Metadata = {
-  title: "Iniciar Sesión | SacaTurno",
-  description: "Aplicación de turnos online",
-};
-
 export default function Login() {
   return (
     <>
@@ -25,7 +20,7 @@ export default function Login() {
           <div className={`flex-col items-center justify-center hidden w-full pt-0 md:pt-0 md:pb-0 lg:flex pb-14 h-2 lg:h-full lg:w-2/5 ${styles.backgroundImage} `}>
             <Image
               className="w-48 lg:mt-0 lg:w-96"
-              alt=""
+              alt="SacaTurno — Tu app de turnos online"
               src={sacaturno_logo}
             />
             <span className="mt-2 text-sm font-thin text-gray-200 lg:mt-0 lg:text-lg">
@@ -51,7 +46,7 @@ export default function Login() {
 
                 <h3
                   className="relative inline-block mb-3 text-2xl font-semibold uppercase xl:text-3xl px-auto"
-                  
+
                 >
                   Iniciar Sesión
                   <span

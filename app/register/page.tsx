@@ -17,7 +17,7 @@ export default function Register() {
           <div className={`flex-col items-center justify-center hidden w-full pt-0 md:pt-0 md:pb-0 lg:flex pb-14 h-2 lg:h-full lg:w-2/5 ${styles.backgroundImage}`}>
             <Image
               className="w-48 lg:mt-0 lg:w-96"
-              alt=""
+              alt="SacaTurno — Tu app de turnos online"
               src={sacaturno_logo}
             />
             <span className="mt-2 text-sm font-thin text-gray-200 lg:mt-0 lg:text-lg">

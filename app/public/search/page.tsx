@@ -89,7 +89,7 @@ const SearchBusiness: React.FC = () => {
           >
             <Image
               className="w-48 lg:mt-0 lg:w-96"
-              alt=""
+              alt="SacaTurno — Tu app de turnos online"
               src={sacaturno_logo}
             />
             <span className="mt-2 text-sm font-thin text-gray-200 lg:mt-0 lg:text-lg">
@@ -205,7 +205,7 @@ const SearchBusiness: React.FC = () => {
                             height={64}
                             className="w-12 h-12 rounded-full"
                             src={`https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${business.image}`}
-                            alt=""
+                            alt={`Logo de ${business.name}`}
                           />
                           <div className="flex flex-col w-fit h-fit">
                             <span className="text-sm font-medium">

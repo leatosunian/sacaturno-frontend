@@ -16,9 +16,34 @@ export async function generateMetadata({
   const slug = params.slug.toLowerCase();
   const businessFetch = await axiosReq.get(`/business/getbyslug/${slug}`);
   const businessData: IBusiness = businessFetch.data;
+
+  if (!businessData?.name ) {
+    return {
+      title: "Empresa no encontrada",
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const title = `${businessData.name}`;
+  const description = `Reservá un turno en ${businessData.name}${businessData.businessType ? ` — ${businessData.businessType}` : ""}${businessData.address ? `. Ubicados en ${businessData.address}` : ""}. Reservá online fácil y rápido con SacaTurno.`;
+
   return {
-    title: `${businessData.name} | SacaTurno`,
-    description: "Aplicación de turnos online",
+    title,
+    description,
+    alternates: {
+      canonical: `https://sacaturno.com.ar/${slug}`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `https://sacaturno.com.ar/${slug}`,
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+    },
   };
 }
 
@@ -41,8 +66,38 @@ const getAppointments = async (ID: string) => {
 
 const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
   const data = await getAppointments(params.slug);
+
+  const jsonLd = data.businessData.name
+    ? {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        name: data.businessData.name,
+        "@id": `https://sacaturno.com.ar/${params.slug}`,
+        url: `https://sacaturno.com.ar/${params.slug}`,
+        ...(data.businessData.businessType && {
+          description: data.businessData.businessType,
+        }),
+        ...(data.businessData.address && {
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: data.businessData.address,
+          },
+        }),
+        ...(data.businessData.phone && {
+          telephone: String(data.businessData.phone),
+        }),
+        ...(data.businessData.email && { email: data.businessData.email }),
+      }
+    : null;
+
   return (
     <>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
       <div className="flex flex-col justify-center gap-10 md:flex-row">
         <div className="flex justify-center w-full h-full mt-16 md:w-full">
           {/* <CalendarBookAppointment

@@ -5,8 +5,16 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Términos y condiciones | SacaTurno",
-  description: "Aplicación de turnos online",
+  title: "Términos y condiciones",
+  description:
+    "Leé los términos y condiciones del servicio de SacaTurno, la aplicación de gestión de turnos online para negocios argentinos.",
+  alternates: { canonical: "https://sacaturno.com.ar/faq/terminos" },
+  openGraph: {
+    title: "Términos y condiciones | SacaTurno",
+    description:
+      "Leé los términos y condiciones del servicio de SacaTurno.",
+    url: "https://sacaturno.com.ar/faq/terminos",
+  },
 };
 
 const Terminos = () => {

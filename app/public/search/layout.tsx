@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Buscar empresa | SacaTurno",
-  description: "Aplicación de turnos online",
+  title: "Buscar empresa",
+  description:
+    "Buscá un negocio en SacaTurno y reservá tu turno online de forma rápida y sencilla.",
 };
 
 export default function Layout({

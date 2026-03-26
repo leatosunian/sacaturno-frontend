@@ -5,8 +5,16 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Política de privacidad | SacaTurno",
-  description: "Aplicación de turnos online",
+  title: "Política de privacidad",
+  description:
+    "Conocé cómo SacaTurno protege y utiliza tu información personal. Política de privacidad de la aplicación de turnos online.",
+  alternates: { canonical: "https://sacaturno.com.ar/faq/privacidad" },
+  openGraph: {
+    title: "Política de privacidad | SacaTurno",
+    description:
+      "Conocé cómo SacaTurno protege y utiliza tu información personal.",
+    url: "https://sacaturno.com.ar/faq/privacidad",
+  },
 };
 
 const Privacidad = () => {

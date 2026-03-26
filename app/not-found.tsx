@@ -1,5 +1,12 @@
 import Link from 'next/link'
 import { Suspense } from 'react'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: "Página no encontrada",
+  description: "La página que estás buscando no existe o fue eliminada.",
+  robots: { index: false, follow: false },
+};
 
 export default function NotFound() {
   return (

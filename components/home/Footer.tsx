@@ -13,13 +13,13 @@ const Footer: React.FC = () => {
               <Image
                 className="hidden md:block"
                 src={logo}
-                alt={"Logo"}
+                alt="Logo de SacaTurno"
                 width={300}
               />
               <Image
                 className="block md:hidden"
                 src={logo}
-                alt={"Logo"}
+                alt="Logo de SacaTurno"
                 width={200}
               />
               <span className="mt-2 text-xs font-thin text-gray-200">

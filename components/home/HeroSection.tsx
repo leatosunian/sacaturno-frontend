@@ -69,9 +69,9 @@ const HeroSection = () => {
           </div>
 
           <div className="m-auto ">
-            <Image src={mockup} className="hidden 2xl:block" width={1300} alt="Mockup" />
-            <Image src={mockup} className="hidden md:block 2xl:hidden" width={1140} alt="Mockup" />
-            <Image src={mockup2} className="block mt-3 md:hidden" width={340} alt="Mockup" />
+            <Image src={mockup} className="hidden 2xl:block" width={1300} alt="Vista previa de la app SacaTurno en distintos dispositivos" />
+            <Image src={mockup} className="hidden md:block 2xl:hidden" width={1140} alt="Vista previa de la app SacaTurno en distintos dispositivos" />
+            <Image src={mockup2} className="block mt-3 md:hidden" width={340} alt="Vista previa de la app SacaTurno en distintos dispositivos" />
           </div>
         </div>
       </div>

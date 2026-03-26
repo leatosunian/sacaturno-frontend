@@ -3,8 +3,9 @@ import AdminHeader from "@/components/dashboard/AdminHeader";
 
 
 export const metadata: Metadata = {
-  title: "Mis turnos - SacaTurno",
-  description: "IT-related blog for devs",
+  title: "Panel de administración",
+  description: "Gestioná tus turnos, tu empresa y tu agenda desde tu panel de administración en SacaTurno.",
+  robots: { index: false, follow: false },
 };
 
 export default function Layout({
