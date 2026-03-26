@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     "Conocé cómo SacaTurno protege y utiliza tu información personal. Política de privacidad de la aplicación de turnos online.",
   alternates: { canonical: "https://sacaturno.com.ar/faq/privacidad" },
   openGraph: {
-    title: "Política de privacidad | SacaTurno",
+    title: "Política de privacidad",
     description:
       "Conocé cómo SacaTurno protege y utiliza tu información personal.",
     url: "https://sacaturno.com.ar/faq/privacidad",
