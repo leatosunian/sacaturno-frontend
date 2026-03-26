@@ -4,17 +4,8 @@ const nextConfig = {
     BACKEND_URL: "http://localhost:4000",
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "sacaturno-server-production.up.railway.app",
-        pathname: "/api/**",
-      },
-      {
-        protocol: "http",
-        hostname: "localhost",
-      },
-    ],
+    domains: ["localhost"],
+    unoptimized: true,
   },
 };
 
