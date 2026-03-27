@@ -74,6 +74,7 @@ function formatDateLong(dateStr: string): string {
 interface IService {
   _id: string
   name: string
+  description?: string
   businessID: string
   [key: string]: unknown
 }
@@ -297,6 +298,11 @@ export default function ListBookAppointment({
           ))
         )}
       </div>
+      {selectedServiceObj?.description && (
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+          {selectedServiceObj.description}
+        </p>
+      )}
     </div>
   )
 
@@ -400,8 +406,8 @@ export default function ListBookAppointment({
                 </div>
               </div>
 
-              {/* Service Filter Card — only shown if there are multiple services */}
-              {(services.length > 1 || loadingServices) && (
+              {/* Service Filter Card */}
+              {(services.length >= 1 || loadingServices) && (
                 <div className="p-4 border-none rounded-xl bg-muted/50">
                   <ServiceFilterButtons />
                 </div>
@@ -532,8 +538,8 @@ export default function ListBookAppointment({
               </button>
             </div>
 
-            {/* Mobile Service Filter — only shown if there are multiple services */}
-            {(services.length > 1 || loadingServices) && (
+            {/* Mobile Service Filter */}
+            {(services.length >= 1 || loadingServices) && (
               <div className="pb-4 mb-4 border-b border-border">
                 <ServiceFilterButtons />
               </div>
