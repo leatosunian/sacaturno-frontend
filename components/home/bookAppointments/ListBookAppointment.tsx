@@ -436,13 +436,16 @@ export default function ListBookAppointment({
               {/* Section Header */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex flex-col gap-0.5">
-                  <h2 className="text-[1.3rem] font-bold text-foreground">
+
+                  <span className="text-sm font-semibold text-orange-500">
                     Horarios Disponibles
-                  </h2>
+                  </span>
                   {selectedService && (
-                    <span className="text-sm font-semibold text-orange-500">
+                    <h2 className="text-[1.3rem] font-bold text-foreground">
                       {selectedService}
-                    </span>
+                    </h2>
+
+
                   )}
                 </div>
                 <div className="flex items-center gap-4">
@@ -463,7 +466,7 @@ export default function ListBookAppointment({
 
               {/* Time Slots Grid */}
               {dayAppointments.length === 0 ? (
-                <div className="flex flex-col items-center justify-center flex-1 py-[7.7rem] rounded-xl bg-muted/50" style={{height:'200px'}}>
+                <div className="flex flex-col items-center justify-center flex-1 py-[7.7rem] rounded-xl bg-muted/50" style={{ height: '200px' }}>
                   <CalendarDays className="mb-3 size-10 text-muted-foreground/40" />
                   <p className="text-sm font-medium text-muted-foreground">
                     {selectedService
