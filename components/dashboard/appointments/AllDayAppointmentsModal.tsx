@@ -116,7 +116,7 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
             <div className="flex flex-col w-full gap-4 h-fit">
 
               <div className={`flex flex-col w-full h-fit ${styles.formInputAppDuration}`}>
-                <label className="mb-1 text-sm font-bold uppercase">Servicio a prestar</label>
+                <label className="mb-1 text-xs font-bold uppercase">Servicio a prestar</label>
                 <Select value={selectedService?.name} onValueChange={handleSetSelectedService}>
                   <SelectTrigger className="w-full"><SelectValue placeholder="Seleccionar servicio" /></SelectTrigger>
                   <SelectContent>
@@ -131,7 +131,7 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
               </div>
 
               <div className={`flex flex-col w-full h-fit ${styles.formInputAppDuration}`}>
-                <label className="mb-1 text-sm font-bold uppercase">Desde:</label>
+                <label className="mb-1 text-xs font-bold uppercase">Desde:</label>
                 <Select value={selectedDaySchedule.dayStart.toString()} onValueChange={(v) => setSelectedDaySchedule({ ...selectedDaySchedule, dayStart: parseInt(v) })}>
                   <SelectTrigger className="w-full"><SelectValue placeholder="Hora de inicio" /></SelectTrigger>
                   <SelectContent>
@@ -143,7 +143,7 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
               </div>
 
               <div className={`flex flex-col w-full h-fit ${styles.formInputAppDuration}`}>
-                <label className="mb-1 text-sm font-bold uppercase">Hasta:</label>
+                <label className="mb-1 text-xs font-bold uppercase">Hasta:</label>
                 <Select value={selectedDaySchedule.dayEnd.toString()} onValueChange={(v) => setSelectedDaySchedule({ ...selectedDaySchedule, dayEnd: parseInt(v) })}>
                   <SelectTrigger className="w-full"><SelectValue placeholder="Hora de fin" /></SelectTrigger>
                   <SelectContent>
@@ -155,7 +155,7 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
               </div>
 
               <div className={`flex flex-col w-full h-fit ${styles.formInputAppDuration}`}>
-                <label className="mb-1 text-sm font-bold uppercase">Duración de cada turno</label>
+                <label className="mb-1 text-xs font-bold uppercase">Duración de cada turno</label>
                 <Select value={selectedDaySchedule.appointmentDuration.toString()} onValueChange={(v) => setSelectedDaySchedule({ ...selectedDaySchedule, appointmentDuration: parseInt(v) })}>
                   <SelectTrigger className="w-full"><SelectValue placeholder="Duración" /></SelectTrigger>
                   <SelectContent>

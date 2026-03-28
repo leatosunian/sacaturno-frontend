@@ -147,7 +147,7 @@ const CreateScheduleAppointmentModal: React.FC<props> = ({
         <div className="flex flex-col w-full gap-6 h-fit">
           
           <div className="flex flex-col gap-2 w-fit h-fit">
-            <label className="text-sm font-bold uppercase">Horario</label>
+            <label className="text-xs font-bold uppercase">Horario</label>
             <div className="flex items-center gap-2">
               <FaRegClock color="#9ca3af" size={20} />
               <span className="text-sm font-medium text-gray-800">
@@ -158,7 +158,7 @@ const CreateScheduleAppointmentModal: React.FC<props> = ({
           </div>
 
           <div className="flex flex-col w-full gap-2 h-fit">
-            <label className="text-sm font-bold uppercase">
+            <label className="text-xs font-bold uppercase">
               Servicio a prestar
             </label>
             <Select

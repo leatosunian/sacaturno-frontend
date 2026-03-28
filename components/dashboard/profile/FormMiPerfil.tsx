@@ -216,7 +216,22 @@ const FormMiPerfil: React.FC<Props> = ({
   return (
     <>
       <div className="flex justify-center w-full mb-5 h-fit">
-        <h3 className="text-lg font-bold uppercase ">Información personal</h3>
+        <h3
+          className="relative inline-block px-2 mx-auto text-xl font-bold text-center uppercase w-fit"
+          style={{ fontSize: 20 }}
+        >
+          Información personal
+          {/* linea */}
+          <span
+            className="absolute left-0 right-0 mx-auto"
+            style={{
+              bottom: -2,    // gap texto / linea 
+              height: 2,     // grosor de linea
+              background: "#dd4924",
+              width: "60%",  // ancho de la linea
+            }}
+          />
+        </h3>
       </div>
       <form
         className={styles.form}
@@ -311,26 +326,26 @@ const FormMiPerfil: React.FC<Props> = ({
         />
       </form>
 
-          <div className="flex flex-col gap-2 my-2 md:gap-0 w-fit h-fit"></div>
+      <div className="flex flex-col gap-2 my-2 md:gap-0 w-fit h-fit"></div>
 
-          <div className="flex items-center justify-center w-full mt-6 h-9">
-            {loading && (
-              <>
-                <div
-                  style={{ height: "100%", width: "100%" }}
-                  className="flex items-center justify-center w-full"
-                >
-                  <div className="loaderSmall"></div>
-                </div>
-              </>
-            )}
-            {!loading && (
-              <button onClick={handleSubmitClick} className={styles.button}>
-                <LuSave size={18} />
-                Guardar cambios
-              </button>
-            )}
-          </div>
+      <div className="flex items-center justify-center w-full mt-6 h-9">
+        {loading && (
+          <>
+            <div
+              style={{ height: "100%", width: "100%" }}
+              className="flex items-center justify-center w-full"
+            >
+              <div className="loaderSmall"></div>
+            </div>
+          </>
+        )}
+        {!loading && (
+          <button onClick={handleSubmitClick} className={styles.button}>
+            <LuSave size={18} />
+            Guardar cambios
+          </button>
+        )}
+      </div>
       {typeof businessData === "object" && (
         <>
 
@@ -347,8 +362,21 @@ const FormMiPerfil: React.FC<Props> = ({
           {/* DIVIDER */}
 
           <div className="flex flex-col w-full h-fit">
-            <h3 className="mb-8 text-xl font-bold text-center uppercase md:mb-10 ">
+            <h3
+              className="relative mb-8  md:mb-10 inline-block px-2 mx-auto text-xl font-bold text-center uppercase w-fit"
+              style={{ fontSize: 20 }}
+            >
               Planes y facturación
+              {/* linea */}
+              <span
+                className="absolute left-0 right-0 mx-auto"
+                style={{
+                  bottom: -2,    // gap texto / linea 
+                  height: 2,     // grosor de linea 
+                  background: "#dd4924",
+                  width: "60%",  // ancho de la linea
+                }}
+              />
             </h3>
 
             <div className="w-full mb-5 md:px-20 ">

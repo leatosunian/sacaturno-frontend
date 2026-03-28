@@ -119,6 +119,7 @@ const CalendarTurnos: React.FC<Props> = ({
   const [eventData, setEventData] = useState<eventType2 | undefined>();
   const [createAppointmentModal, setCreateAppointmentModal] = useState(false);
   const [createAppointmentData, setCreateAppointmentData] = useState<IAppointment>();
+  const [createAppointmentTabMode, setCreateAppointmentTabMode] = useState<"pending" | "booked">("pending");
   const [allDayAppointmentsModal, setAllDayAppointmentsModal] = useState(false);
   const [helpModal, setHelpModal] = useState(false);
   const [view, setView] = useState<(typeof Views)[Keys]>(Views.DAY);
@@ -173,9 +174,9 @@ const CalendarTurnos: React.FC<Props> = ({
     const tempId = `temp_${Date.now()}`;
     const optimisticAppointment: IAppointment = {
       ...appointmentData,
-      title: "Cargando...",
+      title: appointmentData.status === "booked" ? appointmentData.name ?? "Cargando..." : "Cargando...",
       _id: tempId,
-      status: "unbooked",
+      status: appointmentData.status ?? "unbooked",
     };
 
     // Optimistic add
@@ -259,6 +260,7 @@ const CalendarTurnos: React.FC<Props> = ({
       end: endDate,
       service: "",
     };
+    setCreateAppointmentTabMode("pending");
     setCreateAppointmentModal(true);
     setCreateAppointmentData(appointmentData);
   };
@@ -349,7 +351,7 @@ const CalendarTurnos: React.FC<Props> = ({
 
       {/* CREATE ALL DAY'S APPOINTMENTS */}
       <Dialog open={allDayAppointmentsModal} onOpenChange={() => setAllDayAppointmentsModal(false)}>
-        <DialogContent className="sm:w-fit w-[93vw]">
+        <DialogContent className="sm:w-[400px] w-[93vw]">
           <AllDayAppointmentsModal
             business={business}
             services={services}
@@ -363,7 +365,7 @@ const CalendarTurnos: React.FC<Props> = ({
 
       {/* APPOINTMENT INFO */}
       <Dialog open={eventModal} onOpenChange={() => setEventModal(false)}>
-        <DialogContent className="sm:w-[470px] w-[93vw]">
+        <DialogContent className="sm:w-[400px] w-[93vw]">
           <AppointmentModal
             appointment={eventData}
             onDelete={handleDeleteAppointment}
@@ -374,12 +376,16 @@ const CalendarTurnos: React.FC<Props> = ({
 
       {/* CREATE SINGLE APPOINTMENT */}
       <Dialog open={createAppointmentModal} onOpenChange={() => setCreateAppointmentModal(false)}>
-        <DialogContent className="sm:w-[350px] w-[93vw]">
+        <DialogContent
+          className={`w-[93vw] transition-all duration-200 max-w-none ${createAppointmentTabMode === "booked" ? "sm:w-[660px]" : "sm:w-[400px]"}`}
+        >
           <CreateAppointmentModal
             onSave={handleSaveAppointment}
             closeModalF={() => setCreateAppointmentModal(false)}
             appointmentData={createAppointmentData}
             servicesData={services}
+            tabMode={createAppointmentTabMode}
+            onTabModeChange={setCreateAppointmentTabMode}
           />
         </DialogContent>
       </Dialog>
@@ -400,7 +406,7 @@ const CalendarTurnos: React.FC<Props> = ({
 
       {/* HELP MODAL */}
       <Dialog open={helpModal} onOpenChange={() => setHelpModal(false)}>
-        <DialogContent className="sm:w-[1000px] w-[93vw] px-0 pb-0">
+        <DialogContent className="sm:w-[600px] max-w-none w-[93vw] px-0 pb-0">
           <HelpModal onClose={() => setHelpModal(false)} />
         </DialogContent>
       </Dialog>

@@ -233,7 +233,7 @@ const FormSettings = ({
     <>
       {/* create new service modal */}
       <Dialog open={createServiceModal} onOpenChange={() => setCreateServiceModal(false)} >
-        <DialogContent className="flex flex-col bg-white w-80 md:w-96 p-7 h-fit borderShadow">
+        <DialogContent className="sm:w-[400px] w-[93vw]">
           <CreateServiceModal onCreateService={(formData) => addService(formData)} />
         </DialogContent>
       </Dialog>

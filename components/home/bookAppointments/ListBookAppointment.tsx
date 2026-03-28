@@ -299,9 +299,14 @@ export default function ListBookAppointment({
         )}
       </div>
       {selectedServiceObj?.description && (
-        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-          {selectedServiceObj.description}
-        </p>
+        <div className="pt-2 mt-2 border-t border-border/50">
+          <span className="text-[11px] font-semibold tracking-wide uppercase text-muted-foreground">
+            Descripcion
+          </span>
+          <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground whitespace-pre-line">
+            {selectedServiceObj.description}
+          </p>
+        </div>
       )}
     </div>
   )

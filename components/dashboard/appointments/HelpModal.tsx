@@ -41,11 +41,11 @@ const HelpModal: React.FC<Props> = ({ onClose }) => {
             </h4>
 
             <div className="flex flex-col gap-4 w-fit h-fit">
-              <span className="flex flex-col gap-2 text-sm sm:flex-row">
+              <span className="text-sm flex gap-2">
                 <b className="text-orange-600">1.</b> Ingresá a
                 <Link
                   href={"/admin/schedule/settings"}
-                  className="flex items-center gap-1 font-semibold hover:underline underline-offset-2"
+                  className="flex items-center gap-1 w-fit font-semibold hover:underline underline-offset-2"
                 >
                   <FaExternalLinkAlt size={12} />
                   Configuración de agenda
@@ -140,7 +140,7 @@ const HelpModal: React.FC<Props> = ({ onClose }) => {
 
               <Image
                 alt="Agregar turno largo"
-                className="w-5/6 mt-2 rounded-xl"
+                className="w-3/6 mt-2 rounded-xl"
                 src={addmultiple}
               />
             </div>

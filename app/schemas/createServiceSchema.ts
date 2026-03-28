@@ -10,7 +10,7 @@ export const createServiceSchema = z.object({
       message: "El nombre debe tener menos de 35 caractéres",
     }),
 
-  price: z.coerce.number().gte(15, "Ingresá el precio del servivio"),
+  price: z.coerce.number().gte(15, "Ingresá el precio del servicio"),
 
   description: z.string().max(140, {
     message: "La descripción debe tener menos de 140 caracteres",

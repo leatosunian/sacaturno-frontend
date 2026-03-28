@@ -65,7 +65,7 @@ const AppointmentModal: React.FC<props> = ({ appointment, onDelete, closeModalF 
       <div className="flex flex-col w-full gap-5 mt-2 h-fit">
         {!isBooked && (
           <div className="flex flex-col w-fit h-fit">
-            <label className="text-sm font-bold uppercase">Fecha y hora</label>
+            <label className="text-xs font-bold uppercase">Fecha y hora</label>
             <span className="font-medium capitalize-first-letter">
               {dayjs(appointment?.start).format("dddd d [de] MMMM | HH:mm [hs]")} -{" "}
               {dayjs(appointment?.end).format("HH:mm [hs]")}
@@ -73,25 +73,25 @@ const AppointmentModal: React.FC<props> = ({ appointment, onDelete, closeModalF 
           </div>
         )}
         <div className="flex flex-col w-fit h-fit">
-          <label className="text-sm font-bold uppercase">Servicio</label>
+          <label className="text-xs font-bold uppercase">Servicio</label>
           <span className="font-normal">{appointment?.service}</span>
         </div>
         <div className="flex flex-col w-fit h-fit">
-          <label className="text-sm font-bold uppercase">Precio</label>
+          <label className="text-xs font-bold uppercase">Precio</label>
           <span className="font-normal">$ {appointment?.price?.toLocaleString()}</span>
         </div>
         {isBooked && (
           <>
             <div className="flex flex-col w-fit h-fit">
-              <label className="text-sm font-bold uppercase">Nombre del cliente</label>
+              <label className="text-xs font-bold uppercase">Nombre del cliente</label>
               <span className="font-medium">{appointment?.name}</span>
             </div>
             <div className="flex flex-col w-fit h-fit">
-              <label className="text-sm font-bold uppercase">Teléfono</label>
+              <label className="text-xs font-bold uppercase">Teléfono</label>
               <span className="font-medium">+54 {appointment?.phone}</span>
             </div>
             <div className="flex flex-col w-fit h-fit">
-              <label className="text-sm font-bold uppercase">Email</label>
+              <label className="text-xs font-bold uppercase">Email</label>
               <span className="font-medium">{appointment?.email}</span>
             </div>
           </>

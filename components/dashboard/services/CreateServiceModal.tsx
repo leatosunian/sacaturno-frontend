@@ -1,5 +1,4 @@
 "use client";
-import styles from "@/app/css-modules/BookAppointmentModal.module.css";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldValues, useForm } from "react-hook-form";
 import { IoMdClose } from "react-icons/io";
@@ -38,6 +37,7 @@ const CreateServiceModal: React.FC<props> = ({ onCreateService }) => {
   });
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [priceDisplay, setPriceDisplay] = useState<string>("");
 
 
   const handleSubmitClick = () => {
@@ -83,18 +83,13 @@ const CreateServiceModal: React.FC<props> = ({ onCreateService }) => {
             onSubmit={handleSubmit((formData) => {
               createService(formData);
             })}
-            className="flex flex-col justify-between w-full gap-5 "
+            className="flex flex-col justify-between w-full gap-5"
           >
-            <div className={styles.formInput}>
-              <span
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase"
-              >
-                Nombre
-              </span>
+            <div className="flex flex-col gap-2 w-full h-fit">
+              <label className="text-xs font-bold uppercase">Nombre</label>
               <input
                 type="text"
-                className="placeholder:text-xs"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md outline-none focus:border-orange-500"
                 maxLength={30}
                 {...register("name")}
                 placeholder="Nombre del servicio"
@@ -106,21 +101,22 @@ const CreateServiceModal: React.FC<props> = ({ onCreateService }) => {
                 </span>
               )}
             </div>
-            <div className={styles.formInput}>
-              <span
-                style={{ fontSize: "12px" }}
-                className="font-bold uppercase "
-              >
-                Precio
-              </span>
+            <div className="flex flex-col gap-2 w-full h-fit">
+              <label className="text-xs font-bold uppercase">Precio</label>
               <div className="flex items-center w-full gap-2 h-fit">
                 <span className="font-semibold text-md">AR$</span>
                 <input
-                  type="number"
-                  maxLength={20}
-                  className="placeholder:text-xs"
+                  type="text"
+                  inputMode="numeric"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md outline-none focus:border-orange-500"
                   placeholder="Precio del servicio"
-                  {...register("price")}
+                  value={priceDisplay}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/\D/g, "");
+                    const numeric = raw ? parseInt(raw, 10) : 0;
+                    setPriceDisplay(raw ? numeric.toLocaleString("es-AR") : "");
+                    setValue("price", numeric, { shouldValidate: true });
+                  }}
                 />
               </div>
               {errors.price?.message && (
@@ -130,19 +126,14 @@ const CreateServiceModal: React.FC<props> = ({ onCreateService }) => {
                 </span>
               )}
             </div>
-            <div className={styles.formInput}>
+            <div className="flex flex-col gap-2 w-full h-fit">
               <div className="flex items-center gap-1">
-                <span
-                  style={{ fontSize: "12px" }}
-                  className="font-bold uppercase "
-                >
-                  Descripción/observaciones
-                </span>
+                <label className="text-xs font-bold uppercase">Descripción/observaciones</label>
                 <span className="text-xs text-gray-500 ">(opcional)</span>
               </div>
               <textarea
                 placeholder="Descripción del servicio"
-                className="placeholder:text-xs"
+                className="w-full px-3 py-2 text-sm border min-h-20 border-gray-300 rounded-md outline-none focus:border-orange-500"
                 {...register("description")}
                 maxLength={140}
               />
@@ -153,14 +144,9 @@ const CreateServiceModal: React.FC<props> = ({ onCreateService }) => {
                 </span>
               )}
             </div>
-            <div className={styles.formInput}>
+            <div className="flex flex-col gap-2 w-full h-fit">
               <div className="flex items-center gap-1">
-                <span
-                  style={{ fontSize: "12px" }}
-                  className="font-bold uppercase "
-                >
-                  Duración
-                </span>
+                <label className="text-xs font-bold uppercase">Duración</label>
                 <span className="text-xs text-gray-500 ">(opcional)</span>
               </div>
               <Select

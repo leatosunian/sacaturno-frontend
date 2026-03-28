@@ -67,7 +67,7 @@ const ScheduleAppointmentModal: React.FC<props> = ({
 
         <div className="flex flex-col w-full gap-6 h-fit">
           <div className="flex flex-col gap-2 w-fit h-fit">
-            <label className="text-sm font-bold uppercase">Día y horario</label>
+            <label className="text-xs font-bold uppercase">Día y horario</label>
             <div className="flex items-center gap-2">
               <FaRegClock color="#9ca3af" size={18} />
               <span className="text-sm font-medium text-gray-800">
@@ -79,14 +79,14 @@ const ScheduleAppointmentModal: React.FC<props> = ({
           </div>
 
           <div className="flex flex-col gap-2 w-fit h-fit">
-            <label className="text-sm font-bold uppercase">
+            <label className="text-xs font-bold uppercase">
               Servicio a prestar
             </label>
             <span className="text-sm">{appointment?.service}</span>
           </div>
 
           <div className="flex flex-col gap-2 w-fit h-fit">
-            <label className="text-sm font-bold uppercase">Precio</label>
+            <label className="text-xs font-bold uppercase">Precio</label>
             <span className="text-sm">$ {appointment?.price.toLocaleString()}</span>
           </div>
 
