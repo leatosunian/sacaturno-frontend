@@ -260,8 +260,8 @@ export default function BookAppointmentModal({
 
           {/* Service & Price */}
           <div className="grid w-full grid-cols-2 gap-3">
-            <Card className="py-4 border-none shadow-none bg-muted/50">
-              <CardContent className="flex flex-col gap-1 px-4">
+            <Card className="py-4 border-none shadow-none h-fit bg-muted/50">
+              <CardContent className="flex flex-col gap-1 px-4 py-0 h-fit">
                 <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
                   Servicio
                 </span>
@@ -270,9 +270,9 @@ export default function BookAppointmentModal({
                 </span>
               </CardContent>
             </Card>
-            <Card className="py-4 border-none shadow-none bg-muted/50">
-              <CardContent className="flex flex-col gap-1 px-4">
-                <span className="font-bold tracking-wider uppercase ext-xs">
+            <Card className="py-4 border-none shadow-none h-fit bg-muted/50">
+              <CardContent className="flex flex-col gap-1 px-4 py-0 h-fit">
+                <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
                   Precio
                 </span>
                 <span className="text-sm font-bold text-orange-500">
@@ -285,10 +285,10 @@ export default function BookAppointmentModal({
           {/* Description */}
           {appointmentData.description && (
             <div className="flex flex-col gap-1.5 w-full">
-              <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
+              <label className="text-xs font-bold tracking-wider uppercase">
                 Descripcion
-              </span>
-              <p className="text-sm leading-relaxed text-foreground">
+              </label>
+              <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
                 {appointmentData.description}
               </p>
             </div>
