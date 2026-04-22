@@ -128,7 +128,7 @@ const CreateAppointmentModal: React.FC<props> = ({
       </div>
 
       <div className="flex flex-col md:flex-row w-full gap-4 h-fit">
-        <div className="flex flex-col w-full h-fit gap-4">
+        <div className="flex flex-col w-full h-full gap-4 md:gap-6">
           {/* fecha */}
           <div className="flex flex-col gap-2 w-fit h-fit">
             <label className="text-xs font-bold uppercase">Fecha</label>
@@ -181,7 +181,7 @@ const CreateAppointmentModal: React.FC<props> = ({
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
                   placeholder="Juan Pérez"
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md outline-none focus:border-orange-500"
+                  className="w-full border-0 border-b border-gray-200 bg-transparent text-sm py-1.5 outline-none focus:outline-none focus:ring-0 focus:border-b-orange-600 rounded-none"
                 />
               </div>
               {/* email */}
@@ -192,7 +192,7 @@ const CreateAppointmentModal: React.FC<props> = ({
                   value={clientEmail}
                   onChange={(e) => setClientEmail(e.target.value)}
                   placeholder="juan.perez@email.com"
-                  className="w-full px-3 py-1.5  text-sm border border-gray-300 rounded-md outline-none focus:border-orange-500"
+                  className="w-full border-0 border-b border-gray-200 bg-transparent text-sm py-1.5 outline-none focus:outline-none focus:ring-0 focus:border-b-orange-600 rounded-none"
                 />
               </div>
 
@@ -203,7 +203,7 @@ const CreateAppointmentModal: React.FC<props> = ({
                   value={clientPhone}
                   onChange={(e) => setClientPhone(e.target.value)}
                   placeholder="Ej. 11 1234 5678"
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md outline-none focus:border-orange-500"
+                  className="w-full border-0 border-b border-gray-200 bg-transparent text-sm py-1.5 outline-none focus:outline-none focus:ring-0 focus:border-b-orange-600 rounded-none"
                 />
               </div>
             </div>

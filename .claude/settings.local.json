@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs wc *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(git ls-files *)",
+      "Bash(xargs ls *)",
+      "Bash(grep -rE \"const.*=\\(.*\\\\\"[A-Za-z0-9_-]{20,}\\\\\".*|.*'[A-Za-z0-9_-]{20,}'\\)\" /c/sacaturno/server/src --include=\"*.ts\")",
+      "Bash(git log *)",
+      "Bash(git config *)"
+    ]
+  }
+}

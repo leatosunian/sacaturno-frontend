@@ -11,5 +11,8 @@ export interface IAppointment {
   _id?: string;
   service: string | undefined;
   price?: number | undefined
-  description?: string | undefined
+  description?: string | undefined;
+  depositStatus?: "none" | "pending" | "paid" | "failed";
+  mpPaymentID?: string | null;
+  mpPreferenceID?: string | null;
 }

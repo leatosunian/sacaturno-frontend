@@ -1,5 +1,4 @@
 "use client";
-import styles from "@/app/css-modules/FormMiEmpresa.module.css";
 import Image from "next/image";
 import { IBusiness } from "../../../interfaces/business.interface";
 import { useEffect, useState } from "react";
@@ -7,12 +6,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axiosReq from "@/config/axios";
 import { FieldValues, useForm } from "react-hook-form";
 import { businessSchema } from "@/app/schemas/businessSchema";
-import { LuSave } from "react-icons/lu";
+import { LuSave, LuCamera, LuCopy, LuCheck } from "react-icons/lu";
 import Alert from "../../Alert";
 import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
 import { IService } from "@/interfaces/service.interface";
-import { Card } from "@/components/ui/card";
 
 interface formInputs {
   name: string;
@@ -41,10 +39,17 @@ const FormMiEmpresa = ({
 
   const [alert, setAlert] = useState<AlertInterface>();
   const [loading, setLoading] = useState<boolean>(false);
+  const [copied, setCopied] = useState<boolean>(false);
 
+  const copyPublicLink = () => {
+    const slug = businessData?.slug;
+    if (!slug) return;
+    navigator.clipboard.writeText(`https://sacaturno.com.ar/${slug}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
   const router = useRouter();
 
-  // Un solo useEffect — carga los datos cuando llega businessData
   useEffect(() => {
     if (!businessData) return;
     setValue("name", businessData.name);
@@ -132,120 +137,181 @@ const FormMiEmpresa = ({
   };
 
   const myLoader = () => {
-    return `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${businessData?.image}`;
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${businessData?.image}`;
   };
 
   return (
     <>
-      <Card className="flex flex-col mx-auto gap-7 w-fit p-7">
-        <h4 className="relative inline-block w-full px-2 mx-auto text-xl font-bold text-center uppercase">
-          Datos de mi empresa
-          <span
-            className="absolute left-0 right-0 mx-auto"
-            style={{ bottom: -2, height: 2, background: "#dd4924", width: "20%" }}
-          />
-        </h4>
-
-        <form
-          onSubmit={handleSubmit(saveChanges)}
-          className="flex flex-col items-center justify-center gap-6 mx-auto w-fit"
-        >
-          <div className="flex flex-col items-center justify-center gap-6 mx-auto w-fit md:justify-around md:flex-row">
+      <form onSubmit={handleSubmit(saveChanges)} className="flex flex-col gap-4 w-full">
+        {/* Identidad */}
+        <div className="flex flex-col gap-0 bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">
+          <div className="px-6 py-4 2xl:px-8 2xl:py-5 border-b border-gray-100">
+            <h2 className="text-sm 2xl:text-base font-semibold text-gray-800">Identidad</h2>
+          </div>
+          <div className="p-6 2xl:p-8 flex flex-col md:flex-row gap-6 2xl:gap-8 items-start">
             {/* Avatar */}
-            <div
-              onClick={handleClick}
-              className="rounded-full cursor-pointer inputFileFormProfile"
-              title="Cambiar logo de empresa"
-            >
-              <Image
-                loader={myLoader}
-                width={64}
-                height={64}
-                className="w-16 rounded-full"
-                src={`https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${businessData?.image}`}
-                alt="Logo empresa"
-              />
-              <input
-                onChange={handleFileInput}
-                type="file"
-                className="inputField"
-                accept="image/*"
-                hidden
-              />
-            </div>
-
-            {/* Campos */}
-            <div className="flex flex-col justify-between w-full gap-4 md:w-1/2">
-              <div className={styles.formInput}>
-                <span style={{ fontSize: "12px" }} className="font-bold uppercase">Nombre</span>
-                <input type="text" maxLength={30} {...register("name")} />
-                {errors.name?.message && (
-                  <span className="text-xs font-semibold text-red-600">{errors.name.message}</span>
-                )}
-              </div>
-
-              <div className={styles.formInput}>
-                <span style={{ fontSize: "12px" }} className="font-bold uppercase">Rubro principal</span>
-                <input type="text" maxLength={20} {...register("businessType")} />
-                {errors.businessType?.message && (
-                  <span className="text-xs font-semibold text-red-600">{errors.businessType.message}</span>
-                )}
-              </div>
-
-              <div className={styles.formInput}>
-                <span style={{ fontSize: "12px" }} className="font-bold uppercase">Domicilio de sucursal</span>
-                <input type="text" maxLength={40} {...register("address")} />
-                {errors.address?.message && (
-                  <span className="text-xs font-semibold text-red-600">{errors.address.message}</span>
-                )}
-              </div>
-
-              <div className={styles.formInput}>
-                <span style={{ fontSize: "12px" }} className="font-bold uppercase">Email de contacto</span>
-                <input type="email" maxLength={40} {...register("email")} />
-                {errors.email?.message && (
-                  <span className="text-xs font-semibold text-red-600">{errors.email.message}</span>
-                )}
-              </div>
-
-              <div className={styles.formInput}>
-                <span style={{ fontSize: "12px" }} className="font-bold uppercase">Teléfono de contacto</span>
-                <input type="number" {...register("phone")} />
-                {errors.phone?.message && (
-                  <span className="text-xs font-semibold text-red-600">{errors.phone.message}</span>
-                )}
-              </div>
-
-              <div className={styles.formInput}>
-                <span style={{ fontSize: "12px" }} className="font-bold uppercase">Link</span>
-                <div className="flex items-center w-full gap-1 h-fit">
-                  <span style={{ fontSize: "14px" }} className="font-medium">sacaturno.com.ar/</span>
-                  <input type="text" maxLength={30} {...register("slug")} />
-                </div>
-                {errors.slug?.message && (
-                  <span className="text-xs font-semibold text-red-600">{errors.slug.message}</span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-center w-full mt-2 h-9">
-            {loading ? (
-              <div className="flex items-center justify-center w-full h-full">
-                <div className="loaderSmall"></div>
-              </div>
-            ) : (
-              <button
-                type="submit"
-                className="flex items-center justify-center w-full gap-2 px-0 text-white bg-orange-600 border-none rounded-lg shadow-xl outline-none cursor-pointer sm:px-10 sm:w-fit h-11 hover:bg-orange-700"
+            <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
+              <div
+                onClick={handleClick}
+                className="relative cursor-pointer group rounded-full overflow-hidden w-20 h-20 2xl:w-24 2xl:h-24"
+                title="Cambiar logo de empresa"
               >
-                <LuSave size={18} />
-                Guardar cambios
-              </button>
-            )}
+                <Image
+                  loader={myLoader}
+                  width={96}
+                  height={96}
+                  className="w-20 h-20 2xl:w-24 2xl:h-24 rounded-full object-cover"
+                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${businessData?.image}`}
+                  alt="Logo empresa"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out">
+                  <LuCamera size={20} className="text-white" />
+                </div>
+                <input
+                  onChange={handleFileInput}
+                  type="file"
+                  className="inputField"
+                  accept="image/*"
+                  hidden
+                />
+              </div>
+              <span className="text-xs 2xl:text-sm text-gray-400">Cambiar logo</span>
+            </div>
+
+            {/* Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 2xl:gap-5 w-full">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs 2xl:text-sm font-medium text-gray-700">Nombre</label>
+                <input
+                  type="text"
+                  maxLength={30}
+                  {...register("name")}
+                  placeholder="Nombre de la empresa"
+                  className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.name ? "border-red-500" : "border-gray-200"}`}
+                />
+                {errors.name?.message && (
+                  <span className="text-xs 2xl:text-sm text-red-500">{errors.name.message}</span>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-xs 2xl:text-sm font-medium text-gray-700">Rubro principal</label>
+                <input
+                  type="text"
+                  maxLength={20}
+                  {...register("businessType")}
+                  placeholder="Ej: Peluquería"
+                  className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.businessType ? "border-red-500" : "border-gray-200"}`}
+                />
+                {errors.businessType?.message && (
+                  <span className="text-xs 2xl:text-sm text-red-500">{errors.businessType.message}</span>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1 md:col-span-2">
+                <label className="text-xs 2xl:text-sm font-medium text-gray-700">Domicilio de sucursal</label>
+                <input
+                  type="text"
+                  maxLength={40}
+                  {...register("address")}
+                  placeholder="Calle, número, ciudad"
+                  className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.address ? "border-red-500" : "border-gray-200"}`}
+                />
+                {errors.address?.message && (
+                  <span className="text-xs 2xl:text-sm text-red-500">{errors.address.message}</span>
+                )}
+              </div>
+            </div>
           </div>
-        </form>
-      </Card>
+        </div>
+
+        {/* Contacto y link */}
+        <div className="flex flex-col gap-0 bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">
+          <div className="px-6 py-4 2xl:px-8 2xl:py-5 border-b border-gray-100">
+            <h2 className="text-sm 2xl:text-base font-semibold text-gray-800">Contacto y link público</h2>
+          </div>
+          <div className="p-6 2xl:p-8 grid grid-cols-1 md:grid-cols-2 gap-4 2xl:gap-5">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs 2xl:text-sm font-medium text-gray-700">Email de contacto</label>
+              <input
+                type="email"
+                maxLength={40}
+                {...register("email")}
+                placeholder="contacto@empresa.com"
+                className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.email ? "border-red-500" : "border-gray-200"}`}
+              />
+              {errors.email?.message && (
+                <span className="text-xs 2xl:text-sm text-red-500">{errors.email.message}</span>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-xs 2xl:text-sm font-medium text-gray-700">Teléfono de contacto</label>
+              <input
+                type="number"
+                {...register("phone")}
+                placeholder="Ej: 2234567890"
+                className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.phone ? "border-red-500" : "border-gray-200"}`}
+              />
+              {errors.phone?.message && (
+                <span className="text-xs 2xl:text-sm text-red-500">{errors.phone.message}</span>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1 md:col-span-2">
+              <label className="text-xs 2xl:text-sm font-medium text-gray-700">Link público</label>
+              <p className="text-xs 2xl:text-sm text-gray-400">
+                Este es el link que podés compartir con tus clientes para que reserven turnos online.
+              </p>
+              <div className="flex items-center gap-2">
+                <div
+                  className={`flex items-center flex-1 h-8 2xl:h-10 rounded-md border overflow-hidden bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus-within:border-orange-600 ${errors.slug ? "border-red-500" : "border-gray-200"}`}
+                >
+                  <span className="px-3 text-xs 2xl:text-sm text-gray-500 bg-gray-100 h-full flex items-center border-r border-gray-200 whitespace-nowrap flex-shrink-0">
+                    sacaturno.com.ar/
+                  </span>
+                  <input
+                    type="text"
+                    maxLength={30}
+                    {...register("slug")}
+                    placeholder="mi-empresa"
+                    className="flex-1 h-full px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] focus:outline-none"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={copyPublicLink}
+                  title="Copiar link público"
+                  className={`flex items-center gap-1.5 h-8 2xl:h-10 px-4 rounded-lg border text-xs 2xl:text-sm font-semibold transition-all duration-300 ease-in-out whitespace-nowrap flex-shrink-0 cursor-pointer ${copied ? "border-green-700 bg-green-700 text-white" : "border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white"}`}
+                >
+                  {copied ? <LuCheck size={14} /> : <LuCopy size={14} />}
+                  {copied ? "¡Copiado!" : "Copiar link"}
+                </button>
+              </div>
+              {errors.slug?.message && (
+                <span className="text-xs 2xl:text-sm text-red-500">{errors.slug.message}</span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Save */}
+        <div className="flex justify-end">
+          {loading ? (
+            <div className="flex items-center justify-center w-32 h-9">
+              <div className="loaderSmall"></div>
+            </div>
+          ) : (
+            <button
+              type="submit"
+              className="flex items-center gap-2 bg-orange-600 hover:bg-[#d92f04] text-white text-xs 2xl:text-sm font-semibold px-5 2xl:px-6 py-2.5 2xl:py-3 rounded-lg transition-all duration-300 ease-in-out cursor-pointer"
+            >
+              <LuSave size={14} />
+              Guardar cambios
+            </button>
+          )}
+        </div>
+      </form>
 
       {alert?.error && (
         <div className="flex justify-center w-full h-fit">

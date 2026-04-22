@@ -1,27 +1,17 @@
 "use client";
-import {
-  Calendar,
-  EventProps,
-  Views,
-  dayjsLocalizer,
-} from "react-big-calendar";
-import "react-big-calendar/lib/css/react-big-calendar.css";
 import dayjs from "dayjs";
 import "dayjs/locale/es-mx";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { IBusiness } from "@/interfaces/business.interface";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import advanced from "dayjs/plugin/advancedFormat";
 import { useRouter } from "next/navigation";
-import styles from "@/app/css-modules/CalendarTurnos.module.css";
-import buttonStyles from "@/app/css-modules/FormMiEmpresa.module.css";
 import { IService } from "@/interfaces/service.interface";
 import NoServicesModal from "../services/NoServicesModal";
 import ISubscription from "@/interfaces/subscription.interface";
 import ExpiredPlanModal from "./ExpiredPlanModal";
 import { LuSave } from "react-icons/lu";
-import { IoInformationCircle } from "react-icons/io5";
 import HelpModal from "./HelpModal";
 import { FaArrowLeft, FaCircleInfo } from "react-icons/fa6";
 import CreateScheduleAppointmentModal from "./CreateScheduleAppointmentModal";
@@ -34,11 +24,87 @@ import { IDaySchedule } from "@/interfaces/daySchedule.interface";
 import { IAppointmentSchedule } from "@/interfaces/appointmentSchedule.interface";
 import { timeOptions } from "@/helpers/timeOptions";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
+import { cn } from "@/lib/utils";
 
 dayjs.locale("es-mx");
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(advanced);
+
+const HOUR_HEIGHT = 80;
+const TIME_GUTTER = 52;
+const CARD_GUTTER = 4;
+const CARD_GAP = 3;
+
+function computeClusters(events: IAppointmentSchedule[]): IAppointmentSchedule[][] {
+  const sorted = [...events].sort((a, b) => dayjs(a.start).diff(dayjs(b.start)));
+  const visited = new Set<string>();
+  const clusters: IAppointmentSchedule[][] = [];
+
+  for (const event of sorted) {
+    const key = event._id ?? String(dayjs(event.start).valueOf());
+    if (visited.has(key)) continue;
+
+    const cluster: IAppointmentSchedule[] = [];
+    const queue: IAppointmentSchedule[] = [event];
+
+    while (queue.length > 0) {
+      const curr = queue.shift()!;
+      const currKey = curr._id ?? String(dayjs(curr.start).valueOf());
+      if (visited.has(currKey)) continue;
+      visited.add(currKey);
+      cluster.push(curr);
+
+      for (const other of sorted) {
+        const otherKey = other._id ?? String(dayjs(other.start).valueOf());
+        if (
+          !visited.has(otherKey) &&
+          dayjs(curr.start).valueOf() < dayjs(other.end).valueOf() &&
+          dayjs(other.start).valueOf() < dayjs(curr.end).valueOf()
+        ) {
+          queue.push(other);
+        }
+      }
+    }
+
+    clusters.push(cluster);
+  }
+
+  return clusters;
+}
+
+const daysOfWeek = [
+  { dayName: "LUN", dayNumber: 1 },
+  { dayName: "MAR", dayNumber: 2 },
+  { dayName: "MIE", dayNumber: 3 },
+  { dayName: "JUE", dayNumber: 4 },
+  { dayName: "VIE", dayNumber: 5 },
+  { dayName: "SAB", dayNumber: 6 },
+  { dayName: "DOM", dayNumber: 0 },
+];
+
+const parseAppointments = (
+  appointments: IAppointmentSchedule[] | undefined
+): IAppointmentSchedule[] => {
+  if (!appointments || !appointments[0]) return [];
+  const todayDate = dayjs().format("YYYY-MM-DD");
+  return appointments.map(({ start, end, ...rest }) => {
+    const startTime = dayjs(start).format("HH:mm");
+    const endTime = dayjs(end).format("HH:mm");
+    return {
+      ...rest,
+      start: dayjs(`${todayDate} ${startTime}`)
+        .tz("America/Argentina/Buenos_Aires")
+        .toDate(),
+      end: dayjs(`${todayDate} ${endTime}`)
+        .tz("America/Argentina/Buenos_Aires")
+        .toDate(),
+      title: rest.service,
+    };
+  });
+};
 
 interface Props {
   businessData: IBusiness;
@@ -50,66 +116,42 @@ interface Props {
   subscriptionData: ISubscription | undefined;
 }
 
-type Keys = keyof typeof Views;
-
 const CreateScheduleCalendar: React.FC<Props> = ({
   businessData,
   servicesData,
   subscriptionData,
   daysAndAppointments,
 }) => {
-  const localizer = dayjsLocalizer(dayjs);
   const [alert, setAlert] = useState<AlertInterface>();
   const [business, setBusiness] = useState<IBusiness>();
   const [services, setServices] = useState<IService[]>();
   const [eventModal, setEventModal] = useState(false);
-  const [eventData, setEventData] = useState<
-    IAppointmentSchedule | undefined
-  >();
+  const [eventData, setEventData] = useState<IAppointmentSchedule | undefined>();
   const [createAppointmentModal, setCreateAppointmentModal] = useState(false);
-  const [createAppointmentData, setCreateAppointmentData] =
-    useState<IAppointmentSchedule>();
+  const [createAppointmentData, setCreateAppointmentData] = useState<IAppointmentSchedule>();
   const [helpModal, setHelpModal] = useState(false);
-  const [view, setView] = useState<(typeof Views)[Keys]>(Views.DAY);
   const [expiredModal, setExpiredModal] = useState(false);
   const [loadingNewAppointments, setLoadingNewAppointments] = useState(true);
-  const [selectedDay, setSelectedDay] = useState<{
-    dayName: string;
-    dayNumber: number;
-  }>({ dayName: "LUN", dayNumber: 1 });
+  const [selectedDay, setSelectedDay] = useState<{ dayName: string; dayNumber: number }>({
+    dayName: "LUN",
+    dayNumber: 1,
+  });
   const [selectedDayStart, setSelectedDayStart] = useState<number>(0);
   const [selectedDayEnd, setSelectedDayEnd] = useState<number>(0);
   const [selectedAnticipation, setSelectedAnticipation] = useState<number>(0);
   const [selectedDaysToCreate, setSelectedDaysToCreate] = useState<number>(0);
-  const [selectedAutomaticSchedule, setSelectedAutomaticSchedule] =
-    useState<boolean>(false);
-
+  const [selectedAutomaticSchedule, setSelectedAutomaticSchedule] = useState<boolean>(false);
   const [daysSchedule, setDaysSchedule] = useState<IDaySchedule[]>([]);
-  const [appointmentsSchedule, setAppointmentsSchedule] =
-    useState<IAppointmentSchedule[]>();
-  const router = useRouter();
-  const [selectedAppointmentDuration, setSelectedAppointmentDuration] =
-    useState<number>(30);
-  // ARRAY DE DIAS CON CAMBIOS PARA GUARDAR
+  const [appointmentsSchedule, setAppointmentsSchedule] = useState<IAppointmentSchedule[]>();
+  const [selectedAppointmentDuration, setSelectedAppointmentDuration] = useState<number>(30);
   const [daysChanged, setDaysChanged] = useState<IDaySchedule[]>([]);
-  // ARRAY DE TURNOS DEL DIA SELECCIONADO
   const [selectedDayAppointments, setSelectedDayAppointments] = useState<
     IAppointmentSchedule[] | undefined
   >();
-  //const daysOfWeek = ["LUN", "MAR", "MIE", "JUE", "VIE", "SAB", "DOM"];
-  const daysOfWeek = [
-    { dayName: "LUN", dayNumber: 1 },
-    { dayName: "MAR", dayNumber: 2 },
-    { dayName: "MIE", dayNumber: 3 },
-    { dayName: "JUE", dayNumber: 4 },
-    { dayName: "VIE", dayNumber: 5 },
-    { dayName: "SAB", dayNumber: 6 },
-    { dayName: "DOM", dayNumber: 0 },
-  ];
-
   const [selectedDayID, setSelectedDayID] = useState<string>("");
-
   const [loadingButton, setLoadingButton] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   const hideAlert = () => {
     setTimeout(() => {
@@ -127,22 +169,15 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     setSelectedDay({ dayName, dayNumber });
   };
 
-
   const onSelectDay = ({ dayName }: { dayName: string }) => {
-    const dayObj = daysSchedule?.find(
-      (daySchedule) => daySchedule.day === dayName
-    );
+    const dayObj = daysSchedule?.find((d) => d.day === dayName);
     if (dayObj) {
-      setSelectedAppointmentDuration(dayObj?.appointmentDuration);
-      console.log(dayObj);
-      //setSelectedDay({ dayName: dayObj.day, dayNumber: dayObj.dayNumber });
-      setSelectedDayEnd(dayObj?.dayEnd);
-      setSelectedDayStart(dayObj?.dayStart);
-      setSelectedDayID(dayObj?._id!);
+      setSelectedAppointmentDuration(dayObj.appointmentDuration);
+      setSelectedDayEnd(dayObj.dayEnd);
+      setSelectedDayStart(dayObj.dayStart);
+      setSelectedDayID(dayObj._id!);
     }
-    const dayAppointments = appointmentsSchedule?.filter(
-      (appointment) => appointment.day === dayName
-    );
+    const dayAppointments = appointmentsSchedule?.filter((a) => a.day === dayName);
     setSelectedDayAppointments(dayAppointments);
   };
 
@@ -154,13 +189,10 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     onSelectDay(selectedDay);
   }, [selectedDayStart, selectedDayEnd]);
 
-  // seteo de los datos obtenidos de la base de datos al estado del componente
   useEffect(() => {
     setDaysSchedule(daysAndAppointments.days);
     setAppointmentsSchedule(daysAndAppointments.appointments);
-    setSelectedAppointmentDuration(
-      daysAndAppointments.days[0].appointmentDuration
-    );
+    setSelectedAppointmentDuration(daysAndAppointments.days[0].appointmentDuration);
     setSelectedDayEnd(daysAndAppointments.days[0].dayEnd);
     setSelectedDayStart(daysAndAppointments.days[0].dayStart);
     setBusiness(businessData);
@@ -168,81 +200,12 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     setSelectedAnticipation(businessData.scheduleAnticipation);
     setSelectedDaysToCreate(businessData.scheduleDaysToCreate);
     setSelectedAutomaticSchedule(businessData.automaticSchedule);
-    return;
-  }, [
-    businessData,
-    services,
-    servicesData,
-    subscriptionData,
-    daysAndAppointments,
-  ]);
-
-  // PARSEO DE LOS TURNOS PARA MOSTRAR EN EL CALENDARIO, SE USA CUANDO SE OBTIENEN LOS TURNOS DE LA BASE DE DATOS Y CUANDO SE SELECCIONA UN DIA
-  const parseAppointments = (
-    appointments: IAppointmentSchedule[] | undefined
-  ) => {
-    dayjs.extend(timezone);
-    dayjs.extend(utc);
-    dayjs.extend(advanced);
-
-    let appointmentsList: IAppointmentSchedule[] = [];
-
-    if (appointments && appointments[0]) {
-      appointments?.map(
-        ({
-          start,
-          end,
-          ownerID,
-          businessID,
-          _id,
-          service,
-          price,
-          day,
-          description,
-          dayScheduleID,
-          dayNumber,
-        }) => {
-          const startTime = dayjs(start).format("HH:mm");
-          const endTime = dayjs(end).format("HH:mm");
-          const todayDate = dayjs().format("YYYY-MM-DD");
-          const updatedStartDate = `${todayDate} ${startTime}`;
-          const updatedEndDate = `${todayDate} ${endTime}`;
-          let appointmentObj: IAppointmentSchedule;
-
-          appointmentObj = {
-            start: dayjs(updatedStartDate)
-              .tz("America/Argentina/Buenos_Aires")
-              .toDate(),
-            end: dayjs(updatedEndDate)
-              .tz("America/Argentina/Buenos_Aires")
-              .toDate(),
-            ownerID,
-            businessID,
-            _id,
-            service,
-            price,
-            day,
-            description,
-            dayNumber,
-            dayScheduleID,
-            title: service,
-          };
-          appointmentsList.push(appointmentObj);
-        }
-      );
-      return appointmentsList;
-    }
-
-    return appointmentsList;
-  };
-
+  }, [businessData, services, servicesData, subscriptionData, daysAndAppointments]);
 
   useEffect(() => {
     setLoadingNewAppointments(false);
-    return;
   }, [appointmentsSchedule]);
 
-  // PARSEO DE LOS TURNOS PARA MOSTRAR EN EL CALENDARIO, SE USA CUANDO SE OBTIENEN LOS TURNOS DE LA BASE DE DATOS Y CUANDO SE SELECCIONA UN DIA
   useEffect(() => {
     setSelectedDay({ dayName: "LUN", dayNumber: 1 });
     onSelectDay({ dayName: "LUN" });
@@ -250,7 +213,6 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     setSelectedDayStart(daysSchedule[0]?.dayStart);
   }, []);
 
-  // FUNCION PARA CREAR UN NUEVO TURNO, SE USA EN EL CALENDARIO CUANDO SE HACE CLICK EN UN HORARIO DISPONIBLE
   const createNewAppointment = async ({
     start,
     end,
@@ -258,16 +220,11 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     start: Date;
     end: Date;
   }) => {
-    dayjs.extend(timezone);
-    dayjs.extend(utc);
-    dayjs.extend(advanced);
     if (subscriptionData?.subscriptionType === "SC_EXPIRED") {
       setExpiredModal(true);
       return;
     }
-    const startDate = dayjs(start)
-      .tz("America/Argentina/Buenos_Aires")
-      .toDate();
+    const startDate = dayjs(start).tz("America/Argentina/Buenos_Aires").toDate();
     const endDate = dayjs(end).tz("America/Argentina/Buenos_Aires").toDate();
     const userID = localStorage.getItem("sacaturno_userID");
 
@@ -293,30 +250,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     setEventModal(true);
   };
 
-  // componente para renderizar cada turno en el calendario, se usa en el componente de calendario
-  const components: any = {
-    event: ({ event }: EventProps<IAppointmentSchedule>) => {
-      return (
-        <>
-          <div
-            className="flex flex-col h-full gap-1 px-2 py-1 w-fit"
-            style={{ backgroundColor: "#dd4924" }}
-          >
-            <span className="text-xs font-medium ">{event.service} </span>
-            <span style={{ fontSize: "10px" }}>
-              {dayjs(event.start).format("HH:mm")} -{" "}
-              {dayjs(event.end).format("HH:mm")}{" "}
-            </span>
-          </div>
-        </>
-      );
-    },
-  };
-
-  // FUNCION PARA SELECCIONAR LA DURACION DE LOS TURNOS, SE USA EN EL SELECT DE DURACION DE TURNOS
-  const handleSelectAppointmentDuration: React.ChangeEventHandler<
-    HTMLSelectElement
-  > = (e) => {
+  const handleSelectAppointmentDuration: React.ChangeEventHandler<HTMLSelectElement> = (e) => {
     setSelectedAppointmentDuration(Number(e.target.value));
     editDaySchedule({
       day: selectedDay.dayName,
@@ -326,13 +260,8 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     });
   };
 
-  // VALIDACION PARA QUE EL HORARIO DE INICIO NO SEA POSTERIOR O IGUAL AL HORARIO DE FIN
-  const handleSelectDayStart: React.ChangeEventHandler<HTMLSelectElement> = (
-    e
-  ) => {
-    if (Number(e.target.value) >= selectedDayEnd) {
-      return;
-    }
+  const handleSelectDayStart: React.ChangeEventHandler<HTMLSelectElement> = (e) => {
+    if (Number(e.target.value) >= selectedDayEnd) return;
     setSelectedDayStart(Number(e.target.value));
     editDaySchedule({
       day: selectedDay.dayName,
@@ -342,13 +271,8 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     });
   };
 
-  // VALIDACION PARA QUE EL HORARIO DE FIN NO SEA ANTERIOR O IGUAL AL HORARIO DE INICIO
-  const handleSelectDayEnd: React.ChangeEventHandler<HTMLSelectElement> = (
-    e
-  ) => {
-    if (Number(e.target.value) <= selectedDayStart) {
-      return;
-    }
+  const handleSelectDayEnd: React.ChangeEventHandler<HTMLSelectElement> = (e) => {
+    if (Number(e.target.value) <= selectedDayStart) return;
     setSelectedDayEnd(Number(e.target.value));
     editDaySchedule({
       day: selectedDay.dayName,
@@ -358,7 +282,6 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     });
   };
 
-  // FUNCION PARA EDITAR LOS DIAS DE LA AGENDA, SE USA EN LOS SELECT DE HORARIO DE INICIO, HORARIO DE FIN Y DURACION DE TURNOS
   const editDaySchedule = ({
     day,
     dayStart,
@@ -370,40 +293,32 @@ const CreateScheduleCalendar: React.FC<Props> = ({
     dayEnd: number;
     appointmentDuration: number;
   }) => {
-    const dayToEdit = daysSchedule?.find(
-      (daySchedule) => daySchedule.day === day
-    );
+    const dayToEdit = daysSchedule?.find((d) => d.day === day);
     if (!dayToEdit) return;
-    const dayEdited: IDaySchedule = {
-      ...dayToEdit,
-      dayStart,
-      dayEnd,
-      appointmentDuration,
-    };
+    const dayEdited: IDaySchedule = { ...dayToEdit, dayStart, dayEnd, appointmentDuration };
 
     setDaysChanged((days) => {
-      const index = days.findIndex((day) => day.day === selectedDay.dayName);
+      const index = days.findIndex((d) => d.day === selectedDay.dayName);
       if (index !== -1) {
-        const newEditedDays = [...days];
-        newEditedDays[index].dayEnd = dayEnd;
-        newEditedDays[index].dayStart = dayStart;
-        newEditedDays[index].appointmentDuration = appointmentDuration;
-        return newEditedDays;
+        const updated = [...days];
+        updated[index].dayEnd = dayEnd;
+        updated[index].dayStart = dayStart;
+        updated[index].appointmentDuration = appointmentDuration;
+        return updated;
       }
       return [...days, dayEdited];
     });
 
     setDaysSchedule((days) => {
-      const index = days.findIndex((day) => day.day === selectedDay.dayName);
-      const newEditedDays = [...days];
-      newEditedDays[index].dayEnd = dayEnd;
-      newEditedDays[index].dayStart = dayStart;
-      newEditedDays[index].appointmentDuration = appointmentDuration;
-      return newEditedDays;
+      const index = days.findIndex((d) => d.day === selectedDay.dayName);
+      const updated = [...days];
+      updated[index].dayEnd = dayEnd;
+      updated[index].dayStart = dayStart;
+      updated[index].appointmentDuration = appointmentDuration;
+      return updated;
     });
   };
 
-  // FUNCION PARA GUARDAR LOS CAMBIOS DE LA AGENDA AUTOMATICA Y LOS DIAS DE LA AGENDA
   const saveChanges = async () => {
     setLoadingButton(true);
     if (selectedAnticipation >= selectedDaysToCreate) {
@@ -413,9 +328,9 @@ const CreateScheduleCalendar: React.FC<Props> = ({
         alertType: "ERROR_ALERT",
       });
       hideAlert();
+      setLoadingButton(false);
       return;
     }
-    //setLoadingNewAppointments(true);
     const token = localStorage.getItem("sacaturno_token");
     const authHeader = {
       headers: {
@@ -424,7 +339,6 @@ const CreateScheduleCalendar: React.FC<Props> = ({
         "Cache-Control": "no-store",
       },
     };
-    // guardar los datos de parametros de agenda automatica
     try {
       await axiosReq.put(
         "/business/schedule/parameters/" + business?._id,
@@ -435,34 +349,19 @@ const CreateScheduleCalendar: React.FC<Props> = ({
         },
         authHeader
       );
-
       if (daysChanged.length > 0) saveModifiedScheduleDays();
-      setAlert({
-        msg: "Cambios guardados con éxito",
-        error: true,
-        alertType: "OK_ALERT",
-      });
+      setAlert({ msg: "Cambios guardados con éxito", error: true, alertType: "OK_ALERT" });
       hideAlert();
       setLoadingButton(false);
       window.location.reload();
-      //setLoadingNewAppointments(false);
-
-
-
-    } catch (error) {
-      setAlert({
-        msg: "Error al guardar cambios",
-        error: true,
-        alertType: "ERROR_ALERT",
-      });
+    } catch {
+      setAlert({ msg: "Error al guardar cambios", error: true, alertType: "ERROR_ALERT" });
       hideAlert();
       setLoadingButton(false);
-
       setLoadingNewAppointments(false);
     }
   };
 
-  // FUNCION PARA GUARDAR LOS DIAS DE LA AGENDA QUE FUERON MODIFICADOS, SE USA EN LA FUNCION DE GUARDAR CAMBIOS
   const saveModifiedScheduleDays = async () => {
     try {
       const token = localStorage.getItem("sacaturno_token");
@@ -473,13 +372,62 @@ const CreateScheduleCalendar: React.FC<Props> = ({
           "Cache-Control": "no-store",
         },
       };
-      await axiosReq.put(
-        "/schedule/appointment/editmany",
-        daysChanged,
-        authHeader
-      );
-    } catch (error) { }
+      await axiosReq.put("/schedule/appointment/editmany", daysChanged, authHeader);
+    } catch {}
   };
+
+  // ── Calendar grid helpers ────────────────────────────────────────────────
+
+  const hours = useMemo(
+    () =>
+      Array.from(
+        { length: Math.max(selectedDayEnd - selectedDayStart, 1) },
+        (_, i) => selectedDayStart + i
+      ),
+    [selectedDayStart, selectedDayEnd]
+  );
+
+  const parsedSelectedAppointments = useMemo(
+    () => parseAppointments(selectedDayAppointments),
+    [selectedDayAppointments]
+  );
+
+  const getEventTop = (event: IAppointmentSchedule): number => {
+    const h = dayjs(event.start).hour() + dayjs(event.start).minute() / 60;
+    return (h - selectedDayStart) * HOUR_HEIGHT;
+  };
+
+  const getEventHeight = (event: IAppointmentSchedule): number => {
+    const mins = dayjs(event.end).diff(dayjs(event.start), "minute");
+    return Math.max((mins / 60) * HOUR_HEIGHT, 22);
+  };
+
+  const handleTimeGutterPlusClick = (hour: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const start = dayjs().hour(hour).minute(0).second(0).millisecond(0).toDate();
+    const end = dayjs(start).add(selectedAppointmentDuration, "minute").toDate();
+    createNewAppointment({ start, end });
+  };
+
+  const handleSlotClick = (hour: number, e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const relativeY = e.clientY - rect.top;
+    const rawMinute = Math.floor((relativeY / HOUR_HEIGHT) * 60);
+    const snappedMinute =
+      Math.floor(rawMinute / selectedAppointmentDuration) * selectedAppointmentDuration;
+    const start = dayjs()
+      .hour(hour)
+      .minute(snappedMinute)
+      .second(0)
+      .millisecond(0)
+      .toDate();
+    const end = dayjs(start).add(selectedAppointmentDuration, "minute").toDate();
+    createNewAppointment({ start, end });
+  };
+
+  const totalHeight = hours.length * HOUR_HEIGHT;
+
+  // ── Render ───────────────────────────────────────────────────────────────
 
   return (
     <>
@@ -488,34 +436,28 @@ const CreateScheduleCalendar: React.FC<Props> = ({
           style={{ height: "calc(100vh - 64px)" }}
           className="absolute z-50 flex items-center justify-center w-full bg-white"
         >
-          <div className="loader"></div>
+          <div className="loader" />
         </div>
       )}
 
-      <Dialog open={subscriptionData?.subscriptionType === "SC_EXPIRED"} >
+      {/* ── Dialogs ── */}
+      <Dialog open={subscriptionData?.subscriptionType === "SC_EXPIRED"}>
         <DialogContent className="sm:w-[460px] w-[93vw]">
           <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={business} />
         </DialogContent>
       </Dialog>
 
-      {/* APPOINTMENT INFO */}
-      <Dialog open={eventModal} onOpenChange={() => { setEventModal(false) }} >
+      <Dialog open={eventModal} onOpenChange={() => setEventModal(false)}>
         <DialogContent className="sm:w-[400px] w-[93vw]">
           <ScheduleAppointmentModal
-            onDeleteAppointment={(deletedAppointment) => {
-              setSelectedDayAppointments((dayAppointments) => {
-                const updatedAppointments = dayAppointments?.filter(
-                  (app) => app._id !== deletedAppointment._id
-                );
-                return updatedAppointments;
-              });
+            onDeleteAppointment={(deleted) => {
+              setSelectedDayAppointments((prev) =>
+                prev?.filter((a) => a._id !== deleted._id)
+              );
               setLoadingNewAppointments(true);
-              setAppointmentsSchedule((dayAppointments) => {
-                const updatedAppointments = dayAppointments?.filter(
-                  (app) => app._id !== deletedAppointment._id
-                );
-                return updatedAppointments;
-              });
+              setAppointmentsSchedule((prev) =>
+                prev?.filter((a) => a._id !== deleted._id)
+              );
             }}
             appointment={eventData}
             closeModalF={() => setEventModal(false)}
@@ -523,17 +465,12 @@ const CreateScheduleCalendar: React.FC<Props> = ({
         </DialogContent>
       </Dialog>
 
-      {/* CREATE SINGLE APPOINTMENT */}
-      <Dialog open={createAppointmentModal} onOpenChange={() => { setCreateAppointmentModal(false) }} >
+      <Dialog open={createAppointmentModal} onOpenChange={() => setCreateAppointmentModal(false)}>
         <DialogContent className="sm:w-[400px] w-[93vw]">
           <CreateScheduleAppointmentModal
-            onNewAppointment={(newAppointment) => {
-              setSelectedDayAppointments([
-                ...selectedDayAppointments!,
-                newAppointment,
-              ]);
-              setAppointmentsSchedule([...appointmentsSchedule!, newAppointment]);
-              //setLoadingNewAppointments(true);
+            onNewAppointment={(newAppt) => {
+              setSelectedDayAppointments([...selectedDayAppointments!, newAppt]);
+              setAppointmentsSchedule([...appointmentsSchedule!, newAppt]);
             }}
             appointmentData={createAppointmentData}
             servicesData={services}
@@ -542,608 +479,436 @@ const CreateScheduleCalendar: React.FC<Props> = ({
         </DialogContent>
       </Dialog>
 
-
-      {/* NO SERVICES MODAL */}
       <Dialog open={servicesData.length === 0}>
         <DialogContent className="sm:w-[460px] w-[93vw]">
           <NoServicesModal />
         </DialogContent>
       </Dialog>
 
-      <Dialog open={expiredModal}>
-        <DialogTitle></DialogTitle>
+      <Dialog open={expiredModal} onOpenChange={() => setExpiredModal(false)}>
+        <DialogTitle />
         <DialogContent className="sm:w-[400px] w-[93vw]">
-          <ExpiredPlanModal
-            onCloseModal={() => setExpiredModal(false)}
-            businessData={business}
-          />
+          <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={business} />
         </DialogContent>
       </Dialog>
 
-      {/* HELP MODAL */}
-      <Dialog open={helpModal} onOpenChange={() => { setHelpModal(false) }} >
-        <DialogContent className="sm:w-[1000px] w-[93vw] px-0 pb-0" >
+      <Dialog open={helpModal} onOpenChange={() => setHelpModal(false)}>
+        <DialogContent className="sm:w-[1000px] w-[93vw] px-0 pb-0">
           <HelpModal onClose={() => setHelpModal(false)} />
         </DialogContent>
       </Dialog>
 
-      <div
-        style={{ position: "absolute", top: "87px", left: "20px" }}
-        className="flex flex-col overflow-hidden md:hidden"
-      >
-        <IoInformationCircle
-          onClick={() => setHelpModal(!helpModal)}
-          size={25}
-          className="block ml-auto text-gray-300 md:hidden"
-          style={{ marginRight: "6px" }}
-        />
-      </div>
+      {/* ── Page layout ── */}
+      <div className="flex flex-col w-full gap-5 pb-24 md:pb-10">
 
-      <div className="flex flex-col items-center w-full h-fit ">
-        <header className="flex flex-col items-center justify-center w-full mt-4 mb-4 md:mt-5 md:mb-6 h-fit">
-          <h4
-            className="relative inline-block px-2 font-bold text-center uppercase"
-            style={{ fontSize: 20 }}
-          >
-            Automatizar agenda
+        {/* Page header */}
+        <div className="flex items-center justify-between mt-4 xl:mt-7">
+          <div className="flex items-center gap-3">
+            {/* <Link
+              href="/admin/schedule"
+              className="flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200 shrink-0"
+            >
+              <FaArrowLeft size={12} className="text-gray-500" />
+            </Link> */}
+            <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">Automatizar agenda</h1>
+          </div>
 
-            {/* linea */}
-            <span
-              className="absolute left-0 right-0 mx-auto"
-              style={{
-                bottom: -2,    // gap entre texto y linea (ajustalo)
-                height: 2,     // grosor de la linea (ajustalo)
-                background: "#dd4924",
-                width: "60%",  // ancho opcional de la linea
-              }}
-            />
-          </h4>
-        </header>
+          {!loadingButton ? (
+            <button
+              onClick={saveChanges}
+              className="hidden md:flex items-center gap-1.5 h-9 bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold px-4 rounded-lg transition-colors duration-200"
+            >
+              <LuSave size={14} />
+              Guardar cambios
+            </button>
+          ) : (
+            <div className="hidden md:flex items-center justify-center w-32 h-9">
+              <div className="loaderSmall" />
+            </div>
+          )}
+        </div>
 
-        <Card className="flex w-full p-5 mt-3 mb-10 md:p-6 md:mt-0 md:mb-5">
-          <div className="flex flex-col">
-            <div className="flex flex-col gap-4 ">
-              <h4 className="text-lg font-semibold md:text-xl">
-                Frecuencia y cantidad de días{" "}
-              </h4>
+        {/* ── Card 1: Automatic schedule config ── */}
+        <Card className="p-5 md:p-6">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-base font-semibold text-gray-800">
+                Frecuencia y cantidad de días
+              </h2>
+              <p className="text-sm text-gray-500">
+                Activá la agenda automática para que los turnos se generen sin intervención manual.
+              </p>
+            </div>
 
-              <div className="mr-auto notifications-container-Info">
-                <div className="alertInfo">
-                  <div className="flex">
-                    <div className="flex-shrink-0 my-auto">
-                      <FaCircleInfo color="lightblue" />
-                    </div>
-                    <div className="alertInfo-prompt-wrap">
-                      <p className="text-xs font-normal text-blue-400 md:text-sm">
-                        Activando esta función, los turnos se generan
-                        automáticamente. Ingresá la cantidad de días que quieras
-                        crear turnos y cuántos dias antes del último turno querés
-                        volver a crear los turnos programados.
-                        {/* <span className="cursor-pointer alertInfo-prompt-link">
-                    Actualizar suscripción
-                  </span> */}
-                      </p>
-                    </div>
-                  </div>
+            <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
+              <FaCircleInfo size={13} className="text-blue-400 mt-0.5 shrink-0" />
+              <p className="text-sm text-blue-500 leading-relaxed">
+                Ingresá la cantidad de días que querés crear turnos y cuántos días antes del último
+                turno querés que se vuelvan a generar los turnos programados.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+              {/* Toggle */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-600">
+                  Crear turnos automáticamente
+                </label>
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedAutomaticSchedule(!selectedAutomaticSchedule)}
+                    className={cn(
+                      "relative inline-flex h-5 w-10 items-center rounded-full transition-colors duration-200 focus:outline-none shrink-0",
+                      selectedAutomaticSchedule ? "bg-orange-600" : "bg-gray-200"
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200",
+                        selectedAutomaticSchedule ? "translate-x-5" : "translate-x-0.5"
+                      )}
+                    />
+                  </button>
+                  <span
+                    className={cn(
+                      "text-sm font-semibold",
+                      selectedAutomaticSchedule ? "text-gray-800" : "text-gray-400"
+                    )}
+                  >
+                    {selectedAutomaticSchedule ? "Activado" : "Desactivado"}
+                  </span>
                 </div>
               </div>
 
-              <div className="flex gap-5">
-                <div className="flex flex-col">
-                  <div className="flex flex-col gap-5 md:flex-row">
+              {/* Days to create */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-gray-600">
+                  Días con turnos disponibles
+                </label>
+                <select
+                  value={selectedDaysToCreate}
+                  onChange={(e) => setSelectedDaysToCreate(Number(e.target.value))}
+                  className="h-8 rounded-md border border-gray-200 bg-[rgb(235,235,235)] px-3 text-sm text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-all duration-200 cursor-pointer"
+                >
+                  <option value="7">Crear 7 días</option>
+                  <option value="15">Crear 15 días</option>
+                  <option value="30">Crear 30 días</option>
+                </select>
+              </div>
+
+              {/* Anticipation */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-gray-600">
+                  ¿Con qué anticipación crear turnos?
+                </label>
+                <select
+                  value={selectedAnticipation}
+                  onChange={(e) => setSelectedAnticipation(Number(e.target.value))}
+                  className="h-8 rounded-md border border-gray-200 bg-[rgb(235,235,235)] px-3 text-sm text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-all duration-200 cursor-pointer"
+                >
+                  {Array.from({ length: 16 }, (_, i) => (
+                    <option key={i} value={i}>
+                      {i === 0 ? "0 días antes" : `${i} ${i === 1 ? "día" : "días"} antes`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Status messages */}
+            {selectedAutomaticSchedule && businessData.automaticSchedule && (
+              <div className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg border border-orange-100">
+                <FaCircleInfo size={13} className="text-orange-500 shrink-0" />
+                <span className="text-xs font-medium text-orange-700">
+                  Tus próximos turnos se crearán el{" "}
+                  {dayjs(businessData.scheduleEnd)
+                    .subtract(businessData.scheduleAnticipation, "day")
+                    .format("dddd DD/MM")}
+                  .
+                </span>
+              </div>
+            )}
+            {selectedAutomaticSchedule && !businessData.automaticSchedule && (
+              <div className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg border border-orange-100">
+                <FaCircleInfo size={13} className="text-orange-500 shrink-0" />
+                <span className="text-xs font-medium text-orange-700">
+                  A partir de hoy se crearán turnos durante {selectedDaysToCreate} días.{" "}
+                  {selectedAnticipation} {selectedAnticipation === 1 ? "día" : "días"} antes del
+                  último turno, se volverá a generar tu agenda.
+                </span>
+              </div>
+            )}
+          </div>
+        </Card>
+
+        {/* ── Card 2: Day schedule ── */}
+        <Card className="p-5 md:p-6">
+          <div className="flex flex-col gap-4">
+
+            {/* Header */}
+            <div className="flex items-start justify-between">
+              <div className="flex flex-col gap-1">
+                <h2 className="text-base font-semibold text-gray-800">Horario de atención</h2>
+                <p className="text-sm text-gray-500">
+                  Por cada día de la semana, configurá el horario y agregá los turnos y servicios.
+                </p>
+              </div>
+              <button
+                onClick={() => setHelpModal(true)}
+                className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-500 transition-colors duration-200 shrink-0 ml-4"
+              >
+                <FaCircleInfo size={13} />
+                <span className="hidden sm:inline">Tutorial</span>
+              </button>
+            </div>
+
+            {/* Day selector tabs */}
+            <div className="flex gap-1.5 flex-wrap">
+              {daysOfWeek.map((day) => (
+                <button
+                  key={day.dayName}
+                  onClick={() => handleSelectDay(day)}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all duration-200",
+                    selectedDay.dayName === day.dayName
+                      ? "bg-orange-600 border-orange-600 text-white shadow-sm"
+                      : "border-gray-200 text-gray-600 hover:border-orange-600 hover:text-orange-600 bg-white"
+                  )}
+                >
+                  {day.dayName}
+                </button>
+              ))}
+            </div>
+
+            {/* Time controls */}
+            <div className="flex items-end gap-3 flex-wrap border-t border-gray-50 pt-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Desde
+                </label>
+                <select
+                  value={selectedDayStart}
+                  onChange={handleSelectDayStart}
+                  className="h-8 rounded-md border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors duration-200 cursor-pointer"
+                >
+                  {timeOptions.map((t) => (
+                    <option key={t.value} value={t.value}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Hasta
+                </label>
+                <select
+                  value={selectedDayEnd}
+                  onChange={handleSelectDayEnd}
+                  className="h-8 rounded-md border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors duration-200 cursor-pointer"
+                >
+                  {timeOptions.map((t) => (
+                    <option key={t.value} value={t.value}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Duración
+                </label>
+                <select
+                  value={selectedAppointmentDuration}
+                  onChange={handleSelectAppointmentDuration}
+                  className="h-8 rounded-md border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors duration-200 cursor-pointer"
+                >
+                  <option value="15">15 min</option>
+                  <option value="30">30 min</option>
+                  <option value="45">45 min</option>
+                  <option value="60">1 h</option>
+                  <option value="75">1:15 hs</option>
+                  <option value="90">1:30 hs</option>
+                  <option value="105">1:45 hs</option>
+                  <option value="120">2 hs</option>
+                </select>
+              </div>
+
+              <span className="text-xs text-gray-400 mb-1.5 hidden sm:block">
+                Hacé clic en un horario para agregar un turno
+              </span>
+            </div>
+
+            {/* Calendar grid */}
+            <div className="rounded-xl border border-gray-100 overflow-hidden">
+
+              {/* Day header */}
+              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
+                <span className="text-xs font-semibold capitalize text-orange-600">
+                  {selectedDay.dayName}
+                </span>
+                <span className="text-xs text-gray-400">
+                  — {selectedDayStart}:00 a {selectedDayEnd}:00 hs
+                </span>
+                <span className="ml-auto text-xs text-gray-400">
+                  {parsedSelectedAppointments.length} turno
+                  {parsedSelectedAppointments.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+
+              {/* Scrollable grid */}
+              <div ref={gridRef} className="flex overflow-y-auto" style={{ maxHeight: "60vh" }}>
+
+                {/* Time gutter */}
+                <div
+                  style={{ width: TIME_GUTTER, flexShrink: 0 }}
+                  className="border-r border-gray-100 bg-white"
+                >
+                  {hours.map((h) => (
                     <div
-                      className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
+                      key={h}
+                      style={{ height: HOUR_HEIGHT }}
+                      className="flex flex-col items-center pt-1.5 gap-1.5"
                     >
-                      <label
-                        style={{ fontSize: "13px" }}
-                        className="mb-1 font-semibold "
+                      <span className="text-xs text-gray-400 select-none tabular-nums">
+                        {String(h).padStart(2, "0")}:00
+                      </span>
+                      <button
+                        onClick={(e) => handleTimeGutterPlusClick(h, e)}
+                        className="w-5 h-5 flex items-center justify-center rounded-full text-orange-500 hover:text-white hover:bg-orange-500 transition-colors duration-150 text-sm font-bold leading-none select-none"
+                        aria-label={`Agregar turno a las ${h}:00`}
                       >
-                        Crear turnos automáticamente{" "}
-                      </label>
-                      <div className="flex items-center gap-3">
-                        <label className={styles.switch}>
-                          <input
-                            type="checkbox"
-                            checked={selectedAutomaticSchedule}
-                            onChange={() =>
-                              setSelectedAutomaticSchedule(
-                                !selectedAutomaticSchedule
-                              )
-                            }
-                          />
-                          <span className={styles.slider}></span>
-                        </label>
-                        {selectedAutomaticSchedule && (
-                          <span className="text-sm font-semibold">
-                            Activado
-                          </span>
-                        )}
-                        {!selectedAutomaticSchedule && (
-                          <span className="text-sm font-semibold text-gray-400">
-                            Desactivado
-                          </span>
-                        )}
+                        +
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Day column */}
+                <div className="relative flex-1 bg-white">
+
+                  {/* Hour slot rows */}
+                  {hours.map((h) => (
+                    <div
+                      key={h}
+                      style={{ height: HOUR_HEIGHT }}
+                      className="relative border-b border-gray-50 hover:bg-orange-50/40 transition-colors duration-150 cursor-pointer group"
+                      onClick={(e) => handleSlotClick(h, e)}
+                    >
+                      {/* Half-hour dashed divider */}
+                      <div
+                        className="absolute left-0 right-0 border-b border-dashed border-gray-100 pointer-events-none"
+                        style={{ top: "50%" }}
+                      />
+                      {/* Hover hint */}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        <span className="text-xs text-orange-400 font-medium">+ Nuevo turno</span>
                       </div>
                     </div>
+                  ))}
 
-                    <div
-                      className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
-                    >
-                      <label
-                        style={{ fontSize: "13px" }}
-                        className="mb-1 font-semibold "
+                  {/* Appointment blocks — grouped into overlap clusters, rendered as flex rows */}
+                  {computeClusters(parsedSelectedAppointments).map((cluster, clusterIdx) => {
+                    const minTop = Math.min(...cluster.map((e) => getEventTop(e)));
+                    return (
+                      <div
+                        key={`cluster-${clusterIdx}`}
+                        style={{
+                          position: "absolute",
+                          top: Math.max(minTop, 0) + 1,
+                          left: CARD_GUTTER,
+                          display: "flex",
+                          flexDirection: "row",
+                          gap: CARD_GAP,
+                          zIndex: 5,
+                          overflow: "visible",
+                        }}
                       >
-                        Días con turnos disponibles:
-                      </label>
-                      <select
-                        defaultValue={selectedDaysToCreate}
-                        value={selectedDaysToCreate}
-                        onChange={(e) =>
-                          setSelectedDaysToCreate(Number(e.target.value))
-                        }
-                        id="appointmentDuration"
-                      >
-                        <option value="7">Crear 7 días</option>
-                        <option value="15">Crear 15 días</option>
-                        <option value="30">Crear 30 días</option>
-                      </select>
-                    </div>
-
-                    <div
-                      className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
-                    >
-                      <label
-                        style={{ fontSize: "13px" }}
-                        className="mb-1 font-semibold "
-                      >
-                        ¿Con qué anticipación crear turnos?
-                      </label>
-                      <select
-                        defaultValue={selectedAnticipation}
-                        onChange={(e) =>
-                          setSelectedAnticipation(Number(e.target.value))
-                        }
-                        value={selectedAnticipation}
-                        id="appointmentDuration"
-                      >
-                        <option value="0">0 días antes</option>
-                        <option value="1">1 día antes</option>
-                        <option value="2">2 días antes</option>
-                        <option value="3">3 días antes</option>
-                        <option value="4">4 días antes</option>
-                        <option value="5">5 días antes</option>
-                        <option value="6">6 días antes</option>
-                        <option value="7">7 días antes</option>
-                        <option value="8">8 días antes</option>
-                        <option value="9">9 días antes</option>
-                        <option value="10">10 días antes</option>
-                        <option value="11">11 días antes</option>
-                        <option value="12">12 días antes</option>
-                        <option value="13">13 días antes</option>
-                        <option value="14">14 días antes</option>
-                        <option value="15">15 días antes</option>
-                      </select>
-                    </div>
-                  </div>
+                        {cluster.map((event, eventIdx) => {
+                          const top = getEventTop(event);
+                          const height = getEventHeight(event);
+                          if (top + height < 0 || top > totalHeight) return null;
+                          const offsetTop = Math.max(top, 0) - Math.max(minTop, 0);
+                          return (
+                            <div
+                              key={event._id ?? eventIdx}
+                              style={{
+                                marginTop: offsetTop,
+                                height: Math.max(height - 2, 20),
+                                width: "fit-content",
+                                minWidth: 80,
+                                flexShrink: 0,
+                              }}
+                              className="rounded-md bg-orange-600 border-l-[3px] border-orange-800 cursor-pointer hover:opacity-80 transition-opacity duration-150 overflow-hidden select-none"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSelectEvent(event);
+                              }}
+                            >
+                              <div className="px-1.5 pt-1 pb-1 h-full flex flex-col min-h-0">
+                                <span className="text-xs font-semibold text-white leading-tight whitespace-nowrap shrink-0">
+                                  {event.service || "Turno"}
+                                </span>
+                                {height >= 36 && (
+                                  <span className="text-xs text-orange-100 leading-tight whitespace-nowrap shrink-0 tabular-nums">
+                                    {dayjs(event.start).format("HH:mm")} –{" "}
+                                    {dayjs(event.end).format("HH:mm")}
+                                  </span>
+                                )}
+                                {height >= 52 && event.price > 0 && (
+                                  <span className="text-xs text-orange-200 mt-auto whitespace-nowrap shrink-0">
+                                    ${event.price.toLocaleString("es-AR")}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-              {selectedAutomaticSchedule && businessData.automaticSchedule && (
-                <>
-                  <div className="flex items-center gap-2">
-                    <FaCircleInfo color="#dd4924" />
 
-                    <span className="text-xs font-semibold">
-                      Tus próximos turnos se crearán el{" "}
-                      {dayjs(businessData.scheduleEnd)
-                        .subtract(businessData.scheduleAnticipation, "day")
-                        .format("dddd DD/MM")}
-                      .
-                    </span>
-                  </div>
-                </>
-              )}
-              {selectedAutomaticSchedule && !businessData.automaticSchedule && (
-                <>
-                  <div className="flex items-center gap-3">
-                    <FaCircleInfo color="#dd4924" size={20} />
-
-                    <span className="w-full text-xs font-semibold">
-                      A partir de hoy se crearán turnos durante{" "}
-                      {selectedDaysToCreate} días. {selectedAnticipation} días
-                      antes del ultimo turno, se volverá a generar tu agenda.
-                    </span>
-                  </div>
-                </>
-              )}
+              {/* Legend */}
+              <div className="flex items-center gap-4 px-4 py-2 border-t border-gray-100 bg-gray-50">
+                <span className="flex items-center gap-1.5 text-xs text-gray-400">
+                  <span className="w-3 h-3 rounded-sm bg-orange-600 border-l-2 border-orange-800 inline-block" />
+                  Turno configurado
+                </span>
+                <span className="text-xs text-gray-400">
+                  Clic en franja vacía para agregar turno
+                </span>
+              </div>
             </div>
-
-
-
           </div>
         </Card>
-
-        {/* horario de atencion mobile */}
-        <div className="block w-full p-0 h-hit md:hidden">
-          <div className="flex flex-col w-full gap-2">
-            <h4 className="text-lg font-semibold md:text-xl">
-              Horario de atención{" "}
-            </h4>
-            {/* <span className="flex px-0 text-xs font-normal text-gray-600 md:text-sm md:px-7">
-            Por cada día de la semana, ingresá el horario de trabajo, la
-            duración de cada turno y creá los turnos del dia con el servicio que
-            ofrezcan.
-          </span> */}
-
-            <div className="mr-auto notifications-container-Info">
-              <div className="alertInfo">
-                <div className="flex">
-                  <div className="flex-shrink-0 my-auto">
-                    <FaCircleInfo color="lightblue" />
-                  </div>
-                  <div className="alertInfo-prompt-wrap">
-                    <p className="text-xs font-normal text-blue-400 md:text-sm">
-                      Por cada día de la semana, ingresá el horario de trabajo, la
-                      duración de cada turno y agregá los turnos y servicios que
-                      ofrezcas.
-                      {/* <span className="cursor-pointer alertInfo-prompt-link">
-                    Actualizar suscripción
-                  </span> */}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col justify-between w-full mt-4 mb-4 md:flex-row h-fit">
-            {/* <button
-            className={`${styles.btnAddAll} hidden md:flex gap-2 items-center`}
-            onClick={() => setHelpModal(!helpModal)}
-          >
-            <IoInformationCircle size={20} /> ¿Cómo agrego turnos?
-          </button> */}
-
-            <div className={styles.daysOfWeekCont}>
-              {daysOfWeek.map((day) => (
-                <button
-                  key={day.dayName}
-                  className={`${styles.dayOfWeek} ${selectedDay.dayName === day.dayName
-                    ? `${styles.dayOfWeekSelected}`
-                    : ``
-                    }`}
-                  onClick={() => handleSelectDay(day)}
-                >
-                  {day.dayName}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex justify-between gap-0 md:justify-normal md:gap-6">
-              <div
-                className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
-              >
-                <label
-                  style={{ fontSize: "12px" }}
-                  className="font-bold uppercase "
-                >
-                  Desde:
-                </label>
-                <select
-                  defaultValue={selectedDayStart}
-                  value={selectedDayStart}
-                  onChange={handleSelectDayStart}
-                  id="appointmentDuration"
-                >
-                  {timeOptions.map((time) => (
-                    <option value={time.value} key={time.label}>
-                      {time.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div
-                className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
-              >
-                <label
-                  style={{ fontSize: "12px" }}
-                  className="font-bold uppercase "
-                >
-                  Hasta:
-                </label>
-                <select
-                  defaultValue={selectedDayEnd}
-                  onChange={handleSelectDayEnd}
-                  value={selectedDayEnd}
-                  id="appointmentDuration"
-                >
-                  {timeOptions.map((time) => (
-                    <option value={time.value} key={time.label}>
-                      {time.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div
-                className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
-              >
-                <label
-                  style={{ fontSize: "12px" }}
-                  className="font-bold uppercase "
-                >
-                  Duración
-                </label>
-
-                <select
-                  className="text-sm"
-                  defaultValue={selectedAppointmentDuration}
-                  value={selectedAppointmentDuration}
-                  onChange={handleSelectAppointmentDuration}
-                  id="appointmentDuration"
-                >
-                  <option value="15">15 min</option>
-                  <option value="30">30 min</option>
-                  <option value="45">45 min</option>
-                  <option value="60">1 h</option>
-                  <option value="75">1:15 hs</option>
-                  <option value="90">1:30 hs</option>
-                  <option value="105">1:45 hs</option>
-                  <option value="120">2 hs</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.scheduleCalendarContainer}>
-            {selectedDayAppointments && (
-              <>
-                <Calendar
-                  components={components}
-                  localizer={localizer}
-                  className={styles.scheduleCalendarComponent}
-                  events={parseAppointments(selectedDayAppointments)}
-                  startAccessor="start"
-                  endAccessor="end"
-                  onView={() => { }}
-                  onNavigate={() => { }}
-                  showAllEvents={false}
-                  view={view}
-                  views={["week", "day"]}
-                  min={new Date(0, 0, 0, Number(selectedDayStart), 0, 0)}
-                  max={new Date(0, 0, 0, Number(selectedDayEnd), 0, 0)}
-                  timeslots={1}
-                  step={Number(selectedAppointmentDuration)}
-                  onSelectSlot={({ action, start, end }) => {
-                    if (action === "select" || action === "click") {
-                      createNewAppointment({ start, end });
-                    }
-                  }}
-                  toolbar={false}
-                  selectable
-                  defaultView="day"
-                  onSelectEvent={(event) => {
-                    handleSelectEvent(event);
-                  }}
-                  longPressThreshold={250}
-                />
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* horario de atencion desktop */}
-        <Card className="hidden w-full p-6 md:block h-hit">
-          <div className="flex flex-col w-full gap-4">
-            <h4 className="text-lg font-semibold md:text-xl">
-              Horario de atención{" "}
-            </h4>
-            {/* <span className="flex px-0 text-xs font-normal text-gray-600 md:text-sm md:px-7">
-            Por cada día de la semana, ingresá el horario de trabajo, la
-            duración de cada turno y creá los turnos del dia con el servicio que
-            ofrezcan.
-          </span> */}
-
-            <div className="mr-auto notifications-container-Info">
-              <div className="alertInfo">
-                <div className="flex">
-                  <div className="flex-shrink-0 my-auto">
-                    <FaCircleInfo color="lightblue" />
-                  </div>
-                  <div className="alertInfo-prompt-wrap">
-                    <p className="text-xs font-normal text-blue-400 md:text-sm">
-                      Por cada día de la semana, ingresá el horario de trabajo, la
-                      duración de cada turno y agregá los turnos y servicios que
-                      ofrezcas.
-                      {/* <span className="cursor-pointer alertInfo-prompt-link">
-                    Actualizar suscripción
-                  </span> */}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col justify-between w-full mt-4 mb-4 md:flex-row h-fit">
-            {/* <button
-            className={`${styles.btnAddAll} hidden md:flex gap-2 items-center`}
-            onClick={() => setHelpModal(!helpModal)}
-          >
-            <IoInformationCircle size={20} /> ¿Cómo agrego turnos?
-          </button> */}
-
-            <div className={styles.daysOfWeekCont}>
-              {daysOfWeek.map((day) => (
-                <button
-                  key={day.dayName}
-                  className={`${styles.dayOfWeek} ${selectedDay.dayName === day.dayName
-                    ? `${styles.dayOfWeekSelected}`
-                    : ``
-                    }`}
-                  onClick={() => handleSelectDay(day)}
-                >
-                  {day.dayName}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex justify-between gap-0 md:justify-normal md:gap-6">
-              <div
-                className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
-              >
-                <label
-                  style={{ fontSize: "12px" }}
-                  className="font-bold uppercase "
-                >
-                  Desde:
-                </label>
-                <select
-                  defaultValue={selectedDayStart}
-                  value={selectedDayStart}
-                  onChange={handleSelectDayStart}
-                  id="appointmentDuration"
-                >
-                  {timeOptions.map((time) => (
-                    <option value={time.value} key={time.label}>
-                      {time.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div
-                className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
-              >
-                <label
-                  style={{ fontSize: "12px" }}
-                  className="font-bold uppercase "
-                >
-                  Hasta:
-                </label>
-                <select
-                  defaultValue={selectedDayEnd}
-                  onChange={handleSelectDayEnd}
-                  value={selectedDayEnd}
-                  id="appointmentDuration"
-                >
-                  {timeOptions.map((time) => (
-                    <option value={time.value} key={time.label}>
-                      {time.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div
-                className={`flex flex-col w-fit h-fit ${styles.formInputAppDuration} `}
-              >
-                <label
-                  style={{ fontSize: "12px" }}
-                  className="font-bold uppercase "
-                >
-                  Duración
-                </label>
-
-                <select
-                  className="text-sm"
-                  defaultValue={selectedAppointmentDuration}
-                  value={selectedAppointmentDuration}
-                  onChange={handleSelectAppointmentDuration}
-                  id="appointmentDuration"
-                >
-                  <option value="15">15 min</option>
-                  <option value="30">30 min</option>
-                  <option value="45">45 min</option>
-                  <option value="60">1 h</option>
-                  <option value="75">1:15 hs</option>
-                  <option value="90">1:30 hs</option>
-                  <option value="105">1:45 hs</option>
-                  <option value="120">2 hs</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.scheduleCalendarContainer}>
-            {selectedDayAppointments && (
-              <>
-                <Calendar
-                  components={components}
-                  localizer={localizer}
-                  className={styles.scheduleCalendarComponent}
-                  events={parseAppointments(selectedDayAppointments)}
-                  startAccessor="start"
-                  endAccessor="end"
-                  onView={() => { }}
-                  onNavigate={() => { }}
-                  showAllEvents={false}
-                  view={view}
-                  views={["week", "day"]}
-                  min={new Date(0, 0, 0, Number(selectedDayStart), 0, 0)}
-                  max={new Date(0, 0, 0, Number(selectedDayEnd), 0, 0)}
-                  timeslots={1}
-                  step={Number(selectedAppointmentDuration)}
-                  onSelectSlot={({ action, start, end }) => {
-                    if (action === "select" || action === "click") {
-                      createNewAppointment({ start, end });
-                    }
-                  }}
-                  toolbar={false}
-                  selectable
-                  defaultView="day"
-                  onSelectEvent={(event) => {
-                    handleSelectEvent(event);
-                  }}
-                  longPressThreshold={250}
-                />
-              </>
-            )}
-          </div>
-        </Card>
-
-        {/* save changes button */}
-        <div className="flex flex-col gap-4 mx-auto h-fit w-fit mt-7 md:flex-row">
-          {!loadingButton && (
-            <Button
-              className="px-10 my-10 text-white bg-orange-600 border-none rounded-lg shadow-xl outline-none w-fit h-11 hover:bg-orange-700 "
-              onClick={saveChanges}>
-              <LuSave size={18} />
-              Guardar cambios
-            </Button>
-          )}
-          {loadingButton && (
-            <>
-              <div
-                style={{
-                  height: "100%",
-                  width: "100%",
-                }}
-                className="flex items-center justify-center w-full px-10 mb-11 mt-14 h-11"
-              >
-                <div className="loaderSmall"></div>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* left button -- go to schedule -- */}
-        <Link
-          className="flex items-center gap-2 mr-auto text-xs font-semibold uppercase"
-          style={{ color: "#dd4924" }}
-          href="/admin/schedule"
-        >
-          <FaArrowLeft />
-          Calendario de turnos
-        </Link>
-        {/* divider */}
-        <div className="my-5 md:my-10"></div>
       </div>
 
-      {/* ALERT */}
+      {/* Mobile bottom save bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white border-t border-gray-200 p-4">
+        {!loadingButton ? (
+          <button
+            onClick={saveChanges}
+            className="flex items-center justify-center gap-1.5 w-full h-11 bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold rounded-lg transition-colors duration-200"
+          >
+            <LuSave size={16} />
+            Guardar cambios
+          </button>
+        ) : (
+          <div className="flex items-center justify-center w-full h-11">
+            <div className="loaderSmall" />
+          </div>
+        )}
+      </div>
+
+      {/* Alert */}
       {alert?.error && (
         <div className="absolute flex justify-center w-full h-fit">
-          <Alert
-            error={alert?.error}
-            msg={alert?.msg}
-            alertType={alert?.alertType}
-          />
+          <Alert error={alert.error} msg={alert.msg} alertType={alert.alertType} />
         </div>
       )}
     </>

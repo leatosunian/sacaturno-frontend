@@ -8,7 +8,7 @@ import styles from "@/app/css-modules/LoggedInHeader.module.css";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import sacaturno_logo from "@/public/st_logo_white.png";
+import sacaturno_logo from "@/public/sacaturno-white.svg";
 import { FaChevronUp } from "react-icons/fa6";
 
 interface Props {}

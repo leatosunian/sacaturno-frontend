@@ -55,33 +55,11 @@ const CreateBusiness = async () => {
   }
 
   return (
-    <>
-      <header className="flex flex-col items-center justify-center w-full mt-5 mb-4 md:mt-5 md:mb-6 h-fit">
-        <h4
-          className="relative inline-block px-2 font-bold text-center uppercase"
-          style={{ fontSize: 20 }}
-        >
-          Crear empresa
-          <span
-            className="absolute left-0 right-0 mx-auto"
-            style={{
-              bottom: -2,
-              height: 2,
-              background: "#dd4924",
-              width: "60%",
-            }}
-          />
-        </h4>
-      </header>
-
-      <div className="flex max-w-[95vw] mx-auto flex-col justify-center w-full mt-7 h-fit">
-        <div className="w-full max-w-xl px-5 mx-auto border md:px-0 rounded-xl">
-          <FormCreateBusiness/>
-        </div>
-
-        <div className="w-full h-2 md:h-20"></div>
-      </div>
-    </>
+    <div className="flex flex-col gap-6 w-full max-w-screen-md mx-auto px-4 py-8">
+      <h1 className="text-lg font-semibold text-gray-800">Crear empresa</h1>
+      <FormCreateBusiness />
+      <div className="w-full h-10" />
+    </div>
   );
 };
 

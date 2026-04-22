@@ -10,7 +10,7 @@ import {
   CiShop,
   CiUser,
 } from "react-icons/ci";
-import sacaturno_logo from "@/public/st_logo_white.png";
+import sacaturno_logo from "@/public/sacaturno-white.svg";
 import { RxCross2, RxHamburgerMenu } from "react-icons/rx";
 import { useRouter } from "next/navigation";
 import { IoIosLogOut, IoIosSettings } from "react-icons/io";

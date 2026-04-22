@@ -98,32 +98,30 @@ const MisTurnos: React.FC = async () => {
 
   return (
     <>
-      <div className="flex flex-col justify-center gap-10 md:flex-row">
-        <div className="flex justify-center w-full h-full md:w-fit">
-          {data.businessData.name && (
-            <CalendarTurnos
-              appointments={data.appointments}
-              businessData={data.businessData}
-              servicesData={data.services}
-              subscriptionData={subscription}
-              scheduleDays={data.scheduleDays}
-            />
-          )}
-          {!data.businessData.name && (
-            <div
-              style={{ height: "calc(100vh - 64px)" }}
-              className="flex flex-col items-center justify-center gap-6 px-4 text-center min-w-40 w-fit"
-            >
-              <IoIosAlert size={100} color="#d7a954" />
-              <span className="font-semibold sm:text-lg text-md md:text-xl">
-                ¡Creá tu empresa para comenzar a cargar tus turnos!
-              </span>
-              <Link href="/admin/business/create">
-                <button className={styles.button}>Crear empresa</button>
-              </Link>
-            </div>
-          )}
-        </div>
+      <div className="w-full px-4 sm:px-6 md:px-8 max-w-screen-2xl mx-auto">
+        {data.businessData.name && (
+          <CalendarTurnos
+            appointments={data.appointments}
+            businessData={data.businessData}
+            servicesData={data.services}
+            subscriptionData={subscription}
+            scheduleDays={data.scheduleDays}
+          />
+        )}
+        {!data.businessData.name && (
+          <div
+            style={{ height: "calc(100vh - 64px)" }}
+            className="flex flex-col items-center justify-center gap-6 text-center"
+          >
+            <IoIosAlert size={100} color="#d7a954" />
+            <span className="font-semibold sm:text-lg text-md md:text-xl">
+              ¡Creá tu empresa para comenzar a cargar tus turnos!
+            </span>
+            <Link href="/admin/business/create">
+              <button className={styles.button}>Crear empresa</button>
+            </Link>
+          </div>
+        )}
       </div>
     </>
   );

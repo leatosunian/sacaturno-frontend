@@ -3,6 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "./context/authContext";
 import { Toaster } from "@/components/ui/sonner"
 import { IoCheckmarkCircle } from "react-icons/io5";
+import RouteChangeLoader from "@/components/ui/RouteChangeLoader";
 import type { Metadata } from "next";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
@@ -63,7 +64,10 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${montserrat.className} `}>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          {children}
+          <RouteChangeLoader />
+        </AuthProvider>
         <Toaster
           icons={{
             success: <IoCheckmarkCircle color="green" size={24} />

@@ -1,9 +1,10 @@
 export interface IService {
   _id?: string;
-  businessID: string | undefined;
-  name: string | undefined;
-  ownerID?: string | undefined;
-  price: number | undefined;
-  description: string | undefined;
-  duration?: number | undefined;
+  businessID: string;
+  name: string;
+  ownerID?: string;
+  price: number;
+  description: string;
+  duration?: number;
+  depositAmount?: number; // 0 o undefined = sin seña
 }
