@@ -73,6 +73,33 @@ All business logic lives in the Express backend at `/server/src`.
 - `middlewares/` — JWT auth verification, Multer file uploads
 - Integrations: MercadoPago (payments), Resend (email), node-cron (scheduled jobs)
 
+## Auth Pages Layout
+
+`/login`, `/register`, and `/login/recovery` (and `/login/recovery/set/[token]`) share a single centered layout defined in `app/css-modules/AuthCentered.module.css`. All four pages follow this exact structure:
+
+```
+<HeaderPublicBlack />
+<main className={styles.authBg}>
+  <div className={styles.content}>
+    <span className={styles.eyebrow}>          {/* orange pill badge */}
+    <h1 className={styles.heading}>            {/* page-specific heading */}
+    <p className={styles.subtitle}>            {/* page-specific subtitle */}
+    <div className={styles.card}>
+      <div className={styles.cardBar} />       {/* orange accent bar */}
+      <div className={styles.tabs}>            {/* login/register tabs or back link */}
+      <div className={styles.cardBody}>        {/* existing form component */}
+    </div>
+    <p className={styles.legal}>              {/* terms + privacy links */}
+  </div>
+</main>
+<Footer />   {/* omitted on recovery pages */}
+```
+
+- The form components (`FormLogin`, `FormRegistrate`, `PasswordRecovery`) are **not** touched by layout changes — they live inside `cardBody`.
+- Active tab uses `${styles.tab} ${styles.tabActive}`; inactive tab uses `${styles.tab}` only.
+- Background: warm orange radial gradients on `#fff8f3` with a dotted overlay via `::before`.
+- Do **not** add Tailwind classes to the auth page shell — use only `AuthCentered.module.css` tokens.
+
 ## Design System
 
 **MANDATORY:** Before creating or modifying any UI component, read [`DESIGN.md`](./DESIGN.md) in full. It contains the complete design system: colors, typography, spacing, component recipes (buttons, inputs, cards, modals, tables), animation rules, and the distinction between the public website and admin panel visual styles. All new components must follow those patterns exactly.

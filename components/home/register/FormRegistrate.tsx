@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import styles from "@/app/css-modules/FormRegistrate.module.css";
 import stylesHome from "@/app/css-modules/HomeWhite.module.css";
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
@@ -16,7 +15,7 @@ interface formInputs {
   password: string;
   phone: number;
   email: string;
-  acceptPolicy: boolean
+  acceptPolicy: boolean;
 }
 
 const FormRegistrate = () => {
@@ -26,7 +25,8 @@ const FormRegistrate = () => {
     msg: "El usuario ya existe",
   });
   const [loading, setLoading] = useState<boolean>(false);
-  const [isPolicyAccepted, setIsPolicyAccepted] = useState<boolean>(false)
+  const [isPolicyAccepted, setIsPolicyAccepted] = useState<boolean>(false);
+
   const {
     register,
     handleSubmit,
@@ -34,23 +34,18 @@ const FormRegistrate = () => {
   } = useForm<formInputs>({
     resolver: zodResolver(registerSchema),
   });
-  
+
   const hideAlert = () => {
     setTimeout(() => {
       setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
     }, 6000);
   };
 
-
   const handleRegister = async (data: FieldValues) => {
-    if(!isPolicyAccepted){
-      setAlert({
-        alertType: "ERROR_ALERT",
-        error: true,
-        msg: "Debes aceptar los terminos y condiciones",
-      });
-      hideAlert()
-      return
+    if (!isPolicyAccepted) {
+      setAlert({ alertType: "ERROR_ALERT", error: true, msg: "Debes aceptar los terminos y condiciones" });
+      hideAlert();
+      return;
     }
     if (data) {
       setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
@@ -58,17 +53,11 @@ const FormRegistrate = () => {
       try {
         const registeredUser = await axiosReq.post("/user/create", data);
         if (registeredUser.data.response_data === "USER_EXISTS") {
-          setAlert({
-            alertType: "ERROR_ALERT",
-            error: true,
-            msg: "El usuario ya existe",
-          });
+          setAlert({ alertType: "ERROR_ALERT", error: true, msg: "El usuario ya existe" });
           hideAlert();
           setLoading(false);
         }
-        if (
-          registeredUser.data.response_data.msg === "USER_CREATED_SUCCESSFULLY"
-        ) {
+        if (registeredUser.data.response_data.msg === "USER_CREATED_SUCCESSFULLY") {
           setAlert({
             alertType: "OK_ALERT",
             error: true,
@@ -79,82 +68,69 @@ const FormRegistrate = () => {
       } catch (error) {
         console.log(error);
         setLoading(false);
-        setAlert({
-          alertType: "ERROR_ALERT",
-          error: true,
-          msg: "Error al crear cuenta",
-        });
+        setAlert({ alertType: "ERROR_ALERT", error: true, msg: "Error al crear cuenta" });
         hideAlert();
       }
     }
   };
 
-  /*const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRegisterData({ ...registerData, [e.target.name]: e.target.value });
-  };*/
-
   return (
     <>
       <form
-        onSubmit={handleSubmit((data) => {
-          handleRegister(data);
-        })}
-        className={styles.loginForm}
+        onSubmit={handleSubmit((data) => { handleRegister(data); })}
+        className="w-full flex flex-col gap-5 max-[1535px]:gap-3"
       >
-        <div className={styles.loginFormInput}>
-          <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
+        <div className="w-full flex flex-col gap-0.5">
+          <span className="text-[12px] font-medium uppercase">
             Nombre completo
           </span>
           <input
             type="text"
             {...register("name")}
             placeholder="Ingresá tu nombre y apellido"
+            className="h-[30px] max-[1535px]:h-[26px] w-full border border-black/10 rounded-[7px] bg-black/5 text-[13px] max-[1535px]:text-[11px] px-2.5 transition-all ease-in-out duration-200 cursor-pointer hover:border-[#dd4924] focus:bg-black/[0.08] focus:border-[#dd4924] focus:outline-none"
           />
           {errors.name?.message && (
-            <>
-              <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
-                <AiOutlineExclamationCircle color="red" />
-                <span className="text-xs "> {errors.name.message} </span>
-              </div>
-            </>
+            <div className="flex items-center gap-1 mt-1 w-fit h-fit">
+              <AiOutlineExclamationCircle color="red" />
+              <span className="text-xs">{errors.name.message}</span>
+            </div>
           )}
         </div>
 
-        <div className={styles.loginFormInput}>
-          <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
+        <div className="w-full flex flex-col gap-0.5">
+          <span className="text-[12px] font-medium uppercase">
             Correo electrónico
           </span>
           <input
             type="email"
             {...register("email")}
             placeholder="Ingresá tu email"
+            className="h-[30px] max-[1535px]:h-[26px] w-full border border-black/10 rounded-[7px] bg-black/5 text-[13px] max-[1535px]:text-[11px] px-2.5 transition-all ease-in-out duration-200 cursor-pointer hover:border-[#dd4924] focus:bg-black/[0.08] focus:border-[#dd4924] focus:outline-none"
           />
           {errors.email?.message && (
-            <>
-              <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
-                <AiOutlineExclamationCircle color="red" />
-                <span className="text-xs "> {errors.email.message} </span>
-              </div>
-            </>
+            <div className="flex items-center gap-1 mt-1 w-fit h-fit">
+              <AiOutlineExclamationCircle color="red" />
+              <span className="text-xs">{errors.email.message}</span>
+            </div>
           )}
         </div>
 
-        <div className={styles.loginFormInput}>
-          <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
+        <div className="w-full flex flex-col gap-0.5">
+          <span className="text-[12px] font-medium uppercase">
             Contraseña
           </span>
           <input
             type="password"
             {...register("password")}
             placeholder="Ingresá tu contraseña"
+            className="h-[30px] max-[1535px]:h-[26px] w-full border border-black/10 rounded-[7px] bg-black/5 text-[13px] max-[1535px]:text-[11px] px-2.5 transition-all ease-in-out duration-200 cursor-pointer hover:border-[#dd4924] focus:bg-black/[0.08] focus:border-[#dd4924] focus:outline-none"
           />
           {errors.password?.message && (
-            <>
-              <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
-                <AiOutlineExclamationCircle color="red" />
-                <span className="text-xs "> {errors.password.message} </span>
-              </div>
-            </>
+            <div className="flex items-center gap-1 mt-1 w-fit h-fit">
+              <AiOutlineExclamationCircle color="red" />
+              <span className="text-xs">{errors.password.message}</span>
+            </div>
           )}
         </div>
 
@@ -171,55 +147,40 @@ const FormRegistrate = () => {
           </label>
           <span className="text-xs">
             Acepto los{" "}
-            <Link className="text-xs font-semibold blackOrangeHover" href={"/faq/terminos"}>
+            <Link className="text-xs font-semibold blackOrangeHover" href="/faq/terminos">
               términos y condiciones
             </Link>
           </span>
           {errors.acceptPolicy?.message && (
-            <>
-              <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
-                <AiOutlineExclamationCircle color="red" />
-                <span className="text-xs "> {errors.acceptPolicy.message} </span>
-              </div>
-            </>
+            <div className="flex items-center gap-1 mt-1 w-fit h-fit">
+              <AiOutlineExclamationCircle color="red" />
+              <span className="text-xs">{errors.acceptPolicy.message}</span>
+            </div>
           )}
         </div>
 
         {alert.error !== false && (
-          <FormAlert
-            msg={alert.msg}
-            error={alert.error}
-            alertType={alert.alertType}
-          />
+          <FormAlert msg={alert.msg} error={alert.error} alertType={alert.alertType} />
         )}
 
-        <span className="mt-2 text-xs md:mt-0 ">
+        <span className="mt-2 text-xs md:mt-0">
           Ya tenes cuenta? Hacé click para
           <b className="cursor-pointer blackOrangeHover">
             <Link href="/login"> iniciar sesión</Link>
           </b>
         </span>
-        <div className="flex items-center justify-center w-full mt-3 h-fit">
+
+        <div className="flex items-center justify-center w-full mt-2 h-fit">
           {loading && (
-            <>
-              <div
-                style={{ height: "100%", width: "100%" }}
-                className="flex items-center justify-center w-full"
-              >
-                <div className="loaderSmall"></div>
-              </div>
-            </>
+            <div style={{ height: "100%", width: "100%" }} className="flex items-center justify-center w-full">
+              <div className="loaderSmall"></div>
+            </div>
           )}
           {!loading && (
             <button
               type="submit"
               className={`${stylesHome.btnAnimated} rounded-lg`}
-              style={{
-                fontSize: "13px",
-                letterSpacing: ".5px",
-                width: "100%",
-                padding: "11px 0px",
-              }}
+              style={{ fontSize: "13px", letterSpacing: ".5px", width: "100%", padding: "11px 0px" }}
             >
               Crear cuenta
             </button>

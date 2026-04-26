@@ -11,7 +11,6 @@ import { MdOutlineWorkOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import Link from "next/link";
 import { IoMdMore } from "react-icons/io";
-import styles from "@/app/css-modules/FormMiEmpresa.module.css";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
@@ -161,14 +160,14 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
   async function checkFirstLogin() {
     setOpenGuideDialog(false);
     try {
-      if(userData?.isFirstLogin === false) return; // si ya no es el primer login
+      if (userData?.isFirstLogin === false) return; // si ya no es el primer login
       const token = localStorage.getItem("sacaturno_token");
       await axiosReq.put(
         `/user/firstlogin/${userData?._id}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      
+
     } catch (error) {
       console.error("Error updating first login status:", error);
     }
@@ -204,7 +203,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
         isFirstLogin={userData?.isFirstLogin}
       />
 
-      <div className={`${styles.dashboardComponentCont}`}>
+      <div className="flex h-fit mx-auto w-full px-[25px] pt-[35px] md:w-4/5 md:pt-10 2xl:pt-14 md:px-0">
         <div className="flex flex-col w-full gap-8 h-fit">
 
           {/* HEADER */}
@@ -388,7 +387,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
             </div>
           </div>
 
-          <Separator className="mt-2"/>
+          <Separator className="mt-2" />
 
           {/* TODAY'S APPOINTMENTS */}
           <div className="flex flex-col gap-3">
@@ -413,8 +412,8 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                   <div
                     key={appointment._id}
                     className={`flex items-center px-4 py-3 gap-3 cursor-pointer hover:bg-gray-50 transition-colors ${idx !== appointmentsData.length - 1
-                        ? "border-b border-gray-100"
-                        : ""
+                      ? "border-b border-gray-100"
+                      : ""
                       }`}
                     onClick={() => handleSelectEvent(appointment)}
                   >
@@ -462,7 +461,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
 
             {!loading &&
               (!appointmentsData || appointmentsData.length === 0) && (
-                <div className="flex flex-col items-center justify-center py-12 gap-4">
+                <div className="flex flex-col items-center justify-center py-8 gap-4">
                   <span className="text-sm text-gray-500 text-center">
                     No tenés turnos reservados para el resto del día.
                   </span>
