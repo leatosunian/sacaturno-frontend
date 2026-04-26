@@ -355,10 +355,10 @@ export default function ListBookAppointment({
 
       <div className="flex flex-col w-full min-h-screen bg-background">
         {/* ── Main Content ── */}
-        <main className="flex flex-col flex-1 w-full max-w-6xl py-6 mx-auto px-7 2xl:max-w-8xl md:px-8 md:py-10">
+        <main className="flex flex-col flex-1 w-full max-w-6xl py-5 mx-auto px-7 2xl:max-w-8xl md:px-8 md:py-7">
           {/* Header */}
-          <header className="flex flex-col items-center mb-5 md:mb-8 md:items-start">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+          <header className="flex flex-col items-center mb-5 md:mb-5 md:items-start">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
               {businessData.name}
             </h1>
             <p className="mt-1 text-xs font-medium tracking-widest text-orange-500 uppercase text-muted-foreground">
@@ -369,10 +369,10 @@ export default function ListBookAppointment({
           {/* ── Desktop Layout ── */}
           <div className="flex-1 hidden gap-8 md:flex h-fit">
             {/* Left Column – Date Info */}
-            <div className="flex flex-col gap-5 w-72 h-fit shrink-0">
+            <div className="flex flex-col gap-3 w-72 h-fit shrink-0">
               {/* Date Card */}
               <div className="p-5 border-none rounded-xl bg-muted/50">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold text-foreground">
                     Fecha del turno
                   </h3>
@@ -403,7 +403,7 @@ export default function ListBookAppointment({
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center justify-end gap-3 pt-8 mt-auto">
+                <div className="flex items-center justify-end gap-3 pt-5 mt-auto">
                   <button
                     onClick={goPrev}
                     disabled={!canGoPrev}
