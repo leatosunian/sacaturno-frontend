@@ -34,10 +34,10 @@ dayjs.extend(timezone);
 dayjs.extend(utc);
 dayjs.extend(advanced);
 
-const HOUR_HEIGHT = 80; // px per hour in the time grid
-const TIME_GUTTER = 52; // px width of the hour-label column
+const HOUR_HEIGHT = 57; // px per hour in the time grid
+const TIME_GUTTER = 60; // px width of the hour-label column
 const CARD_GUTTER = 4; // px from day-column edge to card
-const CARD_GAP = 3;    // px between side-by-side cards
+const CARD_GAP = 5;    // px between side-by-side cards
 
 // Groups events into clusters of transitively-overlapping events.
 function computeClusters(events: CalendarEvent[]): CalendarEvent[][] {
@@ -430,7 +430,7 @@ const CalendarTurnos: React.FC<Props> = ({
       </Dialog>
 
       <Dialog open={eventModal} onOpenChange={() => setEventModal(false)}>
-        <DialogContent className="sm:w-[580px] w-[93vw]">
+        <DialogContent className="sm:w-[720px] w-[93vw] ">
           <AppointmentModal
             appointment={eventData}
             onDelete={handleDeleteAppointment}
@@ -444,9 +444,8 @@ const CalendarTurnos: React.FC<Props> = ({
         onOpenChange={() => setCreateAppointmentModal(false)}
       >
         <DialogContent
-          className={`w-[93vw] transition-all duration-200 max-w-none ${
-            createAppointmentTabMode === "booked" ? "sm:w-[660px]" : "sm:w-[400px]"
-          }`}
+          className={`w-[93vw] transition-all duration-200 max-w-none ${createAppointmentTabMode === "booked" ? "sm:w-[660px]" : "sm:w-[400px]"
+            }`}
         >
           <CreateAppointmentModal
             onSave={handleSaveAppointment}
@@ -481,7 +480,7 @@ const CalendarTurnos: React.FC<Props> = ({
       </Dialog>
 
       {/* ── Mobile dropdown (top-right) ── */}
-      <div className="fixed top-20 right-4 flex flex-col md:hidden z-40">
+      <div className="absolute top-20 right-4 flex flex-col md:hidden z-40">
         <button
           onClick={() => setDropdownActive(!dropdownActive)}
           className="p-1 rounded-md hover:bg-gray-100 transition-colors"
@@ -523,10 +522,10 @@ const CalendarTurnos: React.FC<Props> = ({
       </div>
 
       {/* ── Page layout ── */}
-      <div className="flex flex-col w-full gap-4 pb-16 md:pb-8">
+      <div className="flex flex-col w-full gap-3 pb-16 md:pb-8">
 
         {/* Page header */}
-        <div className="flex items-center justify-between mt-4 xl:mt-7 mb-1">
+        <div className="flex items-center justify-between mt-5 2xl:mt-6 mb-0 2xl:mb-1">
           <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">Agenda de turnos</h1>
           <button
             onClick={() => setHelpModal(true)}
@@ -541,10 +540,10 @@ const CalendarTurnos: React.FC<Props> = ({
         <div className="flex flex-col gap-2">
 
           {/* Desktop — unified navbar card */}
-          <div className="hidden md:grid md:grid-cols-3 items-center bg-white rounded-xl border border-gray-100 shadow-md overflow-hidden">
+          <div className="hidden md:grid md:grid-cols-3 py-1 items-center bg-white rounded-xl border border-gray-100 shadow-md overflow-hidden">
 
             {/* LEFT: create button */}
-            <div className="flex items-center px-4 py-3 border-r border-gray-100">
+            <div className="flex items-center px-4 py-1 border-r border-gray-100">
               <button
                 onClick={handleSetAllDayAppointmentsModal}
                 className="flex items-center gap-1.5 h-9 bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold px-3 rounded-lg transition-colors duration-200"
@@ -555,7 +554,7 @@ const CalendarTurnos: React.FC<Props> = ({
             </div>
 
             {/* CENTER: date navigation — truly centered */}
-            <div className="flex items-center justify-center gap-2 px-4 py-3 border-r border-gray-100">
+            <div className="flex items-center justify-center gap-2 px-4 py-1 border-r border-gray-100">
               <button
                 onClick={onPrevClick}
                 className="h-9 w-9 flex items-center justify-center rounded-lg bg-orange-600 hover:bg-orange-700 transition-colors text-white shrink-0"
@@ -563,7 +562,7 @@ const CalendarTurnos: React.FC<Props> = ({
               >
                 <LuChevronLeft size={16} />
               </button>
-              <span className="min-w-[180px] text-center capitalize text-sm font-semibold text-gray-700 px-1 truncate">
+              <span className="min-w-[180px] text-center capitalize text-base font-semibold text-gray-700 px-1 truncate">
                 {dateLabel}
               </span>
               <button
@@ -576,9 +575,9 @@ const CalendarTurnos: React.FC<Props> = ({
             </div>
 
             {/* RIGHT: time-range controls */}
-            <div className="flex items-end justify-end gap-2 px-4 py-3">
+            <div className="flex items-end justify-end gap-2 px-4 py-1">
               <div className="flex flex-col gap-0.5">
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
                   Desde
                 </label>
                 <select
@@ -589,7 +588,7 @@ const CalendarTurnos: React.FC<Props> = ({
                       dayStart: Number(e.target.value),
                     }))
                   }
-                  className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer"
+                  className="h-6 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer"
                 >
                   {timeOptions.map((t) => (
                     <option key={t.value} value={t.value}>{t.label}</option>
@@ -597,7 +596,7 @@ const CalendarTurnos: React.FC<Props> = ({
                 </select>
               </div>
               <div className="flex flex-col gap-0.5">
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
                   Hasta
                 </label>
                 <select
@@ -608,7 +607,7 @@ const CalendarTurnos: React.FC<Props> = ({
                       dayEnd: Number(e.target.value),
                     }))
                   }
-                  className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer"
+                  className="h-6 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer"
                 >
                   {timeOptions.map((t) => (
                     <option key={t.value} value={t.value}>{t.label}</option>
@@ -616,7 +615,7 @@ const CalendarTurnos: React.FC<Props> = ({
                 </select>
               </div>
               <div className="flex flex-col gap-0.5">
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
                   Duración
                 </label>
                 <select
@@ -627,7 +626,7 @@ const CalendarTurnos: React.FC<Props> = ({
                       appointmentDuration: Number(e.target.value),
                     }))
                   }
-                  className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer"
+                  className="h-6 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer"
                 >
                   {durationOptions.map((d) => (
                     <option key={d.value} value={d.value}>{d.label}</option>
@@ -648,7 +647,7 @@ const CalendarTurnos: React.FC<Props> = ({
                   dayStart: Number(e.target.value),
                 }))
               }
-              className="flex-1 h-9 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer min-w-0"
+              className="flex-1 h-7 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer min-w-0"
             >
               {timeOptions.map((t) => (
                 <option key={t.value} value={t.value}>{t.label}</option>
@@ -663,7 +662,7 @@ const CalendarTurnos: React.FC<Props> = ({
                   dayEnd: Number(e.target.value),
                 }))
               }
-              className="flex-1 h-9 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer min-w-0"
+              className="flex-1 h-7 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer min-w-0"
             >
               {timeOptions.map((t) => (
                 <option key={t.value} value={t.value}>{t.label}</option>
@@ -678,7 +677,7 @@ const CalendarTurnos: React.FC<Props> = ({
                   appointmentDuration: Number(e.target.value),
                 }))
               }
-              className="flex-1 h-9 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer min-w-0"
+              className="flex-1 h-7 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer min-w-0"
             >
               {durationOptions.map((d) => (
                 <option key={d.value} value={d.value}>{d.label}</option>
@@ -689,13 +688,9 @@ const CalendarTurnos: React.FC<Props> = ({
 
         {/* ── Calendar grid ── */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">
-{/* 
 
-
-
-*/}
           {/* Day header */}
-          <div className="flex items-center gap-3 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
+          <div className="flex md:hidden items-center gap-3 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
             <span
               className={cn(
                 "text-sm font-semibold capitalize",
@@ -723,7 +718,7 @@ const CalendarTurnos: React.FC<Props> = ({
                 <div
                   key={h}
                   style={{ height: HOUR_HEIGHT }}
-                  className="flex flex-col items-center pt-1.5 gap-1.5"
+                  className="flex flex-col items-center pt-1.5 gap-0 justify-center"
                 >
                   <span className="text-xs text-gray-400 select-none tabular-nums">
                     {String(h).padStart(2, "0")}:00
@@ -739,7 +734,7 @@ const CalendarTurnos: React.FC<Props> = ({
               ))}
             </div>
 
-            {/* Day columns */}
+            {/* Day hour columns */}
             <div className="flex flex-1 min-w-0">
               {daysToShow.map((day, dayIdx) => {
                 const dayEvents = getEventsForDay(day);
@@ -755,12 +750,12 @@ const CalendarTurnos: React.FC<Props> = ({
                       <div
                         key={h}
                         style={{ height: HOUR_HEIGHT }}
-                        className="relative border-b border-gray-50 hover:bg-orange-50/40 transition-colors duration-150 cursor-pointer group"
+                        className="relative border-b border-gray-150 hover:bg-orange-50/40 transition-colors duration-150 cursor-pointer group"
                         onClick={(e) => handleSlotClick(day, h, e)}
                       >
                         {/* Half-hour divider */}
                         <div
-                          className="absolute left-0 right-0 border-b border-dashed border-gray-100 pointer-events-none"
+                          className="absolute left-0 right-0 border-b border-dashed border-gray-50 pointer-events-none"
                           style={{ top: "50%" }}
                         />
                         {/* Hover hint */}
@@ -840,7 +835,7 @@ const CalendarTurnos: React.FC<Props> = ({
                                 <div className="px-1.5 pt-1 pb-1 h-full flex flex-col min-h-0">
                                   <span
                                     className={cn(
-                                      "text-xs font-semibold leading-tight whitespace-nowrap shrink-0",
+                                      "text-xs font-semibold leading-tight whitespace-nowrap mb-0.5 shrink-0",
                                       isBooked ? "text-orange-900" : "text-white"
                                     )}
                                   >
@@ -849,7 +844,7 @@ const CalendarTurnos: React.FC<Props> = ({
                                   {height >= 36 && (
                                     <span
                                       className={cn(
-                                        "text-xs leading-tight whitespace-nowrap shrink-0",
+                                        "text-[10px] sm:text-[11px] leading-tight whitespace-nowrap shrink-0",
                                         isBooked ? "text-orange-600" : "text-orange-100"
                                       )}
                                     >
@@ -859,7 +854,7 @@ const CalendarTurnos: React.FC<Props> = ({
                                   {height >= 52 && (
                                     <span
                                       className={cn(
-                                        "text-xs tabular-nums mt-auto whitespace-nowrap shrink-0",
+                                        "text-[10px] mt-auto whitespace-nowrap shrink-0",
                                         isBooked ? "text-orange-500" : "text-orange-200"
                                       )}
                                     >

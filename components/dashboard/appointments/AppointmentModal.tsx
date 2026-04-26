@@ -72,7 +72,7 @@ const AppointmentModal: React.FC<props> = ({ appointment, onDelete, closeModalF 
 
         {/* Date/time — full width */}
         <div className="flex flex-col items-center gap-0.5 py-3 bg-gray-50 rounded-xl border border-gray-100">
-          <span className="text-sm font-bold uppercase text-gray-800 capitalize">
+          <span className="text-sm font-bold text-gray-800 capitalize">
             &#128197; {dayjs(appointment?.start).format("dddd DD [de] MMMM")}
           </span>
           <span className="text-base font-semibold text-gray-700">
