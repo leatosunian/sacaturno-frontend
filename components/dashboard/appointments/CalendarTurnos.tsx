@@ -844,7 +844,7 @@ const CalendarTurnos: React.FC<Props> = ({
                                   {height >= 36 && (
                                     <span
                                       className={cn(
-                                        "text-[10px] sm:text-[11px] leading-tight whitespace-nowrap shrink-0",
+                                        "text-[10px] sm:text-[10px] leading-tight whitespace-nowrap shrink-0",
                                         isBooked ? "text-orange-600" : "text-orange-100"
                                       )}
                                     >

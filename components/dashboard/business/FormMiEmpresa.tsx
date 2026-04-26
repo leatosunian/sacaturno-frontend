@@ -150,7 +150,7 @@ const FormMiEmpresa = ({
           </div>
           <div className="p-6 2xl:p-8 flex flex-col md:flex-row gap-6 2xl:gap-8 items-start">
             {/* Avatar */}
-            <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
+            <div className="flex flex-col items-center gap-1.5 flex-shrink-0 w-full md:w-auto">
               <div
                 onClick={handleClick}
                 className="relative cursor-pointer group rounded-full overflow-hidden w-20 h-20 2xl:w-24 2xl:h-24"
@@ -263,9 +263,9 @@ const FormMiEmpresa = ({
               <p className="text-xs 2xl:text-sm text-gray-400">
                 Este es el link que podés compartir con tus clientes para que reserven turnos online.
               </p>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-2">
                 <div
-                  className={`flex items-center flex-1 h-8 2xl:h-10 rounded-md border overflow-hidden bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus-within:border-orange-600 ${errors.slug ? "border-red-500" : "border-gray-200"}`}
+                  className={`flex items-center w-full md:flex-1 h-8 2xl:h-10 rounded-md border overflow-hidden bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus-within:border-orange-600 ${errors.slug ? "border-red-500" : "border-gray-200"}`}
                 >
                   <span className="px-3 text-xs 2xl:text-sm text-gray-500 bg-gray-100 h-full flex items-center border-r border-gray-200 whitespace-nowrap flex-shrink-0">
                     sacaturno.com.ar/
@@ -282,7 +282,7 @@ const FormMiEmpresa = ({
                   type="button"
                   onClick={copyPublicLink}
                   title="Copiar link público"
-                  className={`flex items-center gap-1.5 h-8 2xl:h-10 px-4 rounded-lg border text-xs 2xl:text-sm font-semibold transition-all duration-300 ease-in-out whitespace-nowrap flex-shrink-0 cursor-pointer ${copied ? "border-green-700 bg-green-700 text-white" : "border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white"}`}
+                  className={`flex items-center justify-center gap-1.5 h-8 2xl:h-10 px-4 rounded-lg border text-xs 2xl:text-sm font-semibold transition-all duration-300 ease-in-out whitespace-nowrap flex-shrink-0 cursor-pointer ${copied ? "border-green-700 bg-green-700 text-white" : "border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white"}`}
                 >
                   {copied ? <LuCheck size={14} /> : <LuCopy size={14} />}
                   {copied ? "¡Copiado!" : "Copiar link"}

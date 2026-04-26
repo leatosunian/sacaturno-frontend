@@ -42,6 +42,12 @@ function dateForDateStr(dateStr: string): Date {
   return new Date(base.getTime() + TZ_MS)
 }
 
+// Returns current Argentina local datetime as a comparable ISO string,
+// using the same UTC+TZ_MS transformation as toISOString().
+function getNowArgISO(): string {
+  return new Date(Date.now() + TZ_MS).toISOString()
+}
+
 function addDaysStr(dateStr: string, days: number): string {
   const d = dateForDateStr(dateStr)
   // operate on UTC components (we've already shifted the base to target TZ)
@@ -124,13 +130,9 @@ export default function ListBookAppointment({
   scheduleDays,
 }: Props) {
   const initialDateStr = useMemo(() => {
-    if (appointments.length > 0) {
-      return extractDateStr(toISOString(appointments[0].start))
-    }
-    const n = new Date()
-    const adjusted = new Date(n.getTime() + TZ_MS)
+    const adjusted = new Date(Date.now() + TZ_MS)
     return `${adjusted.getUTCFullYear()}-${String(adjusted.getUTCMonth() + 1).padStart(2, "0")}-${String(adjusted.getUTCDate()).padStart(2, "0")}`
-  }, [appointments])
+  }, [])
 
   const mobileSlotsRef = useRef<HTMLDivElement>(null)
   const [currentDateStr, setCurrentDateStr] = useState<string>(initialDateStr)
@@ -172,12 +174,14 @@ export default function ListBookAppointment({
     return scheduleDays.find((d) => d.day === key) ?? defaultSchedule
   }, [currentDateStr, scheduleDays])
 
-  // ── Available dates (unbooked slots for selected service) ──
+  // ── Available dates (future unbooked slots for selected service) ──
   const availableDateStrSet = useMemo(() => {
+    const nowISO = getNowArgISO()
     const set = new Set<string>()
     appointments
       .filter((apt) => apt.status === "unbooked")
       .filter((apt) => !selectedService || apt.service === selectedService)
+      .filter((apt) => toISOString(apt.start) > nowISO)
       .forEach((apt) => set.add(extractDateStr(toISOString(apt.start))))
     return set
   }, [appointments, selectedService])
@@ -193,14 +197,16 @@ export default function ListBookAppointment({
     return typeof serviceDuration === 'number' ? serviceDuration : daySchedule.appointmentDuration
   }, [selectedServiceObj, daySchedule])
 
-  // ── Formatted appointments for current day (with service filter) ──
+  // ── Formatted appointments for current day (with service filter, future only) ──
   const dayAppointments = useMemo(() => {
+    const nowISO = getNowArgISO()
     return appointments
       .filter((apt) => extractDateStr(toISOString(apt.start)) === currentDateStr)
       .filter((apt) => {
         if (!selectedService) return true
         return apt.service === selectedService
       })
+      .filter((apt) => toISOString(apt.start) > nowISO)
       .map((apt): FormattedAppointment => {
         const startISO = toISOString(apt.start)
         const endISO = toISOString(apt.end)

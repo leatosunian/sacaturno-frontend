@@ -89,7 +89,7 @@ const MiEmpresa: NextPage<Props> = async ({}) => {
       )}
 
       {typeof data !== "string" && (
-        <div className="flex flex-col gap-6 w-full max-w-screen-md 2xl:max-w-screen-lg mx-auto px-4 py-8 2xl:py-10">
+        <div className="flex flex-col gap-6 w-full max-w-screen-md 2xl:max-w-screen-lg mx-auto px-4 py-4 2xl:py-10">
           <div className="flex items-center justify-between">
             <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">Mi empresa</h1>
             <Link
