@@ -267,7 +267,7 @@ export default function BookAppointmentModal({
                 type="text"
                 maxLength={30}
                 {...register("name")}
-                className="px-0 bg-transparent border-0 border-b rounded-none shadow-none border-border focus-visible:ring-0"
+                className="px-0 bg-transparent border-0 border-b rounded-none shadow-none border-border focus-visible:ring-0 hover:border-orange-500 focus:border-orange-500 transition-colors"
                 placeholder="Juan Pérez"
               />
               {errors.name?.message && (
@@ -280,7 +280,7 @@ export default function BookAppointmentModal({
               <Input
                 type="email"
                 {...register("email")}
-                className="px-0 bg-transparent border-0 border-b rounded-none shadow-none border-border focus-visible:ring-0"
+                className="px-0 bg-transparent border-0 border-b rounded-none shadow-none border-border focus-visible:ring-0 hover:border-orange-500 focus:border-orange-500 transition-colors"
                 placeholder="juan@email.com"
               />
               {errors.email?.message && (
@@ -293,7 +293,7 @@ export default function BookAppointmentModal({
               <Input
                 type="tel"
                 {...register("phone")}
-                className="px-0 bg-transparent border-0 border-b rounded-none shadow-none border-border focus-visible:ring-0"
+                className="px-0 bg-transparent border-0 border-b rounded-none shadow-none border-border focus-visible:ring-0 hover:border-orange-500 focus:border-orange-500 transition-colors"
                 placeholder="11 1234 5678"
               />
               {errors.phone?.message && (
