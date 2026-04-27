@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { LuCalendarDays, LuMousePointerClick, LuPencilLine } from "react-icons/lu";
+import { LuCalendarDays, LuMousePointerClick, LuPencilLine, LuCalendarClock } from "react-icons/lu";
 import { FaRepeat } from "react-icons/fa6";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import { cn } from "@/lib/utils";
@@ -64,6 +64,16 @@ const HelpModal: React.FC<Props> = ({ onClose }) => {
     },
     {
       number: 4,
+      icon: <LuCalendarClock size={22} className="text-orange-500" />,
+      title: "Crear turnos del día",
+      badge: null,
+      description:
+        "En el día a modificar, hacé clic en \"Crear turnos del día\" para agregar múltiples turnos. Seleccioná el servicio, el horario de inicio y fin, y la duración de cada turno. El sistema genera todos los turnos disponibles dentro del rango horario que ingresaste.",
+      tip: "Ideal para cuando arrancás la semana y querés cargar toda tu agenda en segundos sin hacerlo turno por turno.",
+      extra: null,
+    },
+    {
+      number: 5,
       icon: <LuPencilLine size={22} className="text-orange-500" />,
       title: "Combiná los dos modos",
       badge: null,

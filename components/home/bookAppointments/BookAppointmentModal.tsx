@@ -146,7 +146,7 @@ export default function BookAppointmentModal({
               <span className="text-xs font-semibold tracking-wider uppercase text-primary">
                 Fecha y hora
               </span>
-              <span className="text-sm font-semibold capitalize-first text-foreground">
+              <span className="text-sm font-semibold capitalize text-foreground">
                 {dateTimeDisplay}
               </span>
             </div>
