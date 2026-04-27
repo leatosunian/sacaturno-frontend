@@ -39,6 +39,7 @@ interface Props {
   | {
     business: IBusiness | undefined;
     appointments: IAppointment[] | undefined;
+    stats: IDashboardStats | null;
   }
   | undefined;
   userData: IUser | undefined;
@@ -75,8 +76,8 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
     useState<boolean>(false);
   const [selectedAppointment, setSelectedAppointment] = useState<eventType>();
   const [openGuideDialog, setOpenGuideDialog] = useState<boolean>(false);
-  const [stats, setStats] = useState<IDashboardStats | null>(null);
-  const [statsLoading, setStatsLoading] = useState<boolean>(true);
+
+  const stats = businessData?.stats ?? null;
 
   useEffect(() => {
     parseAppointments(businessData?.appointments);
@@ -87,28 +88,6 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
       setOpenGuideDialog(true);
     }
   }, [userData]);
-
-  useEffect(() => {
-    if (businessData?.business?._id) {
-      fetchStats(businessData.business._id);
-    } else if (businessData !== undefined) {
-      setStatsLoading(false);
-    }
-  }, [businessData]);
-
-  const fetchStats = async (businessID: string) => {
-    try {
-      const token = localStorage.getItem("sacaturno_token");
-      const res = await axiosReq.get(`/appointment/stats/${businessID}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setStats(res.data);
-    } catch {
-      setStats(null);
-    } finally {
-      setStatsLoading(false);
-    }
-  };
 
   const handleSelectEvent = (event: eventType) => {
     setSelectedAppointment({
@@ -252,7 +231,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                     <LuCalendarCheck size={15} color="#dd4924" />
                   </div>
                 </div>
-                {statsLoading ? (
+                {false ? (
                   <div className="h-8 w-16 bg-gray-100 rounded animate-pulse" />
                 ) : (
                   <span className="text-2xl font-bold">
@@ -277,7 +256,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                     <LuCalendarDays size={15} color="#dd4924" />
                   </div>
                 </div>
-                {statsLoading ? (
+                {false ? (
                   <div className="h-8 w-16 bg-gray-100 rounded animate-pulse" />
                 ) : (
                   <span className="text-2xl font-bold">
@@ -300,7 +279,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                     <LuUsers size={15} color="#dd4924" />
                   </div>
                 </div>
-                {statsLoading ? (
+                {false ? (
                   <div className="h-8 w-16 bg-gray-100 rounded animate-pulse" />
                 ) : (
                   <span className="text-2xl font-bold">
@@ -323,7 +302,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                     <LuTrendingUp size={15} color="#dd4924" />
                   </div>
                 </div>
-                {statsLoading ? (
+                {false ? (
                   <div className="h-8 w-24 bg-gray-100 rounded animate-pulse" />
                 ) : (
                   <span className="text-xl font-bold leading-tight">
