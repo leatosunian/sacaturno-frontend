@@ -32,7 +32,7 @@ interface formInputs {
   birthdate: string | Date;
 }
 
-const FormMiPerfil: React.FC<Props> = ({
+const FormProfileConfig: React.FC<Props> = ({
   profileData,
   subscriptionData,
   businessData,
@@ -390,4 +390,4 @@ const FormMiPerfil: React.FC<Props> = ({
   );
 };
 
-export default FormMiPerfil;
+export default FormProfileConfig;

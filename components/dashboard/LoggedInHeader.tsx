@@ -77,7 +77,7 @@ const LoggedInHeader: NextPage<Props> = ({}) => {
                 <Link href={'/admin/schedule'}>Mi agenda</Link>
               </div>
               <div className={styles.option}>
-                <Link href={'/admin/schedule/settings'}>Configurar agenda</Link>
+                <Link href={'/admin/schedule/automate'}>Configurar agenda</Link>
               </div>
             </div>
           </div>

@@ -35,7 +35,7 @@ const NoServicesModal: React.FC = () => {
             </label>
           </div>
         </div>
-        <Link href={"/admin/business/settings"} className="w-full">
+        <Link href={"/admin/business/services"} className="w-full">
           <Button   className="w-full text-white bg-red-600 border-none rounded-lg shadow-xl outline-none h-11 hover:bg-red-700">Crear servicio</Button>
         </Link>
       </div>

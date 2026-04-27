@@ -115,7 +115,7 @@ export default function AdminHeader() {
                   </DropdownMenuItem>
                 </Link>
 
-                <Link className="flex items-center w-full gap-2" href="/admin/business/settings">
+                <Link className="flex items-center w-full gap-2" href="/admin/business/services">
                   <DropdownMenuItem className="w-full">
                     <RiListSettingsLine size={17} className="w-full" />
                     Servicios
@@ -142,7 +142,7 @@ export default function AdminHeader() {
                   </DropdownMenuItem>
                 </Link>
 
-                <Link className="flex items-center w-full gap-2" href="/admin/schedule/settings">
+                <Link className="flex items-center w-full gap-2" href="/admin/schedule/automate">
                   <DropdownMenuItem >
                     <TbCalendarRepeat size={18} className="w-full" />
                     Automatizar agenda
@@ -248,7 +248,7 @@ export default function AdminHeader() {
                   Ajustes
                 </Link>
                 <Link
-                  href="/admin/business/settings"
+                  href="/admin/business/services"
                   className="flex gap-2 px-3 pt-3 pb-2 text-xs font-medium uppercase transition-colors duration-300 rounded-md "
                   onClick={() => setIsOpen(false)}
                 >
@@ -285,7 +285,7 @@ export default function AdminHeader() {
                   Agenda de turnos
                 </Link>
                 <Link
-                  href="/admin/schedule/settings"
+                  href="/admin/schedule/automate"
                   className="flex gap-2 px-3 pt-3 pb-2 text-xs font-medium uppercase transition-colors duration-300 rounded-md"
                   onClick={() => setIsOpen(false)}
                 >

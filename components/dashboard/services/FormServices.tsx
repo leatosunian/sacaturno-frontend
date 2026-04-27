@@ -14,7 +14,7 @@ import EditServiceModal from "./EditServiceModal";
 import Alert from "@/components/Alert";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
-const FormSettings = ({
+const FormServices = ({
   businessData,
   servicesData,
   subscriptionData,
@@ -176,7 +176,7 @@ const FormSettings = ({
       {/* Modals */}
       <Dialog open={createServiceModal} onOpenChange={() => setCreateServiceModal(false)}>
         <DialogContent className="sm:w-[400px] w-[93vw]">
-          <CreateServiceModal onCreateService={(formData) => addService(formData)} />
+          <CreateServiceModal mpLinked={businessData.mpLinked} onCreateService={(formData) => addService(formData)} />
         </DialogContent>
       </Dialog>
 
@@ -189,6 +189,7 @@ const FormSettings = ({
       <Dialog open={editServiceModal} onOpenChange={() => setEditServiceModal(false)}>
         <DialogContent className="sm:w-[470px] w-[93vw]">
           <EditServiceModal
+            mpLinked={businessData.mpLinked}
             serviceData={serviceToEdit}
             onDeleteService={(serviceID) => deleteService(serviceID)}
             onEditService={(serviceData) => editService(serviceData)}
@@ -323,4 +324,4 @@ const FormSettings = ({
   );
 };
 
-export default FormSettings;
+export default FormServices;

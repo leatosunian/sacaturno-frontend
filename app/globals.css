@@ -21,6 +21,14 @@ body {
   font-family: inherit;
 }
 
+button:focus-visible {
+  outline: none;
+}
+
+button {
+  outline: none;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -39,9 +47,6 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-input:active {
-  border: 1px solid #dd4924 !important;
-}
 
 /* ::-webkit-scrollbar {
   margin-left: 4px;

@@ -12,8 +12,9 @@ import NoServicesModal from "../services/NoServicesModal";
 import ISubscription from "@/interfaces/subscription.interface";
 import ExpiredPlanModal from "./ExpiredPlanModal";
 import { LuSave } from "react-icons/lu";
-import HelpModal from "./HelpModal";
+import TutorialAutomateModal from "./TutorialAutomateModal";
 import { FaArrowLeft, FaCircleInfo } from "react-icons/fa6";
+import { LuBookOpen } from "react-icons/lu";
 import CreateScheduleAppointmentModal from "./CreateScheduleAppointmentModal";
 import ScheduleAppointmentModal from "./ScheduleAppointmentModal";
 import axiosReq from "@/config/axios";
@@ -33,10 +34,19 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(advanced);
 
-const HOUR_HEIGHT = 80;
-const TIME_GUTTER = 52;
+const HOUR_HEIGHT = 57;
+const TIME_GUTTER = 60;
 const CARD_GUTTER = 4;
-const CARD_GAP = 3;
+const CARD_GAP = 5;
+
+const cardShadow = { boxShadow: "5px 5px 8px hsla(0, 0%, 12%, 0.17)" };
+
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 0,
+  }).format(amount);
 
 function computeClusters(events: IAppointmentSchedule[]): IAppointmentSchedule[][] {
   const sorted = [...events].sort((a, b) => dayjs(a.start).diff(dayjs(b.start)));
@@ -116,7 +126,7 @@ interface Props {
   subscriptionData: ISubscription | undefined;
 }
 
-const CreateScheduleCalendar: React.FC<Props> = ({
+const AutomateSchedule: React.FC<Props> = ({
   businessData,
   servicesData,
   subscriptionData,
@@ -129,7 +139,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
   const [eventData, setEventData] = useState<IAppointmentSchedule | undefined>();
   const [createAppointmentModal, setCreateAppointmentModal] = useState(false);
   const [createAppointmentData, setCreateAppointmentData] = useState<IAppointmentSchedule>();
-  const [helpModal, setHelpModal] = useState(false);
+  const [tutorialModal, setTutorialModal] = useState(false);
   const [expiredModal, setExpiredModal] = useState(false);
   const [loadingNewAppointments, setLoadingNewAppointments] = useState(true);
   const [selectedDay, setSelectedDay] = useState<{ dayName: string; dayNumber: number }>({
@@ -373,7 +383,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
         },
       };
       await axiosReq.put("/schedule/appointment/editmany", daysChanged, authHeader);
-    } catch {}
+    } catch { }
   };
 
   // ── Calendar grid helpers ────────────────────────────────────────────────
@@ -492,9 +502,10 @@ const CreateScheduleCalendar: React.FC<Props> = ({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={helpModal} onOpenChange={() => setHelpModal(false)}>
-        <DialogContent className="sm:w-[1000px] w-[93vw] px-0 pb-0">
-          <HelpModal onClose={() => setHelpModal(false)} />
+
+      <Dialog open={tutorialModal} onOpenChange={() => setTutorialModal(false)}>
+        <DialogContent className="sm:w-[460px] md:w-[700px] w-[93vw]">
+          <TutorialAutomateModal onClose={() => setTutorialModal(false)} />
         </DialogContent>
       </Dialog>
 
@@ -504,28 +515,34 @@ const CreateScheduleCalendar: React.FC<Props> = ({
         {/* Page header */}
         <div className="flex items-center justify-between mt-4 xl:mt-7">
           <div className="flex items-center gap-3">
-            {/* <Link
-              href="/admin/schedule"
-              className="flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200 shrink-0"
-            >
-              <FaArrowLeft size={12} className="text-gray-500" />
-            </Link> */}
             <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">Automatizar agenda</h1>
           </div>
 
-          {!loadingButton ? (
+          <div className="flex items-center gap-2">
+            {/* Tutorial button — visible on both mobile and desktop */}
             <button
-              onClick={saveChanges}
-              className="hidden md:flex items-center gap-1.5 h-9 bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold px-4 rounded-lg transition-colors duration-200"
+              onClick={() => setTutorialModal(true)}
+              className="flex items-center gap-1.5 h-9 px-3 rounded-lg border border-orange-200 bg-orange-50 hover:bg-orange-100 text-orange-600 text-xs font-semibold transition-colors duration-200"
+              title="Ver tutorial paso a paso"
             >
-              <LuSave size={14} />
-              Guardar cambios
+              <LuBookOpen size={14} />
+              <span>Tutorial</span>
             </button>
-          ) : (
-            <div className="hidden md:flex items-center justify-center w-32 h-9">
-              <div className="loaderSmall" />
-            </div>
-          )}
+
+            {!loadingButton ? (
+              <button
+                onClick={saveChanges}
+                className="hidden md:flex items-center gap-1.5 h-9 bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold px-4 rounded-lg transition-colors duration-200"
+              >
+                <LuSave size={14} />
+                Guardar cambios
+              </button>
+            ) : (
+              <div className="hidden md:flex items-center justify-center w-32 h-9">
+                <div className="loaderSmall" />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* ── Card 1: Automatic schedule config ── */}
@@ -654,13 +671,13 @@ const CreateScheduleCalendar: React.FC<Props> = ({
                   Por cada día de la semana, configurá el horario y agregá los turnos y servicios.
                 </p>
               </div>
-              <button
+              {/* <button
                 onClick={() => setHelpModal(true)}
                 className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-500 transition-colors duration-200 shrink-0 ml-4"
               >
                 <FaCircleInfo size={13} />
                 <span className="hidden sm:inline">Tutorial</span>
-              </button>
+              </button> */}
             </div>
 
             {/* Day selector tabs */}
@@ -771,7 +788,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
                     <div
                       key={h}
                       style={{ height: HOUR_HEIGHT }}
-                      className="flex flex-col items-center pt-1.5 gap-1.5"
+                  className="flex flex-col items-center pt-1.5 gap-0 justify-center"
                     >
                       <span className="text-xs text-gray-400 select-none tabular-nums">
                         {String(h).padStart(2, "0")}:00
@@ -860,7 +877,7 @@ const CreateScheduleCalendar: React.FC<Props> = ({
                                 )}
                                 {height >= 52 && event.price > 0 && (
                                   <span className="text-xs text-orange-200 mt-auto whitespace-nowrap shrink-0">
-                                    ${event.price.toLocaleString("es-AR")}
+                                    {formatCurrency(event.price)}
                                   </span>
                                 )}
                               </div>
@@ -915,4 +932,4 @@ const CreateScheduleCalendar: React.FC<Props> = ({
   );
 };
 
-export default CreateScheduleCalendar;
+export default AutomateSchedule;

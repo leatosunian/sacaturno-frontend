@@ -87,9 +87,9 @@ const AppointmentModal: React.FC<props> = ({ appointment, onDelete, closeModalF 
           <div className="flex flex-col gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
             <span className="text-xs font-bold uppercase tracking-wider text-orange-600">Turno</span>
             <Field label="Servicio" value={appointment?.service} />
-            <Field label="Precio" value={`$ ${appointment?.price?.toLocaleString()}`} />
+            <Field label="Precio" value={`$ ${appointment?.price?.toLocaleString("es-AR")}`} />
             {hasDeposit && (
-              <Field label="Seña" value={`$ ${appointment!.depositAmount!.toLocaleString()}`} />
+              <Field label="Seña" value={`$ ${appointment!.depositAmount!.toLocaleString("es-AR")}`} />
             )}
           </div>
 
@@ -148,7 +148,7 @@ const AppointmentModal: React.FC<props> = ({ appointment, onDelete, closeModalF 
         <Field label="Servicio" value={appointment?.service} />
         <Field label="Precio" value={`$ ${appointment?.price?.toLocaleString("es-AR")}`} />
         {hasDeposit && (
-          <Field label="Seña" value={`$ ${appointment!.depositAmount!.toLocaleString()}`} />
+          <Field label="Seña" value={`$ ${appointment!.depositAmount!.toLocaleString("es-AR")}`} />
         )}
       </div>
 

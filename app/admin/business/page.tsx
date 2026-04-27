@@ -1,5 +1,5 @@
 import { Metadata, NextPage } from "next";
-import FormMiEmpresa from "@/components/dashboard/business/FormMiEmpresa";
+import FormBusiness from "@/components/dashboard/business/FormBusiness";
 import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
 import { cookies } from "next/headers";
@@ -64,7 +64,7 @@ async function getServicesData() {
   }
 }
 
-const MiEmpresa: NextPage<Props> = async ({}) => {
+const BussinessConfigPage: NextPage<Props> = async ({}) => {
   const services: IService[] = await getServicesData();
   const data: IBusiness = await getBusinessData();
 
@@ -93,7 +93,7 @@ const MiEmpresa: NextPage<Props> = async ({}) => {
           <div className="flex items-center justify-between">
             <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">Mi empresa</h1>
             <Link
-              href="/admin/business/settings"
+              href="/admin/business/services"
               className="flex items-center gap-1.5 text-xs 2xl:text-sm font-semibold text-orange-600 uppercase hover:underline transition-all duration-200"
             >
               Servicios
@@ -101,7 +101,7 @@ const MiEmpresa: NextPage<Props> = async ({}) => {
             </Link>
           </div>
 
-          <FormMiEmpresa businessData={data} servicesData={services} />
+          <FormBusiness businessData={data} servicesData={services} />
 
           <div className="w-full h-10" />
         </div>
@@ -110,4 +110,4 @@ const MiEmpresa: NextPage<Props> = async ({}) => {
   );
 };
 
-export default MiEmpresa;
+export default BussinessConfigPage;

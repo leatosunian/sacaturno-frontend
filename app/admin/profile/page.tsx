@@ -1,4 +1,5 @@
-import FormMiPerfil from "@/components/dashboard/profile/FormMiPerfil";
+import FormProfileConfig from "@/components/dashboard/profile/FormProfileConfig";
+import FormMiPerfil from "@/components/dashboard/profile/FormProfileConfig";
 import axiosReq from "@/config/axios";
 import dayjs from "dayjs";
 import { Metadata } from "next";
@@ -109,7 +110,7 @@ async function getSubscriptionData() {
   }
 }
 
-const MiPerfil = async () => {
+const ProfileConfigPage = async () => {
   const data = await getUser();
   const subscription = await getSubscriptionData();
   const business = await getBusinessData();
@@ -118,7 +119,7 @@ const MiPerfil = async () => {
   return (
     <div className="flex flex-col gap-6 w-full max-w-screen-md 2xl:max-w-screen-lg mx-auto px-4 py-8 2xl:py-10">
       <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">Mi perfil</h1>
-      <FormMiPerfil
+      <FormProfileConfig
         businessData={business}
         subscriptionData={subscription}
         profileData={data}
@@ -129,4 +130,4 @@ const MiPerfil = async () => {
   );
 };
 
-export default MiPerfil;
+export default ProfileConfigPage;

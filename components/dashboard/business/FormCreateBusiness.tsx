@@ -74,7 +74,7 @@ const FormCreateBusiness: React.FC = () => {
       setIsCreated(true);
       setTimeout(() => {
         router.refresh();
-        router.push("/admin/business/settings");
+        router.push("/admin/business/services");
       }, 4000);
     } catch {
       setLoading(false);

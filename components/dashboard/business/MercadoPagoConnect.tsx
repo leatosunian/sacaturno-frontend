@@ -22,10 +22,10 @@ const MercadoPagoConnect: React.FC<Props> = ({ businessData }) => {
     if (mpStatus === "success") {
       setIsLinked(true);
       toast.success("Mercado Pago vinculado correctamente");
-      router.replace("/admin/business/settings");
+      router.replace("/admin/business/services");
     } else if (mpStatus === "error") {
       toast.error("Error al vincular Mercado Pago. Intentá de nuevo.");
-      router.replace("/admin/business/settings");
+      router.replace("/admin/business/services");
     }
   }, [searchParams]);
 

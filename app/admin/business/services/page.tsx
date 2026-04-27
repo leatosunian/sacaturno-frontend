@@ -7,7 +7,7 @@ import { IService } from "@/interfaces/service.interface";
 import { MdOutlineWorkHistory } from "react-icons/md";
 import { FaArrowLeft } from "react-icons/fa6";
 import dayjs from "dayjs";
-import FormSettings from "@/components/dashboard/services/FormSettings";
+import FormServices from "@/components/dashboard/services/FormServices";
 import MercadoPagoConnect from "@/components/dashboard/business/MercadoPagoConnect";
 
 export const metadata: Metadata = {
@@ -102,7 +102,7 @@ async function getSubscriptionData() {
   }
 }
 
-const Settings: NextPage = async ({}) => {
+const SettingsPage: NextPage = async ({}) => {
   const services: IService[] = await getServicesData();
   const data: IBusiness = await getBusinessData();
   const subscription = await getSubscriptionData();
@@ -140,7 +140,7 @@ const Settings: NextPage = async ({}) => {
             </Link>
           </div>
 
-          <FormSettings
+          <FormServices
             businessData={data}
             servicesData={services}
             subscriptionData={subscription}
@@ -155,4 +155,4 @@ const Settings: NextPage = async ({}) => {
   );
 };
 
-export default Settings;
+export default SettingsPage;

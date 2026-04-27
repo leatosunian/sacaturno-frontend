@@ -21,7 +21,7 @@ interface formInputs {
   slug: string;
 }
 
-const FormMiEmpresa = ({
+const FormCreateBusiness = ({
   businessData,
   servicesData,
 }: {
@@ -322,4 +322,4 @@ const FormMiEmpresa = ({
   );
 };
 
-export default FormMiEmpresa;
+export default FormCreateBusiness;

@@ -412,7 +412,7 @@ const CalendarTurnos: React.FC<Props> = ({
         </div>
       )}
 
-      {/* ── Dialogs ── */}
+      {/* Dialogs */}
       <Dialog
         open={allDayAppointmentsModal}
         onOpenChange={() => setAllDayAppointmentsModal(false)}
@@ -430,7 +430,7 @@ const CalendarTurnos: React.FC<Props> = ({
       </Dialog>
 
       <Dialog open={eventModal} onOpenChange={() => setEventModal(false)}>
-        <DialogContent className="sm:w-[720px] w-[93vw] ">
+        <DialogContent className="md:w-[700px] w-[93vw] ">
           <AppointmentModal
             appointment={eventData}
             onDelete={handleDeleteAppointment}
@@ -479,7 +479,7 @@ const CalendarTurnos: React.FC<Props> = ({
         </DialogContent>
       </Dialog>
 
-      {/* ── Mobile dropdown (top-right) ── */}
+      {/*  Mobile dropdown (top right)  */}
       <div className="absolute top-20 right-4 flex flex-col md:hidden z-40">
         <button
           onClick={() => setDropdownActive(!dropdownActive)}
@@ -490,7 +490,7 @@ const CalendarTurnos: React.FC<Props> = ({
         {dropdownActive && (
           <div className="absolute right-0 top-9 bg-white border border-gray-100 rounded-xl shadow-xl py-1 min-w-[200px]">
             <Link
-              href="/admin/schedule/settings"
+              href="/admin/schedule/automate"
               className="flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
               onClick={() => setDropdownActive(false)}
             >
@@ -521,7 +521,7 @@ const CalendarTurnos: React.FC<Props> = ({
         )}
       </div>
 
-      {/* ── Page layout ── */}
+      {/*  Page layout  */}
       <div className="flex flex-col w-full gap-3 pb-16 md:pb-8">
 
         {/* Page header */}
@@ -536,13 +536,13 @@ const CalendarTurnos: React.FC<Props> = ({
           </button>
         </div>
 
-        {/* Controls bar */}
+        {/* date controls navbar  */}
         <div className="flex flex-col gap-2">
 
-          {/* Desktop — unified navbar card */}
-          <div className="hidden md:grid md:grid-cols-3 py-1 items-center bg-white rounded-xl border border-gray-100 shadow-md overflow-hidden">
+          {/* Desktop — navbar card */}
+          <div className="hidden lg:grid lg:grid-cols-3 py-1 items-center bg-white rounded-xl border border-gray-100 shadow-md overflow-hidden">
 
-            {/* LEFT: create button */}
+            {/* LEFT: create all day appointments button */}
             <div className="flex items-center px-4 py-1 border-r border-gray-100">
               <button
                 onClick={handleSetAllDayAppointmentsModal}
@@ -553,8 +553,8 @@ const CalendarTurnos: React.FC<Props> = ({
               </button>
             </div>
 
-            {/* CENTER: date navigation — truly centered */}
-            <div className="flex items-center justify-center gap-2 px-4 py-1 border-r border-gray-100">
+            {/* CENTER: date navigation */}
+            <div className="flex items-center justify-center gap-4 px-4 py-1 border-r border-gray-100">
               <button
                 onClick={onPrevClick}
                 className="h-9 w-9 flex items-center justify-center rounded-lg bg-orange-600 hover:bg-orange-700 transition-colors text-white shrink-0"
@@ -562,7 +562,7 @@ const CalendarTurnos: React.FC<Props> = ({
               >
                 <LuChevronLeft size={16} />
               </button>
-              <span className="min-w-[180px] text-center capitalize text-base font-semibold text-gray-700 px-1 truncate">
+              <span className="min-w-[180px] text-center capitalize text-[15px] 2xl:text-base font-semibold text-gray-700 px-1 truncate">
                 {dateLabel}
               </span>
               <button
@@ -637,7 +637,7 @@ const CalendarTurnos: React.FC<Props> = ({
           </div>
 
           {/* Mobile — compact inline row */}
-          <div className="flex items-center gap-1.5 md:hidden">
+          <div className="flex items-center gap-1.5 lg:hidden">
             <span className="text-xs font-medium text-gray-400 shrink-0">De</span>
             <select
               value={selectedDaySchedule.dayStart}
@@ -686,11 +686,11 @@ const CalendarTurnos: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* ── Calendar grid ── */}
+        {/*  Calendar grid  */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">
 
           {/* Day header */}
-          <div className="flex md:hidden items-center gap-3 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
+          <div className="flex lg:hidden items-center gap-3 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
             <span
               className={cn(
                 "text-sm font-semibold capitalize",
@@ -891,7 +891,7 @@ const CalendarTurnos: React.FC<Props> = ({
             </div>
           </div>
           <Link
-            href="/admin/schedule/settings"
+            href="/admin/schedule/automate"
             className="flex items-center gap-2 text-xs font-semibold uppercase text-orange-600 hover:text-orange-700 transition-colors duration-200"
           >
             Configuración de agenda <FaArrowRight size={11} />

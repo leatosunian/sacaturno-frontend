@@ -58,7 +58,7 @@ const getUser = async () => {
   }
 };
 
-const Dashboard: React.FC = async () => {
+const DashboardPage: React.FC = async () => {
   const data = await getBusinessData();
   const user = await getUser();
   return (
@@ -70,4 +70,4 @@ const Dashboard: React.FC = async () => {
   );
 };
 
-export default Dashboard;
+export default DashboardPage;
