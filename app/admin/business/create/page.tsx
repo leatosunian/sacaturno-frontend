@@ -27,7 +27,7 @@ async function getBusinessData() {
       authHeader
     );
 
-    // 👇 si backend responde string BUSINESS_NOT_FOUND
+    // si backend responde string BUSINESS_NOT_FOUND
     if (res.data === "BUSINESS_NOT_FOUND") {
       return {
         business: null,
@@ -35,7 +35,7 @@ async function getBusinessData() {
       };
     }
 
-    // 👇 si existe negocio
+    // si existe 
     return {
       businessExists: true,
     };

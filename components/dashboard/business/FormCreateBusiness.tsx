@@ -228,11 +228,16 @@ const FormCreateBusiness: React.FC = () => {
         <div className="flex flex-col gap-0 bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
             <LuClock size={16} className="text-orange-600" />
-            <h2 className="text-base font-semibold text-gray-800">Configuración de turnos</h2>
+            <h2 className="text-base font-semibold text-gray-800">Franja horaria inicial</h2>
+          </div>
+          <div className="px-6 pt-4 pb-0">
+            <p className="text-sm text-gray-400">
+              Configurá tu franja horaria de trabajo habitual. Son valores estimativos que podés ajustar en cualquier momento desde el panel de agenda.
+            </p>
           </div>
           <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-700">Duración del turno (min)</label>
+              <label className="text-sm font-medium text-gray-700">Duración de cada turno</label>
               <select
                 {...register("appointmentDuration")}
                 className="h-9 w-full rounded-md border border-gray-200 bg-[rgb(235,235,235)] px-3 text-sm transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none"
@@ -247,7 +252,7 @@ const FormCreateBusiness: React.FC = () => {
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-700">Apertura (hora)</label>
+              <label className="text-sm font-medium text-gray-700">Hora de apertura</label>
               <select
                 {...register("dayStart")}
                 className="h-9 w-full rounded-md border border-gray-200 bg-[rgb(235,235,235)] px-3 text-sm transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none"
@@ -261,7 +266,7 @@ const FormCreateBusiness: React.FC = () => {
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-700">Cierre (hora)</label>
+              <label className="text-sm font-medium text-gray-700">Hora de cierre</label>
               <select
                 {...register("dayEnd")}
                 className="h-9 w-full rounded-md border border-gray-200 bg-[rgb(235,235,235)] px-3 text-sm transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none"
