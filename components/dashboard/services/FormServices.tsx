@@ -13,6 +13,7 @@ import { IoMdMore } from "react-icons/io";
 import EditServiceModal from "./EditServiceModal";
 import Alert from "@/components/Alert";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { LuLock } from "react-icons/lu";
 
 const FormServices = ({
   businessData,
@@ -167,9 +168,11 @@ const FormServices = ({
     setLoading(false);
   }, [servicesData]);
 
-  const canAddService =
-    subscriptionData.subscriptionType === "SC_FULL" ||
-    (subscriptionData.subscriptionType === "SC_FREE" && servicesData.length === 0);
+  const isFull = subscriptionData.subscriptionType === "SC_FULL";
+  const isFree = subscriptionData.subscriptionType === "SC_FREE";
+  const isExpired = subscriptionData.subscriptionType === "SC_EXPIRED";
+
+  const canAddService = isFull || (isFree && servicesData.length === 0);
 
   return (
     <>
@@ -200,13 +203,39 @@ const FormServices = ({
       {/* Services card */}
       <div className="flex flex-col gap-0 bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 2xl:px-8 2xl:py-5 border-b border-gray-100">
-          <h2 className="text-sm 2xl:text-base font-semibold text-gray-800">Servicios</h2>
-          {canAddService && (
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm 2xl:text-base font-semibold text-gray-800">Servicios</h2>
+            {/* {isFull && (
+              <span className="text-xs font-semibold text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
+                Plan Full
+              </span>
+            )}
+            {isFree && (
+              <span className="text-xs font-semibold text-orange-600 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-full">
+                Plan Gratis · 1 servicio
+              </span>
+            )}
+            {isExpired && (
+              <span className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
+                Suscripción vencida
+              </span>
+            )} */}
+          </div>
+          {canAddService ? (
             <button
               onClick={() => setCreateServiceModal(true)}
               className="flex items-center gap-1.5 bg-orange-600 hover:bg-[#d92f04] text-white text-xs 2xl:text-sm font-semibold px-3 2xl:px-4 py-1.5 2xl:py-2 rounded-lg transition-all duration-300 ease-in-out cursor-pointer"
             >
               <TbPlaylistAdd size={16} />
+              Nuevo servicio
+            </button>
+          ) : (
+            <button
+              onClick={handleMercadoPagoPreference}
+              className="flex items-center gap-1.5 bg-gray-100 hover:bg-orange-50 text-gray-400 hover:text-orange-600 border border-gray-200 hover:border-orange-300 text-xs 2xl:text-sm font-semibold px-3 2xl:px-4 py-1.5 2xl:py-2 rounded-lg transition-all duration-300 ease-in-out cursor-pointer"
+              title="Requiere Plan Full"
+            >
+              <LuLock size={13} />
               Nuevo servicio
             </button>
           )}
@@ -242,6 +271,22 @@ const FormServices = ({
 
           {/* Service list */}
           {servicesData.length > 0 && !loading && (
+            <>
+            {!isFull && (
+              <div className="flex items-center gap-2 py-2 mb-1">
+                <LuLock size={12} className="text-gray-400 flex-shrink-0" />
+                <p className="text-xs text-gray-400">
+                  Para cobrar señas debés tener {" "}
+                  <span
+                    className="font-semibold text-orange-500 underline cursor-pointer hover:text-orange-700 transition-colors"
+                    onClick={handleMercadoPagoPreference}
+                  >
+                    Plan Full
+                  </span>{" "}
+                  y tu cuenta de Mercado Pago vinculada.
+                </p>
+              </div>
+            )}
             <div className="flex flex-col divide-y divide-gray-100">
               {servicesData.map((service) => (
                 <div
@@ -283,35 +328,32 @@ const FormServices = ({
                 </div>
               ))}
             </div>
+            </>
           )}
 
-          {/* Plan limit alert */}
-          {(subscriptionData.subscriptionType === "SC_EXPIRED" ||
-            subscriptionData.subscriptionType === "SC_FREE") &&
-            servicesData.length > 0 && (
-              <div className="mt-4 w-full notifications-container">
-                <div className="alert">
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <svg aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 alert-svg">
-                        <path clipRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" fillRule="evenodd"></path>
-                      </svg>
-                    </div>
-                    <div className="alert-prompt-wrap flex flex-col items-start gap-2">
-                      {subscriptionData.subscriptionType === "SC_EXPIRED" && (
-                        <p className="text-sm text-yellow-700">Para agregar más servicios debés suscribirte al Plan Full.</p>
-                      )}
-                      {subscriptionData.subscriptionType === "SC_FREE" && (
-                        <p className="text-sm text-yellow-700">Para agregar más de un servicio debés suscribirte al Plan Full.</p>
-                      )}
-                      <span className="cursor-pointer alert-prompt-link" onClick={handleMercadoPagoPreference}>
-                        Actualizar suscripción
-                      </span>
-                    </div>
-                  </div>
-                </div>
+          {/* Plan limit banner */}
+          {(isFree || isExpired) && servicesData.length > 0 && (
+            <div className="mt-3 mb-4 flex items-start gap-3 bg-orange-50 border border-orange-200 rounded-lg px-4 py-3">
+              <LuLock size={15} className="text-orange-500 mt-0.5 flex-shrink-0" />
+              <div className="flex flex-col gap-1 min-w-0">
+                <p className="text-xs font-semibold text-orange-700">
+                  {isExpired
+                    ? "Tu suscripción venció. No podés agregar más servicios."
+                    : "El Plan Gratis permite un solo servicio."}
+                </p>
+                <p className="text-xs text-orange-600">
+                  Activá el{" "}
+                  <span
+                    className="font-semibold underline cursor-pointer hover:text-orange-800 transition-colors"
+                    onClick={handleMercadoPagoPreference}
+                  >
+                    Plan Full
+                  </span>{" "}
+                  para agregar servicios ilimitados y cobrar señas online.
+                </p>
               </div>
-            )}
+            </div>
+          )}
         </div>
       </div>
 

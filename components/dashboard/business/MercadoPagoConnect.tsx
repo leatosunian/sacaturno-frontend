@@ -62,7 +62,7 @@ const MercadoPagoConnect: React.FC<Props> = ({ businessData }) => {
   return (
     <div className="flex flex-col gap-0 bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">
       <div className="px-6 py-4 2xl:px-8 2xl:py-5 border-b border-gray-100">
-        <h2 className="text-sm 2xl:text-base font-semibold text-gray-800">Señas</h2>
+        <h2 className="text-sm 2xl:text-base font-semibold text-gray-800">Mercado Pago | Señas</h2>
       </div>
 
       <div className="p-6 2xl:p-8 flex flex-col gap-4 2xl:gap-5">

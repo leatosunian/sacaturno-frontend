@@ -430,7 +430,7 @@ const CalendarTurnos: React.FC<Props> = ({
       </Dialog>
 
       <Dialog open={eventModal} onOpenChange={() => setEventModal(false)}>
-        <DialogContent className="md:w-[700px] w-[93vw] ">
+        <DialogContent className="md:w-[460px] w-[93vw] ">
           <AppointmentModal
             appointment={eventData}
             onDelete={handleDeleteAppointment}
