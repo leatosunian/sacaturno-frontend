@@ -51,10 +51,9 @@ export default function Register() {
 
           <p className="text-[11px] text-[#a0a0a0] text-center">
             Al continuar aceptás nuestros{" "}
-            <a href="/terminos" className="text-[#6a6a6a] font-semibold no-underline hover:text-[#dd4924]">términos</a> y{" "}
-            <a href="/privacidad" className="text-[#6a6a6a] font-semibold no-underline hover:text-[#dd4924]">política de privacidad</a>.
+            <Link href="/faq/terminos" className="text-[#6a6a6a] font-semibold no-underline hover:text-[#dd4924]">términos</Link> y{" "}
+            <Link href="/faq/privacidad" className="text-[#6a6a6a] font-semibold no-underline hover:text-[#dd4924]">política de privacidad</Link>.
           </p>
-
         </div>
       </main>
 
