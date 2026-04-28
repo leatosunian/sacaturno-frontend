@@ -94,11 +94,11 @@ const AppointmentModal: React.FC<props> = ({ appointment, onDelete, closeModalF 
           </div>
 
           {/* Right: client details */}
-          <div className="flex flex-col gap-3 p-4 col-span-3 bg-gray-50 rounded-xl border border-gray-100">
+          <div className="flex flex-col gap-3 p-4 col-span-3 bg-gray-50 rounded-xl border border-gray-100 min-w-0 overflow-hidden">
             <span className="text-xs font-bold uppercase tracking-wider text-orange-600">Cliente</span>
-            <Field label="Nombre" value={appointment?.name} />
+            <Field label="Nombre" value={<span className="break-all">{appointment?.name}</span>} />
             <Field label="Teléfono" value={`+54 ${appointment?.phone}`} />
-            <Field label="Email" value={appointment?.email} />
+            <Field label="Email" value={<span className="break-all">{appointment?.email}</span>} />
           </div>
         </div>
 
