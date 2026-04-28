@@ -21,6 +21,14 @@ body {
   font-family: inherit;
 }
 
+button:focus-visible {
+  outline: none;
+}
+
+button {
+  outline: none;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -39,9 +47,6 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-input:active {
-  border: 1px solid #dd4924 !important;
-}
 
 /* ::-webkit-scrollbar {
   margin-left: 4px;
@@ -104,6 +109,66 @@ input:active {
   -moz-transition: 0.2s all ease-in-out;
   -ms-transition: 0.2s all ease-in-out;
   -o-transition: 0.2s all ease-in-out;
+}
+
+/* PAGE LOADER */
+.pageLoader {
+  position: fixed;
+  inset: 0;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+}
+
+.pageLoaderInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  animation: loaderReveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes loaderReveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pageLoaderLogo {
+  width: 180px;
+  height: auto;
+}
+
+.pageLoaderTrack {
+  width: 130px;
+  height: 2px;
+  background: rgba(221, 73, 36, 0.12);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.pageLoaderFill {
+  height: 100%;
+  width: 45%;
+  background: #dd4924;
+  border-radius: 2px;
+  animation: loaderSweep 1.5s ease-in-out infinite;
+}
+
+@keyframes loaderSweep {
+  0% {
+    transform: translateX(-130%);
+  }
+  100% {
+    transform: translateX(280%);
+  }
 }
 
 /* SPINNER STYLES */

@@ -8,9 +8,9 @@ import dayjs from "dayjs";
 import ISubscription from "@/interfaces/subscription.interface";
 import { IoIosAlert } from "react-icons/io";
 import { Metadata } from "next";
-import CreateScheduleCalendar from "@/components/dashboard/appointments/CreateSchedule";
 import { IDaySchedule } from "@/interfaces/daySchedule.interface";
 import { IAppointmentSchedule } from "@/interfaces/appointmentSchedule.interface";
+import AutomateSchedule from "@/components/dashboard/appointments/AutomateSchedule";
 
 export const metadata: Metadata = {
   title: "Mis turnos | SacaTurno",
@@ -87,7 +87,7 @@ async function getSubscriptionData() {
   }
 }
 
-const CreateSchedule: React.FC = async () => {
+const AutomateSchedulePage: React.FC = async () => {
   const data = await getAppointments();
   const subscription: ISubscription | undefined = await getSubscriptionData();
 
@@ -96,7 +96,7 @@ const CreateSchedule: React.FC = async () => {
       <div className="flex flex-col justify-center gap-10 md:flex-row">
         <div className={`${styles.scheduleConfigCont} flex justify-center w-full h-full md:w-fit `}>
           {data.businessData.name && (
-            <CreateScheduleCalendar
+            <AutomateSchedule
               businessData={data.businessData}
               servicesData={data.services}
               subscriptionData={subscription}
@@ -123,4 +123,4 @@ const CreateSchedule: React.FC = async () => {
   );
 };
 
-export default CreateSchedule;
+export default AutomateSchedulePage;

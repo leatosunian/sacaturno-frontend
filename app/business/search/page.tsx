@@ -18,7 +18,7 @@ const SearchBusiness: React.FC = () => {
   const router = useRouter();
 
   const myLoader = ({ src }: { src: string }) => {
-    return `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${src}`;
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${src}`;
   };
 
   const hideAlert = () => {
@@ -122,7 +122,7 @@ const SearchBusiness: React.FC = () => {
                   width={64}
                   height={64}
                   className="w-12 h-12 rounded-full"
-                  src={`https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${business.image}`} alt=""
+                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${business.image}`} alt=""
                 />
                 <div className="flex flex-col w-fit h-fit">
                   <span className="text-sm font-semibold text-black">

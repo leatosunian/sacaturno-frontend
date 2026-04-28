@@ -1,17 +1,12 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FieldValues, useForm } from "react-hook-form";
-import { IoMdClose } from "react-icons/io";
+import { useForm } from "react-hook-form";
 import { createServiceSchema } from "@/app/schemas/createServiceSchema";
 import { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 
 interface formInputs {
@@ -19,208 +14,158 @@ interface formInputs {
   price: number;
   description: string;
   duration?: number;
+  depositAmount?: number;
 }
 
 interface props {
+  mpLinked?: boolean;
   onCreateService: (formData: formInputs) => void;
 }
 
-const CreateServiceModal: React.FC<props> = ({ onCreateService }) => {
+const labelClass = "text-xs font-bold tracking-wider uppercase";
+const errorClass = "text-xs text-red-500 mt-0.5";
+const underlineInput = "px-0 bg-transparent border-0 border-b rounded-none shadow-none border-border focus-visible:ring-0 focus:border-orange-600 transition-colors";
+
+const CreateServiceModal: React.FC<props> = ({ mpLinked, onCreateService }) => {
   const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
+    register, handleSubmit, setValue,
     formState: { errors },
-  } = useForm<formInputs>({
-    resolver: zodResolver(createServiceSchema),
-  });
+  } = useForm<formInputs>({ resolver: zodResolver(createServiceSchema) });
 
-  const [loading, setLoading] = useState<boolean>(false);
   const [priceDisplay, setPriceDisplay] = useState<string>("");
-
+  const [depositDisplay, setDepositDisplay] = useState<string>("");
 
   const handleSubmitClick = () => {
-    const fileInput = document.querySelector(
-      ".inputSubmitField"
-    ) as HTMLElement;
-
-    if (fileInput != null) {
-      fileInput.click();
-    }
-  };
-
-  const createService = async (formData: formInputs) => {
-    setLoading(true);
-    if (formData) {
-      onCreateService(formData);
-    }
+    (document.querySelector(".inputSubmitField") as HTMLElement)?.click();
   };
 
   return (
-    <>
-      <div className="flex flex-col items-center w-full gap-7 h-fit">
-        <h4
-          className="relative inline-block w-full px-2 mx-auto text-2xl font-bold text-center uppercase"
-          style={{ fontSize: 22 }}
-        >
-          Nuevo servicio
-          {/* linea */}
-          <span
-            className="absolute left-0 right-0 mx-auto"
-            style={{
-              bottom: -2,    // gap entre texto y linea (ajustalo)
-              height: 2,     // grosor de la linea (ajustalo)
-              background: "#dd4924",
-              width: "60%",  // ancho opcional de la linea
-            }}
-          />
-        </h4>
+    <div className="flex flex-col w-full gap-5">
+      <h4 className="relative inline-block px-2 mx-auto text-xl font-bold text-center uppercase w-fit">
+        Nuevo servicio
+        <span
+          className="absolute left-0 right-0 mx-auto"
+          style={{ bottom: -2, height: 2, background: "#dd4924", width: "60%" }}
+        />
+      </h4>
 
-        {/* <span>Hacé click en un turno para ver los detalles</span> */}
-        <div className="flex flex-col w-full h-fit">
-          <form
-            onSubmit={handleSubmit((formData) => {
-              createService(formData);
-            })}
-            className="flex flex-col justify-between w-full gap-5"
-          >
-            <div className="flex flex-col gap-2 w-full h-fit">
-              <label className="text-xs font-bold uppercase">Nombre</label>
+      <form
+        onSubmit={handleSubmit((data) => onCreateService(data))}
+        className="flex flex-col w-full gap-4 pt-1"
+      >
+        {/* Nombre */}
+        <div className="flex flex-col">
+          <label className={labelClass}>Nombre</label>
+          <Input
+            type="text"
+            maxLength={30}
+            className={underlineInput}
+            {...register("name")}
+          />
+          {errors.name?.message && <span className={errorClass}>{errors.name.message}</span>}
+        </div>
+
+        {/* Precio + Seña */}
+        <div className={`grid gap-4 ${mpLinked ? "grid-cols-2" : "grid-cols-1"}`}>
+          <div className="flex flex-col">
+            <label className={labelClass}>Precio</label>
+            <div className="flex items-center border-b border-border focus-within:border-orange-600 transition-colors">
+              <span className="text-sm text-muted-foreground mr-1">$</span>
               <input
                 type="text"
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md outline-none focus:border-orange-500"
-                maxLength={30}
-                {...register("name")}
-                placeholder="Nombre del servicio"
+                inputMode="numeric"
+                className="flex-1 bg-transparent outline-none text-sm py-1 focus:ring-0"
+                value={priceDisplay}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/\./g, "").replace(/\D/g, "");
+                  setPriceDisplay(raw ? Number(raw).toLocaleString("es-AR") : "");
+                  setValue("price", raw ? Number(raw) : 0);
+                }}
               />
-              {errors.name?.message && (
-                <span className="text-xs font-semibold text-red-600">
-                  {" "}
-                  {errors.name.message}{" "}
-                </span>
-              )}
             </div>
-            <div className="flex flex-col gap-2 w-full h-fit">
-              <label className="text-xs font-bold uppercase">Precio</label>
-              <div className="flex items-center w-full gap-2 h-fit">
-                <span className="font-semibold text-md">AR$</span>
+            {errors.price?.message && <span className={errorClass}>{errors.price.message}</span>}
+          </div>
+
+          {mpLinked && (
+            <div className="flex flex-col">
+              <label className={labelClass}>Seña</label>
+              <div className="flex items-center border-b border-border focus-within:border-orange-600 transition-colors">
+                <span className="text-sm text-muted-foreground mr-1">$</span>
                 <input
                   type="text"
                   inputMode="numeric"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md outline-none focus:border-orange-500"
-                  placeholder="Precio del servicio"
-                  value={priceDisplay}
+                  className="flex-1 bg-transparent outline-none text-sm py-1 focus:ring-0"
+                  value={depositDisplay}
                   onChange={(e) => {
-                    const raw = e.target.value.replace(/\D/g, "");
-                    const numeric = raw ? parseInt(raw, 10) : 0;
-                    setPriceDisplay(raw ? numeric.toLocaleString("es-AR") : "");
-                    setValue("price", numeric, { shouldValidate: true });
+                    const raw = e.target.value.replace(/\./g, "").replace(/\D/g, "");
+                    setDepositDisplay(raw ? Number(raw).toLocaleString("es-AR") : "");
+                    setValue("depositAmount", raw ? Number(raw) : 0);
                   }}
                 />
               </div>
-              {errors.price?.message && (
-                <span className="text-xs font-semibold text-red-600">
-                  {" "}
-                  {errors.price?.message}{" "}
-                </span>
+              {errors.depositAmount?.message && (
+                <span className={errorClass}>{errors.depositAmount.message}</span>
               )}
             </div>
-            <div className="flex flex-col gap-2 w-full h-fit">
-              <div className="flex items-center gap-1">
-                <label className="text-xs font-bold uppercase">Descripción/observaciones</label>
-                <span className="text-xs text-gray-500 ">(opcional)</span>
-              </div>
-              <textarea
-                placeholder="Descripción del servicio"
-                className="w-full px-3 py-2 text-sm border min-h-20 border-gray-300 rounded-md outline-none focus:border-orange-500"
-                {...register("description")}
-                maxLength={140}
-              />
-              {errors.description?.message && (
-                <span className="text-xs font-semibold text-red-600">
-                  {" "}
-                  {errors.description?.message}{" "}
-                </span>
-              )}
-            </div>
-            <div className="flex flex-col gap-2 w-full h-fit">
-              <div className="flex items-center gap-1">
-                <label className="text-xs font-bold uppercase">Duración</label>
-                <span className="text-xs text-gray-500 ">(opcional)</span>
-              </div>
-              <Select
-                value={watch("duration") ? String(watch("duration")) : ""}
-                onValueChange={(value) =>
-                  setValue("duration", value ? Number(value) : undefined)
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Seleccionar duración" />
-                </SelectTrigger>
-                <SelectContent>
-                  {[30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240].map(
-                    (minutes) => {
-                      const hours = Math.floor(minutes / 60)
-                      const mins = minutes % 60
-                      const formatDuration = () => {
-                        if (hours === 0) {
-                          return `${minutes} minutos`
-                        } else if (mins === 0) {
-                          return `${hours} hora${hours > 1 ? 's' : ''}`
-                        } else {
-                          return `${hours}:${mins.toString().padStart(2, '0')} horas`
-                        }
-                      }
-                      return (
-                        <SelectItem key={minutes} value={String(minutes)}>
-                          {formatDuration()}
-                        </SelectItem>
-                      )
-                    }
-                  )}
-                </SelectContent>
-              </Select>
-              {errors.duration?.message && (
-                <span className="text-xs font-semibold text-red-600">
-                  {" "}
-                  {errors.duration?.message}{" "}
-                </span>
-              )}
-            </div>
-            <button
-              onClick={handleSubmitClick}
-              className={"inputSubmitField hidden "}
-            />
-          </form>
-        </div>
-
-        <div className="flex justify-center w-full align-middle h-fit">
-          {!loading && (
-
-
-            <Button
-              className="w-full text-white bg-orange-600 border-none rounded-lg shadow-xl outline-none h-11 hover:bg-orange-700 "
-              onClick={handleSubmitClick}
-            >
-              Agregar servicio
-            </Button>
-
-          )}
-          {loading && (
-            <>
-              <div
-                style={{ height: "100%", width: "100%" }}
-                className="flex items-center justify-center w-full"
-              >
-                <div className="loaderSmall"></div>
-              </div>
-            </>
           )}
         </div>
-      </div >
 
-    </>
+        {/* Duración */}
+        <div className="flex flex-col">
+          <label className={labelClass}>Duración</label>
+          <Select onValueChange={(val) => setValue("duration", Number(val))}>
+            <SelectTrigger className="px-0 h-9 bg-transparent border-0 border-b rounded-none shadow-none text-sm focus:ring-0 focus:border-orange-600 transition-colors">
+              <SelectValue placeholder="Seleccioná la duración" />
+            </SelectTrigger>
+            <SelectContent>
+              {[15, 20, 30, 40, 45, 60, 75, 90, 120].map((minutes) => {
+                const hours = Math.floor(minutes / 60);
+                const mins = minutes % 60;
+                const label =
+                  hours > 0
+                    ? mins > 0 ? `${hours}h ${mins}min` : `${hours} hora${hours > 1 ? "s" : ""}`
+                    : `${mins} min`;
+                return (
+                  <SelectItem key={minutes} value={String(minutes)} className="text-xs">
+                    {label}
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+          {errors.duration?.message && <span className={errorClass}>{errors.duration.message}</span>}
+        </div>
+
+        {/* Descripción */}
+        <div className="flex flex-col">
+          <label className={labelClass}>Descripción</label>
+          <textarea
+            className="bg-transparent border-b border-border text-sm py-1.5 outline-none resize-none overflow-hidden focus:border-orange-600 transition-colors"
+            maxLength={140}
+            placeholder="Ingresa una descripción"
+            rows={1}
+            onInput={(e) => {
+              const el = e.currentTarget;
+              el.style.height = "auto";
+              el.style.height = el.scrollHeight + "px";
+            }}
+            {...register("description")}
+          />
+          {errors.description?.message && (
+            <span className={errorClass}>{errors.description.message}</span>
+          )}
+        </div>
+
+        <button type="submit" className="inputSubmitField hidden" />
+      </form>
+
+      <Button
+        className="w-full h-11 mt-2 text-white bg-orange-600 hover:bg-orange-700"
+        onClick={handleSubmitClick}
+      >
+        Crear servicio
+      </Button>
+    </div>
   );
 };
 

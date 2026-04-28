@@ -20,18 +20,19 @@ async function getBusinessData() {
       `/business/get/${ownerID?.value}`,
       authHeader
     );
-    const business:IBusiness = businessReq.data
-    const appointments = await axiosReq.get(`/appointment/get/today/${business._id}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token?.value}`,
-      },
-    });
-    const appList:IAppointment[] = appointments.data
-    
-    return { business: business, appointments: appList };
+    const business: IBusiness = businessReq.data;
+
+    const [appointmentsRes, statsRes] = await Promise.all([
+      axiosReq.get(`/appointment/get/today/${business._id}`, authHeader),
+      axiosReq.get(`/appointment/stats/${business._id}`, authHeader),
+    ]);
+
+    const appList: IAppointment[] = appointmentsRes.data;
+    const stats = statsRes.data ?? null;
+
+    return { business, appointments: appList, stats };
   } catch (error: any) {
-    return undefined
+    return undefined;
   }
 }
 
@@ -58,7 +59,7 @@ const getUser = async () => {
   }
 };
 
-const Dashboard: React.FC = async () => {
+const DashboardPage: React.FC = async () => {
   const data = await getBusinessData();
   const user = await getUser();
   return (
@@ -70,4 +71,4 @@ const Dashboard: React.FC = async () => {
   );
 };
 
-export default Dashboard;
+export default DashboardPage;

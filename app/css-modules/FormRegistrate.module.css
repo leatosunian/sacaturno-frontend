@@ -67,6 +67,17 @@
   background-color: rgba(0, 0, 0, 0.082) !important;
 }
 
+@media (max-width: 1535px) {
+  .loginForm {
+    gap: 12px;
+  }
+
+  .loginFormInput input {
+    height: 26px;
+    font-size: 11px;
+  }
+}
+
 @media (max-width: 768px) {
   .loginForm {
     width: 100%;

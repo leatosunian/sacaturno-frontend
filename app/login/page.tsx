@@ -1,74 +1,63 @@
 import { Metadata } from "next";
-import styles from "../css-modules/login.module.css";
-import stylesHome from "../css-modules/HomeWhite.module.css"
-import FormLogin from "@/components/home/login/FormLogin";
-import sacaturno_logo from "@/public/st_logo_white.png";
-import Image from "next/image";
 import Link from "next/link";
-import { IoIosSearch } from "react-icons/io";
+import { LuCalendarDays } from "react-icons/lu";
 import HeaderPublicBlack from "@/components/home/HeaderPublicBlack";
 import Footer from "@/components/home/Footer";
+import FormLogin from "@/components/home/login/FormLogin";
+import styles from "@/app/css-modules/AuthCentered.module.css";
+
+export const metadata: Metadata = {
+  title: "Iniciar sesión — SacaTurno",
+  description: "Iniciá sesión en tu cuenta de SacaTurno para gestionar tus turnos y tu agenda online.",
+  robots: { index: false, follow: false },
+};
 
 export default function Login() {
   return (
     <>
       <HeaderPublicBlack />
-      <div style={{ height: 'calc(100vh - 64px)', paddingTop: '0px', marginBottom: '64px' }}>
-        <div className="flex flex-col w-full h-screen lg:flex-row ">
 
+      <main className={styles.authBg}>
+        <div className="relative z-[2] flex flex-col items-center gap-[18px] max-[1535px]:gap-3 w-full max-w-[460px]">
 
-          <div className={`flex-col items-center justify-center hidden w-full pt-0 md:pt-0 md:pb-0 lg:flex pb-14 h-2 lg:h-full lg:w-2/5 ${styles.backgroundImage} `}>
-            <Image
-              className="w-48 lg:mt-0 lg:w-96"
-              alt="SacaTurno — Tu app de turnos online"
-              src={sacaturno_logo}
-            />
-            <span className="mt-2 text-sm font-thin text-gray-200 lg:mt-0 lg:text-lg">
-              tu app para gestionar tu agenda
-            </span>
-            <div className="hidden mt-10 lg:block">
-              <Link
-                href="/public/search"
-                type="submit"
-                className={`${styles.translucentBtn2} font-light uppercase`}
-                style={{ padding: " 12px 16px ", fontSize: "13px" }}
-              >
-                <IoIosSearch size={24} />
-                Buscar empresa
+          <span className="inline-flex items-center gap-[7px] px-[13px] max-[1535px]:px-[11px] py-[5px] max-[1535px]:py-1 rounded-[20px] bg-[#fff1e8] text-[#dd4924] text-[10.5px] max-[1535px]:text-[9.5px] font-semibold tracking-[0.7px] uppercase">
+            <LuCalendarDays size={12} />
+            SacaTurno
+          </span>
+
+          <h1 className="m-0 text-[38px] max-[1535px]:text-[30px] font-bold tracking-[-1.4px] max-[1535px]:tracking-[-1px] text-[#1a1a1a] text-center leading-[1.05]">
+            Volvé a tu agenda.
+          </h1>
+          <p className="-mt-1 max-[1535px]:-mt-0.5 text-[14px] max-[1535px]:text-[13px] text-[#7a7a7a] text-center max-w-[400px] leading-[1.55]">
+            Ingresá para ver tus turnos del día y gestionar tu agenda.
+          </p>
+
+          <div className="w-full bg-white rounded-[15px] shadow-[-10px_10px_25px_1px_rgba(0,0,0,0.12)] border border-black/[0.06] overflow-hidden">
+            <div className="h-[3px] bg-gradient-to-r from-[#dd4924] to-[#ff8a5c]" />
+
+            <div className="flex p-1 mx-7 max-[1535px]:mx-[22px] mt-6 max-[1535px]:mt-[18px] bg-black/[0.04] rounded-[9px]">
+              <Link href="/login" className="flex-1 py-2 px-3 bg-white rounded-[6px] text-[#dd4924] text-xs font-semibold cursor-pointer text-center no-underline block transition-all duration-200 ease-in-out shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+                Iniciar sesión
+              </Link>
+              <Link href="/register" className="flex-1 py-2 px-3 bg-transparent rounded-[6px] text-[#6a6a6a] text-xs font-semibold cursor-pointer text-center no-underline block transition-all duration-200 ease-in-out">
+                Registrate
               </Link>
             </div>
-          </div>
 
-
-          <div className={`flex justify-center w-full my-auto md:my-0 pt-10 md:pt-24 items-start md:items-center lg:pt-0 lg:mt-0 h-full lg:w-3/5 ${stylesHome.dottedBg}`}>
-            <div className={styles.loginCont}>
-              <div className={styles.loginHeader}>
-
-                <h3
-                  className="relative inline-block mb-3 text-2xl font-semibold uppercase xl:text-3xl px-auto"
-
-                >
-                  Iniciar Sesión
-                  <span
-                    className="absolute left-0 mx-auto"
-                    style={{
-                      bottom: 0,    // gap entre texto y linea (ajustalo)
-                      height: 2,     // grosor de la linea (ajustalo)
-                      background: "#dd4924",
-                      width: "40%",  // ancho opcional de la linea
-                    }}
-                  />
-                </h3>
-
-                <span className="text-xs text-center text-gray-500 lg:text-sm">
-                  ¡Accedé a tu cuenta para gestionar tus turnos!
-                </span>
-              </div>
+            <div className="pt-5 max-[1535px]:pt-[14px] px-7 max-[1535px]:px-[22px] pb-7 max-[1535px]:pb-[22px]">
               <FormLogin />
             </div>
           </div>
+
+          <p className="text-[11px] text-[#a0a0a0] text-center">
+            Al continuar aceptás nuestros{" "}
+            <Link href="/faq/terminos" className="text-[#6a6a6a] font-semibold no-underline hover:text-[#dd4924]">términos</Link> y{" "}
+            <Link href="/faq/privacidad" className="text-[#6a6a6a] font-semibold no-underline hover:text-[#dd4924]">política de privacidad</Link>.
+          </p>
+
         </div>
-      </div>
+      </main>
+
       <Footer />
     </>
   );

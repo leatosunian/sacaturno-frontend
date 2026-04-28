@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { ChevronLeft, ChevronRight, CalendarDays, Info, Tag } from "lucide-react"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
@@ -8,6 +8,7 @@ import { IAppointment } from "@/interfaces/appointment.interface"
 import { IBusiness } from "@/interfaces/business.interface"
 import { IDaySchedule } from "@/interfaces/daySchedule.interface"
 import BookAppointmentModal from "./BookAppointmentModal"
+import BookingCalendar from "./BookingCalendar"
 import axiosReq from "@/config/axios"
 import { TimeSlotMobile } from "./ListBookAppointment/TimeSlotMobile"
 import { TimeSlot } from "./ListBookAppointment/TimeSlot"
@@ -39,6 +40,12 @@ function extractTime(iso: string): string {
 function dateForDateStr(dateStr: string): Date {
   const base = new Date(`${dateStr}T12:00:00Z`)
   return new Date(base.getTime() + TZ_MS)
+}
+
+// Returns current Argentina local datetime as a comparable ISO string,
+// using the same UTC+TZ_MS transformation as toISOString().
+function getNowArgISO(): string {
+  return new Date(Date.now() + TZ_MS).toISOString()
 }
 
 function addDaysStr(dateStr: string, days: number): string {
@@ -75,6 +82,7 @@ interface IService {
   _id: string
   name: string
   description?: string
+  depositAmount?: number
   businessID: string
   [key: string]: unknown
 }
@@ -122,14 +130,11 @@ export default function ListBookAppointment({
   scheduleDays,
 }: Props) {
   const initialDateStr = useMemo(() => {
-    if (appointments.length > 0) {
-      return extractDateStr(toISOString(appointments[0].start))
-    }
-    const n = new Date()
-    const adjusted = new Date(n.getTime() + TZ_MS)
+    const adjusted = new Date(Date.now() + TZ_MS)
     return `${adjusted.getUTCFullYear()}-${String(adjusted.getUTCMonth() + 1).padStart(2, "0")}-${String(adjusted.getUTCDate()).padStart(2, "0")}`
-  }, [appointments])
+  }, [])
 
+  const mobileSlotsRef = useRef<HTMLDivElement>(null)
   const [currentDateStr, setCurrentDateStr] = useState<string>(initialDateStr)
   const [selectedSlot, setSelectedSlot] = useState<FormattedAppointment | null>(null)
   const [bookAppointmentModal, setBookAppointmentModal] = useState(false)
@@ -169,6 +174,18 @@ export default function ListBookAppointment({
     return scheduleDays.find((d) => d.day === key) ?? defaultSchedule
   }, [currentDateStr, scheduleDays])
 
+  // ── Available dates (future unbooked slots for selected service) ──
+  const availableDateStrSet = useMemo(() => {
+    const nowISO = getNowArgISO()
+    const set = new Set<string>()
+    appointments
+      .filter((apt) => apt.status === "unbooked")
+      .filter((apt) => !selectedService || apt.service === selectedService)
+      .filter((apt) => toISOString(apt.start) > nowISO)
+      .forEach((apt) => set.add(extractDateStr(toISOString(apt.start))))
+    return set
+  }, [appointments, selectedService])
+
   // ── Get selected service object ──
   const selectedServiceObj = useMemo(() => {
     return services.find((svc) => svc.name === selectedService)
@@ -180,14 +197,16 @@ export default function ListBookAppointment({
     return typeof serviceDuration === 'number' ? serviceDuration : daySchedule.appointmentDuration
   }, [selectedServiceObj, daySchedule])
 
-  // ── Formatted appointments for current day (with service filter) ──
+  // ── Formatted appointments for current day (with service filter, future only) ──
   const dayAppointments = useMemo(() => {
+    const nowISO = getNowArgISO()
     return appointments
       .filter((apt) => extractDateStr(toISOString(apt.start)) === currentDateStr)
       .filter((apt) => {
         if (!selectedService) return true
         return apt.service === selectedService
       })
+      .filter((apt) => toISOString(apt.start) > nowISO)
       .map((apt): FormattedAppointment => {
         const startISO = toISOString(apt.start)
         const endISO = toISOString(apt.end)
@@ -318,18 +337,16 @@ export default function ListBookAppointment({
         open={bookAppointmentModal}
         onOpenChange={() => setBookAppointmentModal(false)}
       >
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:w-[460px] w-[93vw]">
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:w-[720px] w-[93vw] max-w-none">
           {selectedSlot && (
             <BookAppointmentModal
               appointmentData={selectedSlot}
               businessData={businessData}
               modalDateStr={modalDateStr}
+              depositAmount={selectedServiceObj?.depositAmount ?? 0}  
               closeModalF={(action: string) => {
                 setBookAppointmentModal(false)
                 setSelectedSlot(null)
-                if (action === "BOOKED" || action === "CANCELLED") {
-                  // Parent can react to the action here
-                }
               }}
             />
           )}
@@ -338,10 +355,10 @@ export default function ListBookAppointment({
 
       <div className="flex flex-col w-full min-h-screen bg-background">
         {/* ── Main Content ── */}
-        <main className="flex flex-col flex-1 w-full max-w-6xl py-6 mx-auto px-7 2xl:max-w-8xl md:px-8 md:py-10">
+        <main className="flex flex-col flex-1 w-full max-w-6xl py-5 mx-auto px-7 2xl:max-w-8xl md:px-8 md:py-7">
           {/* Header */}
-          <header className="flex flex-col items-center mb-5 md:mb-8 md:items-start">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+          <header className="flex flex-col items-center mb-5 md:mb-5 md:items-start">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
               {businessData.name}
             </h1>
             <p className="mt-1 text-xs font-medium tracking-widest text-orange-500 uppercase text-muted-foreground">
@@ -352,10 +369,10 @@ export default function ListBookAppointment({
           {/* ── Desktop Layout ── */}
           <div className="flex-1 hidden gap-8 md:flex h-fit">
             {/* Left Column – Date Info */}
-            <div className="flex flex-col gap-5 w-72 h-fit shrink-0">
+            <div className="flex flex-col gap-3 w-72 h-fit shrink-0">
               {/* Date Card */}
               <div className="p-5 border-none rounded-xl bg-muted/50">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold text-foreground">
                     Fecha del turno
                   </h3>
@@ -384,12 +401,9 @@ export default function ListBookAppointment({
                     <span className="text-sm font-medium text-muted-foreground">
                       {dayNumber} de {MONTH_NAMES[dateForDateStr(currentDateStr).getUTCMonth()]}
                     </span>
-                    {/* <span className="text-xs text-muted-foreground">
-                      Horario de atencion: {scheduleHours}
-                    </span> */}
                   </div>
                 </div>
-                <div className="flex items-center justify-end gap-3 pt-8 mt-auto">
+                <div className="flex items-center justify-end gap-3 pt-5 mt-auto">
                   <button
                     onClick={goPrev}
                     disabled={!canGoPrev}
@@ -411,12 +425,13 @@ export default function ListBookAppointment({
                 </div>
               </div>
 
-              {/* Service Filter Card */}
-              {(services.length >= 1 || loadingServices) && (
-                <div className="p-4 border-none rounded-xl bg-muted/50">
-                  <ServiceFilterButtons />
-                </div>
-              )}
+              {/* Calendar */}
+              <BookingCalendar
+                currentDateStr={currentDateStr}
+                initialDateStr={initialDateStr}
+                availableDateStrSet={availableDateStrSet}
+                onDateSelect={(dateStr) => { setCurrentDateStr(dateStr); setSelectedSlot(null) }}
+              />
 
               {/* Info Card */}
               {/* <div className="p-4 border border-orange-200 border-dashed rounded-xl bg-orange-50">
@@ -436,7 +451,6 @@ export default function ListBookAppointment({
               {/* Section Header */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex flex-col gap-0.5">
-
                   <span className="text-sm font-semibold text-orange-500">
                     Horarios Disponibles
                   </span>
@@ -444,8 +458,6 @@ export default function ListBookAppointment({
                     <h2 className="text-[1.3rem] font-bold text-foreground">
                       {selectedService}
                     </h2>
-
-
                   )}
                 </div>
                 <div className="flex items-center gap-4">
@@ -463,6 +475,13 @@ export default function ListBookAppointment({
                   </div>
                 </div>
               </div>
+
+              {/* Service Filter */}
+              {(services.length >= 1 || loadingServices) && (
+                <div className="mb-4">
+                  <ServiceFilterButtons />
+                </div>
+              )}
 
               {/* Time Slots Grid */}
               {dayAppointments.length === 0 ? (
@@ -546,12 +565,42 @@ export default function ListBookAppointment({
               </button>
             </div>
 
+            {/* Mobile Calendar */}
+            <div className="pb-4 mb-4 border-b border-border">
+              <BookingCalendar
+                currentDateStr={currentDateStr}
+                initialDateStr={initialDateStr}
+                availableDateStrSet={availableDateStrSet}
+                onDateSelect={(dateStr) => {
+                  setCurrentDateStr(dateStr)
+                  setSelectedSlot(null)
+                  setTimeout(() => {
+                    mobileSlotsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+                  }, 50)
+                }}
+              />
+            </div>
+
             {/* Mobile Service Filter */}
             {(services.length >= 1 || loadingServices) && (
               <div className="pb-4 mb-4 border-b border-border">
                 <ServiceFilterButtons />
               </div>
             )}
+
+            {/* Selected date label */}
+            <div ref={mobileSlotsRef} className="flex items-center gap-2.5 mb-3">
+              <div className="flex flex-col items-center items- justify-center bg-orange-100 rounded-lg size-10 shrink-0">
+                <span className="text-[9px] font-bold uppercase leading-none text-orange-500">{monthLabel}</span>
+                <span className="text-sm font-bold leading-tight text-orange-600">{dayNumber}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-bold uppercase text-foreground">{dayNameFull}</span>
+                <span className="text-xs text-muted-foreground">
+                  {dayNumber} de {MONTH_NAMES[dateForDateStr(currentDateStr).getUTCMonth()]}
+                </span>
+              </div>
+            </div>
 
             {/* Time Slots Grid */}
             {dayAppointments.length === 0 ? (

@@ -1,5 +1,4 @@
 import { Metadata, NextPage } from "next";
-import styles from "@/app/css-modules/miempresa.module.css";
 import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
 import { cookies } from "next/headers";
@@ -8,7 +7,8 @@ import { IService } from "@/interfaces/service.interface";
 import { MdOutlineWorkHistory } from "react-icons/md";
 import { FaArrowLeft } from "react-icons/fa6";
 import dayjs from "dayjs";
-import FormSettings from "@/components/dashboard/services/FormSettings";
+import FormServices from "@/components/dashboard/services/FormServices";
+import MercadoPagoConnect from "@/components/dashboard/business/MercadoPagoConnect";
 
 export const metadata: Metadata = {
   title: "Servicios y suscripciones | SacaTurno",
@@ -26,11 +26,7 @@ async function getBusinessData() {
         Authorization: `Bearer ${token?.value}`,
       },
     };
-
-    const res = await axiosReq.get(
-      `/business/get/${ownerID?.value}`,
-      authHeader
-    );
+    const res = await axiosReq.get(`/business/get/${ownerID?.value}`, authHeader);
     return res.data;
   } catch (error: any) {
     const response_data = {
@@ -57,19 +53,13 @@ async function getServicesData() {
         Authorization: `Bearer ${token?.value}`,
       },
     };
-
     const allServices = await axiosReq.get(
       `/business/service/get/user/${ownerID?.value}`,
       authHeader
     );
     return allServices.data;
   } catch (error) {
-    const response_data = {
-      _id: "",
-      name: "",
-      businessID: "",
-      owner: "",
-    };
+    const response_data = { _id: "", name: "", businessID: "", owner: "" };
     return { response_data };
   }
 }
@@ -89,24 +79,16 @@ async function getSubscriptionData() {
       `/subscription/get/ownerID/${ownerID?.value}`,
       authHeader
     );
-
-    console.log(subscriptionData.data);
-
     if (subscriptionData.data) {
-      const subscription = {
+      return {
         businessID: subscriptionData.data.businessID,
         ownerID: subscriptionData.data.ownerID,
         subscriptionType: subscriptionData.data.subscriptionType,
-        paymentDate: dayjs(subscriptionData.data.paymentDate).format(
-          "DD/MM/YYYY"
-        ),
-        expiracyDate: dayjs(subscriptionData.data.expiracyDate).format(
-          "DD/MM/YYYY"
-        ),
+        paymentDate: dayjs(subscriptionData.data.paymentDate).format("DD/MM/YYYY"),
+        expiracyDate: dayjs(subscriptionData.data.expiracyDate).format("DD/MM/YYYY"),
         expiracyDay: subscriptionData.data.expiracyDay,
         expiracyMonth: subscriptionData.data.expiracyMonth,
       };
-      return subscription;
     }
   } catch (error) {
     const response_data = {
@@ -120,7 +102,7 @@ async function getSubscriptionData() {
   }
 }
 
-const Settings: NextPage = async ({ }) => {
+const SettingsPage: NextPage = async ({}) => {
   const services: IService[] = await getServicesData();
   const data: IBusiness = await getBusinessData();
   const subscription = await getSubscriptionData();
@@ -130,64 +112,47 @@ const Settings: NextPage = async ({ }) => {
       {typeof data === "string" && (
         <div
           style={{ height: "calc(100vh - 64px)" }}
-          className="flex flex-col items-center justify-center w-full gap-6 px-4 text-center min-w-40"
+          className="flex flex-col items-center justify-center w-full gap-6 px-4 text-center"
         >
           <MdOutlineWorkHistory color="#dd4924" size={100} />
           <span className="font-semibold sm:text-lg md:text-xl">
             No tenés una empresa creada.
           </span>
-          <Link href="/admin/business/create">
-            <button className={styles.button}>Crear empresa</button>
+          <Link
+            href="/admin/business/create"
+            className="flex items-center gap-2 bg-orange-600 hover:bg-[#d92f04] text-white text-xs font-semibold px-5 py-2.5 rounded-lg transition-all duration-300 ease-in-out"
+          >
+            Crear empresa
           </Link>
         </div>
       )}
+
       {typeof data !== "string" && (
-        <>
-          <header className="flex flex-col items-center justify-center w-full mt-5 mb-4 md:mt-5 md:mb-6 h-fit">
-            <h4
-              className="relative inline-block px-2 font-bold text-center uppercase"
-              style={{ fontSize: 20 }}
+        <div className="flex flex-col gap-5 w-full max-w-screen-md 2xl:max-w-screen-lg mx-auto px-4 py-4 2xl:py-10">
+          <div className="flex items-center justify-between">
+            <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">Servicios</h1>
+            <Link
+              href="/admin/business"
+              className="flex items-center gap-1.5 text-xs 2xl:text-sm font-semibold text-orange-600 uppercase hover:underline transition-all duration-200"
             >
-              mi empresa
-
-              {/* linea */}
-              <span
-                className="absolute left-0 right-0 mx-auto"
-                style={{
-                  bottom: -2,    // gap entre texto y linea (ajustalo)
-                  height: 2,     // grosor de la linea (ajustalo)
-                  background: "#dd4924",
-                  width: "60%",  // ancho opcional de la linea
-                }}
-              />
-            </h4>
-          </header>
-          <div className="flex flex-col justify-center w-full gap-4 mt-5 h-fit">
-            <FormSettings
-              businessData={data}
-              servicesData={services}
-              subscriptionData={subscription}
-            />
-
-            <div
-              className={`mx-auto flex justify-start my-5 h-fit lg:my-8 ${styles.configArrows}`}
-            >
-              <Link
-                className="flex items-center gap-2 text-xs font-semibold uppercase"
-                style={{ color: "#dd4924" }}
-                href="/admin/business"
-              >
-                <FaArrowLeft />
-                Ajustes de mi empresa
-              </Link>
-            </div>
-            {/* SPACER */}
-            <div className="w-full h-5 md:h-20 "></div>
+              <FaArrowLeft size={11} />
+              Mi empresa
+            </Link>
           </div>
-        </>
+
+          <FormServices
+            businessData={data}
+            servicesData={services}
+            subscriptionData={subscription}
+          />
+
+          <MercadoPagoConnect businessData={data} />
+
+          <div className="w-full h-10" />
+        </div>
       )}
     </>
   );
 };
 
-export default Settings;
+export default SettingsPage;

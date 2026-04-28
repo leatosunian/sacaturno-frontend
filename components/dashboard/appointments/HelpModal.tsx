@@ -1,156 +1,193 @@
 "use client";
-import styles from "@/app/css-modules/NoServicesModal.module.css";
-import { IoMdClose } from "react-icons/io";
-import Image from "next/image";
-import addmultiple from "@/public/addmultiple.gif";
-import { FaExternalLinkAlt } from "react-icons/fa";
+import { useState } from "react";
 import Link from "next/link";
+import { LuCalendarDays, LuMousePointerClick, LuPencilLine, LuCalendarClock } from "react-icons/lu";
+import { FaRepeat } from "react-icons/fa6";
+import { FaExternalLinkAlt } from "react-icons/fa";
+import { cn } from "@/lib/utils";
 
 interface Props {
   onClose: () => void;
 }
 
+interface Step {
+  number: number;
+  icon: React.ReactNode;
+  title: string;
+  badge: string | null;
+  description: string;
+  tip: string | null;
+  extra: React.ReactNode;
+}
+
 const HelpModal: React.FC<Props> = ({ onClose }) => {
+  const [activeStep, setActiveStep] = useState(0);
+
+  const steps: Step[] = [
+    {
+      number: 1,
+      icon: <FaRepeat size={18} className="text-orange-500" />,
+      title: "Turnos automáticos",
+      badge: "Recomendado",
+      description:
+        'Ingresá a "Automatizar agenda", hacé click en "Tutorial" y seguí las instrucciones para programar tus turnos.',
+      tip: "Con esta opción el sistema crea los turnos por vos. No tenés que hacer nada más que configurar tu agenda.",
+      extra: (
+        <Link
+          href="/admin/schedule/automate"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600 hover:text-orange-700 underline underline-offset-2 transition-colors"
+        >
+          <FaExternalLinkAlt size={11} />
+          Ir a Automatizar agenda
+        </Link>
+      ),
+    },
+    {
+      number: 2,
+      icon: <LuCalendarDays size={22} className="text-orange-500" />,
+      title: "Configurá tu horario",
+      badge: null,
+      description:
+        'Ingresá la hora de inicio (ej: 9:00), la hora de fin (ej: 18:00) y el intervalo entre turnos (ej: 1 hora).',
+      tip: "Podés configurar horarios distintos para cada día de la semana.",
+      extra: null,
+    },
+    {
+      number: 3,
+      icon: <LuMousePointerClick size={22} className="text-orange-500" />,
+      title: "Agregá un turno",
+      badge: null,
+      description:
+        "Hacé clic en cualquier franja del calendario para agregar un turno. Podés crearlo como disponible (para que tus clientes lo reserven) o como ya reservado completando los datos del cliente y el servicio.",
+      tip: 'Desde el celular, mantené presionado el horario hasta que se marque y luego elegí la opción.',
+      extra: null,
+    },
+    {
+      number: 4,
+      icon: <LuCalendarClock size={22} className="text-orange-500" />,
+      title: "Crear turnos del día",
+      badge: null,
+      description:
+        "En el día a modificar, hacé clic en \"Crear turnos del día\" para agregar múltiples turnos. Seleccioná el servicio, el horario de inicio y fin, y la duración de cada turno. El sistema genera todos los turnos disponibles dentro del rango horario que ingresaste.",
+      tip: "Ideal para cuando arrancás la semana y querés cargar toda tu agenda en segundos sin hacerlo turno por turno.",
+      extra: null,
+    },
+    {
+      number: 5,
+      icon: <LuPencilLine size={22} className="text-orange-500" />,
+      title: "Combiná los dos modos",
+      badge: null,
+      description:
+        "No tenés que elegir uno solo. Podés tener la agenda automática activada y de vez en cuando agregar o cancelar turnos a mano, por ejemplo para un cliente fuera de tu horario habitual o un horario que no podrás cubrir.",
+      tip: "Esta combinación es la más flexible: el sistema trabaja solo y vos solo intervenís cuando hace falta.",
+      extra: null,
+    },
+  ];
+
+  const step = steps[activeStep];
+  const isFirst = activeStep === 0;
+  const isLast = activeStep === steps.length - 1;
+
   return (
-    <>
-      <div className="flex flex-col  w-full gap-8  h-[80vh] sm:h-[75vh] pt-4 ">
-        <h4
-          className="relative inline-block w-full px-2 mx-auto text-2xl font-bold text-center uppercase"
-          style={{ fontSize: 22 }}
-        >
-          ¿Cómo cargo mis turnos?
-          {/* linea */}
-          <span
-            className="absolute left-0 right-0 mx-auto"
-            style={{
-              bottom: -2,    // gap entre texto y linea 
-              height: 2,     // grosor de la linea
-              background: "#dd4924",
-              width: "30%",  // ancho opcional de la linea
-            }}
+    <div className="flex flex-col gap-0 px-5 pb-5">
+      {/* Header */}
+      <div className="flex flex-col gap-1 pb-4 border-b border-gray-100">
+        <h2 className="text-lg font-bold text-gray-800">¿Cómo cargo mis turnos?</h2>
+        <p className="text-sm text-gray-500">
+          Dos formas de trabajar: automática y/o manual. Vos elegís.
+        </p>
+      </div>
+
+      {/* Step indicators */}
+      <div className="flex items-center gap-1.5 py-4">
+        {steps.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setActiveStep(i)}
+            className={cn(
+              "h-1.5 rounded-full transition-all duration-300",
+              i === activeStep
+                ? "bg-orange-500 w-8"
+                : i < activeStep
+                ? "bg-orange-200 w-4"
+                : "bg-gray-200 w-4"
+            )}
           />
-        </h4>
+        ))}
+        <span className="ml-auto text-xs text-gray-400 font-medium tabular-nums">
+          {activeStep + 1} / {steps.length}
+        </span>
+      </div>
 
-        <div
-          className={`${styles.helpContScrollbar} flex flex-col pb-5 gap-10 px-5 overflow-y-scroll  `}
-        >
-          {/* TURNOS AUTOMÁTICOS */}
-          <div className="flex flex-col w-full gap-4 h-fit">
-            <h4 className="text-lg font-bold uppercase">
-              ⚡ Turnos automáticos <span className="text-sm font-normal text-gray-400 lowercase"> (recomendado)</span>
-            </h4>
-
-            <div className="flex flex-col gap-4 w-fit h-fit">
-              <span className="text-sm flex gap-2">
-                <b className="text-orange-600">1.</b> Ingresá a
-                <Link
-                  href={"/admin/schedule/settings"}
-                  className="flex items-center gap-1 w-fit font-semibold hover:underline underline-offset-2"
-                >
-                  <FaExternalLinkAlt size={12} />
-                  Configuración de agenda
-                </Link>
-              </span>
-
-              <span className="text-sm">
-                <b className="text-orange-600">2.</b>  Configurá tu <b>horario de atención</b>:
-                definí los días y horarios de trabajo, la duración de cada turno
-                y los servicios que ofrecés.
-              </span>
-
-              <span className="text-sm">
-                <b className="text-orange-600">3.</b>  En la sección <b>Automatizar turnos</b>, activá la opción
-                <b> Crear turnos automáticamente</b>.
-              </span>
-
-              <span className="text-sm">
-                <b className="text-orange-600">4.</b> Elegí cuántos días querés generar turnos y
-                cuántos días antes del último turno el sistema debe volver
-                a crearlos.
-              </span>
-
-              <span className="text-sm">
-                <b>🎉 ¡Listo!</b> A partir de ese momento, los turnos se
-                crearán de forma automática según tu configuración.
-              </span>
-            </div>
+      {/* Step content */}
+      <div className="flex flex-col gap-4">
+        {/* Icon + title */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-orange-50 border border-orange-100 shrink-0">
+            {step.icon}
           </div>
-
-          {/* TURNOS MANUALES */}
-          <div className="flex flex-col w-full gap-4 my-2 h-fit">
-            <h4 className="text-lg font-bold uppercase">
-              ✍️ Turnos manuales
-            </h4>
-
-            <div className="flex flex-col gap-3 w-fit h-fit">
-              <span className="text-sm">
-                Si preferís mayor control, podés crear tus turnos manualmente
-                desde <b>Mi agenda</b>, eligiendo el día y horario que desees.
-              </span>
-
-              <span className="text-sm">
-                También podés modificar la duración de los turnos cambiando
-                el intervalo (por ejemplo: 15, 30 o 60 minutos).
-              </span>
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-2">
+              {/* <span className="text-xs font-semibold text-orange-500 uppercase tracking-wide">
+                Paso {step.number}
+              </span> */}
+              {step.badge && (
+                <span className="text-[10px] font-semibold bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">
+                  {step.badge}
+                </span>
+              )}
             </div>
-          </div>
-
-          {/* USO DEL PANEL */}
-          <div className="flex flex-col w-full gap-4 my-2 h-fit">
-            <div className="flex flex-col gap-2 w-fit h-fit">
-              <h4 className="mb-4 text-lg font-bold uppercase">
-                🧭 Cómo usar la agenda
-              </h4>
-
-              <label
-                style={{ fontSize: "14px" }}
-                className="font-bold uppercase"
-              >
-                Agregar un turno
-              </label>
-
-              <span className="text-sm">
-                <b>Desde el celular:</b> mantené presionado el horario deseado
-                hasta que se marque en gris, seleccioná el servicio y tocá
-                <b> Crear turno</b>.
-              </span>
-
-              <span className="mt-1 text-sm">
-                <b>Desde la computadora:</b> hacé clic en el horario,
-                elegí el servicio y presioná <b>Crear turno</b>.
-              </span>
-            </div>
-          </div>
-
-          {/* COMBINAR HORARIOS */}
-          <div className="flex flex-col w-full gap-4 my-2 h-fit">
-            <div className="flex flex-col gap-2 w-fit h-fit">
-              <label
-                style={{ fontSize: "14px" }}
-                className="font-bold uppercase"
-              >
-                Combinar horarios <span className="text-sm font-normal text-gray-400 lowercase"> (turnos largos)</span>
-              </label>
-
-              <span className="text-sm">
-                Para crear un turno más largo,
-                <b> mantené presionado</b> el horario de inicio y
-                <b> arrastrá</b> hasta el horario de finalización.
-              </span>
-
-              <Image
-                alt="Agregar turno largo"
-                className="w-3/6 mt-2 rounded-xl"
-                src={addmultiple}
-              />
-            </div>
+            <h3 className="text-base font-bold text-gray-800 leading-snug">{step.title}</h3>
           </div>
         </div>
 
+        {/* Description */}
+        <p className="text-[15px] my-1 text-gray-700 leading-relaxed">{step.description}</p>
 
-        {/* <span>Hacé click en un turno para ver los detalles</span> */}
+        {/* Extra content (image, link, etc.) */}
+        {step.extra}
+
+        {/* Tip */}
+        {step.tip && (
+          <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
+            <span className="text-base leading-none mt-0.5 shrink-0">💡</span>
+            <p className="text-sm text-blue-600 leading-relaxed">{step.tip}</p>
+          </div>
+        )}
       </div>
-    </>
+
+      {/* Navigation */}
+      <div className="flex items-center justify-between pt-5 mt-5 border-t border-gray-100">
+        <button
+          onClick={() => setActiveStep((s) => Math.max(s - 1, 0))}
+          disabled={isFirst}
+          className={cn(
+            "h-9 px-4 rounded-lg text-sm font-semibold border transition-colors duration-200",
+            isFirst
+              ? "border-gray-100 text-gray-300 cursor-not-allowed"
+              : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+          )}
+        >
+          Anterior
+        </button>
+
+        {!isLast ? (
+          <button
+            onClick={() => setActiveStep((s) => Math.min(s + 1, steps.length - 1))}
+            className="h-9 px-5 rounded-lg text-sm font-semibold bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-200"
+          >
+            Siguiente
+          </button>
+        ) : (
+          <button
+            onClick={onClose}
+            className="h-9 px-5 rounded-lg text-sm font-semibold bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-200"
+          >
+            ¡Entendido!
+          </button>
+        )}
+      </div>
+    </div>
   );
 };
 

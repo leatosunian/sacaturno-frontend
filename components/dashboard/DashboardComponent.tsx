@@ -1,12 +1,16 @@
 "use client";
 import { IBusiness } from "@/interfaces/business.interface";
 import { IUser } from "@/interfaces/user.interface";
-import { LuCalendarDays } from "react-icons/lu";
+import {
+  LuCalendarDays,
+  LuCalendarCheck,
+  LuTrendingUp,
+  LuUsers,
+} from "react-icons/lu";
 import { MdOutlineWorkOutline } from "react-icons/md";
-import { FaRegEdit, FaRegQuestionCircle } from "react-icons/fa";
+import { FaRegEdit } from "react-icons/fa";
 import Link from "next/link";
 import { IoMdMore } from "react-icons/io";
-import styles from "@/app/css-modules/FormMiEmpresa.module.css";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
@@ -19,14 +23,23 @@ import { TbCalendarCog } from "react-icons/tb";
 import GuideDialog from "./GuideDialog";
 import { IoInformationCircle } from "react-icons/io5";
 import axiosReq from "@/config/axios";
-import router from "next/router";
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { AnimatePresence, motion } from "framer-motion";
+import { Separator } from "../ui/separator";
+
+interface IDashboardStats {
+  todayRemaining: number;
+  weekBooked: number;
+  monthBooked: number;
+  monthRevenue: number;
+}
 
 interface Props {
   businessData:
   | {
     business: IBusiness | undefined;
     appointments: IAppointment[] | undefined;
+    stats: IDashboardStats | null;
   }
   | undefined;
   userData: IUser | undefined;
@@ -47,6 +60,15 @@ interface eventType extends IAppointment {
   price: number | undefined;
 }
 
+const cardShadow = { boxShadow: "5px 5px 8px hsla(0, 0%, 12%, 0.17)" };
+
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 0,
+  }).format(amount);
+
 const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [appointmentsData, setAppointmentsData] = useState<eventType[]>();
@@ -55,21 +77,20 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
   const [selectedAppointment, setSelectedAppointment] = useState<eventType>();
   const [openGuideDialog, setOpenGuideDialog] = useState<boolean>(false);
 
+  const stats = businessData?.stats ?? null;
+
   useEffect(() => {
     parseAppointments(businessData?.appointments);
-    return;
   }, [businessData]);
 
   useEffect(() => {
     if (userData?.isFirstLogin) {
       setOpenGuideDialog(true);
     }
-
-  }, [userData])
-
+  }, [userData]);
 
   const handleSelectEvent = (event: eventType) => {
-    const eventDataObj: eventType = {
+    setSelectedAppointment({
       _id: event._id,
       start: event.start,
       end: event.end,
@@ -81,8 +102,8 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
       email: event.email,
       service: event.service,
       price: event.price,
-    };
-    setSelectedAppointment(eventDataObj);
+      depositStatus: event.depositStatus,
+    });
     setAppointmentInfoModal(true);
   };
 
@@ -91,78 +112,62 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
     dayjs.extend(utc);
     dayjs.extend(advanced);
 
-    let appointmentsList: eventType[] = [];
-
-    appointments?.map(
-      ({
-        start,
-        end,
-        title,
-        clientID,
-        businessID,
-        _id,
-        status,
-        name,
-        email,
-        phone,
-        service,
-        price,
-      }) => {
-        let appointmentObj: eventType;
-        appointmentObj = {
-          start: dayjs(start).tz("America/Argentina/Buenos_Aires").toDate(),
-          end: dayjs(end).tz("America/Argentina/Buenos_Aires").toDate(),
-          title,
-          clientID,
-          status,
-          businessID,
-          _id,
-          name,
-          email,
-          phone,
-          service,
-          price,
-        };
-        if (appointmentObj.status === "booked") {
-          appointmentsList.push(appointmentObj);
-        }
+    const list: eventType[] = [];
+    appointments?.forEach((appt) => {
+      if (appt.status === "booked") {
+        list.push({
+          ...appt,
+          title: appt.title,
+          clientID: appt.clientID,
+          name: appt.name,
+          email: appt.email,
+          phone: appt.phone,
+          service: appt.service,
+          price: appt.price,
+          start: dayjs(appt.start)
+            .tz("America/Argentina/Buenos_Aires")
+            .toDate(),
+          end: dayjs(appt.end).tz("America/Argentina/Buenos_Aires").toDate(),
+        });
       }
-    );
-    setAppointmentsData(appointmentsList);
+    });
+    list.sort((a, b) => a.start.getTime() - b.start.getTime());
+    setAppointmentsData(list);
     setLoading(false);
-    appointmentsList.sort((a, b) => a.start.getTime() - b.start.getTime());
-    return appointmentsList;
   };
 
   async function checkFirstLogin() {
     setOpenGuideDialog(false);
-    // fetch PUT para actualizar el campo firstLogin del usuario a false
     try {
+      if (userData?.isFirstLogin === false) return; // si ya no es el primer login
       const token = localStorage.getItem("sacaturno_token");
-      const res = await axiosReq.put(
+      await axiosReq.put(
         `/user/firstlogin/${userData?._id}`,
         {},
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            "Cache-Control": "no-store",
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("First login status updated:", res.data);
-      router.reload();
 
     } catch (error) {
       console.error("Error updating first login status:", error);
     }
   }
 
+  const subscriptionLabel =
+    businessData?.business?.subscription === "SC_FULL"
+      ? "Plan Premium"
+      : "Plan Gratuito";
+  const subscriptionClass =
+    businessData?.business?.subscription === "SC_FULL"
+      ? "bg-orange-600 text-white"
+      : "bg-gray-100 text-gray-500";
+
   return (
     <>
-      {/* APPOINTMENT INFO */}
-      <Dialog open={appointmentInfoModal} onOpenChange={() => setAppointmentInfoModal(false)} >
-        <DialogContent className="sm:w-[460px]  w-[93vw]">
+      <Dialog
+        open={appointmentInfoModal}
+        onOpenChange={() => setAppointmentInfoModal(false)}
+      >
+        <DialogContent className="md:w-[510px] w-[93vw]">
           <AppointmentModal
             appointment={selectedAppointment}
             closeModalF={() => setAppointmentInfoModal(false)}
@@ -171,261 +176,285 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
         </DialogContent>
       </Dialog>
 
-      {/* GUIDE DIALOG */}
       <GuideDialog
         onClose={checkFirstLogin}
         openGuideDialog={openGuideDialog}
         isFirstLogin={userData?.isFirstLogin}
       />
 
-      <div className={`${styles.dashboardComponentCont}`}>
-        <div className="flex flex-col w-full gap-7 md:gap-12 h-fit">
-          <h4 className="text-2xl font-bold md:text-3xl">
-            👋 ¡Bienvenido, {userData?.name}!
-          </h4>
+      <div className="flex h-fit mx-auto w-full px-[25px] pt-[35px] md:w-4/5 md:pt-10 2xl:pt-14 md:px-0">
+        <div className="flex flex-col w-full gap-8 h-fit">
 
-          <div className="flex flex-col gap-6">
-            <span className="text-xl font-semibold sm:text-2xl">
-              &#128204; Acceso rápido
-            </span>
-
-            <div className="flex-col hidden gap-4 md:flex md:gap-16 md:flex-row">
-              <Link href="/admin/schedule">
-                <div className="flex flex-col gap-1 md:gap-2">
-                  <div
-                    style={{ backgroundColor: "#dd4924" }}
-                    className="flex items-end justify-end w-full h-20 p-5 md:h-32 md:w-40 xl:w-52 rounded-2xl"
+          {/* HEADER */}
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex flex-col gap-1">
+              <h4 className="text-2xl font-bold md:text-3xl">
+                ¡Bienvenido, {userData?.name}!
+              </h4>
+              {businessData?.business && (
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-sm sm:text-lg font-medium text-gray-500">
+                    {businessData.business.name}
+                  </span>
+                  <span
+                    className={`text-xs font-semibold px-2 py-0.5 rounded-full ${subscriptionClass}`}
                   >
-                    <div className="hidden md:flex">
-                      <LuCalendarDays size={40} color="white" />
-                    </div>
-                    <div className="flex md:hidden">
-                      <LuCalendarDays size={30} color="white" />
-                    </div>
-                  </div>
-                  <span className="text-sm font-semibold md:text-lg">
-                    Calendario de turnos
+                    {subscriptionLabel}
                   </span>
                 </div>
-              </Link>
-              <Link href="/admin/schedule/settings">
-                <div className="flex flex-col gap-1 md:gap-2">
-                  <div
-                    style={{ backgroundColor: "#dd4924" }}
-                    className="flex items-end justify-end w-full h-20 p-5 md:h-32 md:w-40 xl:w-52 rounded-2xl"
-                  >
-                    <div className="hidden md:flex">
-                      <TbCalendarCog size={40} color="white" />
-                    </div>
-                    <div className="flex md:hidden">
-                      <TbCalendarCog size={30} color="white" />
-                    </div>
-                  </div>
-                  <span className="text-sm font-semibold md:text-lg">
-                    Configurar agenda
-                  </span>
-                </div>
-              </Link>
-              <Link href="/admin/business">
-                <div className="flex flex-col gap-1 md:gap-2">
-                  <div
-                    style={{ backgroundColor: "#dd4924" }}
-                    className="flex items-end justify-end w-full h-20 p-5 md:h-32 md:w-40 xl:w-52 rounded-2xl"
-                  >
-                    <MdOutlineWorkOutline size={40} color="white" />
-                  </div>
-                  <span className="text-sm font-semibold md:text-lg">
-                    Mi empresa
-                  </span>
-                </div>
-              </Link>
-              <Link href="/admin/business/settings">
-                <div className="flex flex-col gap-1 md:gap-2">
-                  <div
-                    style={{ backgroundColor: "#dd4924" }}
-                    className="flex items-end justify-end w-full h-20 p-5 md:h-32 md:w-40 xl:w-52 rounded-2xl"
-                  >
-                    <FaRegEdit size={40} color="white" />
-                  </div>
-                  <span className="text-sm font-semibold text-left md:text-lg">
-                    Mis servicios
-                  </span>
-                </div>
-              </Link>
-
+              )}
             </div>
-
             <button
-              className={` hidden md:flex gap-2 items-center text-blue-400 border rounded-lg text-sm px-2 font-medium w-fit py-1 h-9 `}
-              onClick={() => setOpenGuideDialog(!openGuideDialog)}
+              className="flex items-center gap-1.5 text-blue-400 text-sm font-medium whitespace-nowrap mt-1"
+              onClick={() => setOpenGuideDialog(true)}
             >
-              <IoInformationCircle color="lightblue" size={20} />¿Cómo utilizo la plataforma?
+              <IoInformationCircle size={20} color="#60a5fa" />
+              <span className="hidden sm:inline">¿Cómo uso la plataforma?</span>
             </button>
+          </div>
 
-            <div className="flex flex-col gap-4 md:hidden md:gap-16 md:flex-row">
-              <Link href="/admin/schedule">
-                <div className="flex flex-col gap-1 md:gap-4">
-                  <div
-                    style={{ backgroundColor: "#dd4924" }}
-                    className="flex items-center justify-between w-full p-5 h-14 md:h-32 md:w-52 rounded-2xl"
-                  >
-                    <span className="text-sm font-medium text-white md:text-lg">
-                      Mi agenda
-                    </span>
-                    <div className="hidden md:flex">
-                      <LuCalendarDays size={45} color="white" />
-                    </div>
-                    <div className="flex md:hidden">
-                      <LuCalendarDays size={26} color="white" />
-                    </div>
-                  </div>
-                </div>
-              </Link>
-              <Link href="/admin/schedule/settings">
-                <div className="flex flex-col gap-1 md:gap-4">
-                  <div
-                    style={{ backgroundColor: "#dd4924" }}
-                    className="flex items-center justify-between w-full p-5 h-14 md:h-32 md:w-52 rounded-2xl"
-                  >
-                    <span className="text-sm font-medium text-white md:text-lg">
-                      Configurar mi agenda
-                    </span>
-                    <div className="hidden md:flex">
-                      <TbCalendarCog size={45} color="white" />
-                    </div>
-                    <div className="flex md:hidden">
-                      <TbCalendarCog size={26} color="white" />
-                    </div>
-                  </div>
-                </div>
-              </Link>
-              <Link href="/admin/business">
-                <div className="flex flex-col gap-1 md:gap-4">
-                  <div
-                    style={{ backgroundColor: "#dd4924" }}
-                    className="flex items-center justify-between w-full p-5 h-14 md:h-32 md:w-52 rounded-2xl"
-                  >
-                    <span className="text-sm font-medium text-white md:text-lg">
-                      Mi empresa
-                    </span>
-                    <div className="hidden md:flex">
-                      <MdOutlineWorkOutline size={45} color="white" />
-                    </div>
-                    <div className="flex md:hidden">
-                      <MdOutlineWorkOutline size={28} color="white" />
-                    </div>
-                  </div>
-                </div>
-              </Link>
+          {/* STATS CARDS */}
+          <div className="flex flex-col gap-3">
+            <span className="text-lg font-semibold">Resumen</span>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
 
-              <Link href="/admin/business/settings">
-                <div className="flex flex-col gap-1 md:gap-4">
-                  <div
-                    style={{ backgroundColor: "#dd4924" }}
-                    className="flex items-center justify-between w-full p-5 h-14 md:h-32 md:w-52 rounded-2xl"
-                  >
-                    <span className="text-sm font-medium text-white md:text-lg">
-                      Mis servicios
-                    </span>
-                    <div className="hidden md:flex">
-                      <FaRegEdit size={45} color="white" />
-                    </div>
-                    <div className="flex md:hidden">
-                      <FaRegEdit size={26} color="white" />
-                    </div>
-                  </div>
-                </div>
-              </Link>
-
-              <div className="flex flex-col gap-1 md:gap-4">
-                <div
-                  style={{ backgroundColor: "white" }}
-                  className="flex items-center justify-between w-full p-5 border h-14 md:h-32 md:w-52 rounded-2xl"
-                  onClick={() => setOpenGuideDialog(!openGuideDialog)}>
-                  <span className="text-sm font-semibold text-blue-400 md:text-lg">
-                    ¿Cómo utilizo la plataforma?
+              {/* Turnos restantes hoy */}
+              <div style={cardShadow} className="flex flex-col gap-3 p-4 bg-white rounded-xl">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                    Hoy
                   </span>
-                  <div className="hidden md:flex">
-                    <FaRegQuestionCircle size={45} color="lightblue" />
-                  </div>
-                  <div className="flex md:hidden">
-                    <FaRegQuestionCircle size={26} color="lightblue" />
+                  <div
+                    className="flex items-center justify-center w-8 h-8 rounded-lg"
+                    style={{ backgroundColor: "#fff3ef" }}
+                  >
+                    <LuCalendarCheck size={15} color="#dd4924" />
                   </div>
                 </div>
+                {false ? (
+                  <div className="h-8 w-16 bg-gray-100 rounded animate-pulse" />
+                ) : (
+                  <span className="text-2xl font-bold">
+                    {stats?.todayRemaining ?? 0} <span className="text-gray-400 text-sm font-normal">turnos</span>
+                  </span>
+                )}
+                <span className="text-xs text-gray-500">
+                  pendientes hoy
+                </span>
               </div>
+
+              {/* Semana */}
+              <div style={cardShadow} className="flex flex-col gap-3 p-4 bg-white rounded-xl">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                    Semana
+                  </span>
+                  <div
+                    className="flex items-center justify-center w-8 h-8 rounded-lg"
+                    style={{ backgroundColor: "#fff3ef" }}
+                  >
+                    <LuCalendarDays size={15} color="#dd4924" />
+                  </div>
+                </div>
+                {false ? (
+                  <div className="h-8 w-16 bg-gray-100 rounded animate-pulse" />
+                ) : (
+                  <span className="text-2xl font-bold">
+                    {stats?.weekBooked ?? 0} <span className="text-gray-400 text-sm font-normal">turnos</span>
+                  </span>
+                )}
+                <span className="text-xs text-gray-500">reservados esta semana</span>
+              </div>
+
+              {/* Mes */}
+              <div style={cardShadow} className="flex flex-col gap-3 p-4 bg-white rounded-xl">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                    Mes
+                  </span>
+                  <div
+                    className="flex items-center justify-center w-8 h-8 rounded-lg"
+                    style={{ backgroundColor: "#fff3ef" }}
+                  >
+                    <LuUsers size={15} color="#dd4924" />
+                  </div>
+                </div>
+                {false ? (
+                  <div className="h-8 w-16 bg-gray-100 rounded animate-pulse" />
+                ) : (
+                  <span className="text-2xl font-bold">
+                    {stats?.monthBooked ?? 0} <span className="text-gray-400 text-sm font-normal">turnos</span>
+                  </span>
+                )}
+                <span className="text-xs text-gray-500">reservados este mes</span>
+              </div>
+
+              {/* Ingresos */}
+              <div style={cardShadow} className="flex flex-col gap-3 p-4 bg-white rounded-xl">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                    Ingresos
+                  </span>
+                  <div
+                    className="flex items-center justify-center w-8 h-8 rounded-lg"
+                    style={{ backgroundColor: "#fff3ef" }}
+                  >
+                    <LuTrendingUp size={15} color="#dd4924" />
+                  </div>
+                </div>
+                {false ? (
+                  <div className="h-8 w-24 bg-gray-100 rounded animate-pulse" />
+                ) : (
+                  <span className="text-xl font-bold leading-tight">
+                    {formatCurrency(stats?.monthRevenue ?? 0)}
+                  </span>
+                )}
+                <span className="text-xs text-gray-500">durante mes de {dayjs().locale("es-mx").format("MMMM")}</span>
+              </div>
+
             </div>
           </div>
 
-          <div className="flex flex-col gap-6 mt-5">
-            <span className="text-xl font-semibold sm:text-2xl">
-              &#128198; Próximos turnos de hoy
-            </span>
-            {appointmentsData && appointmentsData?.length > 0 && (
-              <>
-                <div className="flex flex-col w-full gap-3 h-fit">
-                  {appointmentsData &&
-                    appointmentsData.map((appointment) => (
-                      <div key={appointment._id} className="flex items-center">
-                        <span className="text-sm font-semibold">
-                          {dayjs(appointment.start).format("HH:mm [hs] ")}
-                        </span>
-                        <div
-                          style={{
-                            width: "1px",
-                            height: "18px",
-                            backgroundColor: "black",
-                          }}
-                          className="mx-5"
-                        ></div>
-                        <div className="flex flex-col w-fit h-fit">
-                          <span className="text-sm font-semibold sm:text-base">
-                            {appointment.name}
-                          </span>
-                          <span className="text-xs font-normal text-gray-500 sm:text-sm">
-                            {appointment.service}
-                          </span>
-                        </div>
-                        <IoMdMore
-                          className="ml-auto"
-                          size={22}
-                          onClick={() => handleSelectEvent(appointment)}
-                        />
-                      </div>
-                    ))}
+          {/* QUICK ACCESS */}
+          <div className="flex flex-col gap-3">
+            <span className="text-lg font-semibold">Acceso rápido</span>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+              <Link href="/admin/schedule">
+                <div
+                  style={{ backgroundColor: "#dd4924" }}
+                  className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
+                >
+                  <span className="text-sm font-semibold text-white">
+                    Mi agenda
+                  </span>
+                  <LuCalendarDays size={22} color="white" />
                 </div>
-              </>
+              </Link>
+              <Link href="/admin/schedule/settings">
+                <div
+                  style={{ backgroundColor: "#dd4924" }}
+                  className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
+                >
+                  <span className="text-sm font-semibold text-white">
+                    Configurar agenda
+                  </span>
+                  <TbCalendarCog size={22} color="white" />
+                </div>
+              </Link>
+              <Link href="/admin/business">
+                <div
+                  style={{ backgroundColor: "#dd4924" }}
+                  className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
+                >
+                  <span className="text-sm font-semibold text-white">
+                    Mi empresa
+                  </span>
+                  <MdOutlineWorkOutline size={22} color="white" />
+                </div>
+              </Link>
+              <Link href="/admin/business/settings">
+                <div
+                  style={{ backgroundColor: "#dd4924" }}
+                  className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
+                >
+                  <span className="text-sm font-semibold text-white">
+                    Mis servicios
+                  </span>
+                  <FaRegEdit size={20} color="white" />
+                </div>
+              </Link>
+            </div>
+          </div>
+
+          <Separator className="mt-2" />
+
+          {/* TODAY'S APPOINTMENTS */}
+          <div className="flex flex-col gap-3">
+            <span className="text-lg font-semibold">Turnos de hoy</span>
+
+            <AnimatePresence>
+              {loading && (
+                <motion.div
+                  key="dashboard-loader"
+                  className="flex items-center justify-center py-12"
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                >
+                  <div className="loader" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {!loading && appointmentsData && appointmentsData.length > 0 && (
+              <div style={cardShadow} className="bg-white rounded-xl overflow-hidden">
+                {appointmentsData.map((appointment, idx) => (
+                  <div
+                    key={appointment._id}
+                    className={`flex items-center px-4 py-3 gap-3 cursor-pointer hover:bg-gray-50 transition-colors ${idx !== appointmentsData.length - 1
+                      ? "border-b border-gray-100"
+                      : ""
+                      }`}
+                    onClick={() => handleSelectEvent(appointment)}
+                  >
+                    <div className="flex flex-col items-center min-w-[44px]">
+                      <span
+                        className="text-sm font-bold"
+                        style={{ color: "#dd4924" }}
+                      >
+                        {dayjs(appointment.start).format("HH:mm")}
+                      </span>
+                      <span className="text-xs text-gray-400">hs</span>
+                    </div>
+                    <div
+                      style={{
+                        width: "1px",
+                        height: "32px",
+                        backgroundColor: "#e5e7eb",
+                      }}
+                    />
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <span className="text-sm font-semibold truncate">
+                        {appointment.name}
+                      </span>
+                      <span className="text-xs text-gray-500 truncate">
+                        {appointment.service}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 ml-auto">
+                      {appointment.price != null && appointment.price > 0 && (
+                        <span className="text-xs font-semibold text-gray-600 hidden sm:block">
+                          {formatCurrency(appointment.price)}
+                        </span>
+                      )}
+                      {appointment.depositStatus === "paid" && (
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700 hidden sm:block">
+                          Seña abonada
+                        </span>
+                      )}
+                      <IoMdMore size={20} color="#9ca3af" />
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
 
-            {appointmentsData && appointmentsData?.length < 1 && (
-              <>
-                <div className="flex flex-col items-center justify-center w-full gap-5 py-10 h-fit">
-                  <span className="px-5 text-xl font-semibold text-center md:px-0">
-                    No tenés turnos pendientes para el dia de hoy.
+            {!loading &&
+              (!appointmentsData || appointmentsData.length === 0) && (
+                <div className="flex flex-col items-center justify-center py-8 gap-4">
+                  <span className="text-sm text-gray-500 text-center">
+                    No tenés turnos reservados para el resto del día.
                   </span>
                   <Link href="/admin/schedule">
-                    <button className={`${styles.button} px-7`}>
+                    <button className="bg-orange-600 hover:bg-[#d92f04] text-white text-xs font-semibold px-7 py-2 rounded-lg transition-all duration-300 ease-in-out cursor-pointer">
                       Ver agenda
                     </button>
                   </Link>
                 </div>
-              </>
-            )}
-            {loading && (
-              <>
-                <div
-                  style={{ height: "100%", width: "100%", padding: "70px 0" }}
-                  className="flex items-center justify-center w-full"
-                >
-                  <div className="loader"></div>
-                </div>
-              </>
-            )}
+              )}
           </div>
+
         </div>
       </div>
-
-
-
     </>
   );
 };

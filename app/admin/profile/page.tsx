@@ -1,4 +1,5 @@
-import FormMiPerfil from "@/components/dashboard/profile/FormMiPerfil";
+import FormProfileConfig from "@/components/dashboard/profile/FormProfileConfig";
+import FormMiPerfil from "@/components/dashboard/profile/FormProfileConfig";
 import axiosReq from "@/config/axios";
 import dayjs from "dayjs";
 import { Metadata } from "next";
@@ -6,7 +7,7 @@ import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Mi perfil | SacaTurno",
-  description: "IT-related blog for devs",
+  description: "Aplicación de turnos online",
 };
 
 const getUser = async () => {
@@ -22,12 +23,7 @@ const getUser = async () => {
     });
     return res.data;
   } catch (error: any) {
-    const response_data = {
-      name: "",
-      surname: "",
-      phone: "",
-      email: "",
-    };
+    const response_data = { name: "", surname: "", phone: "", email: "" };
     return { response_data };
   }
 };
@@ -42,13 +38,12 @@ const getPaymentsData = async () => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token?.value}`,
       },
-    });    
+    });
     return res.data;
   } catch (error: any) {
     return [];
   }
 };
-
 
 async function getBusinessData() {
   const cookieStore = cookies();
@@ -61,12 +56,7 @@ async function getBusinessData() {
         Authorization: `Bearer ${token?.value}`,
       },
     };
-
-    const res = await axiosReq.get(
-      `/business/get/${ownerID?.value}`,
-      authHeader
-    );
-
+    const res = await axiosReq.get(`/business/get/${ownerID?.value}`, authHeader);
     return res.data;
   } catch (error: any) {
     const response_data = {
@@ -97,22 +87,16 @@ async function getSubscriptionData() {
       `/subscription/get/ownerID/${ownerID?.value}`,
       authHeader
     );
-
     if (subscriptionData.data) {
-      const subscription = {
+      return {
         businessID: subscriptionData.data.businessID,
         ownerID: subscriptionData.data.ownerID,
         subscriptionType: subscriptionData.data.subscriptionType,
-        paymentDate: dayjs(subscriptionData.data.paymentDate).format(
-          "DD/MM/YYYY"
-        ),
-        expiracyDate: dayjs(subscriptionData.data.expiracyDate).format(
-          "DD/MM/YYYY"
-        ),
+        paymentDate: dayjs(subscriptionData.data.paymentDate).format("DD/MM/YYYY"),
+        expiracyDate: dayjs(subscriptionData.data.expiracyDate).format("DD/MM/YYYY"),
         expiracyDay: subscriptionData.data.expiracyDay,
         expiracyMonth: subscriptionData.data.expiracyMonth,
       };
-      return subscription;
     }
   } catch (error) {
     const response_data = {
@@ -126,41 +110,24 @@ async function getSubscriptionData() {
   }
 }
 
-const MiPerifl = async () => {
+const ProfileConfigPage = async () => {
   const data = await getUser();
   const subscription = await getSubscriptionData();
   const business = await getBusinessData();
   const payments = await getPaymentsData();
 
   return (
-    <>
-           <header className="flex flex-col items-center justify-center w-full mt-5 mb-4 md:mt-5 md:mb-6 h-fit">
-            <h4
-              className="relative inline-block px-2 font-bold text-center uppercase"
-              style={{ fontSize: 20 }}
-            >
-              mi perfil
-
-              {/* linea */}
-              <span
-                className="absolute left-0 right-0 mx-auto"
-                style={{
-                  bottom: -2,    // gap entre texto y linea (ajustalo)
-                  height: 2,     // grosor de la linea (ajustalo)
-                  background: "#dd4924",
-                  width: "60%",  // ancho opcional de la linea
-                }}
-              />
-            </h4>
-          </header>
-
-      <div className="flex justify-center w-full mt-5 h-fit">
-        <div className="mb-10 perfilPageCont md:mb-20">
-          <FormMiPerfil businessData={business} subscriptionData={subscription} profileData={data} paymentsData={payments} />
-        </div>
-      </div>
-    </>
+    <div className="flex flex-col gap-6 w-full max-w-screen-md 2xl:max-w-screen-lg mx-auto px-4 py-8 2xl:py-10">
+      <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">Mi perfil</h1>
+      <FormProfileConfig
+        businessData={business}
+        subscriptionData={subscription}
+        profileData={data}
+        paymentsData={payments}
+      />
+      <div className="w-full h-10" />
+    </div>
   );
 };
 
-export default MiPerifl;
+export default ProfileConfigPage;

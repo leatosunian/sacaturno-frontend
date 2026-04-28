@@ -7,7 +7,7 @@ import styles from "@/app/css-modules/header.module.css";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import sacaturno_logo from "@/public/st_logo_white.png";
+import sacaturno_logo from "@/public/sacaturno-white.svg";
 import { MdLogin, MdSearch } from "react-icons/md";
 
 interface Props { }
@@ -33,7 +33,7 @@ const HeaderPublicBlack: NextPage<Props> = ({ }) => {
       >
         <div className="flex items-center h-full gap-1 j ustify-center w-fit ">
           <Link href={"/"}>
-            <Image className="hidden w-32 md:block " src={sacaturno_logo} alt="SacaTurno" />
+            <Image className="hidden w-28 md:block " src={sacaturno_logo} alt="SacaTurno" />
             <Image className="block w-28 md:hidden" src={sacaturno_logo} alt="SacaTurno" />
           </Link>
         </div>

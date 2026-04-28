@@ -89,6 +89,17 @@
   -o-transition: all 0.3s ease-in-out;
 }
 
+@media (max-width: 1535px) {
+  .loginForm {
+    gap: 14px;
+  }
+
+  .loginFormInput input {
+    height: 26px;
+    font-size: 11px;
+  }
+}
+
 @media (max-width: 768px) {
   .loginForm {
     width: 100%;

@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs wc *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(git ls-files *)",
+      "Bash(xargs ls *)",
+      "Bash(grep -rE \"const.*=\\(.*\\\\\"[A-Za-z0-9_-]{20,}\\\\\".*|.*'[A-Za-z0-9_-]{20,}'\\)\" /c/sacaturno/server/src --include=\"*.ts\")",
+      "Bash(git log *)",
+      "Bash(git config *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}\\\\n%{header_json}' -X OPTIONS https://sacaturno-server-production-ce40.up.railway.app/api/user/login -H 'Origin: https://sacaturno-dev.netlify.app' -H 'Access-Control-Request-Method: POST' -H 'Access-Control-Request-Headers: Content-Type')",
+      "Bash(npm install *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" -X OPTIONS \"https://sacaturno-server-production-ce40.up.railway.app/api/user/login\" -H \"Origin: https://sacaturno-dev.netlify.app\" -H \"Access-Control-Request-Method: POST\")",
+      "Bash(curl -s \"https://sacaturno-server-production-ce40.up.railway.app/api/user/login\" -H \"Origin: https://sacaturno-dev.netlify.app\")"
+    ]
+  }
+}

@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import styles from "@/app/css-modules/FormLogin.module.css";
 import stylesHome from "@/app/css-modules/HomeWhite.module.css";
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
@@ -36,7 +35,6 @@ const PasswordRecovery = () => {
   const handlePasswordRecovery = async (data: FieldValues) => {
     if (data) {
       setLoading(true);
-      // GET BUSINESS BY EMAIL
       try {
         const userData = await axiosReq.get(
           "/user/getbyemail/" + data.email
@@ -50,7 +48,6 @@ const PasswordRecovery = () => {
           setLoading(false);
           return;
         }
-        // SEND RECOVERY EMAIL
         await axiosReq.post(
           `/user/password/recovery/${userData.data.response_data._id}`
         );
@@ -74,30 +71,29 @@ const PasswordRecovery = () => {
     }
   };
 
-  /*const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
-  };*/
-
   return (
     <>
       <form
         onSubmit={handleSubmit((data) => {
           handlePasswordRecovery(data);
         })}
-        className={styles.loginForm}
+        className="w-full flex flex-col gap-5 max-[1535px]:gap-[14px]"
       >
-        <div className={styles.loginFormInput}>
-          <span style={{ fontSize: "12px" }} className="font-medium uppercase ">
+        <div className="w-full flex flex-col gap-0.5">
+          <span className="text-[12px] font-medium uppercase">
             Correo electrónico
           </span>
-          <input type="email" {...register("email")} placeholder="Ingresá tu email" />
+          <input
+            type="email"
+            {...register("email")}
+            placeholder="Ingresá tu email"
+            className="h-[30px] max-[1535px]:h-[26px] w-full border border-black/10 rounded-[7px] bg-black/5 text-[13px] max-[1535px]:text-[11px] px-2.5 transition-all ease-in-out duration-200 cursor-pointer hover:border-[#dd4924] focus:bg-black/[0.08] focus:border-[#dd4924] focus:outline-none"
+          />
           {errors.email?.message && (
-            <>
-              <div className="flex items-center justify-center gap-1 mt-1 w-fit h-fit">
-                <AiOutlineExclamationCircle color="red" />
-                <span className="text-xs "> {errors.email.message} </span>
-              </div>
-            </>
+            <div className="flex items-center gap-1 mt-1 w-fit h-fit">
+              <AiOutlineExclamationCircle color="red" />
+              <span className="text-xs">{errors.email.message}</span>
+            </div>
           )}
         </div>
 
@@ -109,17 +105,11 @@ const PasswordRecovery = () => {
           />
         )}
 
-        <span className="text-xs ">
-          Volver a
-          <b className="cursor-pointer blackOrangeHover">
-            <Link href="/login"> iniciar sesión</Link>
-          </b>
-        </span>
         <button
           type="submit"
-          className={`${stylesHome.btnAnimated} mt-3`}
+          className={`${stylesHome.btnAnimated} rounded-lg mt-3`}
           style={{
-            fontSize: "12px",
+            fontSize: "13px",
             letterSpacing: ".5px",
             width: "100%",
             padding: "11px 0px",
