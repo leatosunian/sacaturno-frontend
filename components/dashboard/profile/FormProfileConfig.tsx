@@ -365,7 +365,7 @@ const FormProfileConfig: React.FC<Props> = ({
                           {payment.subscriptionType === "SC_FREE" ? "Plan Free" : "Plan Full"}
                         </span>
                         <span className="text-xs 2xl:text-sm font-semibold">
-                          {payment.price > 0 ? `AR$ ${payment.price}` : "Gratis"}
+                          {payment.price > 0 ? `AR$ ${payment.price.toLocaleString("es-AR")}` : "Gratis"}
                         </span>
                         <span className="text-xs 2xl:text-sm text-gray-500">
                           {dayjs(payment.paymentDate).format("DD/MM/YYYY")}
