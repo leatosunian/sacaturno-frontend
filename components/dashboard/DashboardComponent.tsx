@@ -34,10 +34,15 @@ interface IDashboardStats {
   monthRevenue: number;
 }
 
+interface ISubscription {
+  subscriptionType: "SC_FREE" | "SC_FULL" | "SC_EXPIRED";
+}
+
 interface Props {
   businessData:
   | {
     business: IBusiness | undefined;
+    subscription: ISubscription | undefined;
     appointments: IAppointment[] | undefined;
     stats: IDashboardStats | null;
   }
@@ -152,13 +157,18 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
     }
   }
 
+  const subscriptionType = businessData?.subscription?.subscriptionType;
   const subscriptionLabel =
-    businessData?.business?.subscription === "SC_FULL"
+    subscriptionType === "SC_FULL"
       ? "Plan Premium"
+      : subscriptionType === "SC_EXPIRED"
+      ? "Plan Vencido"
       : "Plan Gratuito";
   const subscriptionClass =
-    businessData?.business?.subscription === "SC_FULL"
+    subscriptionType === "SC_FULL"
       ? "bg-orange-600 text-white"
+      : subscriptionType === "SC_EXPIRED"
+      ? "bg-red-100 text-red-500"
       : "bg-gray-100 text-gray-500";
 
   return (

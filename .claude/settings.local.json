@@ -15,7 +15,10 @@
       "Bash(curl -s -o /dev/null -w '%{http_code}\\\\n%{header_json}' -X OPTIONS https://sacaturno-server-production-ce40.up.railway.app/api/user/login -H 'Origin: https://sacaturno-dev.netlify.app' -H 'Access-Control-Request-Method: POST' -H 'Access-Control-Request-Headers: Content-Type')",
       "Bash(npm install *)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" -X OPTIONS \"https://sacaturno-server-production-ce40.up.railway.app/api/user/login\" -H \"Origin: https://sacaturno-dev.netlify.app\" -H \"Access-Control-Request-Method: POST\")",
-      "Bash(curl -s \"https://sacaturno-server-production-ce40.up.railway.app/api/user/login\" -H \"Origin: https://sacaturno-dev.netlify.app\")"
+      "Bash(curl -s \"https://sacaturno-server-production-ce40.up.railway.app/api/user/login\" -H \"Origin: https://sacaturno-dev.netlify.app\")",
+      "Bash(netstat -ano)",
+      "Bash(findstr :4000)",
+      "PowerShell(Stop-Process -Id 22340 -Force)"
     ]
   }
 }
