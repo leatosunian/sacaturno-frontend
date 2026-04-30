@@ -20,18 +20,20 @@ async function getBusinessData() {
       `/business/get/${ownerID?.value}`,
       authHeader
     );
-    const business:IBusiness = businessReq.data
-    const appointments = await axiosReq.get(`/appointment/get/today/${business._id}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token?.value}`,
-      },
-    });
-    const appList:IAppointment[] = appointments.data
-    
-    return { business: business, appointments: appList };
+    const business: IBusiness = businessReq.data;
+
+
+    const [appointmentsRes, statsRes] = await Promise.all([
+      axiosReq.get(`/appointment/get/today/${business._id}`, authHeader),
+      axiosReq.get(`/appointment/stats/${business._id}`, authHeader),
+    ]);
+
+    const appList: IAppointment[] = appointmentsRes.data;
+    const stats = statsRes.data ?? null;
+
+    return { business, appointments: appList, stats };
   } catch (error: any) {
-    return undefined
+    return undefined;
   }
 }
 
@@ -39,35 +41,41 @@ const getUser = async () => {
   const cookieStore = cookies();
   const token = cookieStore.get("sacaturno_token");
   const userID = cookieStore.get("sacaturno_userID");
+  const authHeader = {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token?.value}`,
+    },
+  };
   try {
-    const res = await axiosReq.get(`/user/get/${userID?.value}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token?.value}`,
-      },
-    });
-    return res.data.response_data;
+    const res = await axiosReq.get(`/user/get/${userID?.value}`, authHeader);
+    const userData = res.data.response_data;
+
+    const subscriptionReq = await axiosReq.get(
+      `/subscription/get/ownerID/${userData._id}`,
+      authHeader
+    );
+    const subscription = subscriptionReq.data;
+
+    return { user: userData, subscription };
   } catch (error: any) {
-    const response_data = {
-      name: "",
-      surname: "",
-      phone: "",
-      email: "",
-    };
-    return { response_data };
+    return { user: { name: "", surname: "", phone: "", email: "" }, subscription: undefined };
   }
 };
 
-const Dashboard: React.FC = async () => {
+const DashboardPage: React.FC = async () => {
   const data = await getBusinessData();
-  const user = await getUser();
+  const { user, subscription } = await getUser();
   return (
     <>
       <div>
-        <DashboardComponent businessData={data} userData={user} />
+        <DashboardComponent
+          businessData={data ? { ...data, subscription } : undefined}
+          userData={user}
+        />
       </div>
     </>
   );
 };
 
-export default Dashboard;
+export default DashboardPage;

@@ -216,6 +216,18 @@
 }
 
 
+@media (max-width: 1535px) {
+  .btnAnimated {
+    font-size: 11px !important;
+    padding: 8px 0px !important;
+  }
+
+  .btnAnimatedWhite {
+    font-size: 11px !important;
+    padding: 8px 13px !important;
+  }
+}
+
 @media (max-width: 1024px) {
   .btnAnimatedWhite{
     font-size: 12px;

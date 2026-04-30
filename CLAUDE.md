@@ -73,9 +73,88 @@ All business logic lives in the Express backend at `/server/src`.
 - `middlewares/` — JWT auth verification, Multer file uploads
 - Integrations: MercadoPago (payments), Resend (email), node-cron (scheduled jobs)
 
+## Auth Pages Layout
+
+`/login`, `/register`, and `/login/recovery` (and `/login/recovery/set/[token]`) share a single centered layout defined in `app/css-modules/AuthCentered.module.css`. All four pages follow this exact structure:
+
+```
+<HeaderPublicBlack />
+<main className={styles.authBg}>
+  <div className={styles.content}>
+    <span className={styles.eyebrow}>          {/* orange pill badge */}
+    <h1 className={styles.heading}>            {/* page-specific heading */}
+    <p className={styles.subtitle}>            {/* page-specific subtitle */}
+    <div className={styles.card}>
+      <div className={styles.cardBar} />       {/* orange accent bar */}
+      <div className={styles.tabs}>            {/* login/register tabs or back link */}
+      <div className={styles.cardBody}>        {/* existing form component */}
+    </div>
+    <p className={styles.legal}>              {/* terms + privacy links */}
+  </div>
+</main>
+<Footer />   {/* omitted on recovery pages */}
+```
+
+- The form components (`FormLogin`, `FormRegistrate`, `PasswordRecovery`) are **not** touched by layout changes — they live inside `cardBody`.
+- Active tab uses `${styles.tab} ${styles.tabActive}`; inactive tab uses `${styles.tab}` only.
+- Background: warm orange radial gradients on `#fff8f3` with a dotted overlay via `::before`.
+- Do **not** add Tailwind classes to the auth page shell — use only `AuthCentered.module.css` tokens.
+
+## Design System
+
+**MANDATORY:** Before creating or modifying any UI component, read [`DESIGN.md`](./DESIGN.md) in full. It contains the complete design system: colors, typography, spacing, component recipes (buttons, inputs, cards, modals, tables), animation rules, and the distinction between the public website and admin panel visual styles. All new components must follow those patterns exactly.
+
 ## Code Style
 
 - Use comments sparingly. Only comment complex code.
+
+## MercadoPago OAuth + Deposit Integration
+
+### Overview
+Businesses link their own MP account via OAuth Marketplace. When a service has `depositAmount > 0`, booking requires an upfront deposit paid via MP Checkout Pro. Money goes directly to the business's MP account.
+
+### Backend files (`/server/src`)
+- `services/mpOAuthServices.ts` — OAuth flow: generate auth URL, exchange code for tokens, refresh, disconnect. Tokens stored in Business model with `select: false`.
+- `services/depositServices.ts` — Create MP payment preference using business's access token; idempotent webhook handler (always returns 200 to MP).
+- `controllers/mpOAuthController.ts` — connect, callback, disconnect controllers.
+- `controllers/depositController.ts` — create-preference and webhook controllers.
+- `routes/mpRoutes.ts` — registered routes:
+  - `GET  /mp/oauth/connect` (checkAuth)
+  - `GET  /mp/oauth/callback` (public, MP redirect)
+  - `DELETE /mp/oauth/disconnect` (checkAuth)
+  - `POST /mp/deposit/create-preference` (public, called by client browser)
+  - `POST /mp/deposit/webhook` (public, called by MP)
+
+### Frontend files
+- `components/dashboard/business/MercadoPagoConnect.tsx` — Admin card showing link status, connect/disconnect buttons; reads `?mp=success|error` query param on return from OAuth.
+- `app/[slug]/deposit-success/page.tsx` — Post-payment approved screen.
+- `app/[slug]/deposit-failure/page.tsx` — Post-payment rejected screen.
+- `app/[slug]/deposit-pending/page.tsx` — Pending payment screen.
+
+### Model changes
+- **Business**: `mpAccessToken`, `mpRefreshToken` (both `select: false`), `mpLinked` (boolean).
+- **Appointment**: `depositStatus` (enum: none/pending/paid/failed), `mpPaymentID`, `mpPreferenceID`.
+- **Service**: `depositAmount` (number, default 0). Zero means no deposit required.
+
+### Booking flow
+- `depositAmount = 0` → standard flow: `PUT /appointment/book`
+- `depositAmount > 0` → `POST /mp/deposit/create-preference` → redirect to MP Checkout Pro → webhook sets `status=booked, depositStatus=paid` → redirect to `/[slug]/deposit-success`
+
+### Key decisions
+- `select: false` on tokens: never exposed in normal queries; read explicitly with `.select("+mpAccessToken +mpRefreshToken")`.
+- OAuth `state` param carries `businessID` so callback knows which business to update.
+- Webhook is idempotent: checks for existing `mpPaymentID` before processing.
+- Auto token refresh: on MP 401, calls refresh and retries once.
+- All new model fields are optional with defaults — no breaking changes on existing documents.
+
+### Environment variables (backend)
+```
+MP_MARKETPLACE_CLIENT_ID=
+MP_MARKETPLACE_CLIENT_SECRET=
+MP_MARKETPLACE_ACCESS_TOKEN=
+MP_OAUTH_REDIRECT_URI=      # cloudflared tunnel in dev, Railway URL in prod
+BACKEND_PROD_URL=           # same
+```
 
 ## Environment Variables
 The frontend reads from `.env`:

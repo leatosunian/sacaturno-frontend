@@ -3,12 +3,8 @@ import { z } from "zod";
 export const createServiceSchema = z.object({
   name: z
     .string()
-    .min(1, {
-      message: "Ingresá el nombre del servicio",
-    })
-    .max(35, {
-      message: "El nombre debe tener menos de 35 caractéres",
-    }),
+    .min(1, { message: "Ingresá el nombre del servicio" })
+    .max(35, { message: "El nombre debe tener menos de 35 caractéres" }),
 
   price: z.coerce.number().gte(15, "Ingresá el precio del servicio"),
 
@@ -21,4 +17,10 @@ export const createServiceSchema = z.object({
     .int("La duración debe ser un número entero")
     .positive("La duración debe ser mayor a 0")
     .optional(),
+
+  depositAmount: z.coerce
+    .number()
+    .min(0, "El monto de seña no puede ser negativo")
+    .optional()
+    .default(0),
 });

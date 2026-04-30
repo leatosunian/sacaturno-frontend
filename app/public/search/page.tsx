@@ -6,14 +6,12 @@ import { IBusiness } from "@/interfaces/business.interface";
 import AlertInterface from "@/interfaces/alert.interface";
 import { GrTableAdd } from "react-icons/gr";
 import { useRouter } from "next/navigation";
-import sacaturno_logo from "@/public/st_logo_white.png";
-import stylesHome from "@/app/css-modules/HomeWhite.module.css";
-import stylesLogin from "@/app/css-modules/login.module.css";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
-import HeaderPublicBlack from "@/components/home/HeaderPublicBlack";
 import { IoIosSearch } from "react-icons/io";
-import Link from "next/link";
+import HeaderPublicBlack from "@/components/home/HeaderPublicBlack";
 import Footer from "@/components/home/Footer";
+import stylesHome from "@/app/css-modules/HomeWhite.module.css";
+import styles from "@/app/css-modules/AuthCentered.module.css";
 
 const SearchBusiness: React.FC = () => {
   const [searchField, setSearchField] = useState<string>("");
@@ -25,7 +23,7 @@ const SearchBusiness: React.FC = () => {
   const router = useRouter();
 
   const myLoader = ({ src }: { src: string }) => {
-    return `https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${src}`;
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${src}`;
   };
 
   const hideAlert = () => {
@@ -64,8 +62,6 @@ const SearchBusiness: React.FC = () => {
           setLoading(false);
           return setSearchResults(res.data);
         }
-
-        /*return res.data;*/
       } catch (error: any) {
         console.log(error);
         setLoading(false);
@@ -76,191 +72,115 @@ const SearchBusiness: React.FC = () => {
   return (
     <>
       <HeaderPublicBlack />
-      <div
-        style={{
-          height: "calc(100vh - 64px)",
-          paddingTop: "0px",
-          marginBottom: "64px",
-        }}
-      >
-        <div className="flex flex-col w-full h-screen lg:flex-row">
-          <div
-            className={`flex-col items-center justify-center hidden w-full pt-0 md:pt-0 md:pb-0 lg:flex pb-14 h-2 lg:h-full lg:w-2/5 ${stylesLogin.backgroundImage}`}
-          >
-            <Image
-              className="w-48 lg:mt-0 lg:w-96"
-              alt="SacaTurno — Tu app de turnos online"
-              src={sacaturno_logo}
-            />
-            <span className="mt-2 text-sm font-thin text-gray-200 lg:mt-0 lg:text-lg">
-              tu app para gestionar tu agenda
-            </span>
-            <div className="hidden mt-10 lg:block">
-              <Link
-                href="/public/search"
-                type="submit"
-                className={`${stylesLogin.translucentBtn2} font-light uppercase`}
-                style={{ padding: " 12px 16px ", fontSize: "13px" }}
-              >
-                <IoIosSearch size={24} />
-                Buscar empresa
-              </Link>
-            </div>
-          </div>
-          <div
-            className={`flex justify-center w-full my-auto md:my-0 pt-10 md:pt-24 items-start md:items-center lg:pt-0 lg:mt-0 h-full lg:w-3/5 ${stylesHome.dottedBg}`}
-          >
-            <div className={`${stylesLogin.loginCont}`}>
-              <div className={stylesLogin.loginHeader}>
-                <h3
-                  className="relative inline-block mb-3 text-2xl font-semibold uppercase xl:text-3xl px-auto"
+      <main className={styles.authBg}>
+        <div className="relative z-[2] flex flex-col items-center gap-[18px] max-[1535px]:gap-3 w-full max-w-[460px]">
 
-                >
-                  Reservar turno
-                  <span
-                    className="absolute left-0 mx-auto"
-                    style={{
-                      bottom: 0,    // gap entre texto y linea (ajustalo)
-                      height: 2,     // grosor de la linea (ajustalo)
-                      background: "#dd4924",
-                      width: "40%",  // ancho opcional de la linea
-                    }}
-                  />
-                </h3>
-                <span className="text-xs text-left text-gray-500 lg:text-sm">
-                  Ingresá el nombre de la empresa que estás buscando
+          <span className="inline-flex items-center gap-[7px] px-[13px] max-[1535px]:px-[11px] py-[5px] max-[1535px]:py-1 rounded-[20px] bg-[#fff1e8] text-[#dd4924] text-[10.5px] max-[1535px]:text-[9.5px] font-semibold tracking-[0.7px] uppercase">
+            <IoIosSearch size={12} />
+            SacaTurno
+          </span>
+
+          <h1 className="m-0 text-[38px] max-[1535px]:text-[30px] font-bold tracking-[-1.4px] max-[1535px]:tracking-[-1px] text-[#1a1a1a] text-center leading-[1.05]">
+            Encontrá tu turno.
+          </h1>
+          <p className="-mt-1 max-[1535px]:-mt-0.5 text-[14px] max-[1535px]:text-[13px] text-[#7a7a7a] text-center max-w-[400px] leading-[1.55]">
+            Buscá el negocio al que querés sacar turno y reservá en segundos.
+          </p>
+
+          <div className="w-full bg-white rounded-[15px] shadow-[-10px_10px_25px_1px_rgba(0,0,0,0.12)] border border-black/[0.06] overflow-hidden">
+            <div className="h-[3px] bg-gradient-to-r from-[#dd4924] to-[#ff8a5c]" />
+
+            <div className="pt-5 max-[1535px]:pt-[14px] px-7 max-[1535px]:px-[22px] pb-7 max-[1535px]:pb-[22px] flex flex-col gap-5 max-[1535px]:gap-[14px]">
+
+              <div className="w-full flex flex-col gap-0.5">
+                <span className="text-[12px] font-medium uppercase">
+                  Nombre de la empresa
                 </span>
-              </div>
-
-              <div className="w-full">
-                <div className={stylesLogin.loginFormInput}>
-                  <span className="text-xs font-semibold uppercase">
-                    Nombre de la empresa
-                  </span>
-                  <input
-                    value={searchField}
-                    onChange={handleChange}
-                    placeholder="Ingresá el nombre de la empresa"
-                    type="text"
-                    maxLength={30}
-                  />
-                </div>
-                {/* ALERT */}
+                <input
+                  value={searchField}
+                  onChange={handleChange}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                  placeholder="Ingresá el nombre de la empresa"
+                  type="text"
+                  maxLength={30}
+                  className="h-[30px] max-[1535px]:h-[26px] w-full border border-black/10 rounded-[7px] bg-black/5 text-[13px] max-[1535px]:text-[11px] px-2.5 transition-all ease-in-out duration-200 cursor-pointer hover:border-[#dd4924] focus:bg-black/[0.08] focus:border-[#dd4924] focus:outline-none"
+                />
                 {alert?.error && (
-                  <>
-                    <div className="flex items-center justify-center gap-1 mt-3 w-fit h-fit">
-                      <AiOutlineExclamationCircle color="red" />
-                      <span className="text-xs "> {alert.msg} </span>
-                    </div>
-                  </>
+                  <div className="flex items-center gap-1 mt-1 w-fit h-fit">
+                    <AiOutlineExclamationCircle color="red" />
+                    <span className="text-xs">{alert.msg}</span>
+                  </div>
                 )}
               </div>
-              <div className="flex flex-col w-full gap-4 mt-7 md:flex-row">
-                {!loading && (
+
+              <div className="flex items-center justify-center w-full h-fit">
+                {loading ? (
+                  <div className="flex items-center justify-center w-full" style={{ padding: "11px 0" }}>
+                    <div className="loaderSmall"></div>
+                  </div>
+                ) : (
                   <button
-                    type="submit"
-                    className={`${stylesHome.btnAnimated} rounded-lg`}
+                    type="button"
                     onClick={handleSearch}
-                    style={{
-                      fontSize: "13px",
-                      letterSpacing: ".5px",
-                      width: "100%",
-                      padding: "11px 0",
-                    }}
+                    className={`${stylesHome.btnAnimated} rounded-lg`}
+                    style={{ fontSize: "13px", letterSpacing: ".5px", width: "100%", padding: "11px 0px" }}
                   >
                     Buscar
                   </button>
                 )}
-                {loading && (
-                  <>
-                    <div
-                      style={{
-                        height: "100%",
-                        width: "100%",
-                        padding: "11px 0",
-                      }}
-                      className="flex items-center justify-center w-full h-11"
-                    >
-                      <div className="loaderSmall"></div>
-                    </div>
-                  </>
-                )}
               </div>
 
               {searchResults.length > 0 && (
-                <div className="flex justify-center w-full mt-8 h-fit">
-                  <div className="flex flex-col w-full gap-4 h-fit">
-                    {searchResults.map((business) => (
-                      <>
-                        <div
-                          key={business._id}
-                          style={{
-                            border: "1px solid rgba(0, 0, 0, 0.15)",
-                          }}
-                          className="flex items-center w-full gap-4 px-4 h-14 backdrop-blur py-9 rounded-xl"
-                        >
-                          <Image
-                            loader={myLoader}
-                            width={64}
-                            height={64}
-                            className="w-12 h-12 rounded-full"
-                            src={`https://sacaturno-server-production.up.railway.app/api/user/getprofilepic/${business.image}`}
-                            alt={`Logo de ${business.name}`}
-                          />
-                          <div className="flex flex-col w-fit h-fit">
-                            <span className="text-sm font-medium">
-                              {business.name}
-                            </span>
-                            <span className="text-xs font-light text-gray-500">
-                              {business.businessType}
-                            </span>
+                <div className="flex flex-col gap-3 border-t border-black/[0.06] pt-5">
+                  {searchResults.map((business) => (
+                    <div
+                      key={business._id}
+                      className="flex items-center gap-3 px-3 py-3 rounded-[10px] border border-black/[0.07] bg-black/[0.02] hover:border-[#dd4924] transition-all duration-200 ease-in-out"
+                    >
+                      <Image
+                        loader={myLoader}
+                        width={44}
+                        height={44}
+                        className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                        src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${business.image}`}
+                        alt={`Logo de ${business.name}`}
+                      />
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <span className="text-[13px] font-semibold text-[#1a1a1a] truncate">
+                          {business.name}
+                        </span>
+                        <span className="text-[11px] text-[#7a7a7a]">
+                          {business.businessType}
+                        </span>
+                      </div>
+                      <div className="flex-shrink-0">
+                        {loadingCalBtn ? (
+                          <div className="flex items-center justify-center w-9 h-9">
+                            <div className="loaderSmall"></div>
                           </div>
-                          {/* <button
+                        ) : (
+                          <button
                             onClick={() => {
+                              setLoadingCalBtn(true);
                               router.push(`/${business.slug}`);
                             }}
                             title="Ver turnos"
-                            className={`ml-auto ${stylesLogin.buttonBusiness}`}
-                            style={{ padding: "25px 0 !important" }}
+                            className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#dd4924] hover:bg-[#d92f04] text-white transition-all duration-200 ease-in-out cursor-pointer"
                           >
-                            <GrTableAdd className="my-1" size={15} />
-                          </button> */}
-
-                          <div className="flex items-center justify-center ml-auto w-fit h-fit">
-                            {loadingCalBtn && (
-                              <>
-                                <div
-                                  style={{ height: "35px", width: "41px" }}
-                                  className="flex items-center justify-center w-full"
-                                >
-                                  <div className="loaderSmall"></div>
-                                </div>
-                              </>
-                            )}
-                            {!loadingCalBtn && (
-                              <button
-                                onClick={() => {
-                                  setLoadingCalBtn(true)
-                                  router.push(`/${business.slug}`);
-                                }}
-                                title="Ver turnos"
-                                className={`ml-auto ${stylesLogin.buttonBusiness}`}
-                                style={{ padding: "25px 0 !important" }}
-                              >
-                                <GrTableAdd className="my-1" size={15} />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </>
-                    ))}
-                  </div>
+                            <GrTableAdd size={14} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
+
             </div>
           </div>
+
         </div>
-      </div>
+      </main>
       <Footer />
     </>
   );
