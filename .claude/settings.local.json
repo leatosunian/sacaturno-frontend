@@ -25,7 +25,10 @@
       "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\(p.dependencies['framer-motion'] || p.devDependencies?.['framer-motion'] || 'not found'\\)\")",
       "Bash(Get-ChildItem -Path \"c:\\\\sacaturno\" -Recurse -Force)",
       "Bash(Select-Object -First 50)",
-      "Bash(Format-Table -Property Name, FullName)"
+      "Bash(Format-Table -Property Name, FullName)",
+      "Bash(Get-ChildItem -Path \"c:\\\\sacaturno\\\\server\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)"
     ]
   }
 }

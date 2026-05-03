@@ -3,15 +3,18 @@
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useNavigationLoading } from "@/app/context/navigationLoadingContext";
 
 export default function RouteChangeLoader() {
   const pathname = usePathname();
-  const [show, setShow] = useState(false);
-  const [fading, setFading] = useState(false);
+  const { isNavigating, onLinkClick, onPathnameChange } = useNavigationLoading();
   const prevPathname = useRef(pathname);
+  const prevIsNavigating = useRef(false);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>();
+  const [visible, setVisible] = useState(false);
+  const [fading, setFading] = useState(false);
 
-  // Show loader when the user clicks an internal link
+  // Show loader on internal link click
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       const anchor = (e.target as Element).closest<HTMLAnchorElement>("a[href]");
@@ -21,26 +24,42 @@ export default function RouteChangeLoader() {
       if (href.startsWith("/") && targetPath !== prevPathname.current) {
         clearTimeout(hideTimer.current);
         setFading(false);
-        setShow(true);
+        onLinkClick();
       }
     };
     document.addEventListener("click", handleClick);
     return () => document.removeEventListener("click", handleClick);
-  }, []);
+  }, [onLinkClick]);
 
-  // Fade out and hide when navigation completes (pathname changed)
+  // Notify context when pathname changes (optimistic URL update)
   useEffect(() => {
     if (pathname === prevPathname.current) return;
     prevPathname.current = pathname;
-    setFading(true);
-    hideTimer.current = setTimeout(() => {
-      setShow(false);
-      setFading(false);
-    }, 250);
-    return () => clearTimeout(hideTimer.current);
-  }, [pathname]);
+    onPathnameChange();
+  }, [pathname, onPathnameChange]);
 
-  if (!show) return null;
+  // Drive visibility and fade animation based on isNavigating transitions
+  useEffect(() => {
+    const was = prevIsNavigating.current;
+    prevIsNavigating.current = isNavigating;
+
+    if (isNavigating) {
+      // Navigation started — show immediately, cancel any in-progress fade
+      clearTimeout(hideTimer.current);
+      setFading(false);
+      setVisible(true);
+    } else if (was && !isNavigating) {
+      // Navigation finished — fade out, then unmount
+      setFading(true);
+      clearTimeout(hideTimer.current);
+      hideTimer.current = setTimeout(() => {
+        setFading(false);
+        setVisible(false);
+      }, 250);
+    }
+  }, [isNavigating]);
+
+  if (!visible) return null;
 
   return (
     <div
