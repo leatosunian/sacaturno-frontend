@@ -1,6 +1,7 @@
 import { Montserrat } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/authContext";
+import { NavigationLoadingProvider } from "./context/navigationLoadingContext";
 import { Toaster } from "@/components/ui/sonner"
 import { IoCheckmarkCircle } from "react-icons/io5";
 import RouteChangeLoader from "@/components/ui/RouteChangeLoader";
@@ -64,10 +65,12 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${montserrat.className} `}>
-        <AuthProvider>
-          {children}
-          <RouteChangeLoader />
-        </AuthProvider>
+        <NavigationLoadingProvider>
+          <AuthProvider>
+            {children}
+            <RouteChangeLoader />
+          </AuthProvider>
+        </NavigationLoadingProvider>
         <Toaster
           icons={{
             success: <IoCheckmarkCircle color="green" size={24} />
