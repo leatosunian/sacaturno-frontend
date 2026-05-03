@@ -11,6 +11,7 @@ export default function PageLoader() {
           height={45}
           className="pageLoaderLogo"
         />
+        
         <div className="pageLoaderTrack">
           <div className="pageLoaderFill" />
         </div>
