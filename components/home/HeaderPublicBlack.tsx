@@ -1,113 +1,176 @@
 "use client";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { NextPage } from "next";
-import { RxHamburgerMenu } from "react-icons/rx";
-import { RxCross2 } from "react-icons/rx";
-import styles from "@/app/css-modules/header.module.css";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import sacaturno_logo from "@/public/sacaturno-white.svg";
 import { MdLogin, MdSearch } from "react-icons/md";
+import Image from "next/image"
 
 interface Props { }
 
-const HeaderPublicBlack: NextPage<Props> = ({ }) => {
-  const [active, setActive] = useState(false);
-  const router = useRouter();
-  const handleActiveNavBar = () => {
-    setActive(!active);
-  };
-  const closeNavMenu = () => {
-    setActive(false);
+const HeaderPublicBlack: NextPage<Props> = () => {
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 12);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const navLinks = [
+    { href: "#features", label: "Funciones" },
+    { href: "#pricing", label: "Precios" },
+    { href: "#testimonials", label: "Testimonios" },
+    { href: "#faq", label: "FAQ" },
+  ];
+
+  const scrollTo = (e: React.MouseEvent<HTMLAnchorElement>, href: string, close = false) => {
+    e.preventDefault();
+    const id = href.replace("#", "");
+    const el = document.getElementById(id);
+    if (el) {
+      const top = el.getBoundingClientRect().top + window.scrollY ;
+      window.scrollTo({ top, behavior: "smooth" });
+    }
+    if (close) setMenuOpen(false);
   };
 
   return (
     <>
-      <div
-        className={`fixed flex justify-between w-full h-16 px-6 text-white md:px-0 md:justify-around position-absolute border-bottom-2 `}
-        style={{
-          background: "#060606",
-          zIndex: "50",
-        }}
+      <nav
+        className={[
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+          scrolled || menuOpen
+            ? "bg-white/97 backdrop-blur-lg border-b border-transparent border-black/7 shadow-sm"
+            : "bg-transparent",
+        ].join(" ")}
       >
-        <div className="flex items-center h-full gap-1 j ustify-center w-fit ">
-          <Link href={"/"}>
-            <Image className="hidden w-28 md:block " src={sacaturno_logo} alt="SacaTurno" />
-            <Image className="block w-28 md:hidden" src={sacaturno_logo} alt="SacaTurno" />
-          </Link>
-        </div>
+        <div className="max-w-[1200px] mx-auto justify-between px-8 h-[68px] flex items-center">
+          {/* 1 — Logo */}
+          {/* <div className="flex items-center">
+            <Link
+              href="/"
+              className="text-[21px] font-light tracking-[-0.8px] text-[#1a1a1a] whitespace-nowrap"
+            >
+              sacaturno<span className="text-[#dd4924]">.</span>
 
+            </Link>
+          </div> */}
+          <div className="flex items-center">
+            <Link
+              href="/"
+              className="w-28"
+            >
+              <Image
+                src="/sacaturno-orange.svg"
+                alt="SacaTurno"
+                width={50}
+                height={45}
+                className="pageLoaderLogo"
+              />
+            </Link>
+          </div>
 
-        <div className="items-center justify-center hidden gap-12 text-sm md:flex">
-          <div className="flex gap-4">
-            <Link href="/public/search" className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-all duration-300 ease-in-out bg-black border border-white rounded-lg cursor-pointer border-opacity-30 hover:bg-orange-600 hover:border-orange-600 hover:transition-all hover:duration-300 ">
-              <MdSearch className="" size={16} />
+          {/* 2 — Nav links (centro) */}
+          <div className="hidden overflow-hidden lg:flex items-center gap-7">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={(e) => scrollTo(e, link.href)}
+                className="text-[13px] hover:text-[#dd4924] font-medium text-[#5a5a5a] transition-all duration-300 ease-in-out cursor-pointer"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+
+          {/* 3 — Botones (derecha) */}
+          <div className="hidden md:flex items-center justify-end gap-2">
+            <Link
+              href="/public/search"
+              className="flex items-center gap-1.5 px-2.5 py-2 text-xs font-medium border border-black/20 rounded-lg text-[#1a1a1a] hover:bg-[#dd4924] hover:text-white hover:border-[#dd4924] transition-all duration-200"
+            >
+              <MdSearch size={15} />
               Buscar negocio
             </Link>
-
-            <Link href="/login" className="flex items-center gap-2 px-3 py-2 text-xs font-semibold transition-all duration-300 ease-in-out bg-black border border-white rounded-lg cursor-pointer border-opacity-30 hover:bg-orange-600 hover:border-orange-600 hover:transition-all hover:duration-300 ">
-              <MdLogin className="" size={16} />
-              Iniciar sesión
+            <Link
+              href="/login"
+              className="flex items-center gap-2 px-2.5 py-2 text-xs font-medium border border-black/20 rounded-lg text-[#1a1a1a] hover:bg-[#dd4924] hover:text-white hover:border-[#dd4924] transition-all duration-200"
+            >
+              <MdLogin size={15} />
+              Ingresar
             </Link>
-
             <Link
               href="/register"
-              className="px-4 py-2 text-xs font-semibold transition-all duration-300 ease-in-out bg-orange-600 rounded-lg cursor-pointer hover:bg-white hover:border-orange-600 hover:text-orange-600 hover:transition-all hover:duration-300 "
+              className="px-4 py-2 text-xs font-bold bg-[#dd4924] text-white rounded-lg hover:opacity-90 transition-opacity whitespace-nowrap"
             >
               Probar gratis
             </Link>
           </div>
-        </div>
 
-        {/* MOBILE NAV MENU */}
-
-        {/* hamburguer menu icon */}
-        <div
-          onClick={handleActiveNavBar}
-          className="flex items-center justify-center h-16 w-fit md:hidden"
-
-        >
-          <RxHamburgerMenu size={25} color="white" />
-        </div>
-
-        {/* overlay for blurring background */}
-        <div className={active ? styles.overlayActive : styles.overlay}></div>
-
-        {/* aside container */}
-        <aside style={{ zIndex: "100" }} className={active ? styles.activeAside : styles.aside}>
-          {/* CLOSE BUTTON  */}
-          <div
-            onClick={handleActiveNavBar}
-
-            style={{ zIndex: "110" }}
-            className="flex items-center justify-end w-full h-16 md:hidden"
+          {/* Hamburger */}
+          <button
+            className="md:hidden flex flex-col gap-[5px] cursor-pointer bg-transparent border-none p-1"
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-label="Menú"
           >
-            <RxCross2 size={28} color="white" />
+            <span
+              className="block w-[22px] h-[2px] bg-[#1a1a1a] rounded-[2px] transition-all duration-250"
+              style={{ transform: menuOpen ? "rotate(45deg) translate(5px,5px)" : "none" }}
+            />
+            <span
+              className="block w-[22px] h-[2px] bg-[#1a1a1a] rounded-[2px] transition-all duration-250"
+              style={{ opacity: menuOpen ? 0 : 1 }}
+            />
+            <span
+              className="block w-[22px] h-[2px] bg-[#1a1a1a] rounded-[2px] transition-all duration-250"
+              style={{ transform: menuOpen ? "rotate(-45deg) translate(5px,-5px)" : "none" }}
+            />
+          </button>
+        </div>
+
+        {/* Mobile menu */}
+        {menuOpen && (
+          <div className="md:hidden flex flex-col bg-white/97 backdrop-blur-lg border-b border-black/7 px-8 pb-5 pt-3">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={(e) => scrollTo(e, link.href, true)}
+                className="text-[14px] font-medium text-[#5a5a5a] py-3 border-b border-[#5a5a5a]/10 last:border-none cursor-pointer"
+              >
+                {link.label}
+              </a>
+            ))}
+            <div className="flex flex-col gap-3 mt-4">
+              <Link
+                href="/public/search"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2.5 text-[13px] font-semibold border border-[#5a5a5a] rounded-lg text-[#1a1a1a] hover:bg-[#dd4924] hover:text-white hover:border-[#dd4924] transition-all duration-200"
+              >
+                <MdSearch size={16} />
+                Buscar negocio
+              </Link>
+              <Link
+                href="/login"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2.5 text-[13px] font-semibold border border-[#5a5a5a] rounded-lg text-[#1a1a1a] hover:bg-[#dd4924] hover:text-white hover:border-[#dd4924] transition-all duration-200"
+              >
+                <MdLogin size={16} />
+                Ingresar
+              </Link>
+              <Link
+                href="/register"
+                onClick={() => setMenuOpen(false)}
+                className="bg-[#dd4924] text-white text-[14px] font-bold py-3 rounded-[10px] text-center"
+              >
+                Probar gratis
+              </Link>
+            </div>
           </div>
-
-          {/* links */}
-          <div className="flex flex-col gap-4 mt-4" style={{ zIndex: "110" }}>
-            {/* NAV LINKS */}
-            <Link href="/public/search" className="flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold transition-all duration-300 ease-in-out bg-black border border-white rounded-lg cursor-pointer border-opacity-30 hover:bg-orange-600 hover:border-orange-600 hover:transition-all hover:duration-300 ">
-              <MdSearch className="" size={16} />
-              Buscar negocio
-            </Link>
-
-            <Link href="/login" className="flex items-center gap-2 px-3 py-2.5 text-xs font-semibold transition-all duration-300 ease-in-out bg-black border border-white rounded-lg cursor-pointer border-opacity-30 hover:bg-orange-600 hover:border-orange-600 hover:transition-all hover:duration-300 ">
-              <MdLogin className="" size={16} />
-              Iniciar sesión
-            </Link>
-
-            <Link
-              href="/register"
-              className="w-full px-4 py-2.5 text-xs font-semibold transition-all duration-300 ease-in-out bg-orange-600 rounded-lg cursor-pointer hover:bg-white hover:border-orange-600 hover:text-orange-600 hover:transition-all hover:duration-300 flex justify-center items-center"
-            >
-              Probar gratis ahora
-            </Link>
-          </div>
-        </aside>
-      </div>
+        )}
+      </nav>
     </>
   );
 };

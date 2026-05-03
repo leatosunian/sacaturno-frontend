@@ -67,6 +67,8 @@ const getAppointments = async (ID: string) => {
 const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
   const data = await getAppointments(params.slug);
 
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:4000/api";
+
   const jsonLd = data.businessData.name
     ? {
         "@context": "https://schema.org",
@@ -81,12 +83,22 @@ const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
           address: {
             "@type": "PostalAddress",
             streetAddress: data.businessData.address,
+            addressCountry: "AR",
           },
         }),
         ...(data.businessData.phone && {
           telephone: String(data.businessData.phone),
         }),
         ...(data.businessData.email && { email: data.businessData.email }),
+        ...(data.businessData.image &&
+          data.businessData.image !== "user.png" && {
+            image: `${backendUrl}/user/getprofilepic/${data.businessData.image}`,
+          }),
+        makesOffer: {
+          "@type": "Offer",
+          url: `https://sacaturno.com.ar/${params.slug}`,
+          description: "Reserva de turnos online",
+        },
       }
     : null;
 
