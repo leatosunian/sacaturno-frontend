@@ -66,7 +66,7 @@ const testimonials: Testimonial[] = [
 
 function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
     return (
-        <Card className="w-[320px] mx-2 shrink-0 overflow-hidden transition-all border-border/40 bg-gradient-to-b from-background to-muted/10 backdrop-blur pointer-events-none md:pointer-events-auto md:hover:shadow-md md:hover:shadow-orange-600/20">
+        <Card className="w-[320px] mx-2 shrink-0 overflow-hidden transition-all border-border/40 bg-gradient-to-b from-background to-muted/10 backdrop-blur pointer-events-none md:pointer-events-auto md:hover:shadow-md hover:border-orange-800/15 md:hover:shadow-orange-800/20">
             <CardContent className="flex flex-col h-full p-4">
                 <div className="flex mb-3">
                     {Array(testimonial.rating)

@@ -43,7 +43,7 @@ const Calendar: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 
 const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, className = "", ...rest }) => (
     <div
-        className={`rounded-2xl border bg-white dark:bg-gray-900/40 border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl transition-shadow duration-200 ${className}`}
+        className={`rounded-2xl border bg-white dark:bg-gray-900/40 border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200 ${className}`}
         {...rest}
     >
         {children}

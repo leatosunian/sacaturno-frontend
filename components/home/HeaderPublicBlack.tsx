@@ -29,7 +29,7 @@ const HeaderPublicBlack: NextPage<Props> = () => {
     const id = href.replace("#", "");
     const el = document.getElementById(id);
     if (el) {
-      const top = el.getBoundingClientRect().top + window.scrollY ;
+      const top = el.getBoundingClientRect().top + window.scrollY;
       window.scrollTo({ top, behavior: "smooth" });
     }
     if (close) setMenuOpen(false);
@@ -171,8 +171,6 @@ const HeaderPublicBlack: NextPage<Props> = () => {
           </div>
         )}
       </nav>
-    </>
-  );
-};
-
+    </>)
+}
 export default HeaderPublicBlack;

@@ -77,7 +77,7 @@ const PricingSection = () => {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ amount: "some", once: true }}
           transition={{ duration: 0.7, ease: "easeInOut" }}
-          className="flex flex-col w-full md:w-[360px] h-full rounded-[15px] p-6 md:p-[30px] text-black bg-white/10 border border-black/[0.15] shadow-[7px_10px_25px_1px_rgba(0,0,0,0.2)]"
+          className="flex flex-col w-full md:w-[360px] h-full rounded-xl p-6 md:p-[30px] text-black bg-white/10 border  border-black/[0.15]  shadow-lg hover:border-orange-800/15   transition-all duration-200 md:hover:shadow-orange-800/20 cursor-pointer "
         >
           <div className="mb-5">
             <h4 className="flex items-center gap-3 mb-3 text-2xl font-semibold xl:text-3xl">
