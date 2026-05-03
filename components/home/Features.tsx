@@ -43,7 +43,7 @@ const Calendar: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 
 const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, className = "", ...rest }) => (
     <div
-        className={`rounded-2xl border bg-white dark:bg-gray-900/40 border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl transition-shadow duration-200 ${className}`}
+        className={`rounded-2xl border bg-white dark:bg-gray-900/40 border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200 ${className}`}
         {...rest}
     >
         {children}
@@ -71,52 +71,52 @@ const item = {
 const features = [
     {
         title: "Tu recepcionista 24/7",
-        description: "Tu negocio sigue abierto aunque vos estés descansando. Tus clientes pueden reservar su turno en cualquier momento desde tu link personalizado, sin esperas.",
+        description: "Tus clientes pueden reservar su turno en cualquier momento desde tu link personalizado, sin esperas.",
         icon: <Zap className="w-5 h-5" />,
     },
     {
         title: "Control Total de Reservas",
-        description: "¿Te llamó un cliente por teléfono? No hay problema. Podés agendar turnos manualmente o dejar que el sistema lo haga solo. Vos decidís cómo gestionar tu día.",
+        description: "Agendá turnos reservados manualmente o dejar que tus clientes reserven solos. Vos decidís cómo gestionar tu día.",
         icon: <Calendar className="w-5 h-5" />,
     },
     {
         title: "Automatizá tu Agenda",
-        description: "No pierdas tiempo cargando horarios cada semana. Configurá la renovación automática de tu agenda por períodos de días y olvidate de la configuración manual.",
+        description: "Configurá la renovación automática de tu agenda y no pierdas tiempo cargando turnos cada semana.",
         icon: <Loop className="w-5 h-5" />,
     },
     {
         title: "Servicios Ilimitados",
-        description: "Creá tu menú de servicios con sus propios tiempos y características. Adaptá la duración de cada turno según lo que tu cliente necesite realizarse.",
+        description: "Definí duración, precio y descripción para cada servicio que ofrecés.",
         icon: <IoIosInfinite className="w-6 h-6" />,
     },
     {
-        title: "Imagen 100% Profesional",
-        description: "Ofrecé una experiencia de primer nivel. Al registrarte, obtenés una web propia para tu empresa donde tus clientes verán tu marca y profesionalismo.",
+        title: "Cobro de señas",
+        description: "Pedí un anticipo al reservar. Turno confirmado solo cuando se paga. Reducí las ausencias.",
         icon: <Star className="w-5 h-5" />,
     },
     {
-        title: "Respaldo por Email",
-        description: "Sin malentendidos. Al reservar, el sistema te notifica a vos y le envía un comprobante al cliente con la fecha y hora exacta. Todo queda registrado.",
+        title: "Recordatorios automáticos",
+        description: "Por email antes del turno. Los no-shows bajan hasta 98%.",
         icon: <Mail className="w-5 h-5" />,
     },
 ];
 
 export default function Features() {
     return (
-        <section id="features" className="w-full ">
+        <section id="features" className="w-full pt-24 pb-16 lg:py-18 2xl:py-24">
             <div className="px-4 mx-auto max-w-7xl md:px-6">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5 }}
-                    className="flex flex-col items-center justify-center mb-12 space-y-4 text-center"
+                    className="flex flex-col items-center justify-center mb-8 lg:mb-10 2xl:mb-12 space-y-3 2xl:space-y-4 text-center"
                 >
                     <Badge className="rounded-full text-orange-600 bg-orange-50 px-4 py-1.5 text-sm font-medium" variant="secondary">
                         Ahorrá tu tiempo
                     </Badge>
                     <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Todo lo que necesitás para profesionalizar tus turnos</h2>
-                    <p className="max-w-[800px] text-slate-600 dark:text-slate-300 md:text-lg">
+                    <p className="max-w-[800px] text-slate-600 dark:text-slate-300 md:text-base 2xl:text-lg">
                         Olvidate de contestar decenas de mensajes y de anotar en agendas de papel. SacaTurno gestiona y automatiza tu proceso de reservas para que vos te enfoques en brindar el mejor servicio a tus clientes.
                     </p>
                 </motion.div>
@@ -126,17 +126,17 @@ export default function Features() {
                     initial="hidden"
                     whileInView="show"
                     viewport={{ once: true }}
-                    className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                    className="grid gap-4 lg:gap-4 2xl:gap-6 sm:grid-cols-2 lg:grid-cols-3"
                 >
                     {features.map((feature, i) => (
                         <motion.div key={i} variants={item}>
-                            <Card className="h-full overflow-hidden transition-all border-border/40 bg-gradient-to-b from-white to-slate-50 dark:from-gray-900 dark:to-gray-800/40 hover:shadow-md">
-                                <CardContent className="flex flex-col h-full p-6">
-                                    <div className="flex items-center justify-center w-12 h-12 mb-4 text-orange-600 rounded-full bg-orange-50 dark:bg-orange-900/10 dark:text-orange-300">
+                            <Card className="h-full overflow-hidden  border-border/40 bg-gradient-to-b from-white to-slate-50/60 dark:from-gray-900 dark:to-gray-800/40  bg-white/10 border shadow-md hover:shadow-md hover:border-orange-800/15   transition-all duration-200 md:hover:shadow-orange-800/20 cursor-pointer">
+                                <CardContent className="flex cursor-pointer flex-col h-full p-4 lg:p-5 2xl:p-6">
+                                    <div className="flex items-center justify-center w-10 h-10 lg:w-10 lg:h-10 2xl:w-12 2xl:h-12 mb-3 2xl:mb-4 text-orange-600 rounded-full bg-orange-50 dark:bg-orange-900/10 dark:text-orange-300">
                                         {feature.icon}
                                     </div>
-                                    <h3 className="mb-2 text-xl font-semibold text-slate-900 dark:text-slate-100">{feature.title}</h3>
-                                    <p className="text-slate-600 dark:text-slate-300">{feature.description}</p>
+                                    <h3 className="mb-1.5 2xl:mb-2 text-lg lg:text-lg 2xl:text-xl font-semibold text-slate-900 dark:text-slate-100">{feature.title}</h3>
+                                    <p className="text-sm lg:text-sm 2xl:text-base text-slate-600 dark:text-slate-300">{feature.description}</p>
                                 </CardContent>
                             </Card>
                         </motion.div>

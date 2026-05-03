@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 255, 255, 255;
@@ -46,7 +50,6 @@ input::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
-
 
 /* ::-webkit-scrollbar {
   margin-left: 4px;
@@ -791,7 +794,6 @@ html {
   box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
 }
 
-
 .button2:active {
   color: #666;
   box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
@@ -866,8 +868,6 @@ html {
 
 }
 
-
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -940,8 +940,6 @@ html {
   }
 }
 
-
-
 @layer base {
   * {
     @apply border-border;
@@ -950,3 +948,44 @@ html {
     @apply bg-background text-foreground;
   }
 }
+
+/* CTA SECTION */
+
+@keyframes cta-ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.cta-ticker-track {
+  animation: cta-ticker 22s linear infinite;
+}
+
+@keyframes cta-shimmer {
+  from { transform: translateX(-120%) skewX(-20deg); }
+  to   { transform: translateX(240%) skewX(-20deg); }
+}
+
+.cta-shimmer-sweep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%);
+  animation: cta-shimmer 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes cta-fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.cta-fade-up {
+  animation: cta-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.cta-glow-card {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  box-shadow: 0 0 32px rgba(221, 73, 36, 0.08), 0 2px 12px rgba(0,0,0,0.06);
+  backdrop-filter: blur(8px);
+}
+
