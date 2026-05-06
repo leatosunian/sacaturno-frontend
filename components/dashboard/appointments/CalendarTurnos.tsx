@@ -26,6 +26,13 @@ import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa6";
 import { timeOptions, durationOptions } from "@/helpers/timeOptions";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import axiosReq from "@/config/axios";
 import { cn } from "@/lib/utils";
@@ -156,7 +163,6 @@ const CalendarTurnos: React.FC<Props> = ({
   const [helpModal, setHelpModal] = useState(false);
   const [date, setDate] = useState<Date>(now.toDate());
   const [expiredModal, setExpiredModal] = useState(false);
-  const [dropdownActive, setDropdownActive] = useState(false);
   const [loadingNewAppointments, setLoadingNewAppointments] = useState(true);
   const [showSwipeHint, setShowSwipeHint] = useState(true);
   const [selectedDaySchedule, setSelectedDaySchedule] = useState({
@@ -586,45 +592,38 @@ const CalendarTurnos: React.FC<Props> = ({
       </Dialog>
 
       {/*  Mobile dropdown (top right)  */}
-      <div className="absolute top-20 right-4 flex flex-col md:hidden z-40">
-        <button
-          onClick={() => setDropdownActive(!dropdownActive)}
-          className="p-1 rounded-md hover:bg-gray-100 transition-colors"
-        >
-          <IoMdMore size={24} className="text-gray-600" />
-        </button>
-        {dropdownActive && (
-          <div className="absolute right-0 top-9 bg-white border border-gray-100 rounded-xl shadow-xl py-1 min-w-[200px]">
-            <Link
-              href="/admin/schedule/automate"
-              className="flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              onClick={() => setDropdownActive(false)}
-            >
-              <MdEditCalendar size={16} className="text-gray-400" />
-              Configurar agenda
-            </Link>
-            <button
-              onClick={() => {
-                handleSetAllDayAppointmentsModal();
-                setDropdownActive(false);
-              }}
-              className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-50 transition-colors"
-            >
-              <LuCalendarPlus size={16} className="text-gray-400" />
-              Crear turnos del día
+      <div className="absolute top-20 right-4 md:hidden z-40">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="h-9 w-9 flex items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm hover:bg-gray-50 active:bg-gray-100 transition-colors">
+              <IoMdMore size={20} className="text-gray-600" />
             </button>
-            <button
-              onClick={() => {
-                setHelpModal(true);
-                setDropdownActive(false);
-              }}
-              className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-50 transition-colors"
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" sideOffset={6} className="w-52 rounded-xl shadow-xl border-gray-100 p-1">
+            <DropdownMenuItem asChild className="gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-700 focus:bg-orange-50 focus:text-orange-700">
+              <Link href="/admin/schedule/automate">
+                <MdEditCalendar size={16} className="text-orange-500 shrink-0" />
+                <span className="text-sm font-medium">Configurar agenda</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="my-1" />
+            <DropdownMenuItem
+              className="gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-700 focus:bg-orange-50 focus:text-orange-700"
+              onSelect={handleSetAllDayAppointmentsModal}
             >
-              <IoInformationCircle size={16} className="text-gray-400" />
-              Tutorial de uso
-            </button>
-          </div>
-        )}
+              <LuCalendarPlus size={16} className="text-orange-500 shrink-0" />
+              <span className="text-sm font-medium">Crear turnos del día</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="my-1" />
+            <DropdownMenuItem
+              className="gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-700 focus:bg-orange-50 focus:text-orange-700"
+              onSelect={() => setHelpModal(true)}
+            >
+              <IoInformationCircle size={16} className="text-orange-500 shrink-0" />
+              <span className="text-sm font-medium">Tutorial de uso</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/*  Page layout  */}

@@ -340,7 +340,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                   <LuCalendarDays size={22} color="white" />
                 </div>
               </Link>
-              <Link href="/admin/schedule/settings">
+              <Link href="/admin/schedule/automate">
                 <div
                   style={{ backgroundColor: "#dd4924" }}
                   className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
@@ -362,7 +362,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                   <MdOutlineWorkOutline size={22} color="white" />
                 </div>
               </Link>
-              <Link href="/admin/business/settings">
+              <Link href="/admin/business/services">
                 <div
                   style={{ backgroundColor: "#dd4924" }}
                   className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
@@ -384,7 +384,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
 
             <AnimatePresence>
               {loading && (
-                <motion.div
+                <motion.div 
                   key="dashboard-loader"
                   className="flex items-center justify-center py-12"
                   exit={{ opacity: 0 }}

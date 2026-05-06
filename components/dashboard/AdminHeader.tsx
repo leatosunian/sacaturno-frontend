@@ -1,46 +1,43 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { BsChevronDown } from "react-icons/bs";
 import Image from "next/image";
-import {
-  CiAlarmOn,
-  CiCalendarDate,
-  CiLogout,
-  CiShop,
-  CiUser,
-} from "react-icons/ci";
 import sacaturno_logo from "@/public/sacaturno-white.svg";
 import { RxCross2, RxHamburgerMenu } from "react-icons/rx";
 import { useRouter } from "next/navigation";
-import { IoIosLogOut, IoIosSettings } from "react-icons/io";
-import { RiListSettingsLine } from "react-icons/ri";
-import { LuCalendarPlus } from "react-icons/lu";
-import { TbCalendarRepeat } from "react-icons/tb";
+import { IoIosLogOut } from "react-icons/io";
+import { FaChevronDown } from "react-icons/fa6";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
+  HiOutlineBuildingOffice2,
+  HiOutlineCalendarDays,
+  HiOutlineUser,
+  HiOutlineHome,
+  HiOutlineCog6Tooth,
+  HiOutlineWrenchScrewdriver,
+  HiOutlineCalendar,
+  HiOutlineArrowPath,
+} from "react-icons/hi2";
+import styles from "@/app/css-modules/AdminHeader.module.css";
 
 export default function AdminHeader() {
   const [isOpen, setIsOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState("");
+  const router = useRouter();
 
   const toggleDropdown = (dropdown: string) => {
     setOpenDropdown(openDropdown === dropdown ? "" : dropdown);
   };
-  const router = useRouter();
+
+  const closeMenu = () => {
+    setIsOpen(false);
+    setOpenDropdown("");
+  };
 
   const logOut = async () => {
     localStorage.removeItem("sacaturno_userID");
     localStorage.removeItem("sacaturno_token");
     try {
-      await fetch(`/api/logout`, {
-        method: "POST",
-      });
+      await fetch(`/api/logout`, { method: "POST" });
       router.push("/");
       router.refresh();
     } catch (error) {
@@ -49,272 +46,189 @@ export default function AdminHeader() {
   };
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-
-    // close submenus
-    if (!isOpen) {
-      setOpenDropdown("");
-    }
-
+    document.body.style.overflow = isOpen ? "hidden" : "unset";
+    if (!isOpen) setOpenDropdown("");
     return () => {
       document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
   return (
-    <nav className="text-white bg-black">
-      <div className="px-4 mx-auto max-w-7xl sm:px-6 md:px-8 lg:px-14">
+    <nav style={{ backgroundColor: "#060606" }} className="text-white w-full">
+      <div className="px-6 mx-auto max-w-7xl md:px-8 lg:px-14">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <Link
-                href={"/admin/dashboard"}
-                onClick={() => {
-                  setIsOpen(false);
-                  setOpenDropdown("");
-                }}
-              >
-                <Image className="w-28" src={sacaturno_logo} alt="SacaTurno" />
-              </Link>
-            </div>
-          </div>
 
-          <div className="items-center hidden gap-4 md:flex">
+          {/* Logo */}
+          <Link href="/admin/dashboard" onClick={closeMenu}>
+            <Image className="w-28" src={sacaturno_logo} alt="SacaTurno" />
+          </Link>
+
+          {/* Desktop nav */}
+          <div className="items-center hidden gap-1 md:flex">
 
             <Link
               href="/admin/dashboard"
-              className="w-fit h-fit"
-              onClick={() => {
-                setOpenDropdown("");
-              }}
+              onClick={() => setOpenDropdown("")}
+              className={styles.navLink}
             >
-              <Button variant="outline" className="text-xs text-white bg-black dark hover:bg-orange-600" >
-                Home
-              </Button>
+              Inicio
             </Link>
 
-            <DropdownMenu onOpenChange={() => toggleDropdown("empresa")}>
-              <DropdownMenuTrigger className="text-xs text-white bg-black dark hover:bg-orange-600" asChild>
-                <Button variant="outline" className="focus:outline-none ">
-                  Mi empresa
-                  <BsChevronDown
-                    className={` h-4 w-4 transition-transform duration-300 ${openDropdown === "empresa" ? "rotate-180" : ""
-                      }`}
-                  />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <Link className="flex items-center w-full gap-2" href="/admin/business">
-                  <DropdownMenuItem className="w-full mb-1">
-                    <IoIosSettings size={17} />
-                    Ajustes
-                  </DropdownMenuItem>
-                </Link>
-
-                <Link className="flex items-center w-full gap-2" href="/admin/business/services">
-                  <DropdownMenuItem className="w-full">
-                    <RiListSettingsLine size={17} className="w-full" />
-                    Servicios
-                  </DropdownMenuItem>
-                </Link>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <DropdownMenu onOpenChange={() => toggleDropdown("turnos")}>
-              <DropdownMenuTrigger className="text-xs text-white bg-black dark hover:bg-orange-600" asChild>
-                <Button variant="outline">
-                  Mi agenda
-                  <BsChevronDown
-                    className={` h-4 w-4 transition-transform duration-300 ${openDropdown === "turnos" ? "rotate-180" : ""
-                      }`}
-                  />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <Link className="flex items-center w-full gap-2" href="/admin/schedule">
-                  <DropdownMenuItem className="w-full mb-1">
-                    <LuCalendarPlus size={17} />
-                    Agenda de turnos
-                  </DropdownMenuItem>
-                </Link>
-
-                <Link className="flex items-center w-full gap-2" href="/admin/schedule/automate">
-                  <DropdownMenuItem >
-                    <TbCalendarRepeat size={18} className="w-full" />
-                    Automatizar agenda
-                  </DropdownMenuItem>
-                </Link>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <Link
-              href="/admin/profile" 
-              className="w-fit h-fit"
-              onClick={() => {
-                setOpenDropdown("");
-              }}
-            >
-              <Button variant="outline" className="text-xs text-white bg-black dark hover:bg-orange-600" >
-                Mi perfil
-              </Button>
-            </Link>
-
-            <Button onClick={logOut} variant="outline" className="text-xs text-white bg-orange-600 dark hover:bg-white hover:text-orange-600 w-fit">
-              <IoIosLogOut size={40} className="font-bold" />
-              Cerrar sesión
-            </Button>
-
-          </div>
-
-          <div className="md:hidden">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md "
-            >
-              <span className="sr-only">Open main menu</span>
-              {isOpen ? (
-                <RxCross2 size={28} color="white" />
-              ) : (
-                <RxHamburgerMenu
-                  size={25}
-                  color="white"
-                  className="block w-6 h-6"
-                />
-              )}
-            </button>
-          </div>
-
-        </div>
-      </div>
-
-      {/* Mobile menu, show/hide based on menu state */}
-      <div
-        style={{
-          transform: "translateY(63px)",
-          zIndex: "9999999",
-        }}
-        className={` fixed inset-0 z-50 md:hidden transition-opacity duration-300 ease-in-out ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-          }`}
-      >
-        {/* Blurred background */}
-        <div
-          className="absolute inset-0 bg-black bg-opacity-65 "
-          onClick={() => setIsOpen(false)}
-        ></div>
-
-        {/* Menu content */}
-        <div
-          className={`absolute top-0 pt-2 right-0 w-64 h-full bg-black bg-opacity-90 shadow-lg transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "translate-x-full"
-            }`}
-        >
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <Link
-              href="/public/search"
-              className="flex items-center gap-2 px-3 py-3 text-sm font-medium uppercase transition-colors duration-300 rounded-md backgroundOrangHover"
-              onClick={() => setIsOpen(false)}
-            >
-              <CiAlarmOn size={16} />
-              Sacar turno
-            </Link>
-            <div>
-              <button
-                onClick={() => toggleDropdown("empresa")}
-                className={`"backgroundOrangHover px-3 py-3 rounded-md w-full text-sm font-medium uppercase transition-colors duration-300 flex gap-2 items-center ${openDropdown === "empresa" ? "backgroundOrange" : "bg-black"
-                  }`}
-              >
-                <CiShop size={16} />
-                Mi empresa
-                <BsChevronDown
-                  className={`h-4 w-4 ml-auto transition-transform duration-300 ${openDropdown === "empresa" ? "rotate-180" : ""
-                    }`}
-                />
-              </button>
-              <div
-                className={`pl-5 transition-all duration-300 ${openDropdown === "empresa"
-                  ? "max-h-40 opacity-100"
-                  : "max-h-0 opacity-0 overflow-hidden"
-                  }`}
-              >
-                <Link
-                  href="/admin/business"
-                  className="flex gap-2 px-3 pt-5 pb-3 text-xs font-medium uppercase transition-colors duration-300 rounded-md "
-                  onClick={() => setIsOpen(false)}
-                >
-                  <IoIosSettings size={16} />
-                  Ajustes
-                </Link>
-                <Link
-                  href="/admin/business/services"
-                  className="flex gap-2 px-3 pt-3 pb-2 text-xs font-medium uppercase transition-colors duration-300 rounded-md "
-                  onClick={() => setIsOpen(false)}
-                >
-                  <RiListSettingsLine size={16} />
-                  Servicios
-                </Link>
+            {/* Mi agenda dropdown */}
+            <div className={styles.dropdownNavLink}>
+              <div className={`${styles.dropdownTitle} flex gap-1.5 items-center`}>
+                <span className={styles.navLinkNoHover}>Mi agenda</span>
+                <FaChevronDown size={9} className={styles.dropdownChevron} />
               </div>
-            </div>
-            <div>
-              <button
-                onClick={() => toggleDropdown("turnos")}
-                className={`backgroundOrangHover px-3 py-3 rounded-md w-full text-sm font-medium uppercase transition-colors duration-300 flex gap-2 items-center ${openDropdown === "turnos" ? "backgroundOrange" : "bg-black"
-                  }`}
-              >
-                <CiCalendarDate size={16} />
-                Mi agenda
-                <BsChevronDown
-                  className={`h-4 w-4 ml-auto  transition-transform duration-300 ${openDropdown === "turnos" ? "rotate-180" : ""
-                    }`}
-                />
-              </button>
-              <div
-                className={`pl-6 transition-all duration-300 ${openDropdown === "turnos"
-                  ? "max-h-40 opacity-100"
-                  : "max-h-0 opacity-0 overflow-hidden"
-                  }`}
-              >
-                <Link
-                  href="/admin/schedule"
-                  className="flex gap-2 px-3 pt-5 pb-3 text-xs font-medium uppercase transition-colors duration-300 rounded-md"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <LuCalendarPlus size={16} />
+              <div className={styles.options}>
+                <Link href="/admin/schedule" className={styles.option}>
+                  <HiOutlineCalendar size={13} />
                   Agenda de turnos
                 </Link>
-                <Link
-                  href="/admin/schedule/automate"
-                  className="flex gap-2 px-3 pt-3 pb-2 text-xs font-medium uppercase transition-colors duration-300 rounded-md"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <TbCalendarRepeat size={16} />
+                <Link href="/admin/schedule/automate" className={styles.option}>
+                  <HiOutlineArrowPath size={13} />
                   Automatizar agenda
                 </Link>
               </div>
             </div>
+
+            {/* Mi empresa dropdown */}
+            <div className={styles.dropdownNavLink}>
+              <div className={`${styles.dropdownTitle} flex gap-1.5 items-center`}>
+                <span className={styles.navLinkNoHover}>Mi empresa</span>
+                <FaChevronDown size={9} className={styles.dropdownChevron} />
+              </div>
+              <div className={styles.options}>
+                <Link href="/admin/business" className={styles.option}>
+                  <HiOutlineCog6Tooth size={13} />
+                  Ajustes
+                </Link>
+                <Link href="/admin/business/services" className={styles.option}>
+                  <HiOutlineWrenchScrewdriver size={13} />
+                  Servicios
+                </Link>
+              </div>
+            </div>
+
             <Link
               href="/admin/profile"
-              className="flex items-center gap-2 px-3 py-3 text-sm font-medium uppercase transition-colors duration-300 rounded-md backgroundOrangHover"
-              onClick={() => setIsOpen(false)}
+              onClick={() => setOpenDropdown("")}
+              className={styles.navLink}
             >
-              <CiUser size={16} />
               Mi perfil
             </Link>
-            <span
-              onClick={() => {
-                logOut();
-                setIsOpen(false);
-              }}
-              className="flex items-center gap-2 px-3 py-3 text-sm font-medium uppercase transition-colors duration-300 rounded-md backgroundOrangHover"
-            >
-              <CiLogout size={16} />
-              Cerrar sesión
-            </span>
+
+            {/* Divider */}
+            <div className="w-px h-5 bg-white opacity-10 mx-3" />
+
+            {/* Logout */}
+            <button onClick={logOut} className={styles.logoutBtn}>
+              <IoIosLogOut size={15} />
+              <span>Salir</span>
+            </button>
+
           </div>
+
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="flex items-center justify-center h-16 w-fit md:hidden"
+            aria-label="Abrir menú"
+          >
+            <RxHamburgerMenu size={23} color="white" />
+          </button>
         </div>
       </div>
-    </nav >
+
+      {/* Mobile overlay */}
+      <div
+        onClick={closeMenu}
+        className={isOpen ? styles.overlayActive : styles.overlay}
+      />
+
+      {/* Mobile aside */}
+      <aside className={isOpen ? styles.activeAside : styles.aside}>
+
+        {/* Header */}
+        <div className={styles.asideHeader}>
+          <Image className="w-24" src={sacaturno_logo} alt="SacaTurno" />
+          <button onClick={closeMenu} className={styles.closeBtn} aria-label="Cerrar menú">
+            <RxCross2 size={18} color="rgba(255,255,255,0.65)" />
+          </button>
+        </div>
+
+        {/* Nav items */}
+        <nav className={styles.asideNav}>
+
+          <Link onClick={closeMenu} className={styles.asideNavItem} href="/admin/dashboard">
+            <HiOutlineHome size={17} />
+            <span>Inicio</span>
+          </Link>
+
+          {/* Mi agenda accordion */}
+          <div>
+            <button
+              onClick={() => toggleDropdown("turnos")}
+              className={styles.asideNavItem}
+            >
+              <HiOutlineCalendarDays size={17} />
+              <span>Mi agenda</span>
+              <FaChevronDown
+                size={11}
+                className={`${styles.asideChevron} ${openDropdown === "turnos" ? styles.asideChevronOpen : ""}`}
+              />
+            </button>
+            {openDropdown === "turnos" && (
+              <div className={styles.asideSubNav}>
+                <Link onClick={closeMenu} className={styles.asideSubItem} href="/admin/schedule">
+                  Agenda de turnos
+                </Link>
+                <Link onClick={closeMenu} className={styles.asideSubItem} href="/admin/schedule/automate">
+                  Automatizar agenda
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Mi empresa accordion */}
+          <div>
+            <button
+              onClick={() => toggleDropdown("empresa")}
+              className={styles.asideNavItem}
+            >
+              <HiOutlineBuildingOffice2 size={17} />
+              <span>Mi empresa</span>
+              <FaChevronDown
+                size={11}
+                className={`${styles.asideChevron} ${openDropdown === "empresa" ? styles.asideChevronOpen : ""}`}
+              />
+            </button>
+            {openDropdown === "empresa" && (
+              <div className={styles.asideSubNav}>
+                <Link onClick={closeMenu} className={styles.asideSubItem} href="/admin/business">
+                  Ajustes
+                </Link>
+                <Link onClick={closeMenu} className={styles.asideSubItem} href="/admin/business/services">
+                  Servicios
+                </Link>
+              </div>
+            )}
+          </div>
+
+          <Link onClick={closeMenu} className={styles.asideNavItem} href="/admin/profile">
+            <HiOutlineUser size={17} />
+            <span>Mi perfil</span>
+          </Link>
+
+          <div className={styles.asideSeparator} />
+
+          <button onClick={logOut} className={styles.asideLogout}>
+            <IoIosLogOut size={17} />
+            <span>Cerrar sesión</span>
+          </button>
+
+        </nav>
+      </aside>
+    </nav>
   );
 }
