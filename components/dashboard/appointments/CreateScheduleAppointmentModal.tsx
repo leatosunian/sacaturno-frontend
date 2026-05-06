@@ -37,7 +37,9 @@ const CreateScheduleAppointmentModal: React.FC<props> = ({
     name: string | undefined;
     price: number | undefined;
     description: string | undefined;
+    duration?: number | undefined;
   }>();
+  const [endTime, setEndTime] = useState<Date | undefined>(appointmentData?.end);
 
   dayjs.extend(updateLocale);
 
@@ -59,6 +61,7 @@ const CreateScheduleAppointmentModal: React.FC<props> = ({
         name: servicesData[0].name,
         price: servicesData[0].price,
         description: servicesData[0].description,
+        duration: servicesData[0].duration,
       });
     }
   }, [servicesData]);
@@ -69,6 +72,12 @@ const CreateScheduleAppointmentModal: React.FC<props> = ({
       appointmentData.price = selectedService?.price!;
       appointmentData.description = selectedService?.description!;
       appointmentData.dayScheduleID = appointmentData.dayScheduleID;
+      const newEnd =
+        selectedService?.duration && appointmentData.start
+          ? dayjs(appointmentData.start).add(selectedService.duration, "minute").toDate()
+          : appointmentData.end;
+      appointmentData.end = newEnd!;
+      setEndTime(newEnd);
     }
   }, [selectedService, appointmentData]);
 
@@ -80,6 +89,7 @@ const CreateScheduleAppointmentModal: React.FC<props> = ({
       price: serviceSelectedObj?.price,
       name: serviceSelectedObj?.name,
       description: serviceSelectedObj?.description,
+      duration: serviceSelectedObj?.duration,
     });
   };
 
@@ -100,7 +110,7 @@ const CreateScheduleAppointmentModal: React.FC<props> = ({
       price: selectedService?.price!,
       description: selectedService?.description!,
       ownerID: appointmentData?.ownerID!,
-      end: appointmentData?.end!,
+      end: endTime ?? appointmentData?.end!,
       start: appointmentData?.start!,
       service: selectedService?.name!,
       dayNumber: appointmentData?.dayNumber!,
@@ -152,7 +162,7 @@ const CreateScheduleAppointmentModal: React.FC<props> = ({
               <FaRegClock color="#9ca3af" size={20} />
               <span className="text-sm font-medium text-gray-800">
                 {dayjs(appointmentData?.start).format("HH:mm [hs] ")}{" "}
-                {dayjs(appointmentData?.end).format("[a] HH:mm [hs]")}
+                {dayjs(endTime ?? appointmentData?.end).format("[a] HH:mm [hs]")}
               </span>
             </div>
           </div>

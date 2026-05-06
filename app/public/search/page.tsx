@@ -8,7 +8,7 @@ import { GrTableAdd } from "react-icons/gr";
 import { useRouter } from "next/navigation";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { IoIosSearch } from "react-icons/io";
-import HeaderPublicBlack from "@/components/home/HeaderPublicBlack";
+import HeaderPublicBlack from "@/components/home/HeaderPublic";
 import Footer from "@/components/home/Footer";
 import stylesHome from "@/app/css-modules/HomeWhite.module.css";
 import styles from "@/app/css-modules/AuthCentered.module.css";

@@ -1,6 +1,6 @@
 "use client";
 import PricingSection from "@/components/home/PricingSection";
-import HeaderPublicBlack from "@/components/home/HeaderPublicBlack";
+import HeaderPublic from "@/components/home/HeaderPublic";
 import FAQSection from "@/components/home/FAQSection";
 import HeroSection from "@/components/home/HeroSection";
 import Footer from "@/components/home/Footer";
@@ -18,7 +18,7 @@ export default function Home() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.3, ease: "easeInOut" }}
       >
-        <HeaderPublicBlack />
+        <HeaderPublic />
         <HeroSection />
       </motion.div>
 

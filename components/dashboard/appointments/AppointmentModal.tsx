@@ -30,9 +30,9 @@ interface props {
 }
 
 const depositStatusConfig = {
-  paid:    { bg: "bg-green-50",  border: "border-green-200",  text: "text-green-700",  label: "✓ Pagada vía Mercado Pago" },
+  paid: { bg: "bg-green-50", border: "border-green-200", text: "text-green-700", label: "✓ Seña pagada vía Mercado Pago" },
   pending: { bg: "bg-yellow-50", border: "border-yellow-200", text: "text-yellow-700", label: "⏳ Pendiente de confirmación" },
-  failed:  { bg: "bg-red-50",    border: "border-red-200",    text: "text-red-700",    label: "✗ Pago fallido" },
+  failed: { bg: "bg-red-50", border: "border-red-200", text: "text-red-700", label: "✗ Pago fallido" },
 };
 
 const Field = ({ label, value }: { label: string; value: React.ReactNode }) => (
@@ -62,10 +62,10 @@ const AppointmentModal: React.FC<props> = ({ appointment, onDelete, closeModalF 
   // ── BOOKED ──────────────────────────────────────────────────────────────────
   if (isBooked) {
     return (
-      <div className="flex flex-col w-full gap-4 pb-1">
+      <div className="flex flex-col w-full gap-2 md:gap-4 pb-1">
 
         {/* Title */}
-        <h4 className="relative inline-block w-full px-2 mx-auto font-bold text-center uppercase" style={{ fontSize: 20 }}>
+        <h4 className="relative inline-block w-full mb-2 px-2 mx-auto font-bold text-center uppercase" style={{ fontSize: 20 }}>
           Turno reservado
           <span className="absolute left-0 right-0 mx-auto" style={{ bottom: -2, height: 2, background: "#dd4924", width: "30%" }} />
         </h4>
@@ -75,22 +75,24 @@ const AppointmentModal: React.FC<props> = ({ appointment, onDelete, closeModalF 
           <span className="text-sm font-bold text-gray-800 capitalize">
             &#128197; {dayjs(appointment?.start).format("dddd DD [de] MMMM")}
           </span>
-          <span className="text-base font-semibold text-gray-700">
+          <span className="text-sm font-semibold text-gray-700">
             {dayjs(appointment?.start).format("HH:mm")} — {dayjs(appointment?.end).format("HH:mm")} hs
           </span>
         </div>
 
         {/* Two-column grid (single column on mobile) */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
 
           {/* Left: appointment details */}
-          <div className="flex flex-col gap-3 p-4 col-span-2 bg-gray-50 rounded-xl border border-gray-100">
+          <div className="flex flex-col  gap-3 p-4 w-full col-span-3 md:col-span-2 bg-gray-50 rounded-xl border border-gray-100">
             <span className="text-xs font-bold uppercase tracking-wider text-orange-600">Turno</span>
             <Field label="Servicio" value={appointment?.service} />
-            <Field label="Precio" value={`$ ${appointment?.price?.toLocaleString("es-AR")}`} />
-            {hasDeposit && (
-              <Field label="Seña" value={`$ ${appointment!.depositAmount!.toLocaleString("es-AR")}`} />
-            )}
+            <div className="grid grid-cols-2 md:flex flex-col  w-full h-fit gap-3">
+              <Field label="Precio" value={`$ ${appointment?.price?.toLocaleString("es-AR")}`} />
+              {hasDeposit && (
+                <Field label="Seña" value={`$ ${appointment!.depositAmount!.toLocaleString("es-AR")}`} />
+              )}
+            </div>
           </div>
 
           {/* Right: client details */}
@@ -104,23 +106,25 @@ const AppointmentModal: React.FC<props> = ({ appointment, onDelete, closeModalF 
 
         {/* Deposit status — full width */}
         {depositCfg && (
-          <div className={`flex flex-col gap-1 p-3 rounded-xl border ${depositCfg.bg} ${depositCfg.border}`}>
-            <span className="text-xs font-bold uppercase tracking-wide text-gray-500">Estado de la seña</span>
-            <span className={`text-sm font-semibold ${depositCfg.text}`}>{depositCfg.label}</span>
+          <div className={`flex flex-col gap-1 py-2 px-3 rounded-xl border ${depositCfg.bg} ${depositCfg.border}`}>
+            {/* <span className="text-xs font-bold uppercase tracking-wide text-gray-500">Estado de la seña</span> */}
+            <span className={`text-xs md:text-sm font-semibold ${depositCfg.text}`}>
+              {depositCfg.label}
+            </span>
             {appointment?.depositStatus === "paid" && appointment.mpPaymentID && (
-              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-0.5 mt-1 pt-2 border-t border-green-200">
-                <span className="text-xs font-bold uppercase tracking-wide text-gray-400">ID de pago </span>
-                <span className="text-xs font-mono font-semibold text-gray-700">{appointment.mpPaymentID}</span>
+              <div className="flex flex-row md:items-end justify-between gap-0.5 mt-1 pt-2 border-t border-green-200">
+                <span className="text-[11px] font-bold uppercase  text-gray-400">ID de pago </span>
+                <span className="text-xs md:text-xs tracking-wider font-semibold text-gray-400">{appointment.mpPaymentID}</span>
               </div>
             )}
           </div>
         )}
 
         {/* WhatsApp CTA */}
-        <div style={{ width: "100%", height: "1px", backgroundColor: "rgb(178 178 178 / 40%)" }} />
+        <div className="my-1" style={{ width: "100%", height: "1px", backgroundColor: "rgb(178 178 178 / 40%)" }} />
         <Link target="_blank" href={`https://wa.me/54${appointment?.phone}`} className="w-full">
           <Button className="w-full text-white bg-orange-600 border-none rounded-lg h-11 hover:bg-orange-700">
-            <FaWhatsapp color="white" /> Iniciar chat en WhatsApp
+            <FaWhatsapp color="white" /> Contactar cliente por WhatsApp
           </Button>
         </Link>
       </div>

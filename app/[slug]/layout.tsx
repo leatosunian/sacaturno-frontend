@@ -1,4 +1,4 @@
-import HeaderPublicBlack from "@/components/home/HeaderPublicBlack";
+import HeaderPublic from "@/components/home/HeaderPublic";
 
 export default function Layout({
   children,
@@ -8,7 +8,7 @@ export default function Layout({
   return (
       <>
         <div className="h-screen">
-          <HeaderPublicBlack/>
+          <HeaderPublic/>
           {children}
         </div> 
       </>

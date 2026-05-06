@@ -1,43 +1,37 @@
 import AlertInterface from "../interfaces/alert.interface";
-import correct from "../public/correct.png";
-import remove from "../public/remove.png";
-import { useEffect } from "react";
-import Image from "next/image";
 import { MdCancel } from "react-icons/md";
 import { BsFillCheckCircleFill } from "react-icons/bs";
+import { cn } from "@/lib/utils";
 
 type Props = AlertInterface;
 
 const Alert: React.FC<Props> = ({ alertType, msg, error }) => {
-  return (
-    <>
-      <div className={`notificationContainer ${error ? "actived" : ""}`}>
-        <div className="notificationImgCont">
-          {alertType === "OK_ALERT" && (
-            <>
-              <BsFillCheckCircleFill
-                className="hidden md:block"
-                size={38}
-                color="#4bc720"
-              />
-              <BsFillCheckCircleFill
-                className="block md:hidden"
-                size={26}
-                color="#4bc720"
-              />
-            </>
-          )}
+  const isSuccess = alertType === "OK_ALERT";
 
-          {alertType === "ERROR_ALERT" && (
-            <>
-            <MdCancel size={40} className="hidden md:block" color="#ff0000" />
-            <MdCancel size={30} className="block md:hidden" color="#ff0000" />            
-            </>
-          )}
-          <span>{msg}</span>
-        </div>
-      </div>
-    </>
+  return (
+    <div
+      className={cn(
+        "fixed left-1/2 z-[99999] -translate-x-1/2 flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border-l-4 transition-all duration-300 ease-in-out w-max max-w-[90vw]",
+        error ? "bottom-16" : "-bottom-40",
+        isSuccess
+          ? "bg-green-50 border-l-green-500 shadow-green-100"
+          : "bg-red-50 border-l-red-500 shadow-red-100"
+      )}
+    >
+      {isSuccess ? (
+        <BsFillCheckCircleFill size={18} className="text-green-500 shrink-0" />
+      ) : (
+        <MdCancel size={20} className="text-red-500 shrink-0" />
+      )}
+      <span
+        className={cn(
+          "text-sm font-semibold whitespace-nowrap",
+          isSuccess ? "text-green-800" : "text-red-800"
+        )}
+      >
+        {msg}
+      </span>
+    </div>
   );
 };
 

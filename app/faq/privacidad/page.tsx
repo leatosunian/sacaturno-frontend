@@ -1,4 +1,4 @@
-import HeaderPublicBlack from "@/components/home/HeaderPublicBlack";
+import HeaderPublicBlack from "@/components/home/HeaderPublic";
 import Footer from "@/components/home/Footer";
 import stylesHome from "@/app/css-modules/HomeWhite.module.css";
 import Link from "next/link";

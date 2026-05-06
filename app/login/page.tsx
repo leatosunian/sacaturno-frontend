@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { LuCalendarDays } from "react-icons/lu";
-import HeaderPublicBlack from "@/components/home/HeaderPublicBlack";
+import HeaderPublicBlack from "@/components/home/HeaderPublic";
 import Footer from "@/components/home/Footer";
 import FormLogin from "@/components/home/login/FormLogin";
 import styles from "@/app/css-modules/AuthCentered.module.css";

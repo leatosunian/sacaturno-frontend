@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, type FieldValues } from "react-hook-form"
@@ -24,7 +24,7 @@ interface Props {
   appointmentData: FormattedAppointment
   businessData: IBusiness
   modalDateStr: string
-  depositAmount?: number   // ← nuevo
+  depositAmount?: number
   closeModalF: (action: string) => void
 }
 
@@ -32,13 +32,21 @@ export default function BookAppointmentModal({
   appointmentData,
   businessData,
   modalDateStr,
-  depositAmount = 0,        // ← default 0 = sin seña
+  depositAmount = 0, // 0 = sin seña
   closeModalF,
 }: Props) {
   const [spinner, setSpinner] = useState(false)
   const [bookedModal, setBookedModal] = useState(false)
   const [bookedAppointmentData, setBookedAppointmentData] =
     useState<FormattedAppointment | null>(null)
+
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) setSpinner(false)
+    }
+    window.addEventListener("pageshow", handlePageShow)
+    return () => window.removeEventListener("pageshow", handlePageShow)
+  }, [])
 
   const {
     register,
@@ -50,7 +58,7 @@ export default function BookAppointmentModal({
   const requiresDeposit = depositAmount > 0
   const dateTimeDisplay = `${modalDateStr} | ${appointmentData.timeLabel} - ${appointmentData.endTimeLabel} hs`
 
-  // ── Flujo SIN seña — igual que antes ──
+  // flujo sin seña
   const bookWithoutDeposit = async (formData: FieldValues) => {
     setSpinner(true)
     try {
@@ -73,7 +81,7 @@ export default function BookAppointmentModal({
     }
   }
 
-  // ── Flujo CON seña — crea preferencia y redirige a MP ──
+  // flujo con seña -> crea preferencia y redirige a MP
   const bookWithDeposit = async (formData: FieldValues) => {
     setSpinner(true)
     try {
@@ -83,7 +91,7 @@ export default function BookAppointmentModal({
         clientEmail:   formData.email,
         clientPhone:   formData.phone,
       })
-      // Redirigir al Checkout Pro del negocio
+      // redirigir a mp checkout pro del negocio
       window.location.href = res.data.initPoint
     } catch (error: any) {
       const msg = error?.response?.data?.msg
@@ -128,7 +136,7 @@ export default function BookAppointmentModal({
     (document.querySelector(".inputSubmitField") as HTMLElement)?.click()
   }
 
-  // ── Pantalla de éxito (solo flujo sin seña) ──
+  // pantalla de éxito (flujo sin seña) 
   if (bookedModal) {
     return (
       <div className="flex flex-col items-center gap-5">
@@ -172,7 +180,7 @@ export default function BookAppointmentModal({
     )
   }
 
-  // ── Formulario principal ──
+  // form de reserva (flujo con o sin seña)
   return (
     <div className="flex flex-col gap-5">
 
@@ -291,7 +299,7 @@ export default function BookAppointmentModal({
             <div className="flex flex-col">
               <label className="text-xs font-bold tracking-wider uppercase">Teléfono</label>
               <Input
-                type="tel"
+                type="number"
                 {...register("phone")}
                 className="px-0 bg-transparent border-0 border-b rounded-none shadow-none border-border focus-visible:ring-0 hover:border-orange-500 focus:border-orange-500 transition-colors"
                 placeholder="11 1234 5678"
