@@ -40,24 +40,34 @@ const CreateAppointmentModal: React.FC<props> = ({
     name: string | undefined;
     price: number | undefined;
     description: string | undefined;
+    duration: number | undefined;
   }>();
   const [clientName, setClientName] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [clientPhone, setClientPhone] = useState("");
+  const [end, setEnd] = useState<Date | undefined>(appointmentData?.end);
 
   useEffect(() => {
     if (servicesData?.[0]) {
+      const first = servicesData[0];
       setSelectedService({
-        name: servicesData[0].name,
-        price: servicesData[0].price,
-        description: servicesData[0].description,
+        name: first.name,
+        price: first.price,
+        description: first.description,
+        duration: first.duration,
       });
+      if (appointmentData?.start && first.duration) {
+        setEnd(dayjs(appointmentData.start).add(first.duration, "minute").toDate());
+      }
     }
-  }, [servicesData]);
+  }, [servicesData, appointmentData?.start]);
 
   const handleSetSelectedService = (name: string) => {
     const match = servicesData?.find((s) => s.name === name);
-    setSelectedService({ price: match?.price, name: match?.name, description: match?.description });
+    setSelectedService({ price: match?.price, name: match?.name, description: match?.description, duration: match?.duration });
+    if (appointmentData?.start && match?.duration) {
+      setEnd(dayjs(appointmentData.start).add(match.duration, "minute").toDate());
+    }
   };
 
   const handleSave = () => {
@@ -68,6 +78,7 @@ const CreateAppointmentModal: React.FC<props> = ({
 
       const finalAppointment: IAppointment = {
         ...appointmentData,
+        end: end ?? appointmentData.end,
         service: selectedService?.name,
         price: selectedService?.price,
         description: selectedService?.description,
@@ -83,6 +94,7 @@ const CreateAppointmentModal: React.FC<props> = ({
     } else {
       const finalAppointment: IAppointment = {
         ...appointmentData,
+        end: end ?? appointmentData.end,
         service: selectedService?.name,
         price: selectedService?.price,
         description: selectedService?.description,
@@ -146,7 +158,7 @@ const CreateAppointmentModal: React.FC<props> = ({
               <FaRegClock color="#9ca3af" size={20} />
               <span className="text-sm font-medium text-gray-800">
                 {dayjs(appointmentData?.start).format("HH:mm [hs]")}{" "}
-                {dayjs(appointmentData?.end).format("[-] HH:mm [hs]")}
+                {dayjs(end ?? appointmentData?.end).format("[-] HH:mm [hs]")}
               </span>
             </div>
           </div>

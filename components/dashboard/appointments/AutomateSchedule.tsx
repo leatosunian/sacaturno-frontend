@@ -85,6 +85,14 @@ function computeClusters(events: IAppointmentSchedule[]): IAppointmentSchedule[]
   return clusters;
 }
 
+interface TimeSlot {
+  index: number;
+  hour: number;
+  minute: number;
+  label: string;
+  isHourBoundary: boolean;
+}
+
 const daysOfWeek = [
   { dayName: "LUN", dayNumber: 1 },
   { dayName: "MAR", dayNumber: 2 },
@@ -271,23 +279,51 @@ const AutomateSchedule: React.FC<Props> = ({
   };
 
   const handleSelectDayStart: React.ChangeEventHandler<HTMLSelectElement> = (e) => {
-    if (Number(e.target.value) >= selectedDayEnd) return;
-    setSelectedDayStart(Number(e.target.value));
+    const val = Number(e.target.value);
+    if (val >= selectedDayEnd) {
+      setAlert({ msg: "El horario de inicio debe ser menor al horario de fin", error: true, alertType: "ERROR_ALERT" });
+      hideAlert();
+      return;
+    }
+    if (parsedSelectedAppointments.length) {
+      const earliestHour = Math.min(...parsedSelectedAppointments.map((a) => dayjs(a.start).hour()));
+      if (val > earliestHour) {
+        setAlert({ msg: `Hay turnos desde las ${String(earliestHour).padStart(2, "0")}:00 hs`, error: true, alertType: "ERROR_ALERT" });
+        hideAlert();
+        return;
+      }
+    }
+    setSelectedDayStart(val);
     editDaySchedule({
       day: selectedDay.dayName,
-      dayStart: Number(e.target.value),
+      dayStart: val,
       dayEnd: selectedDayEnd,
       appointmentDuration: selectedAppointmentDuration,
     });
   };
 
   const handleSelectDayEnd: React.ChangeEventHandler<HTMLSelectElement> = (e) => {
-    if (Number(e.target.value) <= selectedDayStart) return;
-    setSelectedDayEnd(Number(e.target.value));
+    const val = Number(e.target.value);
+    if (val <= selectedDayStart) {
+      setAlert({ msg: "El horario de fin debe ser mayor al horario de inicio", error: true, alertType: "ERROR_ALERT" });
+      hideAlert();
+      return;
+    }
+    if (parsedSelectedAppointments.length) {
+      const latestHour = Math.max(
+        ...parsedSelectedAppointments.map((a) => dayjs(a.end).hour() + (dayjs(a.end).minute() > 0 ? 1 : 0))
+      );
+      if (val < latestHour) {
+        setAlert({ msg: `Hay turnos hasta las ${String(latestHour).padStart(2, "0")}:00 hs`, error: true, alertType: "ERROR_ALERT" });
+        hideAlert();
+        return;
+      }
+    }
+    setSelectedDayEnd(val);
     editDaySchedule({
       day: selectedDay.dayName,
       dayStart: selectedDayStart,
-      dayEnd: Number(e.target.value),
+      dayEnd: val,
       appointmentDuration: selectedAppointmentDuration,
     });
   };
@@ -388,14 +424,22 @@ const AutomateSchedule: React.FC<Props> = ({
 
   // ── Calendar grid helpers ────────────────────────────────────────────────
 
-  const hours = useMemo(
-    () =>
-      Array.from(
-        { length: Math.max(selectedDayEnd - selectedDayStart, 1) },
-        (_, i) => selectedDayStart + i
-      ),
-    [selectedDayStart, selectedDayEnd]
-  );
+  const slots = useMemo<TimeSlot[]>(() => {
+    const dur = Math.max(selectedAppointmentDuration, 1);
+    const count = Math.floor(((selectedDayEnd - selectedDayStart) * 60) / dur);
+    return Array.from({ length: Math.max(count, 1) }, (_, i) => {
+      const absMin = selectedDayStart * 60 + i * dur;
+      const hour = Math.floor(absMin / 60);
+      const minute = absMin % 60;
+      return {
+        index: i,
+        hour,
+        minute,
+        label: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
+        isHourBoundary: minute === 0,
+      };
+    });
+  }, [selectedDayStart, selectedDayEnd, selectedAppointmentDuration]);
 
   const parsedSelectedAppointments = useMemo(
     () => parseAppointments(selectedDayAppointments),
@@ -403,39 +447,29 @@ const AutomateSchedule: React.FC<Props> = ({
   );
 
   const getEventTop = (event: IAppointmentSchedule): number => {
-    const h = dayjs(event.start).hour() + dayjs(event.start).minute() / 60;
-    return (h - selectedDayStart) * HOUR_HEIGHT;
+    const eventMins = dayjs(event.start).hour() * 60 + dayjs(event.start).minute();
+    return ((eventMins - selectedDayStart * 60) / selectedAppointmentDuration) * HOUR_HEIGHT;
   };
 
   const getEventHeight = (event: IAppointmentSchedule): number => {
     const mins = dayjs(event.end).diff(dayjs(event.start), "minute");
-    return Math.max((mins / 60) * HOUR_HEIGHT, 22);
+    return (Math.max(mins, selectedAppointmentDuration) / selectedAppointmentDuration) * HOUR_HEIGHT;
   };
 
-  const handleTimeGutterPlusClick = (hour: number, e: React.MouseEvent) => {
+  const handleTimeGutterPlusClick = (slot: TimeSlot, e: React.MouseEvent) => {
     e.stopPropagation();
-    const start = dayjs().hour(hour).minute(0).second(0).millisecond(0).toDate();
+    const start = dayjs().hour(slot.hour).minute(slot.minute).second(0).millisecond(0).toDate();
     const end = dayjs(start).add(selectedAppointmentDuration, "minute").toDate();
     createNewAppointment({ start, end });
   };
 
-  const handleSlotClick = (hour: number, e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const relativeY = e.clientY - rect.top;
-    const rawMinute = Math.floor((relativeY / HOUR_HEIGHT) * 60);
-    const snappedMinute =
-      Math.floor(rawMinute / selectedAppointmentDuration) * selectedAppointmentDuration;
-    const start = dayjs()
-      .hour(hour)
-      .minute(snappedMinute)
-      .second(0)
-      .millisecond(0)
-      .toDate();
+  const handleSlotClick = (slot: TimeSlot, e: React.MouseEvent<HTMLDivElement>) => {
+    const start = dayjs().hour(slot.hour).minute(slot.minute).second(0).millisecond(0).toDate();
     const end = dayjs(start).add(selectedAppointmentDuration, "minute").toDate();
     createNewAppointment({ start, end });
   };
 
-  const totalHeight = hours.length * HOUR_HEIGHT;
+  const totalHeight = slots.length * HOUR_HEIGHT;
 
   // ── Render ───────────────────────────────────────────────────────────────
 
@@ -784,19 +818,24 @@ const AutomateSchedule: React.FC<Props> = ({
                   style={{ width: TIME_GUTTER, flexShrink: 0 }}
                   className="border-r border-gray-100 bg-white"
                 >
-                  {hours.map((h) => (
+                  {slots.map((slot) => (
                     <div
-                      key={h}
+                      key={slot.index}
                       style={{ height: HOUR_HEIGHT }}
-                  className="flex flex-col items-center pt-1.5 gap-0 justify-center"
+                      className="flex flex-col items-center pt-1.5 gap-0 justify-center"
                     >
-                      <span className="text-xs text-gray-400 select-none tabular-nums">
-                        {String(h).padStart(2, "0")}:00
+                      <span
+                        className={cn(
+                          "text-xs select-none tabular-nums",
+                          slot.isHourBoundary ? "text-gray-400" : "text-gray-300"
+                        )}
+                      >
+                        {slot.label}
                       </span>
                       <button
-                        onClick={(e) => handleTimeGutterPlusClick(h, e)}
+                        onClick={(e) => handleTimeGutterPlusClick(slot, e)}
                         className="w-5 h-5 flex items-center justify-center rounded-full text-orange-500 hover:text-white hover:bg-orange-500 transition-colors duration-150 text-sm font-bold leading-none select-none"
-                        aria-label={`Agregar turno a las ${h}:00`}
+                        aria-label={`Agregar turno a las ${slot.label}`}
                       >
                         +
                       </button>
@@ -807,19 +846,19 @@ const AutomateSchedule: React.FC<Props> = ({
                 {/* Day column */}
                 <div className="relative flex-1 bg-white">
 
-                  {/* Hour slot rows */}
-                  {hours.map((h) => (
+                  {/* Slot rows — one per appointment duration unit */}
+                  {slots.map((slot) => (
                     <div
-                      key={h}
+                      key={slot.index}
                       style={{ height: HOUR_HEIGHT }}
-                      className="relative border-b border-gray-50 hover:bg-orange-50/40 transition-colors duration-150 cursor-pointer group"
-                      onClick={(e) => handleSlotClick(h, e)}
+                      className={cn(
+                        "relative hover:bg-orange-50/40 transition-colors duration-150 cursor-pointer group",
+                        slot.isHourBoundary
+                          ? "border-b border-gray-50"
+                          : "border-b border-dashed border-gray-100"
+                      )}
+                      onClick={(e) => handleSlotClick(slot, e)}
                     >
-                      {/* Half-hour dashed divider */}
-                      <div
-                        className="absolute left-0 right-0 border-b border-dashed border-gray-100 pointer-events-none"
-                        style={{ top: "50%" }}
-                      />
                       {/* Hover hint */}
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                         <span className="text-xs text-orange-400 font-medium">+ Nuevo turno</span>

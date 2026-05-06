@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/es-mx";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import AppointmentModal from "./AppointmentModal";
 import { IBusiness } from "@/interfaces/business.interface";
 import utc from "dayjs/plugin/utc";
@@ -25,6 +26,13 @@ import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa6";
 import { timeOptions, durationOptions } from "@/helpers/timeOptions";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import axiosReq from "@/config/axios";
 import { cn } from "@/lib/utils";
@@ -83,6 +91,14 @@ interface Props {
   servicesData: IService[];
   scheduleDays: IDaySchedule[];
   subscriptionData: ISubscription | undefined;
+}
+
+interface TimeSlot {
+  index: number;
+  hour: number;
+  minute: number;
+  label: string;
+  isHourBoundary: boolean;
 }
 
 // Matches AppointmentModal's eventType2 shape (required fields, values may be undefined)
@@ -147,14 +163,20 @@ const CalendarTurnos: React.FC<Props> = ({
   const [helpModal, setHelpModal] = useState(false);
   const [date, setDate] = useState<Date>(now.toDate());
   const [expiredModal, setExpiredModal] = useState(false);
-  const [dropdownActive, setDropdownActive] = useState(false);
   const [loadingNewAppointments, setLoadingNewAppointments] = useState(true);
+  const [showSwipeHint, setShowSwipeHint] = useState(true);
   const [selectedDaySchedule, setSelectedDaySchedule] = useState({
     dayStart: 8,
     dayEnd: 22,
     appointmentDuration: 30,
   });
   const gridRef = useRef<HTMLDivElement>(null);
+  const calendarCardRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const swipeDir = useRef<"left" | "right">("left");
+  const touchInScrollableGrid = useRef(false);
+  const initialGridScrollLeft = useRef(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -165,6 +187,24 @@ const CalendarTurnos: React.FC<Props> = ({
 
   useEffect(() => {
     setLoadingNewAppointments(false);
+  }, []);
+
+  useEffect(() => {
+    const el = calendarCardRef.current;
+    if (!el) return;
+    const onTouchMove = (e: TouchEvent) => {
+      if (touchStartX.current === null || touchStartY.current === null) return;
+      const dx = Math.abs(e.touches[0].clientX - touchStartX.current);
+      const dy = Math.abs(e.touches[0].clientY - touchStartY.current);
+      if (dx > dy && !touchInScrollableGrid.current) e.preventDefault();
+    };
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    return () => el.removeEventListener("touchmove", onTouchMove);
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => setShowSwipeHint(false), 1100);
+    return () => clearTimeout(t);
   }, []);
 
   const parsedEvents = useMemo<CalendarEvent[]>(() => {
@@ -197,17 +237,10 @@ const CalendarTurnos: React.FC<Props> = ({
     );
     if (!schedule) return;
 
-    // Use the longest service duration as the appointment duration so every service
-    // can fit in a single slot by default.
-    const longestDuration = services.reduce(
-      (max, s) => Math.max(max, s.duration ?? 0),
-      0
-    );
-
     setSelectedDaySchedule({
       dayStart: schedule.dayStart,
       dayEnd: schedule.dayEnd,
-      appointmentDuration: longestDuration > 0 ? longestDuration : schedule.appointmentDuration,
+      appointmentDuration: schedule.appointmentDuration ?? 30,
     });
   }, [date, scheduleDays, services]);
 
@@ -235,14 +268,23 @@ const CalendarTurnos: React.FC<Props> = ({
     });
   }, [parsedEvents, daysToShow]);
 
-  const hours = useMemo(
-    () =>
-      Array.from(
-        { length: selectedDaySchedule.dayEnd - selectedDaySchedule.dayStart },
-        (_, i) => selectedDaySchedule.dayStart + i
-      ),
-    [selectedDaySchedule.dayStart, selectedDaySchedule.dayEnd]
-  );
+  const slots = useMemo<TimeSlot[]>(() => {
+    const { dayStart, dayEnd, appointmentDuration } = selectedDaySchedule;
+    const dur = Math.max(appointmentDuration, 1);
+    const count = Math.floor(((dayEnd - dayStart) * 60) / dur);
+    return Array.from({ length: count }, (_, i) => {
+      const absMin = dayStart * 60 + i * dur;
+      const hour = Math.floor(absMin / 60);
+      const minute = absMin % 60;
+      return {
+        index: i,
+        hour,
+        minute,
+        label: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
+        isHourBoundary: minute === 0,
+      };
+    });
+  }, [selectedDaySchedule]);
 
   const getEventsForDay = useCallback(
     (day: Date): CalendarEvent[] => {
@@ -253,13 +295,15 @@ const CalendarTurnos: React.FC<Props> = ({
   );
 
   const getEventTop = (event: CalendarEvent): number => {
-    const h = dayjs(event.start).hour() + dayjs(event.start).minute() / 60;
-    return (h - selectedDaySchedule.dayStart) * HOUR_HEIGHT;
+    const { dayStart, appointmentDuration } = selectedDaySchedule;
+    const eventMins = dayjs(event.start).hour() * 60 + dayjs(event.start).minute();
+    return ((eventMins - dayStart * 60) / appointmentDuration) * HOUR_HEIGHT;
   };
 
   const getEventHeight = (event: CalendarEvent): number => {
+    const { appointmentDuration } = selectedDaySchedule;
     const mins = dayjs(event.end).diff(dayjs(event.start), "minute");
-    return Math.max((mins / 60) * HOUR_HEIGHT, 22);
+    return (Math.max(mins, appointmentDuration) / appointmentDuration) * HOUR_HEIGHT;
   };
 
   // ─── API handlers ─────────────────────────────────────────────────────────
@@ -321,9 +365,9 @@ const CalendarTurnos: React.FC<Props> = ({
     }
   };
 
-  // ─── Time gutter + click → open create modal at exact hour ─────────────
+  // ─── Time gutter + click → open create modal at exact slot time ──────────
 
-  const handleTimeGutterPlusClick = (hour: number, e: React.MouseEvent) => {
+  const handleTimeGutterPlusClick = (slot: TimeSlot, e: React.MouseEvent) => {
     e.stopPropagation();
     if (subscriptionData?.subscriptionType === "SC_EXPIRED") {
       setExpiredModal(true);
@@ -331,39 +375,27 @@ const CalendarTurnos: React.FC<Props> = ({
     }
     const day = daysToShow[0];
     const { appointmentDuration } = selectedDaySchedule;
-    const start = dayjs(day).hour(hour).minute(0).second(0).millisecond(0).toDate();
+    const start = dayjs(day).hour(slot.hour).minute(slot.minute).second(0).millisecond(0).toDate();
     const end = dayjs(start).add(appointmentDuration, "minute").toDate();
     setCreateAppointmentTabMode("pending");
     setCreateAppointmentData({ businessID: business?._id, start, end, service: "" });
     setCreateAppointmentModal(true);
   };
 
-  // ─── Slot click → open create modal with snapped time ────────────────────
+  // ─── Slot click → open create modal at that slot's start time ────────────
 
   const handleSlotClick = (
     day: Date,
-    hour: number,
+    slot: TimeSlot,
     e: React.MouseEvent<HTMLDivElement>
   ) => {
     if (subscriptionData?.subscriptionType === "SC_EXPIRED") {
       setExpiredModal(true);
       return;
     }
-    const rect = e.currentTarget.getBoundingClientRect();
-    const relativeY = e.clientY - rect.top;
-    const rawMinute = Math.floor((relativeY / HOUR_HEIGHT) * 60);
     const { appointmentDuration } = selectedDaySchedule;
-    const snappedMinute =
-      Math.floor(rawMinute / appointmentDuration) * appointmentDuration;
-
-    const start = dayjs(day)
-      .hour(hour)
-      .minute(snappedMinute)
-      .second(0)
-      .millisecond(0)
-      .toDate();
+    const start = dayjs(day).hour(slot.hour).minute(slot.minute).second(0).millisecond(0).toDate();
     const end = dayjs(start).add(appointmentDuration, "minute").toDate();
-
     setCreateAppointmentTabMode("pending");
     setCreateAppointmentData({ businessID: business?._id, start, end, service: "" });
     setCreateAppointmentModal(true);
@@ -380,11 +412,91 @@ const CalendarTurnos: React.FC<Props> = ({
 
   // ─── Navigation ───────────────────────────────────────────────────────────
 
-  const onNextClick = () =>
-    setDate((prev) => dayjs(prev).add(1, "day").toDate());
+  const handleDayStartChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = Number(e.target.value);
+    if (val >= selectedDaySchedule.dayEnd) {
+      toast.error("El horario de inicio debe ser menor al horario de fin", { position: "top-center" });
+      return;
+    }
+    const visibleEvents = getEventsForDay(date);
+    if (visibleEvents.length) {
+      const earliestHour = Math.min(...visibleEvents.map((e) => dayjs(e.start).hour()));
+      if (val > earliestHour) {
+        toast.error(`Hay turnos desde las ${String(earliestHour).padStart(2, "0")}:00 hs`, { position: "top-center" });
+        return;
+      }
+    }
+    setSelectedDaySchedule((prev) => ({ ...prev, dayStart: val }));
+  };
 
-  const onPrevClick = () =>
+  const handleDayEndChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = Number(e.target.value);
+    if (val <= selectedDaySchedule.dayStart) {
+      toast.error("El horario de fin debe ser mayor al horario de inicio", { position: "top-center" });
+      return;
+    }
+    const visibleEvents = getEventsForDay(date);
+    if (visibleEvents.length) {
+      const latestHour = Math.max(
+        ...visibleEvents.map((e) => dayjs(e.end).hour() + (dayjs(e.end).minute() > 0 ? 1 : 0))
+      );
+      if (val < latestHour) {
+        toast.error(`Hay turnos hasta las ${String(latestHour).padStart(2, "0")}:00 hs`, { position: "top-center" });
+        return;
+      }
+    }
+    setSelectedDaySchedule((prev) => ({ ...prev, dayEnd: val }));
+  };
+
+  const onNextClick = () => {
+    swipeDir.current = "left";
+    setDate((prev) => dayjs(prev).add(1, "day").toDate());
+  };
+
+  const onPrevClick = () => {
+    swipeDir.current = "right";
     setDate((prev) => dayjs(prev).subtract(1, "day").toDate());
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    setShowSwipeHint(false);
+    const grid = gridRef.current;
+    touchInScrollableGrid.current = !!(
+      grid &&
+      grid.contains(e.target as Node) &&
+      grid.scrollWidth > grid.clientWidth
+    );
+    initialGridScrollLeft.current = grid?.scrollLeft ?? 0;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+    touchStartX.current = null;
+    touchStartY.current = null;
+    const gridActuallyScrolled =
+      touchInScrollableGrid.current &&
+      (gridRef.current?.scrollLeft ?? 0) !== initialGridScrollLeft.current;
+    if (gridActuallyScrolled) return;
+    if (Math.abs(deltaX) < 60 || Math.abs(deltaX) < Math.abs(deltaY)) return;
+    if (deltaX < 0) onNextClick();
+    else onPrevClick();
+  };
+
+  const slideVariants = {
+    enter: (dir: "left" | "right") => ({
+      x: dir === "left" ? 50 : -50,
+      opacity: 0,
+    }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir: "left" | "right") => ({
+      x: dir === "left" ? -50 : 50,
+      opacity: 0,
+    }),
+  };
 
   const dateLabel = useMemo(
     () => dayjs(date).format("dddd D [de] MMMM"),
@@ -480,45 +592,38 @@ const CalendarTurnos: React.FC<Props> = ({
       </Dialog>
 
       {/*  Mobile dropdown (top right)  */}
-      <div className="absolute top-20 right-4 flex flex-col md:hidden z-40">
-        <button
-          onClick={() => setDropdownActive(!dropdownActive)}
-          className="p-1 rounded-md hover:bg-gray-100 transition-colors"
-        >
-          <IoMdMore size={24} className="text-gray-600" />
-        </button>
-        {dropdownActive && (
-          <div className="absolute right-0 top-9 bg-white border border-gray-100 rounded-xl shadow-xl py-1 min-w-[200px]">
-            <Link
-              href="/admin/schedule/automate"
-              className="flex items-center gap-2.5 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              onClick={() => setDropdownActive(false)}
-            >
-              <MdEditCalendar size={16} className="text-gray-400" />
-              Configurar agenda
-            </Link>
-            <button
-              onClick={() => {
-                handleSetAllDayAppointmentsModal();
-                setDropdownActive(false);
-              }}
-              className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-50 transition-colors"
-            >
-              <LuCalendarPlus size={16} className="text-gray-400" />
-              Crear turnos del día
+      <div className="absolute top-20 right-4 md:hidden z-40">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="h-9 w-9 flex items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm hover:bg-gray-50 active:bg-gray-100 transition-colors">
+              <IoMdMore size={20} className="text-gray-600" />
             </button>
-            <button
-              onClick={() => {
-                setHelpModal(true);
-                setDropdownActive(false);
-              }}
-              className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-50 transition-colors"
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" sideOffset={6} className="w-52 rounded-xl shadow-xl border-gray-100 p-1">
+            <DropdownMenuItem asChild className="gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-700 focus:bg-orange-50 focus:text-orange-700">
+              <Link href="/admin/schedule/automate">
+                <MdEditCalendar size={16} className="text-orange-500 shrink-0" />
+                <span className="text-sm font-medium">Configurar agenda</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="my-1" />
+            <DropdownMenuItem
+              className="gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-700 focus:bg-orange-50 focus:text-orange-700"
+              onSelect={handleSetAllDayAppointmentsModal}
             >
-              <IoInformationCircle size={16} className="text-gray-400" />
-              Tutorial de uso
-            </button>
-          </div>
-        )}
+              <LuCalendarPlus size={16} className="text-orange-500 shrink-0" />
+              <span className="text-sm font-medium">Crear turnos del día</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="my-1" />
+            <DropdownMenuItem
+              className="gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-700 focus:bg-orange-50 focus:text-orange-700"
+              onSelect={() => setHelpModal(true)}
+            >
+              <IoInformationCircle size={16} className="text-orange-500 shrink-0" />
+              <span className="text-sm font-medium">Tutorial de uso</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/*  Page layout  */}
@@ -582,12 +687,7 @@ const CalendarTurnos: React.FC<Props> = ({
                 </label>
                 <select
                   value={selectedDaySchedule.dayStart}
-                  onChange={(e) =>
-                    setSelectedDaySchedule((prev) => ({
-                      ...prev,
-                      dayStart: Number(e.target.value),
-                    }))
-                  }
+                  onChange={handleDayStartChange}
                   className="h-6 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer"
                 >
                   {timeOptions.map((t) => (
@@ -601,12 +701,7 @@ const CalendarTurnos: React.FC<Props> = ({
                 </label>
                 <select
                   value={selectedDaySchedule.dayEnd}
-                  onChange={(e) =>
-                    setSelectedDaySchedule((prev) => ({
-                      ...prev,
-                      dayEnd: Number(e.target.value),
-                    }))
-                  }
+                  onChange={handleDayEndChange}
                   className="h-6 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer"
                 >
                   {timeOptions.map((t) => (
@@ -641,12 +736,7 @@ const CalendarTurnos: React.FC<Props> = ({
             <span className="text-xs font-medium text-gray-400 shrink-0">De</span>
             <select
               value={selectedDaySchedule.dayStart}
-              onChange={(e) =>
-                setSelectedDaySchedule((prev) => ({
-                  ...prev,
-                  dayStart: Number(e.target.value),
-                }))
-              }
+              onChange={handleDayStartChange}
               className="flex-1 h-7 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer min-w-0"
             >
               {timeOptions.map((t) => (
@@ -656,12 +746,7 @@ const CalendarTurnos: React.FC<Props> = ({
             <span className="text-xs font-medium text-gray-400 shrink-0">a</span>
             <select
               value={selectedDaySchedule.dayEnd}
-              onChange={(e) =>
-                setSelectedDaySchedule((prev) => ({
-                  ...prev,
-                  dayEnd: Number(e.target.value),
-                }))
-              }
+              onChange={handleDayEndChange}
               className="flex-1 h-7 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer min-w-0"
             >
               {timeOptions.map((t) => (
@@ -687,7 +772,42 @@ const CalendarTurnos: React.FC<Props> = ({
         </div>
 
         {/*  Calendar grid  */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">
+        <div
+          ref={calendarCardRef}
+          className="relative bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          <AnimatePresence>
+            {showSwipeHint && (
+              <motion.div
+                key="swipe-hint"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="absolute inset-0 z-20 flex items-center justify-center md:hidden pointer-events-none"
+                style={{ background: "rgba(243,244,246,0.72)", backdropFilter: "blur(2px)" }}
+              >
+                <div className="flex items-center gap-3 bg-white/80 border border-gray-200 rounded-2xl px-5 py-3 shadow-sm">
+                  <LuChevronLeft size={15} className="text-gray-400" />
+                  <span className="text-xs font-medium text-gray-500 tracking-wide">Deslizá para cambiar de día</span>
+                  <LuChevronRight size={15} className="text-gray-400" />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence mode="wait" custom={swipeDir.current}>
+          <motion.div
+            key={dayjs(date).format("YYYY-MM-DD")}
+            custom={swipeDir.current}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.18, ease: "easeInOut" }}
+          >
 
           {/* Day header */}
           <div className="flex lg:hidden items-center gap-3 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
@@ -714,19 +834,24 @@ const CalendarTurnos: React.FC<Props> = ({
               style={{ width: TIME_GUTTER, flexShrink: 0 }}
               className="border-r border-gray-100"
             >
-              {hours.map((h) => (
+              {slots.map((slot) => (
                 <div
-                  key={h}
+                  key={slot.index}
                   style={{ height: HOUR_HEIGHT }}
                   className="flex flex-col items-center pt-1.5 gap-0 justify-center"
                 >
-                  <span className="text-xs text-gray-400 select-none tabular-nums">
-                    {String(h).padStart(2, "0")}:00
+                  <span
+                    className={cn(
+                      "text-xs select-none tabular-nums",
+                      slot.isHourBoundary ? "text-gray-400" : "text-gray-300"
+                    )}
+                  >
+                    {slot.label}
                   </span>
                   <button
-                    onClick={(e) => handleTimeGutterPlusClick(h, e)}
+                    onClick={(e) => handleTimeGutterPlusClick(slot, e)}
                     className="w-5 h-5 flex items-center justify-center rounded-full text-orange-500 hover:text-white hover:bg-orange-500 transition-colors duration-150 text-sm font-bold leading-none select-none"
-                    aria-label={`Agregar turno a las ${h}:00`}
+                    aria-label={`Agregar turno a las ${slot.label}`}
                   >
                     +
                   </button>
@@ -738,26 +863,26 @@ const CalendarTurnos: React.FC<Props> = ({
             <div className="flex flex-1 min-w-0">
               {daysToShow.map((day, dayIdx) => {
                 const dayEvents = getEventsForDay(day);
-                const totalHeight = hours.length * HOUR_HEIGHT;
+                const totalHeight = slots.length * HOUR_HEIGHT;
 
                 return (
                   <div
                     key={dayIdx}
                     className="relative flex-1"
                   >
-                    {/* Hour slot rows — clickable */}
-                    {hours.map((h) => (
+                    {/* Slot rows — one per appointment duration unit */}
+                    {slots.map((slot) => (
                       <div
-                        key={h}
+                        key={slot.index}
                         style={{ height: HOUR_HEIGHT }}
-                        className="relative border-b border-gray-150 hover:bg-orange-50/40 transition-colors duration-150 cursor-pointer group"
-                        onClick={(e) => handleSlotClick(day, h, e)}
+                        className={cn(
+                          "relative hover:bg-orange-50/40 transition-colors duration-150 cursor-pointer group",
+                          slot.isHourBoundary
+                            ? "border-b border-gray-150"
+                            : "border-b border-dashed border-gray-100"
+                        )}
+                        onClick={(e) => handleSlotClick(day, slot, e)}
                       >
-                        {/* Half-hour divider */}
-                        <div
-                          className="absolute left-0 right-0 border-b border-dashed border-gray-50 pointer-events-none"
-                          style={{ top: "50%" }}
-                        />
                         {/* Hover hint */}
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                           <span className="text-xs text-orange-400 font-medium">
@@ -770,10 +895,10 @@ const CalendarTurnos: React.FC<Props> = ({
                     {/* Current-time red line */}
                     {dayjs(day).isSame(now, "day") &&
                       (() => {
-                        const currentFraction =
-                          now.hour() + now.minute() / 60;
+                        const nowMins = now.hour() * 60 + now.minute();
                         const top =
-                          (currentFraction - selectedDaySchedule.dayStart) *
+                          ((nowMins - selectedDaySchedule.dayStart * 60) /
+                            selectedDaySchedule.appointmentDuration) *
                           HOUR_HEIGHT;
                         if (top < 0 || top > totalHeight) return null;
                         return (
@@ -874,6 +999,8 @@ const CalendarTurnos: React.FC<Props> = ({
               })}
             </div>
           </div>
+          </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Desktop footer */}
@@ -898,26 +1025,6 @@ const CalendarTurnos: React.FC<Props> = ({
           </Link>
         </div>
 
-        {/* Mobile bottom navigation */}
-        <div className="fixed bottom-4 left-0 right-0 flex justify-center z-40 md:hidden">
-          <div className="flex rounded-xl shadow-lg overflow-hidden">
-            <button
-              onClick={onPrevClick}
-              className="flex items-center gap-1.5 px-5 py-2.5 text-sm font-semibold text-white bg-orange-600 hover:bg-orange-700 transition-colors"
-            >
-              <LuChevronLeft size={16} />
-              Anterior
-            </button>
-            <div className="w-px bg-orange-500" />
-            <button
-              onClick={onNextClick}
-              className="flex items-center gap-1.5 px-5 py-2.5 text-sm font-semibold text-white bg-orange-600 hover:bg-orange-700 transition-colors"
-            >
-              Siguiente
-              <LuChevronRight size={16} />
-            </button>
-          </div>
-        </div>
       </div>
     </>
   );

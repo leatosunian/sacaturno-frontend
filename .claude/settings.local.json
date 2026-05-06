@@ -28,7 +28,12 @@
       "Bash(Format-Table -Property Name, FullName)",
       "Bash(Get-ChildItem -Path \"c:\\\\sacaturno\\\\server\" -Recurse -Directory)",
       "Bash(Select-Object -ExpandProperty FullName)",
-      "Bash(Sort-Object)"
+      "Bash(Sort-Object)",
+      "Bash(Get-ChildItem -Path \"c:\\\\sacaturno\\\\server\" -Recurse -Include \"jest.config*\", \"vitest.config*\", \"*.test.ts\", \"*.spec.ts\")",
+      "Bash(npm test *)",
+      "Bash(xargs grep *)",
+      "Bash(]\" -Force)",
+      "Bash(Get-ChildItem \"c:\\\\sacaturno\\\\app\\\\`[slug`]\" -Force)"
     ]
   }
 }

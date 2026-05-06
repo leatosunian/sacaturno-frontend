@@ -3,6 +3,7 @@ import { IBusiness } from "@/interfaces/business.interface";
 import { IoIosAlert } from "react-icons/io";
 import { Metadata } from "next";
 import ListBookAppointment from "@/components/home/bookAppointments/ListBookAppointment";
+import Footer from "@/components/home/Footer";
 
 interface propsComponent {
   params: {
@@ -148,6 +149,10 @@ const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
             </div>
           )}
         </div>
+      </div>
+      <div className="hidden md:block">
+
+      <Footer />
       </div>
     </>
   );

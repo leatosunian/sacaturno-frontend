@@ -355,7 +355,7 @@ export default function ListBookAppointment({
 
       <div className="flex flex-col w-full min-h-screen bg-background">
         {/* ── Main Content ── */}
-        <main className="flex flex-col flex-1 w-full max-w-6xl py-5 mx-auto px-7 2xl:max-w-8xl md:px-8 md:py-7">
+        <main className="flex flex-col flex-1 w-full max-w-6xl py-1 mx-auto px-7 2xl:max-w-8xl md:px-8 md:py-3 2xl:py-6">
           {/* Header */}
           <header className="flex flex-col items-center mb-5 md:mb-5 md:items-start">
             <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
@@ -674,7 +674,7 @@ export default function ListBookAppointment({
         </main>
 
         {/* ── Footer (Desktop only) ── */}
-        <footer className="hidden px-8 py-5 border-t bg-muted/50 md:block border-border">
+        {/* <footer className="hidden px-8 py-5 border-t bg-muted/50 md:block border-border">
           <div className="flex items-center justify-between max-w-6xl mx-auto">
             <p className="text-xs text-muted-foreground">
               &copy; 2026 SacaTurno. Todos los derechos reservados.
@@ -691,7 +691,8 @@ export default function ListBookAppointment({
               </a>
             </div>
           </div>
-        </footer>
+        </footer> */}
+        
       </div>
     </>
   )

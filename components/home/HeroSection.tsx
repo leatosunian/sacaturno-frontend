@@ -146,7 +146,7 @@ const HeroSection = () => {
             variants={v ?? badgeVariants}
             className="inline-flex items-center gap-[7px] px-3 2xl:px-4 py-1 2xl:py-[6px] rounded-full bg-[#fff1e8] border border-[rgba(221,73,36,0.18)] text-[#dd4924] text-[10px] 2xl:text-[12px] font-bold tracking-[0.5px] uppercase mb-5 2xl:mb-7 backdrop-blur-sm"
           >
-            <span className="w-[5px] h-[5px] 2xl:w-[7px] 2xl:h-[7px] rounded-full bg-[#4bc720] shadow-[0_0_0_3px_rgba(75,199,32,0.2)] shrink-0" />
+            {/* <span className="w-[5px] h-[5px] 2xl:w-[7px] 2xl:h-[7px] rounded-full bg-[#4bc720] shadow-[0_0_0_3px_rgba(75,199,32,0.2)] shrink-0" /> */}
             15 días gratis · sin tarjeta
           </motion.div>
 
@@ -168,8 +168,7 @@ const HeroSection = () => {
             variants={v ?? paragraphVariants}
             className="text-[16px] 2xl:text-[18px] font-normal text-[#5a5a5a] leading-[1.65] max-w-[400px] 2xl:max-w-[520px] mb-7 2xl:mb-10"
           >
-            La plataforma que usan negocios argentinos para llenar la agenda,
-            cobrar señas y dejar de perder turnos por WhatsApp.
+            La plataforma que usan +250 negocios argentinos para tener su propia página de reservas online y recibir turnos las 24hs. Tu agenda automática lista en 5 minutos.
           </motion.p>
 
           {/* CTAs */}

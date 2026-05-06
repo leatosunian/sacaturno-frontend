@@ -1,21 +1,44 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { NextPage } from "next";
 import { MdLogin, MdSearch } from "react-icons/md";
 import Image from "next/image"
 
 interface Props { }
 
-const HeaderPublicBlack: NextPage<Props> = () => {
+const HeaderPublic: NextPage<Props> = () => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 12);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (pathname === "/") {
+      const target = sessionStorage.getItem("scrollTarget");
+      if (target) {
+        sessionStorage.removeItem("scrollTarget");
+        const timer = setTimeout(() => {
+          const el = document.getElementById(target);
+          if (el) {
+            const top = el.getBoundingClientRect().top + window.scrollY;
+            window.scrollTo({ top, behavior: "smooth" });
+          }
+        }, 150);
+        return () => {
+          clearTimeout(timer);
+          window.scrollTo(0, 0);
+        };
+      }
+    }
+  }, [pathname]);
 
   const navLinks = [
     { href: "#features", label: "Funciones" },
@@ -27,11 +50,18 @@ const HeaderPublicBlack: NextPage<Props> = () => {
   const scrollTo = (e: React.MouseEvent<HTMLAnchorElement>, href: string, close = false) => {
     e.preventDefault();
     const id = href.replace("#", "");
-    const el = document.getElementById(id);
-    if (el) {
-      const top = el.getBoundingClientRect().top + window.scrollY;
-      window.scrollTo({ top, behavior: "smooth" });
+
+    if (pathname === "/") {
+      const el = document.getElementById(id);
+      if (el) {
+        const top = el.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top, behavior: "smooth" });
+      }
+    } else {
+      sessionStorage.setItem("scrollTarget", id);
+      router.push("/");
     }
+
     if (close) setMenuOpen(false);
   };
 
@@ -173,4 +203,4 @@ const HeaderPublicBlack: NextPage<Props> = () => {
       </nav>
     </>)
 }
-export default HeaderPublicBlack;
+export default HeaderPublic;

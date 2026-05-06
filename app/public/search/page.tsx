@@ -8,7 +8,7 @@ import { GrTableAdd } from "react-icons/gr";
 import { useRouter } from "next/navigation";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { IoIosSearch } from "react-icons/io";
-import HeaderPublicBlack from "@/components/home/HeaderPublicBlack";
+import HeaderPublicBlack from "@/components/home/HeaderPublic";
 import Footer from "@/components/home/Footer";
 import stylesHome from "@/app/css-modules/HomeWhite.module.css";
 import styles from "@/app/css-modules/AuthCentered.module.css";
@@ -18,7 +18,7 @@ const SearchBusiness: React.FC = () => {
   const [searchResults, setSearchResults] = useState<IBusiness[]>([]);
   const [alert, setAlert] = useState<AlertInterface>();
   const [loading, setLoading] = useState<boolean>(false);
-  const [loadingCalBtn, setLoadingCalBtn] = useState<boolean>(false);
+  const [loadingCalBtn, setLoadingCalBtn] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -154,14 +154,14 @@ const SearchBusiness: React.FC = () => {
                         </span>
                       </div>
                       <div className="flex-shrink-0">
-                        {loadingCalBtn ? (
+                        {loadingCalBtn === business._id ? (
                           <div className="flex items-center justify-center w-9 h-9">
                             <div className="loaderSmall"></div>
                           </div>
                         ) : (
                           <button
                             onClick={() => {
-                              setLoadingCalBtn(true);
+                              setLoadingCalBtn(business._id!);
                               router.push(`/${business.slug}`);
                             }}
                             title="Ver turnos"

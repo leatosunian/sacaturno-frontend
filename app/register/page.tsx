@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { LuCalendarDays } from "react-icons/lu";
-import HeaderPublicBlack from "@/components/home/HeaderPublicBlack";
+import HeaderPublic from "@/components/home/HeaderPublic";
 import Footer from "@/components/home/Footer";
 import FormRegistrate from "@/components/home/register/FormRegistrate";
 import styles from "@/app/css-modules/AuthCentered.module.css";
@@ -15,7 +14,7 @@ export const metadata: Metadata = {
 export default function Register() {
   return (
     <>
-      <HeaderPublicBlack />
+      <HeaderPublic />
 
       <main className={styles.authBg}>
         <div className="relative z-[2] flex flex-col items-center gap-[18px] max-[1535px]:gap-3 w-full max-w-[460px]">

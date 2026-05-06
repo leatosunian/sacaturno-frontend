@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { CircleCheck } from "lucide-react"
-import HeaderPublicBlack from "@/components/home/HeaderPublicBlack"
+import HeaderPublicBlack from "@/components/home/HeaderPublic"
 
 export default function DepositSuccessPage() {
   return (
