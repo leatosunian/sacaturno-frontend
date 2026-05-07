@@ -20,6 +20,7 @@ const config: Config = {
   		animation: {
   			marquee: 'marquee var(--duration) linear infinite',
   			'marquee-vertical': 'marquee-vertical var(--duration) linear infinite',
+  			'ticker-scroll': 'ticker-scroll 28s linear infinite',
   		},
   		keyframes: {
   			marquee: {
@@ -29,6 +30,10 @@ const config: Config = {
   			'marquee-vertical': {
   				from: { transform: 'translateY(0)' },
   				to: { transform: 'translateY(calc(-100% - var(--gap)))' },
+  			},
+  			'ticker-scroll': {
+  				from: { transform: 'translateX(0)' },
+  				to: { transform: 'translateX(-50%)' },
   			},
   		},
   		colors: {

@@ -1,58 +1,62 @@
 "use client";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import React from "react";
 
-const Accordion = ({ title, answer }: { title: string; answer: string }) => {
-  const [accordionActive, setAccordionActive] = useState(false);
+interface AccordionProps {
+  title: string;
+  answer: React.ReactNode;
+  isOpen: boolean;
+  onToggle: () => void;
+}
 
+const Accordion = ({ title, answer, isOpen, onToggle }: AccordionProps) => {
   return (
     <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ amount: "all", once: true }}
-      className="w-full mb-4 lg:mb-4 2xl:mb-6 text-white h-fit accordionCard"
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ amount: 0.3, once: true }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className={`w-full mb-3 2xl:mb-4 h-fit accordionCard ${isOpen ? "accordionCardActive" : ""}`}
     >
       <button
-        onClick={() => setAccordionActive(!accordionActive)}
-        className="flex items-center justify-between w-full h-full px-4 py-4 lg:px-5 lg:py-4 2xl:px-6 2xl:py-6"
+        onClick={onToggle}
+        className="flex items-center justify-between w-full px-5 py-4 2xl:px-6 2xl:py-5 group cursor-pointer"
       >
-        <span className="font-medium text-left text-sm lg:text-sm 2xl:text-base xl:2xl:text-lg">{title}</span>
+        <span
+          className={`font-semibold text-left text-sm 2xl:text-base transition-colors duration-200 ${
+            isOpen ? "text-orange-600" : "text-gray-800 [@media(hover:hover)]:group-hover:text-orange-600"
+          }`}
+        >
+          {title}
+        </span>
         <svg
-          className="ml-8 fill-orange-600 shrink-0"
-          width="16"
-          height="16"
+          className={`ml-6 shrink-0 transition-transform duration-300 ease-in-out ${isOpen ? "rotate-180" : ""}`}
+          width="18"
+          height="18"
+          viewBox="0 0 18 18"
+          fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <rect
-            y="7"
-            width="16"
-            height="2"
-            rx="1"
-            className={`transform origin-center transition duration-200 ease-out ${
-              accordionActive && "!rotate-180"
-            }`}
-          />
-          <rect
-            y="7"
-            width="16"
-            height="2"
-            rx="1"
-            className={`transform origin-center rotate-90 transition duration-200 ease-out ${
-              accordionActive && "!rotate-180"
-            }`}
+          <path
+            d="M4.5 6.75L9 11.25L13.5 6.75"
+            stroke={isOpen ? "#dd4924" : "#9ca3af"}
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ transition: "stroke 0.2s ease" }}
           />
         </svg>
       </button>
       <div
-        className={`grid overflow-hidden accordionAnswer transition-all duration-300 ease-in-out text-sm  ${
-          accordionActive
-            ? "grid-rows-[1fr] opacity-100 px-4 lg:px-5 2xl:px-6 py-2 2xl:py-3"
-            : "grid-rows-[0fr] opacity-0 px-0 py-0"
+        className={`grid overflow-hidden accordionAnswer transition-all duration-300 ease-in-out ${
+          isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
         }`}
       >
-        <p className={`overflow-hidden text-xs lg:text-xs 2xl:text-sm md:2xl:text-base  ${accordionActive ? " py-2 2xl:py-3" : "py-0"}`}>
-          {answer}
-        </p>
+        <div className="overflow-hidden">
+          <div className="text-sm 2xl:text-base text-gray-500 px-5 2xl:px-6 pt-3 pb-5 2xl:pb-6">
+            {answer}
+          </div>
+        </div>
       </div>
     </motion.div>
   );

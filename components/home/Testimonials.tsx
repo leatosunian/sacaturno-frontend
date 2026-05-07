@@ -96,7 +96,7 @@ const secondRow = testimonials.slice(3);
 export default function Testimonials() {
     return (
         <section id="testimonials" className="flex justify-center w-full bg-white pt-24 pb-16 lg:py-18 2xl:py-24">
-            <div className="w-full px-4 max-w-7xl md:px-6">
+            <div className="w-full px-4 max-w-8xl md:px-6">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
