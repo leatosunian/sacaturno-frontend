@@ -33,7 +33,9 @@
       "Bash(npm test *)",
       "Bash(xargs grep *)",
       "Bash(]\" -Force)",
-      "Bash(Get-ChildItem \"c:\\\\sacaturno\\\\app\\\\`[slug`]\" -Force)"
+      "Bash(Get-ChildItem \"c:\\\\sacaturno\\\\app\\\\`[slug`]\" -Force)",
+      "Bash(find /mnt/c/sacaturno/app -name \"loading.tsx\" -o -name \"loading.ts\" 2>/dev/null)",
+      "Read(//mnt/c/sacaturno/**)"
     ]
   }
 }

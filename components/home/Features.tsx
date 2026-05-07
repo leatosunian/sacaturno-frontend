@@ -169,10 +169,10 @@ export default function Features() {
           >
             Ahorrá tu tiempo
           </Badge>
-          <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
+          <h2 className="text-3xl mb-6 font-bold tracking-tight md:text-4xl 2xl:text-5xl">
             Todo lo que necesitás para
             <br className="hidden md:block " />
-            <span className="text-accent font-extrabold">profesionalizar tus turnos</span>.
+            <span className="text-accent font-extrabold"> profesionalizar tus turnos</span>.
           </h2>
           <p className="max-w-[800px] text-slate-600 dark:text-slate-300 md:text-base 2xl:text-lg">
             Olvidate de contestar decenas de mensajes y de anotar en agendas de

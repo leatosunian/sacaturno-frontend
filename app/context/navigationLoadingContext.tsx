@@ -21,6 +21,7 @@ export function NavigationLoadingProvider({ children }: { children: React.ReactN
   const [isNavigating, setIsNavigating] = useState(false);
   const serverLoadingActive = useRef(false);
   const fastNavTimer = useRef<ReturnType<typeof setTimeout>>();
+  const serverLoadingEndTimer = useRef<ReturnType<typeof setTimeout>>();
 
   const onLinkClick = useCallback(() => {
     clearTimeout(fastNavTimer.current);
@@ -28,15 +29,24 @@ export function NavigationLoadingProvider({ children }: { children: React.ReactN
   }, []);
 
   const onServerLoadingStart = useCallback(() => {
-    // loading.tsx mounted — cancel the fast-nav fallback timer
+    // loading.tsx mounted — cancel both fallback timers so a pending
+    // Strict-Mode-cleanup end-signal cannot fire after the remount.
     serverLoadingActive.current = true;
     clearTimeout(fastNavTimer.current);
+    clearTimeout(serverLoadingEndTimer.current);
   }, []);
 
   const onServerLoadingEnd = useCallback(() => {
-    // loading.tsx unmounted — page is ready
+    // Defer by one macrotask so that React 18 Strict Mode's synchronous
+    // cleanup→remount cycle can cancel this via onServerLoadingStart before
+    // it fires. On a real unmount no remount follows, so the check runs.
     serverLoadingActive.current = false;
-    setIsNavigating(false);
+    clearTimeout(serverLoadingEndTimer.current);
+    serverLoadingEndTimer.current = setTimeout(() => {
+      if (!serverLoadingActive.current) {
+        setIsNavigating(false);
+      }
+    }, 0);
   }, []);
 
   const onPathnameChange = useCallback(() => {
