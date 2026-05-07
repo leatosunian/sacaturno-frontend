@@ -299,28 +299,31 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                 <span className="text-xs text-gray-500">reservados este mes</span>
               </div>
 
-              {/* Ingresos */}
-              <div style={cardShadow} className="flex flex-col gap-3 p-4 bg-white rounded-xl">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                    Ingresos
-                  </span>
-                  <div
-                    className="flex items-center justify-center w-8 h-8 rounded-lg"
-                    style={{ backgroundColor: "#fff3ef" }}
-                  >
-                    <LuTrendingUp size={15} color="#dd4924" />
+              {/* Ingresos → link to analytics */}
+              <Link href="/admin/analytics">
+                <div style={cardShadow} className="flex flex-col gap-3 p-4 bg-white rounded-xl hover:shadow-md transition-shadow duration-200 cursor-pointer">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                      Ingresos
+                    </span>
+                    <div
+                      className="flex items-center justify-center w-8 h-8 rounded-lg"
+                      style={{ backgroundColor: "#fff3ef" }}
+                    >
+                      <LuTrendingUp size={15} color="#dd4924" />
+                    </div>
                   </div>
+                  {false ? (
+                    <div className="h-8 w-24 bg-gray-100 rounded animate-pulse" />
+                  ) : (
+                    <span className="text-xl font-bold leading-tight">
+                      {formatCurrency(stats?.monthRevenue ?? 0)}
+                    </span>
+                  )}
+                  <span className="text-xs text-gray-500">durante mes de {dayjs().locale("es-mx").format("MMMM")}</span>
+                  <span className="text-xs text-orange-600 font-medium -mt-1">Ver estadísticas →</span>
                 </div>
-                {false ? (
-                  <div className="h-8 w-24 bg-gray-100 rounded animate-pulse" />
-                ) : (
-                  <span className="text-xl font-bold leading-tight">
-                    {formatCurrency(stats?.monthRevenue ?? 0)}
-                  </span>
-                )}
-                <span className="text-xs text-gray-500">durante mes de {dayjs().locale("es-mx").format("MMMM")}</span>
-              </div>
+              </Link>
 
             </div>
           </div>
@@ -328,7 +331,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
           {/* QUICK ACCESS */}
           <div className="flex flex-col gap-3">
             <span className="text-lg font-semibold">Acceso rápido</span>
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-5 md:gap-4">
               <Link href="/admin/schedule">
                 <div
                   style={{ backgroundColor: "#dd4924" }}
@@ -346,7 +349,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                   className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
                 >
                   <span className="text-sm font-semibold text-white">
-                    Configurar agenda
+                    Automatizar agenda
                   </span>
                   <TbCalendarCog size={22} color="white" />
                 </div>
@@ -371,6 +374,17 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                     Mis servicios
                   </span>
                   <FaRegEdit size={20} color="white" />
+                </div>
+              </Link>
+              <Link href="/admin/analytics" className="hidden md:block">
+                <div
+                  style={{ backgroundColor: "#dd4924" }}
+                  className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
+                >
+                  <span className="text-sm font-semibold text-white">
+                    Estadísticas
+                  </span>
+                  <LuTrendingUp size={22} color="white" />
                 </div>
               </Link>
             </div>
@@ -455,7 +469,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                     No tenés turnos reservados para el resto del día.
                   </span>
                   <Link href="/admin/schedule">
-                    <button className="bg-orange-600 hover:bg-[#d92f04] text-white text-xs font-semibold px-7 py-2 rounded-lg transition-all duration-300 ease-in-out cursor-pointer">
+                    <button className="bg-[#dd4924] hover:opacity-90 text-white text-xs font-semibold px-7 py-2 rounded-lg transition-all duration-300 ease-in-out cursor-pointer">
                       Ver agenda
                     </button>
                   </Link>

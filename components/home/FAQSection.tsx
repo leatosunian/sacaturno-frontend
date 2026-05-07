@@ -255,7 +255,7 @@ const FAQSection = () => {
   };
 
   return (
-    <div id="faq" className="w-full bg-white pt-16 pb-36">
+    <div id="faq" className="w-full bg-white pt-20 pb-36">
       <div className="flex flex-col items-center gap-10 2xl:gap-14 px-6">
         <motion.header
           className="text-center max-w-xl"
@@ -276,13 +276,13 @@ const FAQSection = () => {
             variants={headerItem}
             className="text-3xl mb-6 font-bold tracking-tight md:text-4xl 2xl:text-5xl"
           >
-            Preguntas frecuentes
+            Preguntas frecuentes<span className=" text-accent ">.</span>
           </motion.h2>
           <motion.p
             variants={headerItem}
             className="max-w-[800px] text-slate-600 dark:text-slate-300 md:text-base 2xl:text-lg"
           >
-            Respondemos tus dudas más comunes
+            Respondemos tus dudas más comunes.
           </motion.p>
         </motion.header>
 

@@ -103,7 +103,7 @@ const SearchBusiness: React.FC = () => {
                   placeholder="Ingresá el nombre de la empresa"
                   type="text"
                   maxLength={30}
-                  className="h-[30px] max-[1535px]:h-[26px] w-full border border-black/10 rounded-[7px] bg-black/5 text-[13px] max-[1535px]:text-[11px] px-2.5 transition-all ease-in-out duration-200 cursor-pointer hover:border-[#dd4924] focus:bg-black/[0.08] focus:border-[#dd4924] focus:outline-none"
+                  className="h-[38px] sm:h-[26px] 2xl:h-[30px] w-full border border-black/10 rounded-[7px] bg-black/5 text-[14px] sm:text-[11px] 2xl:text-[13px] px-2.5 transition-all ease-in-out duration-200 cursor-pointer hover:border-[#dd4924] focus:bg-black/[0.08] focus:border-[#dd4924] focus:outline-none"
                 />
                 {alert?.error && (
                   <div className="flex items-center gap-1 mt-1 w-fit h-fit">

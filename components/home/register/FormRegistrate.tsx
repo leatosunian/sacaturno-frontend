@@ -88,7 +88,7 @@ const FormRegistrate = () => {
             type="text"
             {...register("name")}
             placeholder="Ingresá tu nombre y apellido"
-            className="h-[30px] max-[1535px]:h-[26px] w-full border border-black/10 rounded-[7px] bg-black/5 text-[13px] max-[1535px]:text-[11px] px-2.5 transition-all ease-in-out duration-200 cursor-pointer hover:border-[#dd4924] focus:bg-black/[0.08] focus:border-[#dd4924] focus:outline-none"
+            className="h-[38px] sm:h-[26px] 2xl:h-[30px] w-full border border-black/10 rounded-[7px] bg-black/5 text-[14px] sm:text-[11px] 2xl:text-[13px] px-2.5 transition-all ease-in-out duration-200 cursor-pointer hover:border-[#dd4924] focus:bg-black/[0.08] focus:border-[#dd4924] focus:outline-none"
           />
           {errors.name?.message && (
             <div className="flex items-center gap-1 mt-1 w-fit h-fit">
@@ -106,7 +106,7 @@ const FormRegistrate = () => {
             type="email"
             {...register("email")}
             placeholder="Ingresá tu email"
-            className="h-[30px] max-[1535px]:h-[26px] w-full border border-black/10 rounded-[7px] bg-black/5 text-[13px] max-[1535px]:text-[11px] px-2.5 transition-all ease-in-out duration-200 cursor-pointer hover:border-[#dd4924] focus:bg-black/[0.08] focus:border-[#dd4924] focus:outline-none"
+            className="h-[38px] sm:h-[26px] 2xl:h-[30px] w-full border border-black/10 rounded-[7px] bg-black/5 text-[14px] sm:text-[11px] 2xl:text-[13px] px-2.5 transition-all ease-in-out duration-200 cursor-pointer hover:border-[#dd4924] focus:bg-black/[0.08] focus:border-[#dd4924] focus:outline-none"
           />
           {errors.email?.message && (
             <div className="flex items-center gap-1 mt-1 w-fit h-fit">
@@ -124,7 +124,7 @@ const FormRegistrate = () => {
             type="password"
             {...register("password")}
             placeholder="Ingresá tu contraseña"
-            className="h-[30px] max-[1535px]:h-[26px] w-full border border-black/10 rounded-[7px] bg-black/5 text-[13px] max-[1535px]:text-[11px] px-2.5 transition-all ease-in-out duration-200 cursor-pointer hover:border-[#dd4924] focus:bg-black/[0.08] focus:border-[#dd4924] focus:outline-none"
+            className="h-[38px] sm:h-[26px] 2xl:h-[30px] w-full border border-black/10 rounded-[7px] bg-black/5 text-[14px] sm:text-[11px] 2xl:text-[13px] px-2.5 transition-all ease-in-out duration-200 cursor-pointer hover:border-[#dd4924] focus:bg-black/[0.08] focus:border-[#dd4924] focus:outline-none"
           />
           {errors.password?.message && (
             <div className="flex items-center gap-1 mt-1 w-fit h-fit">

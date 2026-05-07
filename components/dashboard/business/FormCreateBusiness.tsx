@@ -35,6 +35,11 @@ const FormCreateBusiness: React.FC = () => {
     formState: { errors },
   } = useForm<formInputs>({
     resolver: zodResolver(createBusinessSchema),
+    defaultValues: {
+      appointmentDuration: "30",
+      dayStart: "6",
+      dayEnd: "22",
+    },
   });
 
   const [loading, setLoading] = useState<boolean>(false);

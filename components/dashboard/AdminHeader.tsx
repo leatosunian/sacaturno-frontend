@@ -16,6 +16,7 @@ import {
   HiOutlineWrenchScrewdriver,
   HiOutlineCalendar,
   HiOutlineArrowPath,
+  HiOutlinePresentationChartLine,
 } from "react-icons/hi2";
 import styles from "@/app/css-modules/AdminHeader.module.css";
 
@@ -106,6 +107,10 @@ export default function AdminHeader() {
                 <Link href="/admin/business/services" className={styles.option}>
                   <HiOutlineWrenchScrewdriver size={13} />
                   Servicios
+                </Link>
+                <Link href="/admin/analytics" className={styles.option}>
+                  <HiOutlinePresentationChartLine size={13} />
+                  Estadísticas
                 </Link>
               </div>
             </div>
@@ -210,6 +215,9 @@ export default function AdminHeader() {
                 </Link>
                 <Link onClick={closeMenu} className={styles.asideSubItem} href="/admin/business/services">
                   Servicios
+                </Link>
+                <Link onClick={closeMenu} className={styles.asideSubItem} href="/admin/analytics">
+                  Estadísticas
                 </Link>
               </div>
             )}
