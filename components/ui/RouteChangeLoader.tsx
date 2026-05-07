@@ -21,7 +21,8 @@ export default function RouteChangeLoader() {
       if (!anchor) return;
       const href = anchor.getAttribute("href") ?? "";
       const targetPath = href.split("?")[0].split("#")[0];
-      if (href.startsWith("/") && targetPath !== prevPathname.current) {
+      const noLoader = ["/login", "/register"];
+      if (href.startsWith("/") && targetPath !== prevPathname.current && !noLoader.includes(targetPath)) {
         clearTimeout(hideTimer.current);
         setFading(false);
         onLinkClick();
