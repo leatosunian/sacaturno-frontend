@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { Badge } from "./Badge";
 import {
   GiScissors,
@@ -28,38 +29,44 @@ import {
 import { FaEye, FaSpa, FaSyringe, FaCar, FaCamera } from "react-icons/fa";
 
 const TAGS: { label: string; Icon: React.ElementType }[] = [
-  { label: "Peluquerías",        Icon: GiScissors },
-  { label: "Barberías",          Icon: GiRazor },
-  { label: "Estética",           Icon: GiLipstick },
-  { label: "Manicura",           Icon: GiNails },
-  { label: "Masajes",            Icon: FaSpa },
-  { label: "Veterinarias",       Icon: GiDogHouse },
-  { label: "Consultorios",       Icon: GiHealthNormal },
-  { label: "Hoteles",            Icon: MdHotel },
-  { label: "Spa",                Icon: GiWaterDrop },
-  { label: "Dentistas",          Icon: GiTooth },
-  { label: "Tatuadores",         Icon: FaSyringe },
-  { label: "Psicólogos",         Icon: GiBrain },
-  { label: "Kinesiólogos",       Icon: GiLeg },
-  { label: "Nutricionistas",     Icon: GiWeightScale },
-  { label: "Depilación",         Icon: GiSunflower },
-  { label: "Peluquería canina",  Icon: GiCat },
-  { label: "Personal Trainers",  Icon: MdFitnessCenter },
-  { label: "Pilates",            Icon: MdOutlineSelfImprovement },
-  { label: "Yoga",               Icon: MdSportsMartialArts },
+  { label: "Peluquerías", Icon: GiScissors },
+  { label: "Barberías", Icon: GiRazor },
+  { label: "Estética", Icon: GiLipstick },
+  { label: "Manicura", Icon: GiNails },
+  { label: "Masajes", Icon: FaSpa },
+  { label: "Veterinarias", Icon: GiDogHouse },
+  { label: "Consultorios", Icon: GiHealthNormal },
+  { label: "Hoteles", Icon: MdHotel },
+  { label: "Spa", Icon: GiWaterDrop },
+  { label: "Dentistas", Icon: GiTooth },
+  { label: "Tatuadores", Icon: FaSyringe },
+  { label: "Psicólogos", Icon: GiBrain },
+  { label: "Kinesiólogos", Icon: GiLeg },
+  { label: "Nutricionistas", Icon: GiWeightScale },
+  { label: "Depilación", Icon: GiSunflower },
+  { label: "Peluquería canina", Icon: GiCat },
+  { label: "Personal Trainers", Icon: MdFitnessCenter },
+  { label: "Pilates", Icon: MdOutlineSelfImprovement },
+  { label: "Yoga", Icon: MdSportsMartialArts },
   { label: "Talleres mecánicos", Icon: FaCar },
-  { label: "Fotógrafos",         Icon: FaCamera },
-  { label: "Clases particulares",Icon: GiPencil },
-  { label: "Clases de música",   Icon: GiMusicalNotes },
-  { label: "Oftalmólogos",       Icon: FaEye },
-  { label: "Contadores",         Icon: MdOutlineAccountBalance },
+  { label: "Fotógrafos", Icon: FaCamera },
+  { label: "Clases particulares", Icon: GiPencil },
+  { label: "Clases de música", Icon: GiMusicalNotes },
+  { label: "Oftalmólogos", Icon: FaEye },
+  { label: "Contadores", Icon: MdOutlineAccountBalance },
 ];
 
 const HALF = Math.ceil(TAGS.length / 2);
 const ROW_1 = TAGS.slice(0, HALF);
 const ROW_2 = [...TAGS.slice(HALF)].reverse();
 
-function IndustryPill({ label, Icon }: { label: string; Icon: React.ElementType }) {
+function IndustryPill({
+  label,
+  Icon,
+}: {
+  label: string;
+  Icon: React.ElementType;
+}) {
   return (
     <span
       className="
@@ -109,7 +116,11 @@ function MarqueeRow({
       }}
     >
       {tags.map((t, i) => (
-        <IndustryPill key={`${direction}-a-${i}`} label={t.label} Icon={t.Icon} />
+        <IndustryPill
+          key={`${direction}-a-${i}`}
+          label={t.label}
+          Icon={t.Icon}
+        />
       ))}
       {tags.map((t, i) => (
         <span key={`${direction}-b-${i}`} aria-hidden="true">
@@ -179,26 +190,58 @@ export default function Sectors() {
 
       {/* Header */}
       <div className="relative mb-7 md:mb-14 z-[1] mx-auto max-w-[1200px] px-8 max-lg:px-6 max-md:px-5">
-        <div className="mx-auto  max-w-[720px] text-center">
-          <Badge
-            className="rounded-full text-orange-600 bg-orange-50 px-4 py-1.5 text-sm font-medium mb-5"
-            variant="secondary"
+        <motion.div
+          className="mx-auto max-w-[720px] text-center"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.4 }}
+          variants={{
+            hidden: {},
+            show: { transition: { staggerChildren: 0.13 } },
+          }}
+        >
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
+            }}
           >
-            Para todo rubro
-          </Badge>
+            <Badge
+              className="rounded-full text-orange-600 bg-orange-50 px-4 py-1.5 text-sm font-medium mb-5"
+              variant="secondary"
+            >
+              Hecho para tu negocio
+            </Badge>
+          </motion.div>
 
-          <h2 className="text-3xl mb-4 font-bold tracking-tight md:text-4xl">
-            Atención más profesional,
-            <br className="hidden sm:block"/>
-            <span className="text-accent font-black "> sin importar tu rubro.</span>
-          </h2>
+          <motion.h2
+            className="text-3xl mb-5 font-bold tracking-tight md:text-4xl 2xl:text-5xl"
+            variants={{
+              hidden: { opacity: 0, y: 26 },
+              show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+            }}
+          >
+            Tu agenda en automático,
+            <br className="hidden sm:block" />
+            <span className="text-accent font-black ">
+              {" "}
+              sin importar tu rubro
+            </span>
+            .
+          </motion.h2>
 
-          <p className="mx-auto max-w-[800px] md:text-lg leading-[1.65] text-muted-foreground">
+          <motion.p
+            className="mx-auto max-w-[800px] md:text-lg leading-[1.65] text-muted-foreground"
+            variants={{
+              hidden: { opacity: 0, y: 18 },
+              show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
+            }}
+          >
             Si trabajás con turnos, SacaTurno te ayuda a recibir a tus clientes
             como se merecen. Reservas claras, recordatorios a tiempo y una
             experiencia simple y profesional que tus clientes recuerdan.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
       </div>
 
       {/* Edge-to-edge double marquee */}
@@ -221,8 +264,14 @@ export default function Sectors() {
       </div>
 
       {/* Closing strip */}
-      <div className="relative  z-[1] mx-auto max-w-[1200px] px-8 max-lg:px-6 max-md:px-5">
-        <div className="mt-7 md:mt-14 flex justify-center">
+      <div className="relative z-[1] mx-auto max-w-[1200px] px-8 max-lg:px-6 max-md:px-5">
+        <motion.div
+          className="mt-7 md:mt-14 flex justify-center"
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        >
           <div
             className="
               flex flex-col sm:flex-row items-center gap-4 sm:gap-6
@@ -231,12 +280,11 @@ export default function Sectors() {
               px-5 py-4 shadow-sm backdrop-blur-sm
             "
           >
-            <div className="flex items-center gap-3 flex-1 justify-center sm:justify-start text-left ">
-          
-              <p className="text-sm text-gray-600">
+            <div className="flex items-center gap-3 flex-1 justify-center sm:justify-start text-left">
+              <p className="text-base text-gray-600">
                 ¿No ves tu rubro?{" "}
                 <span className="font-semibold text-gray-800">
-                  Podes probar si funciona para vos.
+                  Probá si se adapta a tu negocio.
                 </span>
               </p>
             </div>
@@ -253,7 +301,7 @@ export default function Sectors() {
               Probalo gratis →
             </a>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Keyframes */}

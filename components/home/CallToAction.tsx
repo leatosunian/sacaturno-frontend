@@ -1,8 +1,20 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import { Badge } from "./Badge";
 import { ShimmerButton } from "../ui/ShimmerButton";
+
+const ease = [0.22, 1, 0.36, 1] as const;
+
+const ctaContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.11 } },
+};
+const ctaItem = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease } },
+};
 
 const TICKER_ITEMS = [
   "15 días gratis",
@@ -13,10 +25,10 @@ const TICKER_ITEMS = [
 ];
 
 const STATS = [
-  { val: "24hs", label: "tu agenda disponible" },
+  { val: "24/7", label: "tu agenda disponible" },
   { val: "99% asistencia", label: "cobrando seña" },
   { val: "+8.000", label: "clientes reservaron" },
-  { val: "$ 0", label: "para empezar" },
+  { val: "$0", label: "para empezar" },
 ];
 
 function AnimatedBg() {
@@ -189,20 +201,27 @@ export default function CallToAction() {
         />
 
         {/* Content */}
-        <div className="cta-fade-up relative z-[3] max-w-[760px] mx-auto text-center">
-          {/* Eyebrow */}
-          {/* <div className="flex items-center justify-center gap-[10px] text-[11px] font-bold tracking-[2px] uppercase text-[#9a9a9a] mb-10">
-                        
-                    </div> */}
-          <Badge
-            className="rounded-full mb-5 text-orange-600 bg-orange-50 px-4 py-1.5 text-sm font-medium"
-            variant="secondary"
-          >
-            Empezá hoy
-          </Badge>
+        <motion.div
+          className="relative z-[3] max-w-[760px] mx-auto text-center"
+          variants={ctaContainer}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.3 }}
+        >
+          <motion.div variants={ctaItem}>
+            <Badge
+              className="rounded-full mb-5 text-orange-600 bg-orange-50 px-4 py-1.5 text-sm font-medium"
+              variant="secondary"
+            >
+              Empezá hoy
+            </Badge>
+          </motion.div>
 
           {/* Headline */}
-          <h2 className="mb-4 font-bold tracking-tight text-4xl md:text-5xl">
+          <motion.h2
+            variants={ctaItem}
+            className="mb-4 font-bold tracking-tight text-4xl md:text-5xl"
+          >
             ¿Qué esperás para
             <br />
             <span className="font-bold text-[#1a1a1a]">
@@ -217,17 +236,20 @@ export default function CallToAction() {
               negocio
               <span className="text-[#1a1a1a]">?</span>
             </span>
-          </h2>
+          </motion.h2>
 
           {/* Subtext */}
-          <p className="text-[17px] text-[#5a5a5a] leading-[1.75] max-w-[440px] mx-auto mb-8 font-normal">
+          <motion.p
+            variants={ctaItem}
+            className="text-[17px] text-[#5a5a5a] leading-[1.75] max-w-[440px] mx-auto mb-8 font-normal"
+          >
             Más de 200 negocios ya lo están usando.
             <br />
             Empezá gratis, sin tarjeta.
-          </p>
+          </motion.p>
 
           {/* Buttons */}
-          <div className="flex gap-3 justify-center flex-wrap mb-10">
+          <motion.div variants={ctaItem} className="flex gap-3 justify-center flex-wrap mb-10">
             <ShimmerButton primary href="/register">
               Comenzar Prueba Gratuita
               <svg
@@ -247,10 +269,13 @@ export default function CallToAction() {
                 />
               </svg>
             </ShimmerButton>
-          </div>
+          </motion.div>
 
           {/* Stats strip */}
-          <div className="cta-glow-card hidden md:inline-flex gap-0 rounded-2xl py-5 px-2 overflow-hidden">
+          <motion.div
+            variants={ctaItem}
+            className="cta-glow-card hidden md:inline-flex gap-0 rounded-2xl py-5 px-2 overflow-hidden"
+          >
             {STATS.map((s, i) => (
               <React.Fragment key={i}>
                 <div className="px-7 text-center">
@@ -272,8 +297,8 @@ export default function CallToAction() {
                 )}
               </React.Fragment>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
 
       {/* Fine print */}

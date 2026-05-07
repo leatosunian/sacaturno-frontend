@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { NextPage } from "next";
 import { MdLogin, MdSearch } from "react-icons/md";
-import Image from "next/image"
+import Image from "next/image";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface Props { }
 
@@ -69,9 +70,9 @@ const HeaderPublic: NextPage<Props> = () => {
     <>
       <nav
         className={[
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+          "fixed top-0 left-0 right-0 z-[200] transition-all duration-300",
           scrolled || menuOpen
-            ? "bg-white/97 backdrop-blur-lg border-b border-transparent border-black/7 shadow-sm"
+            ? "bg-white backdrop-blur-lg border-b border-transparent border-black/7 shadow-sm"
             : "bg-transparent",
         ].join(" ")}
       >
@@ -161,45 +162,54 @@ const HeaderPublic: NextPage<Props> = () => {
         </div>
 
         {/* Mobile menu */}
-        {menuOpen && (
-          <div className="md:hidden flex flex-col bg-white/97 backdrop-blur-lg border-b border-black/7 px-8 pb-5 pt-3">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={(e) => scrollTo(e, link.href, true)}
-                className="text-[14px] font-medium text-[#5a5a5a] py-3 border-b border-[#5a5a5a]/10 last:border-none cursor-pointer"
-              >
-                {link.label}
-              </a>
-            ))}
-            <div className="flex flex-col gap-3 mt-4">
-              <Link
-                href="/public/search"
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2.5 text-[13px] font-semibold border border-[#5a5a5a] rounded-lg text-[#1a1a1a] hover:bg-[#dd4924] hover:text-white hover:border-[#dd4924] transition-all duration-200"
-              >
-                <MdSearch size={16} />
-                Buscar negocio
-              </Link>
-              <Link
-                href="/login"
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2.5 text-[13px] font-semibold border border-[#5a5a5a] rounded-lg text-[#1a1a1a] hover:bg-[#dd4924] hover:text-white hover:border-[#dd4924] transition-all duration-200"
-              >
-                <MdLogin size={16} />
-                Ingresar
-              </Link>
-              <Link
-                href="/register"
-                onClick={() => setMenuOpen(false)}
-                className="bg-[#dd4924] text-white text-[14px] font-bold py-3 rounded-[10px] text-center"
-              >
-                Probar gratis
-              </Link>
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.div
+              key="mobile-menu"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="md:hidden flex flex-col bg-white/97 backdrop-blur-lg border-b border-black/7 px-8 pb-5 pt-3"
+            >
+              {navLinks.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={(e) => scrollTo(e, link.href, true)}
+                  className="text-[14px] font-medium text-[#5a5a5a] py-3 border-b border-[#5a5a5a]/10 last:border-none cursor-pointer"
+                >
+                  {link.label}
+                </a>
+              ))}
+              <div className="flex flex-col gap-3 mt-4">
+                <Link
+                  href="/public/search"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2.5 text-[13px] font-semibold border border-[#5a5a5a] rounded-lg text-[#1a1a1a] hover:bg-[#dd4924] hover:text-white hover:border-[#dd4924] transition-all duration-200"
+                >
+                  <MdSearch size={16} />
+                  Buscar negocio
+                </Link>
+                <Link
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2.5 text-[13px] font-semibold border border-[#5a5a5a] rounded-lg text-[#1a1a1a] hover:bg-[#dd4924] hover:text-white hover:border-[#dd4924] transition-all duration-200"
+                >
+                  <MdLogin size={16} />
+                  Ingresar
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setMenuOpen(false)}
+                  className="bg-[#dd4924] text-white text-[14px] font-bold py-3 rounded-[10px] text-center"
+                >
+                  Probar gratis
+                </Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
     </>)
 }
