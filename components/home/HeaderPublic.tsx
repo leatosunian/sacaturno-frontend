@@ -54,7 +54,7 @@ const HeaderPublic: NextPage<Props> = () => {
     if (pathname === "/") {
       const el = document.getElementById(id);
       if (el) {
-        const top = el.getBoundingClientRect().top + window.scrollY;
+        const top = el.getBoundingClientRect().top + window.scrollY -20;
         window.scrollTo({ top, behavior: "smooth" });
       }
     } else {

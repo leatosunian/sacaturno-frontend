@@ -6,6 +6,7 @@ import HeroSection from "@/components/home/HeroSection";
 import Footer from "@/components/home/Footer";
 import { motion } from "framer-motion";
 import Features from "@/components/home/Features";
+import Sectors from "@/components/home/Sectors";
 import Testimonials from "@/components/home/Testimonials";
 import CallToAction from "@/components/home/CallToAction";
 
@@ -23,8 +24,9 @@ export default function Home() {
       </motion.div>
 
       <Features />
-      <PricingSection />
+      <Sectors />
       <Testimonials />
+      <PricingSection />
       <FAQSection />
       <CallToAction />
 
