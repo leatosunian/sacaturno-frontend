@@ -35,7 +35,13 @@
       "Bash(]\" -Force)",
       "Bash(Get-ChildItem \"c:\\\\sacaturno\\\\app\\\\`[slug`]\" -Force)",
       "Bash(find /mnt/c/sacaturno/app -name \"loading.tsx\" -o -name \"loading.ts\" 2>/dev/null)",
-      "Read(//mnt/c/sacaturno/**)"
+      "Read(//mnt/c/sacaturno/**)",
+      "Bash(npx shadcn@latest add calendar popover --yes)",
+      "Bash(Get-Content \"C:\\\\Users\\\\Gaming\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--sacaturno\\\\c2e7c60e-4b89-43a2-9e23-e81534c661d1\\\\tasks\\\\buray6sc2.output\" -Wait -Tail 30)",
+      "Bash(mkdir -p c:\\\\sacaturno\\\\.claude\\\\commands && mv \"c:\\\\sacaturno\\\\.claude\\\\skills\\\\commit-message.md\" \"c:\\\\sacaturno\\\\.claude\\\\commands\\\\commit-message.md\")"
+    ],
+    "additionalDirectories": [
+      "c:\\sacaturno\\.claude\\skills"
     ]
   }
 }

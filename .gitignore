@@ -43,3 +43,6 @@ server
 /server
 backend
 /backend
+
+CLAUDE.md
+.claude
