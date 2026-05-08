@@ -471,7 +471,7 @@ const AutomateSchedule: React.FC<Props> = ({
 
   const totalHeight = slots.length * HOUR_HEIGHT;
 
-  // ── Render ───────────────────────────────────────────────────────────────
+  // Render 
 
   return (
     <>
@@ -484,12 +484,12 @@ const AutomateSchedule: React.FC<Props> = ({
         </div>
       )}
 
-      {/* ── Dialogs ── */}
-      <Dialog open={subscriptionData?.subscriptionType === "SC_EXPIRED"}>
+      {/* Dialogs */}
+      {/* <Dialog open={subscriptionData?.subscriptionType === "SC_EXPIRED"}>
         <DialogContent className="sm:w-[460px] w-[93vw]">
           <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={business} />
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
       <Dialog open={eventModal} onOpenChange={() => setEventModal(false)}>
         <DialogContent className="sm:w-[400px] w-[93vw]">
@@ -543,7 +543,7 @@ const AutomateSchedule: React.FC<Props> = ({
         </DialogContent>
       </Dialog>
 
-      {/* ── Page layout ── */}
+      {/* Page layout */}
       <div className="flex flex-col w-full gap-5 pb-24 md:pb-10">
 
         {/* Page header */}
@@ -553,7 +553,7 @@ const AutomateSchedule: React.FC<Props> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Tutorial button — visible on both mobile and desktop */}
+            {/* Tutorial button (mobile and desktop) */}
             <button
               onClick={() => setTutorialModal(true)}
               className="flex items-center gap-1.5 h-9 px-3 rounded-lg border border-orange-200 bg-orange-50 hover:bg-orange-100 text-orange-600 text-xs font-semibold transition-colors duration-200"
@@ -579,7 +579,20 @@ const AutomateSchedule: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* ── Card 1: Automatic schedule config ── */}
+        {/* Expired subscription banner */}
+        {subscriptionData?.subscriptionType === "SC_EXPIRED" && (
+          <div className="flex items-start gap-3 p-4 bg-red-50 rounded-xl border border-red-200">
+            <FaCircleInfo size={16} className="text-red-500 mt-0.5 shrink-0" />
+            <div className="flex flex-col gap-0.5">
+              <span className="text-sm font-semibold text-red-700">Suscripción vencida</span>
+              <span className="text-sm text-red-600">
+                Tu suscripción está vencida. La agenda automática está suspendida y no se generarán nuevos turnos hasta que renueves tu plan.
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Card 1: Automatic schedule config */}
         <Card className="p-5 md:p-6">
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
