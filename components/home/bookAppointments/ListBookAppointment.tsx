@@ -284,17 +284,20 @@ export default function ListBookAppointment({
   }, [selectedSlot])
 
   // ── Service filter buttons ──
-  const ServiceFilterButtons = () => (
+  const ServiceFilterButtons = ({ mobile = false }: { mobile?: boolean }) => (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-1.5 mb-1">
-        <Tag className="size-3.5 text-muted-foreground" />
-        <span className="text-xs font-semibold tracking-wide uppercase text-muted-foreground">
+        <Tag className={cn(mobile ? "size-4" : "size-3.5", "text-muted-foreground")} />
+        <span className={cn(
+          "font-semibold tracking-wide uppercase text-muted-foreground",
+          mobile ? "text-sm" : "text-xs"
+        )}>
           Filtrar por servicio
         </span>
       </div>
       <div className="flex flex-wrap gap-2">
         {loadingServices ? (
-          <span className="py-1 text-xs text-muted-foreground animate-pulse">
+          <span className={cn(mobile ? "text-sm" : "text-xs", "py-1 text-muted-foreground animate-pulse")}>
             Cargando servicios...
           </span>
         ) : (
@@ -306,7 +309,8 @@ export default function ListBookAppointment({
                 setSelectedSlot(null)
               }}
               className={cn(
-                "rounded-full border px-3 py-1 text-xs font-semibold transition-all",
+                "rounded-full border font-semibold transition-all",
+                mobile ? "px-4 py-1.5 text-sm" : "px-3 py-1 text-xs",
                 selectedService === svc.name
                   ? "border-transparent bg-orange-600 text-white shadow-lg"
                   : "border-border bg-muted/50 text-muted-foreground hover:border-orange-400 hover:text-foreground"
@@ -319,10 +323,10 @@ export default function ListBookAppointment({
       </div>
       {selectedServiceObj?.description && (
         <div className="pt-2 mt-2 border-t border-border/50">
-          <span className="text-[11px] font-semibold tracking-wide uppercase text-muted-foreground">
+          <span className="text-xs font-semibold tracking-wide uppercase text-muted-foreground">
             Descripcion
           </span>
-          <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground whitespace-pre-line">
+          <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
             {selectedServiceObj.description}
           </p>
         </div>
@@ -337,7 +341,7 @@ export default function ListBookAppointment({
         open={bookAppointmentModal}
         onOpenChange={() => setBookAppointmentModal(false)}
       >
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:w-[720px] w-[93vw] max-w-none">
+        <DialogContent className="max-h-[90vh]  overflow-y-auto sm:w-[720px] w-[93vw] max-w-none">
           {selectedSlot && (
             <BookAppointmentModal
               appointmentData={selectedSlot}
@@ -565,6 +569,13 @@ export default function ListBookAppointment({
               </button>
             </div>
 
+            {/* Mobile Service Filter */}
+            {(services.length >= 1 || loadingServices) && (
+              <div className="pb-4 mb-4 border-b border-border">
+                <ServiceFilterButtons mobile />
+              </div>
+            )}
+
             {/* Mobile Calendar */}
             <div className="pb-4 mb-4 border-b border-border">
               <BookingCalendar
@@ -580,13 +591,6 @@ export default function ListBookAppointment({
                 }}
               />
             </div>
-
-            {/* Mobile Service Filter */}
-            {(services.length >= 1 || loadingServices) && (
-              <div className="pb-4 mb-4 border-b border-border">
-                <ServiceFilterButtons />
-              </div>
-            )}
 
             {/* Selected date label */}
             <div ref={mobileSlotsRef} className="flex items-center gap-2.5 mb-3">
