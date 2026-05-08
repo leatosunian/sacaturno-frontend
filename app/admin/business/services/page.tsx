@@ -11,7 +11,7 @@ import FormServices from "@/components/dashboard/services/FormServices";
 import MercadoPagoConnect from "@/components/dashboard/business/MercadoPagoConnect";
 
 export const metadata: Metadata = {
-  title: "Servicios y suscripciones | SacaTurno",
+  title: "Servicios | SacaTurno",
   description: "Aplicación de turnos online",
 };
 
