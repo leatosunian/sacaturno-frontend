@@ -146,7 +146,7 @@ const SettingsPage: NextPage = async ({}) => {
             subscriptionData={subscription}
           />
 
-          <MercadoPagoConnect businessData={data} />
+          <MercadoPagoConnect businessData={data} subscriptionData={subscription} />
 
           <div className="w-full h-10" />
         </div>
