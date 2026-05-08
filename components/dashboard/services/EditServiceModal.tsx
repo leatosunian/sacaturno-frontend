@@ -114,7 +114,7 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
               <input
                 type="text"
                 inputMode="numeric"
-                className="flex-1 bg-transparent outline-none text-sm py-1 focus:ring-0"
+                className="flex-1 bg-transparent outline-none text-sm py-1 focus:ring-0 placeholder:text-muted-foreground"
                 value={priceDisplay}
                 onChange={(e) => {
                   const raw = e.target.value.replace(/\./g, "").replace(/\D/g, "");
@@ -134,7 +134,7 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
                 <input
                   type="text"
                   inputMode="numeric"
-                  className="flex-1 bg-transparent outline-none text-sm py-1 focus:ring-0"
+                  className="flex-1 bg-transparent outline-none text-sm py-1 focus:ring-0 placeholder:text-muted-foreground"
                   value={depositDisplay}
                   onChange={(e) => {
                     const raw = e.target.value.replace(/\./g, "").replace(/\D/g, "");
@@ -182,7 +182,7 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
         <div className="flex flex-col">
           <label className={labelClass}>Descripción</label>
           <textarea
-            className="bg-transparent border-b border-border text-sm py-1.5 outline-none resize-none overflow-hidden focus:border-orange-600 transition-colors"
+            className="bg-transparent border-b border-border text-sm py-1.5 outline-none resize-none overflow-hidden focus:border-orange-600 transition-colors placeholder:text-muted-foreground"
             rows={1}
             maxLength={140}
             ref={(el) => { descRegisterRef(el); descRef.current = el; }}

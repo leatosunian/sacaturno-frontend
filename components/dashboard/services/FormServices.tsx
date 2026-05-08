@@ -206,13 +206,7 @@ const FormServices = ({
         <div className="flex items-center justify-between px-6 py-4 2xl:px-8 2xl:py-5 border-b border-gray-100">
           <div className="flex items-center gap-2">
             <h2 className="text-sm 2xl:text-base font-semibold text-gray-800">Servicios</h2>
-            <Link
-              href="/admin/analytics"
-              className="flex items-center gap-0.5 text-xs text-gray-400 hover:text-orange-600 transition-colors duration-150"
-            >
-              <span>Estadísticas</span>
-              <LuChevronRight size={13} />
-            </Link>
+          
             {/* {isFull && (
               <span className="text-xs font-semibold text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
                 Plan Full

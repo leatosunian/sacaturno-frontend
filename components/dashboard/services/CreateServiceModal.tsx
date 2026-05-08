@@ -6,7 +6,11 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 
 interface formInputs {
@@ -24,11 +28,14 @@ interface props {
 
 const labelClass = "text-xs font-bold tracking-wider uppercase";
 const errorClass = "text-xs text-red-500 mt-0.5";
-const underlineInput = "px-0 bg-transparent border-0 border-b rounded-none shadow-none border-border focus-visible:ring-0 focus:border-orange-600 transition-colors";
+const underlineInput =
+  "px-0 bg-transparent border-0 border-b rounded-none shadow-none border-border focus-visible:ring-0 focus:border-orange-600 transition-colors";
 
 const CreateServiceModal: React.FC<props> = ({ mpLinked, onCreateService }) => {
   const {
-    register, handleSubmit, setValue,
+    register,
+    handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<formInputs>({ resolver: zodResolver(createServiceSchema) });
 
@@ -57,16 +64,21 @@ const CreateServiceModal: React.FC<props> = ({ mpLinked, onCreateService }) => {
         <div className="flex flex-col">
           <label className={labelClass}>Nombre</label>
           <Input
+            placeholder="Ingresa un nombre"
             type="text"
             maxLength={30}
-            className={underlineInput}
+            className={`${underlineInput} placeholder:text-sm placeholder:text-muted-foreground`}
             {...register("name")}
           />
-          {errors.name?.message && <span className={errorClass}>{errors.name.message}</span>}
+          {errors.name?.message && (
+            <span className={errorClass}>{errors.name.message}</span>
+          )}
         </div>
 
         {/* Precio + Seña */}
-        <div className={`grid gap-4 ${mpLinked ? "grid-cols-2" : "grid-cols-1"}`}>
+        <div
+          className={`grid gap-4 ${mpLinked ? "grid-cols-2" : "grid-cols-1"}`}
+        >
           <div className="flex flex-col">
             <label className={labelClass}>Precio</label>
             <div className="flex items-center border-b border-border focus-within:border-orange-600 transition-colors">
@@ -74,16 +86,22 @@ const CreateServiceModal: React.FC<props> = ({ mpLinked, onCreateService }) => {
               <input
                 type="text"
                 inputMode="numeric"
-                className="flex-1 bg-transparent outline-none text-sm py-1 focus:ring-0"
+                className="flex-1 bg-transparent outline-none text-sm py-1 focus:ring-0 placeholder:text-muted-foreground"
                 value={priceDisplay}
                 onChange={(e) => {
-                  const raw = e.target.value.replace(/\./g, "").replace(/\D/g, "");
-                  setPriceDisplay(raw ? Number(raw).toLocaleString("es-AR") : "");
+                  const raw = e.target.value
+                    .replace(/\./g, "")
+                    .replace(/\D/g, "");
+                  setPriceDisplay(
+                    raw ? Number(raw).toLocaleString("es-AR") : "",
+                  );
                   setValue("price", raw ? Number(raw) : 0);
                 }}
               />
             </div>
-            {errors.price?.message && <span className={errorClass}>{errors.price.message}</span>}
+            {errors.price?.message && (
+              <span className={errorClass}>{errors.price.message}</span>
+            )}
           </div>
 
           {mpLinked && (
@@ -94,17 +112,23 @@ const CreateServiceModal: React.FC<props> = ({ mpLinked, onCreateService }) => {
                 <input
                   type="text"
                   inputMode="numeric"
-                  className="flex-1 bg-transparent outline-none text-sm py-1 focus:ring-0"
+                  className="flex-1 bg-transparent outline-none text-sm py-1 focus:ring-0 placeholder:text-muted-foreground"
                   value={depositDisplay}
                   onChange={(e) => {
-                    const raw = e.target.value.replace(/\./g, "").replace(/\D/g, "");
-                    setDepositDisplay(raw ? Number(raw).toLocaleString("es-AR") : "");
+                    const raw = e.target.value
+                      .replace(/\./g, "")
+                      .replace(/\D/g, "");
+                    setDepositDisplay(
+                      raw ? Number(raw).toLocaleString("es-AR") : "",
+                    );
                     setValue("depositAmount", raw ? Number(raw) : 0);
                   }}
                 />
               </div>
               {errors.depositAmount?.message && (
-                <span className={errorClass}>{errors.depositAmount.message}</span>
+                <span className={errorClass}>
+                  {errors.depositAmount.message}
+                </span>
               )}
             </div>
           )}
@@ -123,24 +147,32 @@ const CreateServiceModal: React.FC<props> = ({ mpLinked, onCreateService }) => {
                 const mins = minutes % 60;
                 const label =
                   hours > 0
-                    ? mins > 0 ? `${hours}h ${mins}min` : `${hours} hora${hours > 1 ? "s" : ""}`
+                    ? mins > 0
+                      ? `${hours}h ${mins}min`
+                      : `${hours} hora${hours > 1 ? "s" : ""}`
                     : `${mins} min`;
                 return (
-                  <SelectItem key={minutes} value={String(minutes)} className="text-xs">
+                  <SelectItem
+                    key={minutes}
+                    value={String(minutes)}
+                    className="text-xs"
+                  >
                     {label}
                   </SelectItem>
                 );
               })}
             </SelectContent>
           </Select>
-          {errors.duration?.message && <span className={errorClass}>{errors.duration.message}</span>}
+          {errors.duration?.message && (
+            <span className={errorClass}>{errors.duration.message}</span>
+          )}
         </div>
 
         {/* Descripción */}
         <div className="flex flex-col">
           <label className={labelClass}>Descripción</label>
           <textarea
-            className="bg-transparent border-b border-border text-sm py-1.5 outline-none resize-none overflow-hidden focus:border-orange-600 transition-colors"
+            className="bg-transparent border-b border-border text-sm py-1.5 outline-none resize-none overflow-hidden focus:border-orange-600 transition-colors placeholder:text-muted-foreground"
             maxLength={140}
             placeholder="Ingresa una descripción"
             rows={1}
