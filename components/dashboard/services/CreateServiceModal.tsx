@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { LuLoader } from "react-icons/lu";
 
 interface formInputs {
   name: string;
@@ -23,6 +24,7 @@ interface formInputs {
 
 interface props {
   mpLinked?: boolean;
+  isLoading?: boolean;
   onCreateService: (formData: formInputs) => void;
 }
 
@@ -31,7 +33,7 @@ const errorClass = "text-xs text-red-500 mt-0.5";
 const underlineInput =
   "px-0 bg-transparent border-0 border-b rounded-none shadow-none border-border focus-visible:ring-0 focus:border-orange-600 transition-colors";
 
-const CreateServiceModal: React.FC<props> = ({ mpLinked, onCreateService }) => {
+const CreateServiceModal: React.FC<props> = ({ mpLinked, isLoading, onCreateService }) => {
   const {
     register,
     handleSubmit,
@@ -142,7 +144,11 @@ const CreateServiceModal: React.FC<props> = ({ mpLinked, onCreateService }) => {
               <SelectValue placeholder="Seleccioná la duración" />
             </SelectTrigger>
             <SelectContent>
-              {[15, 20, 30, 40, 45, 60, 75, 90, 120].map((minutes) => {
+              {[
+                ...Array.from({ length: 8 }, (_, i) => (i + 1) * 15),
+                ...Array.from({ length: 6 }, (_, i) => 150 + i * 30),
+                ...Array.from({ length: 19 }, (_, i) => (i + 6) * 60),
+              ].map((minutes) => {
                 const hours = Math.floor(minutes / 60);
                 const mins = minutes % 60;
                 const label =
@@ -192,10 +198,15 @@ const CreateServiceModal: React.FC<props> = ({ mpLinked, onCreateService }) => {
       </form>
 
       <Button
-        className="w-full h-11 mt-2 text-white bg-orange-600 hover:bg-orange-700"
+        className="w-full h-11 mt-2 text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-70 disabled:cursor-not-allowed"
         onClick={handleSubmitClick}
+        disabled={isLoading}
       >
-        Crear servicio
+        {isLoading ? (
+          <LuLoader size={18} className="animate-spin" />
+        ) : (
+          "Crear servicio"
+        )}
       </Button>
     </div>
   );

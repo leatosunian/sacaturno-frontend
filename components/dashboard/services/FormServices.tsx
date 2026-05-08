@@ -32,6 +32,7 @@ const FormServices = ({
   const [serviceToEdit, setServiceToEdit] = useState<IService>();
   const [createServiceModal, setCreateServiceModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isCreating, setIsCreating] = useState<boolean>(false);
 
   const router = useRouter();
 
@@ -62,7 +63,22 @@ const FormServices = ({
         servicesData.length === 0)
     ) {
       if (formData && services) {
-        setLoading(true);
+        const tempID = `temp_${Date.now()}`;
+        const tempService: IService = {
+          _id: tempID,
+          name: formData.name,
+          businessID: businessData?._id!,
+          ownerID: businessData?.ownerID,
+          price: formData.price,
+          description: formData.description,
+          duration: formData.duration,
+          depositAmount: formData.depositAmount ?? 0,
+        };
+
+        setServices((prev) => [...(prev ?? []), tempService]);
+        setCreateServiceModal(false);
+        setIsCreating(true);
+
         try {
           const token = localStorage.getItem("sacaturno_token");
           const authHeader = {
@@ -71,7 +87,7 @@ const FormServices = ({
               Authorization: `Bearer ${token}`,
             },
           };
-          let newServiceData: IService = {
+          const newServiceData: IService = {
             name: formData.name,
             businessID: businessData?._id!,
             ownerID: businessData?.ownerID,
@@ -91,16 +107,16 @@ const FormServices = ({
             alertType: "OK_ALERT",
           });
           hideAlert();
-          setCreateServiceModal(false);
-          setLoading(false);
           router.refresh();
         } catch (error) {
-          setLoading(false);
+          setServices((prev) => prev?.filter((s) => s._id !== tempID));
           setAlert({
             msg: "Error al crear servicio",
             error: true,
             alertType: "ERROR_ALERT",
           });
+        } finally {
+          setIsCreating(false);
         }
       }
     }
@@ -236,6 +252,7 @@ const FormServices = ({
         <DialogContent className="sm:w-[400px] w-[93vw]">
           <CreateServiceModal
             mpLinked={businessData.mpLinked}
+            isLoading={isCreating}
             onCreateService={(formData) => addService(formData)}
           />
         </DialogContent>
@@ -343,7 +360,7 @@ const FormServices = ({
           )}
 
           {/* Service list */}
-          {servicesData.length > 0 && !loading && (
+          {(services?.length ?? 0) > 0 && !loading && (
             <>
               {!isFull && (
                 <div className="flex items-center gap-2 py-2 mb-1">
@@ -361,10 +378,11 @@ const FormServices = ({
                 </div>
               )}
               <div className="flex flex-col divide-y divide-gray-100">
-                {servicesData.map((service) => (
+                {services?.map((service) => (
                   <div
                     key={service._id}
-                    className="flex items-center justify-between py-3.5 gap-4 group hover:bg-gray-50 rounded-lg pl-4 pr-2 -mx-2 transition-colors duration-150"
+                    onClick={() => !service._id?.startsWith("temp_") && setEditService(service)}
+                    className={`flex items-center justify-between py-3.5 gap-4 group hover:bg-gray-50 rounded-lg pl-4 pr-3 -mx-2 transition-colors duration-150 ${service._id?.startsWith("temp_") ? "opacity-60" : "cursor-pointer"}`}
                   >
                     <div className="flex flex-col gap-1 min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -398,13 +416,12 @@ const FormServices = ({
                         </p>
                       )}
                     </div>
-                    <button
-                      onClick={() => setEditService(service)}
-                      className="flex-shrink-0 p-1.5 text-gray-300 group-hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all duration-200 cursor-pointer opacity-0 group-hover:opacity-100"
-                      title="Editar servicio"
-                    >
-                      <IoMdMore size={20} />
-                    </button>
+                    {!service._id?.startsWith("temp_") && (
+                      <IoMdMore
+                        size={20}
+                        className="flex-shrink-0 text-gray-300 group-hover:text-orange-600 transition-colors duration-200"
+                      />
+                    )}
                   </div>
                 ))}
               </div>
