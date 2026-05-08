@@ -148,7 +148,7 @@ const PricingSection = () => {
         <motion.div
           variants={cardVariant}
           whileHover={{ y: -8, transition: { duration: 0.3, ease: "easeOut" } }}
-          className="flex flex-col w-full md:w-[390px] h-full rounded-xl p-6 md:p-[30px] text-black z-[100] lg:bg-transparent backdrop-blur-md bg-white/60 hover:bg-white/70 border border-black/[0.15] shadow-lg hover:shadow-orange-200/60 hover:border-orange-300/40 transition-colors duration-300 cursor-pointer"
+          className="flex flex-col w-full md:w-[390px] h-full rounded-xl p-6 md:p-[30px] text-black z-[20] lg:bg-transparent backdrop-blur-md bg-white/60 hover:bg-white/70 border border-black/[0.15] shadow-lg hover:shadow-orange-200/60 hover:border-orange-300/40 transition-colors duration-300 cursor-pointer"
         >
           <div className="mb-5">
             <h4 className="flex items-center gap-2 mb-3 text-2xl font-semibold xl:text-3xl">
@@ -190,7 +190,7 @@ const PricingSection = () => {
         <motion.div
           variants={cardVariant}
           whileHover={{ y: -8, transition: { duration: 0.3, ease: "easeOut" } }}
-          className="flex flex-col w-full md:w-[390px] h-full rounded-xl p-6 md:p-[30px] text-black z-[100] lg:bg-transparent backdrop-blur-md bg-white/60 hover:bg-white/70 border border-black/[0.15] shadow-lg hover:shadow-orange-200/60 hover:border-orange-300/40 transition-colors duration-300 cursor-pointer"
+          className="flex flex-col w-full md:w-[390px] h-full rounded-xl p-6 md:p-[30px] text-black z-20 lg:bg-transparent backdrop-blur-md bg-white/60 hover:bg-white/70 border border-black/[0.15] shadow-lg hover:shadow-orange-200/60 hover:border-orange-300/40 transition-colors duration-300 cursor-pointer"
         >
           <div className="mb-5">
             <h4 className="flex items-center gap-3 mb-3 text-2xl font-semibold xl:text-3xl">

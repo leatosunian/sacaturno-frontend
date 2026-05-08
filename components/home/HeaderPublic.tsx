@@ -70,7 +70,7 @@ const HeaderPublic: NextPage<Props> = () => {
     <>
       <nav
         className={[
-          "fixed top-0 left-0 right-0 z-[200] transition-all duration-300",
+          "fixed top-0 left-0 right-0 z-40 transition-all duration-300",
           scrolled || menuOpen
             ? "bg-white backdrop-blur-lg border-b border-transparent border-black/7 shadow-sm"
             : "bg-transparent",
