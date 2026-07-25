@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { IBusiness } from "@/interfaces/business.interface";
 import { IUser } from "@/interfaces/user.interface";
 import {
@@ -21,11 +21,14 @@ import advanced from "dayjs/plugin/advancedFormat";
 import AppointmentModal from "./appointments/AppointmentModal";
 import { TbCalendarCog } from "react-icons/tb";
 import GuideDialog from "./GuideDialog";
+import EmployeeGuideDialog from "./EmployeeGuideDialog";
+import { usePermissions } from "@/components/dashboard/PermissionsProvider";
 import { IoInformationCircle } from "react-icons/io5";
 import axiosReq from "@/config/axios";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { AnimatePresence, motion } from "framer-motion";
 import { Separator } from "../ui/separator";
+import { PLAN_LABELS, SubscriptionType } from "@/lib/planLimits";
 
 interface IDashboardStats {
   todayRemaining: number;
@@ -34,20 +37,25 @@ interface IDashboardStats {
   monthRevenue: number;
 }
 
-interface ISubscription {
-  subscriptionType: "SC_FREE" | "SC_FULL" | "SC_EXPIRED";
-}
+const PLAN_BADGE_CLASSES: Record<SubscriptionType, string> = {
+  SC_FREE: "bg-gray-100 text-gray-500",
+  SC_BASIC: "bg-blue-100 text-blue-600",
+  SC_PRO: "bg-purple-100 text-purple-600",
+  SC_FULL: "bg-primary text-white",
+  SC_EXPIRED: "bg-red-100 text-red-500",
+};
 
 interface Props {
   businessData:
-  | {
-    business: IBusiness | undefined;
-    subscription: ISubscription | undefined;
-    appointments: IAppointment[] | undefined;
-    stats: IDashboardStats | null;
-  }
-  | undefined;
+    | {
+        business: IBusiness | undefined;
+        subscription: { subscriptionType: SubscriptionType } | undefined;
+        appointments: IAppointment[] | undefined;
+        stats: IDashboardStats | null;
+      }
+    | undefined;
   userData: IUser | undefined;
+  isEmployee?: boolean;
 }
 
 interface eventType extends IAppointment {
@@ -74,7 +82,12 @@ const formatCurrency = (amount: number) =>
     maximumFractionDigits: 0,
   }).format(amount);
 
-const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
+const DashboardComponent: React.FC<Props> = ({
+  businessData,
+  userData,
+  isEmployee,
+}) => {
+  const { can } = usePermissions();
   const [loading, setLoading] = useState<boolean>(true);
   const [appointmentsData, setAppointmentsData] = useState<eventType[]>();
   const [appointmentInfoModal, setAppointmentInfoModal] =
@@ -149,27 +162,16 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
       await axiosReq.put(
         `/user/firstlogin/${userData?._id}`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-
     } catch (error) {
       console.error("Error updating first login status:", error);
     }
   }
 
-  const subscriptionType = businessData?.subscription?.subscriptionType;
-  const subscriptionLabel =
-    subscriptionType === "SC_FULL"
-      ? "Plan Premium"
-      : subscriptionType === "SC_EXPIRED"
-      ? "Plan Vencido"
-      : "Plan Gratuito";
-  const subscriptionClass =
-    subscriptionType === "SC_FULL"
-      ? "bg-orange-600 text-white"
-      : subscriptionType === "SC_EXPIRED"
-      ? "bg-red-100 text-red-500"
-      : "bg-gray-100 text-gray-500";
+  const subscriptionType = businessData?.subscription?.subscriptionType ?? "SC_FREE";
+  const subscriptionLabel = PLAN_LABELS[subscriptionType];
+  const subscriptionClass = PLAN_BADGE_CLASSES[subscriptionType];
 
   return (
     <>
@@ -181,36 +183,49 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
           <AppointmentModal
             appointment={selectedAppointment}
             closeModalF={() => setAppointmentInfoModal(false)}
-            onDelete={() => { }}
+            onDelete={() => {}}
           />
         </DialogContent>
       </Dialog>
 
-      <GuideDialog
-        onClose={checkFirstLogin}
-        openGuideDialog={openGuideDialog}
-        isFirstLogin={userData?.isFirstLogin}
-      />
+      {isEmployee ? (
+        <EmployeeGuideDialog open={openGuideDialog} onClose={checkFirstLogin} />
+      ) : (
+        <GuideDialog
+          onClose={checkFirstLogin}
+          openGuideDialog={openGuideDialog}
+          isFirstLogin={userData?.isFirstLogin}
+        />
+      )}
 
-      <div className="flex h-fit mx-auto w-full px-[25px] pt-[35px] md:w-4/5 md:pt-10 2xl:pt-14 md:px-0">
+      <div className="w-full py-4 2xl:py-3 mt-2 flex flex-col gap-6 px-4 sm:px-6 md:px-8 max-w-screen-2xl mx-auto">
         <div className="flex flex-col w-full gap-8 h-fit">
-
           {/* HEADER */}
           <div className="flex items-start justify-between gap-2">
             <div className="flex flex-col gap-1">
               <h4 className="text-2xl font-bold md:text-3xl">
-                ¡Bienvenido, {userData?.name}!
+                {(() => {
+                  const h = new Date().getHours();
+                  if (h >= 6 && h < 13) return "¡Buenos días";
+                  if (h >= 13 && h < 20) return "¡Buenas tardes";
+                  return "¡Buenas noches";
+                })()}
+                , {userData?.name}!
               </h4>
               {businessData?.business && (
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-sm sm:text-lg font-medium text-gray-500">
-                    {businessData.business.name}
+                    {isEmployee
+                      ? `Empleado de ${businessData.business.name}`
+                      : businessData.business.name}
                   </span>
-                  <span
-                    className={`text-xs font-semibold px-2 py-0.5 rounded-full ${subscriptionClass}`}
-                  >
-                    {subscriptionLabel}
-                  </span>
+                  {!isEmployee && (
+                    <span
+                      className={`text-xs font-semibold px-2 py-0.5 rounded-full ${subscriptionClass}`}
+                    >
+                      {subscriptionLabel}
+                    </span>
+                  )}
                 </div>
               )}
             </div>
@@ -227,9 +242,11 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
           <div className="flex flex-col gap-3">
             <span className="text-lg font-semibold">Resumen</span>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-
               {/* Turnos restantes hoy */}
-              <div style={cardShadow} className="flex flex-col gap-3 p-4 bg-white rounded-xl">
+              <div
+                style={cardShadow}
+                className="flex flex-col gap-3 p-4 bg-white rounded-xl"
+              >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
                     Hoy
@@ -245,16 +262,20 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                   <div className="h-8 w-16 bg-gray-100 rounded animate-pulse" />
                 ) : (
                   <span className="text-2xl font-bold">
-                    {stats?.todayRemaining ?? 0} <span className="text-gray-400 text-sm font-normal">turnos</span>
+                    {stats?.todayRemaining ?? 0}{" "}
+                    <span className="text-gray-400 text-sm font-normal">
+                      turnos
+                    </span>
                   </span>
                 )}
-                <span className="text-xs text-gray-500">
-                  pendientes hoy
-                </span>
+                <span className="text-xs text-gray-500">pendientes hoy</span>
               </div>
 
               {/* Semana */}
-              <div style={cardShadow} className="flex flex-col gap-3 p-4 bg-white rounded-xl">
+              <div
+                style={cardShadow}
+                className="flex flex-col gap-3 p-4 bg-white rounded-xl"
+              >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
                     Semana
@@ -270,14 +291,22 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                   <div className="h-8 w-16 bg-gray-100 rounded animate-pulse" />
                 ) : (
                   <span className="text-2xl font-bold">
-                    {stats?.weekBooked ?? 0} <span className="text-gray-400 text-sm font-normal">turnos</span>
+                    {stats?.weekBooked ?? 0}{" "}
+                    <span className="text-gray-400 text-sm font-normal">
+                      turnos
+                    </span>
                   </span>
                 )}
-                <span className="text-xs text-gray-500">reservados esta semana</span>
+                <span className="text-xs text-gray-500">
+                  reservados esta semana
+                </span>
               </div>
 
               {/* Mes */}
-              <div style={cardShadow} className="flex flex-col gap-3 p-4 bg-white rounded-xl">
+              <div
+                style={cardShadow}
+                className="flex flex-col gap-3 p-4 bg-white rounded-xl"
+              >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
                     Mes
@@ -293,15 +322,55 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                   <div className="h-8 w-16 bg-gray-100 rounded animate-pulse" />
                 ) : (
                   <span className="text-2xl font-bold">
-                    {stats?.monthBooked ?? 0} <span className="text-gray-400 text-sm font-normal">turnos</span>
+                    {stats?.monthBooked ?? 0}{" "}
+                    <span className="text-gray-400 text-sm font-normal">
+                      turnos
+                    </span>
                   </span>
                 )}
-                <span className="text-xs text-gray-500">reservados este mes</span>
+                <span className="text-xs text-gray-500">
+                  reservados este mes
+                </span>
               </div>
 
-              {/* Ingresos → link to analytics */}
-              <Link href="/admin/analytics">
-                <div style={cardShadow} className="flex flex-col gap-3 p-4 bg-white rounded-xl hover:shadow-md transition-shadow duration-200 cursor-pointer">
+              {/* Ingresos → link to analytics (solo si tiene permiso) */}
+              {!isEmployee || can("view_stats") ? (
+                <Link href="/admin/analytics">
+                  <div
+                    style={cardShadow}
+                    className="flex flex-col gap-3 p-4 bg-white rounded-xl hover:shadow-md transition-shadow duration-200 cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                        Ingresos
+                      </span>
+                      <div
+                        className="flex items-center justify-center w-8 h-8 rounded-lg"
+                        style={{ backgroundColor: "#fff3ef" }}
+                      >
+                        <LuTrendingUp size={15} color="#dd4924" />
+                      </div>
+                    </div>
+                    {false ? (
+                      <div className="h-8 w-24 bg-gray-100 rounded animate-pulse" />
+                    ) : (
+                      <span className="text-xl font-bold leading-tight">
+                        {formatCurrency(stats?.monthRevenue ?? 0)}
+                      </span>
+                    )}
+                    <span className="text-xs text-gray-500">
+                      durante mes de {dayjs().locale("es-mx").format("MMMM")}
+                    </span>
+                    <span className="text-xs text-primary font-medium -mt-1">
+                      Ver estadísticas →
+                    </span>
+                  </div>
+                </Link>
+              ) : (
+                <div
+                  style={cardShadow}
+                  className="flex flex-col gap-3 p-4 bg-white rounded-xl"
+                >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
                       Ingresos
@@ -313,18 +382,14 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                       <LuTrendingUp size={15} color="#dd4924" />
                     </div>
                   </div>
-                  {false ? (
-                    <div className="h-8 w-24 bg-gray-100 rounded animate-pulse" />
-                  ) : (
-                    <span className="text-xl font-bold leading-tight">
-                      {formatCurrency(stats?.monthRevenue ?? 0)}
-                    </span>
-                  )}
-                  <span className="text-xs text-gray-500">durante mes de {dayjs().locale("es-mx").format("MMMM")}</span>
-                  <span className="text-xs text-orange-600 font-medium -mt-1">Ver estadísticas →</span>
+                  <span className="text-xl font-bold leading-tight">
+                    {formatCurrency(stats?.monthRevenue ?? 0)}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    durante mes de {dayjs().locale("es-mx").format("MMMM")}
+                  </span>
                 </div>
-              </Link>
-
+              )}
             </div>
           </div>
 
@@ -343,50 +408,58 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                   <LuCalendarDays size={22} color="white" />
                 </div>
               </Link>
-              <Link href="/admin/schedule/automate">
-                <div
-                  style={{ backgroundColor: "#dd4924" }}
-                  className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
-                >
-                  <span className="text-sm font-semibold text-white">
-                    Automatizar agenda
-                  </span>
-                  <TbCalendarCog size={22} color="white" />
-                </div>
-              </Link>
-              <Link href="/admin/business">
-                <div
-                  style={{ backgroundColor: "#dd4924" }}
-                  className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
-                >
-                  <span className="text-sm font-semibold text-white">
-                    Mi empresa
-                  </span>
-                  <MdOutlineWorkOutline size={22} color="white" />
-                </div>
-              </Link>
-              <Link href="/admin/business/services">
-                <div
-                  style={{ backgroundColor: "#dd4924" }}
-                  className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
-                >
-                  <span className="text-sm font-semibold text-white">
-                    Mis servicios
-                  </span>
-                  <FaRegEdit size={20} color="white" />
-                </div>
-              </Link>
-              <Link href="/admin/analytics" className="hidden md:block">
-                <div
-                  style={{ backgroundColor: "#dd4924" }}
-                  className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
-                >
-                  <span className="text-sm font-semibold text-white">
-                    Estadísticas
-                  </span>
-                  <LuTrendingUp size={22} color="white" />
-                </div>
-              </Link>
+              {(!isEmployee || can("manage_schedule")) && (
+                <Link href="/admin/schedule/automate">
+                  <div
+                    style={{ backgroundColor: "#dd4924" }}
+                    className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
+                  >
+                    <span className="text-sm font-semibold text-white">
+                      Automatizar agenda
+                    </span>
+                    <TbCalendarCog size={22} color="white" />
+                  </div>
+                </Link>
+              )}
+              {!isEmployee && (
+                <Link href="/admin/business">
+                  <div
+                    style={{ backgroundColor: "#dd4924" }}
+                    className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
+                  >
+                    <span className="text-sm font-semibold text-white">
+                      Mi empresa
+                    </span>
+                    <MdOutlineWorkOutline size={22} color="white" />
+                  </div>
+                </Link>
+              )}
+              {(!isEmployee || can("manage_services")) && (
+                <Link href="/admin/services">
+                  <div
+                    style={{ backgroundColor: "#dd4924" }}
+                    className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
+                  >
+                    <span className="text-sm font-semibold text-white">
+                      Mis servicios
+                    </span>
+                    <FaRegEdit size={20} color="white" />
+                  </div>
+                </Link>
+              )}
+              {(!isEmployee || can("view_stats")) && (
+                <Link href="/admin/analytics" className="hidden md:block">
+                  <div
+                    style={{ backgroundColor: "#dd4924" }}
+                    className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
+                  >
+                    <span className="text-sm font-semibold text-white">
+                      Estadísticas
+                    </span>
+                    <LuTrendingUp size={22} color="white" />
+                  </div>
+                </Link>
+              )}
             </div>
           </div>
 
@@ -398,7 +471,7 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
 
             <AnimatePresence>
               {loading && (
-                <motion.div 
+                <motion.div
                   key="dashboard-loader"
                   className="flex items-center justify-center py-12"
                   exit={{ opacity: 0 }}
@@ -410,14 +483,18 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
             </AnimatePresence>
 
             {!loading && appointmentsData && appointmentsData.length > 0 && (
-              <div style={cardShadow} className="bg-white rounded-xl overflow-hidden">
+              <div
+                style={cardShadow}
+                className="bg-white rounded-xl overflow-hidden"
+              >
                 {appointmentsData.map((appointment, idx) => (
                   <div
                     key={appointment._id}
-                    className={`flex items-center px-4 py-3 gap-3 cursor-pointer hover:bg-gray-50 transition-colors ${idx !== appointmentsData.length - 1
-                      ? "border-b border-gray-100"
-                      : ""
-                      }`}
+                    className={`flex items-center px-4 py-3 gap-3 cursor-pointer hover:bg-gray-50 transition-colors ${
+                      idx !== appointmentsData.length - 1
+                        ? "border-b border-gray-100"
+                        : ""
+                    }`}
                     onClick={() => handleSelectEvent(appointment)}
                   >
                     <div className="flex flex-col items-center min-w-[44px]">
@@ -476,7 +553,6 @@ const DashboardComponent: React.FC<Props> = ({ businessData, userData }) => {
                 </div>
               )}
           </div>
-
         </div>
       </div>
     </>

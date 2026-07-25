@@ -9,6 +9,9 @@
 env
 .env
 
+# internal documentation / notes / reminders 
+/docs
+
 # testing
 /coverage
 

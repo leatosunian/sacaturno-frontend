@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LuCalendarDays } from "react-icons/lu";
 import HeaderPublicBlack from "@/components/home/HeaderPublic";
 import Footer from "@/components/home/Footer";
-import FormLogin from "@/components/home/login/FormLogin";
+import AuthSection from "@/components/home/AuthSection";
 import styles from "@/app/css-modules/AuthCentered.module.css";
 
 export const metadata: Metadata = {
@@ -45,7 +45,7 @@ export default function Login() {
             </div>
 
             <div className="pt-5 max-[1535px]:pt-[14px] px-7 max-[1535px]:px-[22px] pb-7 max-[1535px]:pb-[22px]">
-              <FormLogin />
+              <AuthSection mode="login" />
             </div>
           </div>
 

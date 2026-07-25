@@ -3,7 +3,8 @@ import { createContext, useContext, useCallback, useRef, useState } from "react"
 
 type NavigationLoadingContextType = {
   isNavigating: boolean;
-  onLinkClick: () => void;
+  pendingPath: string | null;
+  onLinkClick: (path?: string) => void;
   onServerLoadingStart: () => void;
   onServerLoadingEnd: () => void;
   onPathnameChange: () => void;
@@ -11,6 +12,7 @@ type NavigationLoadingContextType = {
 
 const NavigationLoadingContext = createContext<NavigationLoadingContextType>({
   isNavigating: false,
+  pendingPath: null,
   onLinkClick: () => {},
   onServerLoadingStart: () => {},
   onServerLoadingEnd: () => {},
@@ -19,12 +21,14 @@ const NavigationLoadingContext = createContext<NavigationLoadingContextType>({
 
 export function NavigationLoadingProvider({ children }: { children: React.ReactNode }) {
   const [isNavigating, setIsNavigating] = useState(false);
+  const [pendingPath, setPendingPath] = useState<string | null>(null);
   const serverLoadingActive = useRef(false);
   const fastNavTimer = useRef<ReturnType<typeof setTimeout>>();
   const serverLoadingEndTimer = useRef<ReturnType<typeof setTimeout>>();
 
-  const onLinkClick = useCallback(() => {
+  const onLinkClick = useCallback((path?: string) => {
     clearTimeout(fastNavTimer.current);
+    if (path) setPendingPath(path);
     setIsNavigating(true);
   }, []);
 
@@ -45,6 +49,7 @@ export function NavigationLoadingProvider({ children }: { children: React.ReactN
     serverLoadingEndTimer.current = setTimeout(() => {
       if (!serverLoadingActive.current) {
         setIsNavigating(false);
+        setPendingPath(null);
       }
     }, 0);
   }, []);
@@ -55,13 +60,14 @@ export function NavigationLoadingProvider({ children }: { children: React.ReactN
     fastNavTimer.current = setTimeout(() => {
       if (!serverLoadingActive.current) {
         setIsNavigating(false);
+        setPendingPath(null);
       }
     }, 50);
   }, []);
 
   return (
     <NavigationLoadingContext.Provider
-      value={{ isNavigating, onLinkClick, onServerLoadingStart, onServerLoadingEnd, onPathnameChange }}
+      value={{ isNavigating, pendingPath, onLinkClick, onServerLoadingStart, onServerLoadingEnd, onPathnameChange }}
     >
       {children}
     </NavigationLoadingContext.Provider>

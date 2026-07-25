@@ -1,13 +1,17 @@
-import { Metadata, NextPage } from "next";
+﻿import { Metadata, NextPage } from "next";
 import FormBusiness from "@/components/dashboard/business/FormBusiness";
+import EmployeesSection from "@/components/dashboard/employees/EmployeesSection";
 import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
+import { IEmployee } from "@/interfaces/employee.interface";
+import ISubscription from "@/interfaces/subscription.interface";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { IService } from "@/interfaces/service.interface";
-import { MdOutlineAddBusiness, MdOutlineWorkHistory } from "react-icons/md";
 import { FaArrowRight } from "react-icons/fa6";
-import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { getPlanLimits } from "@/lib/planLimits";
+import NoBusinessEmptyState from "@/components/dashboard/NoBusinessEmptyState";
 
 interface Props {}
 export const metadata: Metadata = {
@@ -26,7 +30,10 @@ async function getBusinessData() {
         Authorization: `Bearer ${token?.value}`,
       },
     };
-    const res = await axiosReq.get(`/business/get/${ownerID?.value}`, authHeader);
+    const res = await axiosReq.get(
+      `/business/get/${ownerID?.value}`,
+      authHeader,
+    );
     return res.data;
   } catch (error: any) {
     const response_data = {
@@ -39,6 +46,20 @@ async function getBusinessData() {
       dayEnd: "",
     };
     return { response_data };
+  }
+}
+
+async function getSubscriptionData(businessID: string, token: string) {
+  try {
+    const res = await axiosReq.get(`/subscription/get/businessID/${businessID}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data as ISubscription;
+  } catch {
+    return null;
   }
 }
 
@@ -55,7 +76,7 @@ async function getServicesData() {
     };
     const allServices = await axiosReq.get(
       `/business/service/get/user/${ownerID?.value}`,
-      authHeader
+      authHeader,
     );
     return allServices.data;
   } catch (error) {
@@ -67,43 +88,33 @@ async function getServicesData() {
 const BussinessConfigPage: NextPage<Props> = async ({}) => {
   const services: IService[] = await getServicesData();
   const data: IBusiness = await getBusinessData();
+  const cookieStore = cookies();
+  const subscription: ISubscription | null =
+    typeof data !== "string" && data?._id
+      ? await getSubscriptionData(data._id, cookieStore.get("sacaturno_token")?.value ?? "")
+      : null;
+  const branchesEnabled = getPlanLimits(subscription?.subscriptionType).maxBranches > 0;
 
   return (
     <>
-      {typeof data === "string" && (
-        <div
-          style={{ height: "calc(100vh - 64px)" }}
-          className="flex flex-col items-center justify-center w-full gap-6 px-4 text-center"
-        >
-          <MdOutlineWorkHistory color="#dd4924" size={100} />
-          <span className="font-semibold sm:text-lg md:text-xl">
-            No tenés una empresa creada.
-          </span>
-          <Link href="/admin/business/create">
-            <Button className="w-full px-10 mt-1 text-white bg-orange-600 border-none rounded-lg shadow-2xl outline-none h-11 hover:bg-orange-700">
-              <MdOutlineAddBusiness size={30} />
-              Crear empresa
-            </Button>
-          </Link>
-        </div>
-      )}
+      {typeof data === "string" && <NoBusinessEmptyState />}
 
       {typeof data !== "string" && (
-        <div className="flex flex-col gap-6 w-full max-w-screen-md 2xl:max-w-screen-lg mx-auto px-4 py-4 2xl:py-10">
+        <div className="w-full py-4 2xl:py-3 flex flex-col gap-4 2xl:gap-6 px-4 sm:px-6 md:px-8 max-w-screen-2xl mx-auto">
           <div className="flex items-center justify-between">
-            <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">Mi empresa</h1>
-            <Link
-              href="/admin/business/services"
-              className="flex items-center gap-1.5 text-xs 2xl:text-sm font-semibold text-orange-600 uppercase hover:underline transition-all duration-200"
+            <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">
+              Mi empresa
+            </h1>
+            {/* <Link
+              href="/admin/services"
+              className="flex items-center gap-1.5 text-xs 2xl:text-sm font-semibold text-primary uppercase hover:underline transition-all duration-200"
             >
               Servicios
               <FaArrowRight size={11} />
-            </Link>
+            </Link> */}
           </div>
 
-          <FormBusiness businessData={data} servicesData={services} />
-
-          <div className="w-full h-10" />
+          <FormBusiness businessData={data} servicesData={services} branchesEnabled={branchesEnabled} />
         </div>
       )}
     </>

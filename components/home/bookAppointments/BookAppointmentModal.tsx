@@ -13,6 +13,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { FormattedAppointment } from "./ListBookAppointment"
 import { IBusiness } from "@/interfaces/business.interface"
 import { FiCalendar } from "react-icons/fi"
+import type { IPublicEmployee } from "./EmployeeSelector"
+import type { IPublicBranch } from "./BranchSelector"
 
 interface FormInputs {
   name: string
@@ -25,6 +27,8 @@ interface Props {
   businessData: IBusiness
   modalDateStr: string
   depositAmount?: number
+  employees?: IPublicEmployee[]
+  branches?: IPublicBranch[]
   closeModalF: (action: string) => void
 }
 
@@ -33,6 +37,8 @@ export default function BookAppointmentModal({
   businessData,
   modalDateStr,
   depositAmount = 0, // 0 = sin seña
+  employees,
+  branches,
   closeModalF,
 }: Props) {
   const [spinner, setSpinner] = useState(false)
@@ -57,6 +63,9 @@ export default function BookAppointmentModal({
   const router = useRouter()
   const requiresDeposit = depositAmount > 0
   const dateTimeDisplay = `${modalDateStr} | ${appointmentData.timeLabel} - ${appointmentData.endTimeLabel} hs`
+
+  const employeeName = employees?.find((e) => e._id === appointmentData.employeeID)
+  const branchDisplayName = branches?.find((b) => b._id === appointmentData.branchID)?.name
 
   // flujo sin seña
   const bookWithoutDeposit = async (formData: FieldValues) => {
@@ -250,6 +259,30 @@ export default function BookAppointmentModal({
               )}
             </div>
           </div>
+
+          {/* Profesional / Sucursal */}
+          {(employeeName || branchDisplayName) && (
+            <div className="flex flex-col gap-2">
+              {employeeName && (
+                <Card className="py-3 border-none shadow-none bg-muted/50">
+                  <CardContent className="flex flex-col gap-0.5 px-4 py-0">
+                    <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">Profesional</span>
+                    <span className="text-sm font-semibold text-foreground">
+                      {employeeName.name} {employeeName.surname}
+                    </span>
+                  </CardContent>
+                </Card>
+              )}
+              {branchDisplayName && (
+                <Card className="py-3 border-none shadow-none bg-muted/50">
+                  <CardContent className="flex flex-col gap-0.5 px-4 py-0">
+                    <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">Sucursal</span>
+                    <span className="text-sm font-semibold text-foreground">{branchDisplayName}</span>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
 
           {/* Banner de seña */}
           {requiresDeposit && (

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import dayjs from "dayjs";
 import "dayjs/locale/es-mx";
 import { IAppointment } from "@/interfaces/appointment.interface";
@@ -16,16 +16,27 @@ import NoServicesModal from "../services/NoServicesModal";
 import ISubscription from "@/interfaces/subscription.interface";
 import ExpiredPlanModal from "./ExpiredPlanModal";
 import AllDayAppointmentsModal from "./AllDayAppointmentsModal";
-import { LuCalendarPlus, LuChevronLeft, LuChevronRight } from "react-icons/lu";
+import { LuCalendar, LuCalendarPlus, LuCalendarCheck, LuCalendarX, LuChevronLeft, LuChevronRight, LuClock, LuUser, LuMapPin } from "react-icons/lu";
 import { IoInformationCircle } from "react-icons/io5";
-import { IoMdMore } from "react-icons/io";
+import { IoMdMore, IoIosAlert } from "react-icons/io";
 import HelpModal from "./HelpModal";
 import { MdEditCalendar } from "react-icons/md";
 import { IDaySchedule } from "@/interfaces/daySchedule.interface";
+import { IEmployee } from "@/interfaces/employee.interface";
+import { IBranch } from "@/interfaces/branch.interface";
 import Link from "next/link";
-import { FaArrowRight } from "react-icons/fa6";
-import { timeOptions, durationOptions } from "@/helpers/timeOptions";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import MonthCalendarPicker from "./MonthCalendarPicker";
+import TimeRangeControls from "./TimeRangeControls";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useSidebar } from "@/components/ui/sidebar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,7 +53,7 @@ dayjs.extend(timezone);
 dayjs.extend(utc);
 dayjs.extend(advanced);
 
-const HOUR_HEIGHT = 57; // px per hour in the time grid
+const HOUR_HEIGHT = 78; // px per slot in the time grid
 const TIME_GUTTER = 60; // px width of the hour-label column
 const CARD_GUTTER = 4; // px from day-column edge to card
 const CARD_GAP = 5;    // px between side-by-side cards
@@ -91,6 +102,10 @@ interface Props {
   servicesData: IService[];
   scheduleDays: IDaySchedule[];
   subscriptionData: ISubscription | undefined;
+  employees?: IEmployee[];
+  branches?: IBranch[];
+  currentEmployeeID?: string | null;
+  employeePermissions?: string[];
 }
 
 interface TimeSlot {
@@ -118,6 +133,8 @@ interface CalendarEvent {
   depositStatus?: "none" | "pending" | "paid" | "failed";
   mpPaymentID?: string | null;
   depositAmount?: number;
+  employeeID?: string | null;
+  branchID?: string | null;
 }
 
 const getAuthHeader = () => {
@@ -149,13 +166,45 @@ const CalendarTurnos: React.FC<Props> = ({
   servicesData,
   scheduleDays,
   subscriptionData,
+  employees,
+  branches,
+  currentEmployeeID,
+  employeePermissions = [],
 }) => {
+  const { isMobile, open: sidebarOpen } = useSidebar();
+  const isEmployee = !!currentEmployeeID;
+  const canManageAll = !isEmployee || employeePermissions.includes("manage_all_appointments");
+  const canManageOwn = employeePermissions.includes("manage_own_appointments");
+  const canCreateAppointments = !isEmployee || canManageAll || canManageOwn;
   const now = dayjs();
+  const activeBranches = branches ?? [];
+  const showBranchFilter = activeBranches.length >= 2;
+  const [selectedBranchFilter, setSelectedBranchFilter] = useState<string>("");
+  const activeEmployees = (employees ?? []).filter((e) => e.status === "active");
+  const showEmployeeFilter = activeEmployees.length >= 2;
+  const [selectedEmployeeFilter, setSelectedEmployeeFilter] = useState<string>("");
+  const employeeFilterOptions = selectedBranchFilter
+    ? activeEmployees.filter((e) => (e.branches ?? []).includes(selectedBranchFilter))
+    : activeEmployees;
+
+  const handleBranchFilterChange = (branchID: string) => {
+    setSelectedBranchFilter(branchID);
+    if (
+      branchID &&
+      selectedEmployeeFilter &&
+      !activeEmployees.find(
+        (e) => e._id === selectedEmployeeFilter && (e.branches ?? []).includes(branchID)
+      )
+    ) {
+      setSelectedEmployeeFilter("");
+    }
+  };
   const [appointmentsData, setAppointmentsData] = useState<IAppointment[]>(appointments);
   const [business, setBusiness] = useState<IBusiness>(businessData);
   const [services, setServices] = useState<IService[]>(servicesData);
   const [eventModal, setEventModal] = useState(false);
   const [eventData, setEventData] = useState<CalendarEvent | undefined>();
+  const [eventCanDelete, setEventCanDelete] = useState(true);
   const [createAppointmentModal, setCreateAppointmentModal] = useState(false);
   const [createAppointmentData, setCreateAppointmentData] = useState<IAppointment>();
   const [createAppointmentTabMode, setCreateAppointmentTabMode] = useState<"pending" | "booked">("pending");
@@ -165,6 +214,11 @@ const CalendarTurnos: React.FC<Props> = ({
   const [expiredModal, setExpiredModal] = useState(false);
   const [loadingNewAppointments, setLoadingNewAppointments] = useState(true);
   const [showSwipeHint, setShowSwipeHint] = useState(true);
+  const [bookingsEnabled, setBookingsEnabled] = useState<boolean>(businessData.bookingsEnabled ?? true);
+  const [disableBookingsModal, setDisableBookingsModal] = useState(false);
+  const [bookingsSaving, setBookingsSaving] = useState(false);
+  const canToggleBookings = !isEmployee || canManageAll;
+  const bookingsToggleLabel = bookingsEnabled ? "Deshabilitar reservas" : "Habilitar reservas";
   const [selectedDaySchedule, setSelectedDaySchedule] = useState({
     dayStart: 8,
     dayEnd: 22,
@@ -183,7 +237,18 @@ const CalendarTurnos: React.FC<Props> = ({
     setAppointmentsData(appointments);
     setBusiness(businessData);
     setServices(servicesData);
+    setBookingsEnabled(businessData.bookingsEnabled ?? true);
   }, [appointments, businessData, servicesData]);
+
+  useEffect(() => {
+    if (servicesData.length === 0) {
+      const original = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = original;
+      };
+    }
+  }, [servicesData.length]);
 
   useEffect(() => {
     setLoadingNewAppointments(false);
@@ -208,7 +273,10 @@ const CalendarTurnos: React.FC<Props> = ({
   }, []);
 
   const parsedEvents = useMemo<CalendarEvent[]>(() => {
-    return appointmentsData.map((appt) => ({
+    const filtered = appointmentsData
+      .filter((a) => !selectedBranchFilter || (a as any).branchID === selectedBranchFilter)
+      .filter((a) => !selectedEmployeeFilter || (a as any).employeeID === selectedEmployeeFilter);
+    return filtered.map((appt) => ({
       start: dayjs(appt.start).tz("America/Argentina/Buenos_Aires").toDate(),
       end: dayjs(appt.end).tz("America/Argentina/Buenos_Aires").toDate(),
       title: appt.title,
@@ -223,8 +291,23 @@ const CalendarTurnos: React.FC<Props> = ({
       price: appt.price,
       depositStatus: appt.depositStatus,
       mpPaymentID: appt.mpPaymentID,
+      employeeID: appt.employeeID,
+      branchID: appt.branchID,
     }));
-  }, [appointmentsData]);
+  }, [appointmentsData, selectedBranchFilter, selectedEmployeeFilter]);
+
+  const appointmentDateSet = useMemo(() => {
+    const set = new Set<string>();
+    parsedEvents.forEach((e) => set.add(dayjs(e.start).format("YYYY-MM-DD")));
+    return set;
+  }, [parsedEvents]);
+
+  const getCanDeleteEvent = (event: CalendarEvent): boolean => {
+    if (!isEmployee) return true;
+    if (canManageAll) return true;
+    if (canManageOwn) return event.employeeID === currentEmployeeID;
+    return false;
+  };
 
   const daysToShow = useMemo<Date[]>(() => [date], [date]);
 
@@ -326,9 +409,13 @@ const CalendarTurnos: React.FC<Props> = ({
       await axiosReq.post("/appointment/create", appointmentData, getAuthHeader());
       toast.success("Turno creado correctamente", { id: toastId, position: "top-center" });
       router.refresh();
-    } catch {
+    } catch (error: any) {
       setAppointmentsData((prev) => prev.filter((a) => a._id !== tempId));
-      toast.error("No se pudo crear el turno", { id: toastId, position: "top-center" });
+      if (error?.response?.status === 409) {
+        toast.error("El empleado ya tiene un turno en ese horario", { id: toastId, position: "top-center" });
+      } else {
+        toast.error("No se pudo crear el turno", { id: toastId, position: "top-center" });
+      }
     }
   };
 
@@ -365,20 +452,65 @@ const CalendarTurnos: React.FC<Props> = ({
     }
   };
 
+  const persistBookingsEnabled = async (next: boolean) => {
+    const prev = bookingsEnabled;
+    setBookingsEnabled(next);
+    setBookingsSaving(true);
+    const toastId = toast.loading(
+      next ? "Habilitando reservas..." : "Deshabilitando reservas...",
+      { position: "top-center" }
+    );
+    try {
+      await axiosReq.put(
+        "/business/edit",
+        { ...business, bookingsEnabled: next },
+        getAuthHeader()
+      );
+      toast.success(
+        next ? "Reservas habilitadas" : "Reservas deshabilitadas",
+        { id: toastId, position: "top-center" }
+      );
+      setBusiness((b) => ({ ...b, bookingsEnabled: next }));
+      router.refresh();
+    } catch {
+      setBookingsEnabled(prev);
+      toast.error("No se pudo actualizar", { id: toastId, position: "top-center" });
+    } finally {
+      setBookingsSaving(false);
+    }
+  };
+
+  const handleBookingsToggle = (next: boolean) => {
+    if (!canToggleBookings || bookingsSaving) return;
+    if (next === false) {
+      setDisableBookingsModal(true);
+      return;
+    }
+    persistBookingsEnabled(true);
+  };
+
   // ─── Time gutter + click → open create modal at exact slot time ──────────
 
   const handleTimeGutterPlusClick = (slot: TimeSlot, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!canCreateAppointments) return;
     if (subscriptionData?.subscriptionType === "SC_EXPIRED") {
       setExpiredModal(true);
       return;
     }
     const day = daysToShow[0];
     const { appointmentDuration } = selectedDaySchedule;
-    const start = dayjs(day).hour(slot.hour).minute(slot.minute).second(0).millisecond(0).toDate();
-    const end = dayjs(start).add(appointmentDuration, "minute").toDate();
-    setCreateAppointmentTabMode("pending");
-    setCreateAppointmentData({ businessID: business?._id, start, end, service: "" });
+    const start = dayjs(day).hour(slot.hour).minute(slot.minute).second(0).millisecond(0);
+    const end = start.add(appointmentDuration, "minute").toDate();
+
+    if (start.isBefore(dayjs().subtract(2, "day"))) {
+      toast.error("Solo podés cargar turnos de hasta 2 días atrás", { position: "top-center" });
+      return;
+    }
+
+    const isPast = start.isBefore(dayjs());
+    setCreateAppointmentTabMode(isPast ? "booked" : "pending");
+    setCreateAppointmentData({ businessID: business?._id, start: start.toDate(), end, service: "" });
     setCreateAppointmentModal(true);
   };
 
@@ -389,15 +521,23 @@ const CalendarTurnos: React.FC<Props> = ({
     slot: TimeSlot,
     e: React.MouseEvent<HTMLDivElement>
   ) => {
+    if (!canCreateAppointments) return;
     if (subscriptionData?.subscriptionType === "SC_EXPIRED") {
       setExpiredModal(true);
       return;
     }
     const { appointmentDuration } = selectedDaySchedule;
-    const start = dayjs(day).hour(slot.hour).minute(slot.minute).second(0).millisecond(0).toDate();
-    const end = dayjs(start).add(appointmentDuration, "minute").toDate();
-    setCreateAppointmentTabMode("pending");
-    setCreateAppointmentData({ businessID: business?._id, start, end, service: "" });
+    const start = dayjs(day).hour(slot.hour).minute(slot.minute).second(0).millisecond(0);
+    const end = start.add(appointmentDuration, "minute").toDate();
+
+    if (start.isBefore(dayjs().subtract(2, "day"))) {
+      toast.error("Solo podés cargar turnos de hasta 2 días atrás", { position: "top-center" });
+      return;
+    }
+
+    const isPast = start.isBefore(dayjs());
+    setCreateAppointmentTabMode(isPast ? "booked" : "pending");
+    setCreateAppointmentData({ businessID: business?._id, start: start.toDate(), end, service: "" });
     setCreateAppointmentModal(true);
   };
 
@@ -407,13 +547,13 @@ const CalendarTurnos: React.FC<Props> = ({
     e.stopPropagation();
     const matchedService = services.find((s) => s.name === event.service);
     setEventData({ ...event, depositAmount: matchedService?.depositAmount });
+    setEventCanDelete(getCanDeleteEvent(event));
     setEventModal(true);
   };
 
   // ─── Navigation ───────────────────────────────────────────────────────────
 
-  const handleDayStartChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = Number(e.target.value);
+  const handleDayStartChange = (val: number) => {
     if (val >= selectedDaySchedule.dayEnd) {
       toast.error("El horario de inicio debe ser menor al horario de fin", { position: "top-center" });
       return;
@@ -429,8 +569,7 @@ const CalendarTurnos: React.FC<Props> = ({
     setSelectedDaySchedule((prev) => ({ ...prev, dayStart: val }));
   };
 
-  const handleDayEndChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = Number(e.target.value);
+  const handleDayEndChange = (val: number) => {
     if (val <= selectedDaySchedule.dayStart) {
       toast.error("El horario de fin debe ser mayor al horario de inicio", { position: "top-center" });
       return;
@@ -448,6 +587,10 @@ const CalendarTurnos: React.FC<Props> = ({
     setSelectedDaySchedule((prev) => ({ ...prev, dayEnd: val }));
   };
 
+  const handleDurationChange = (val: number) => {
+    setSelectedDaySchedule((prev) => ({ ...prev, appointmentDuration: val }));
+  };
+
   const onNextClick = () => {
     swipeDir.current = "left";
     setDate((prev) => dayjs(prev).add(1, "day").toDate());
@@ -456,6 +599,14 @@ const CalendarTurnos: React.FC<Props> = ({
   const onPrevClick = () => {
     swipeDir.current = "right";
     setDate((prev) => dayjs(prev).subtract(1, "day").toDate());
+  };
+
+  const goToDate = (newDate: Date) => {
+    const target = dayjs(newDate).startOf("day");
+    const current = dayjs(date).startOf("day");
+    if (target.isSame(current)) return;
+    swipeDir.current = target.isAfter(current) ? "left" : "right";
+    setDate(target.toDate());
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -498,12 +649,21 @@ const CalendarTurnos: React.FC<Props> = ({
     }),
   };
 
-  const dateLabel = useMemo(
-    () => dayjs(date).format("dddd D [de] MMMM"),
-    [date]
-  );
+  const getEmployeeName = (employeeID: string | null | undefined): string | null => {
+    if (!employeeID || !employees?.length) return null;
+    const emp = employees.find((e) => e._id === employeeID);
+    if (!emp) return null;
+    return emp.surname ? `${emp.name} ${emp.surname[0]}.` : emp.name;
+  };
+
+  const getBranchName = (branchID: string | null | undefined): string | null => {
+    if (!branchID || !branches?.length) return null;
+    const branch = branches.find((b) => b._id === branchID);
+    return branch?.name ?? null;
+  };
 
   const handleSetAllDayAppointmentsModal = () => {
+    if (!canCreateAppointments) return;
     if (subscriptionData?.subscriptionType === "SC_EXPIRED") {
       setExpiredModal(true);
       return;
@@ -530,6 +690,7 @@ const CalendarTurnos: React.FC<Props> = ({
         onOpenChange={() => setAllDayAppointmentsModal(false)}
       >
         <DialogContent className="sm:w-[400px] w-[93vw]">
+          <DialogTitle className="sr-only">Crear turnos del día</DialogTitle>
           <AllDayAppointmentsModal
             business={business}
             services={services}
@@ -543,10 +704,14 @@ const CalendarTurnos: React.FC<Props> = ({
 
       <Dialog open={eventModal} onOpenChange={() => setEventModal(false)}>
         <DialogContent className="md:w-[510px] w-[93vw] ">
+          <DialogTitle className="sr-only">Detalle del turno</DialogTitle>
           <AppointmentModal
             appointment={eventData}
             onDelete={handleDeleteAppointment}
             closeModalF={() => setEventModal(false)}
+            canDelete={eventCanDelete}
+            employees={employees}
+            branches={branches}
           />
         </DialogContent>
       </Dialog>
@@ -559,25 +724,45 @@ const CalendarTurnos: React.FC<Props> = ({
           className={`w-[93vw] transition-all duration-200 max-w-none ${createAppointmentTabMode === "booked" ? "sm:w-[660px]" : "sm:w-[400px]"
             }`}
         >
+          <DialogTitle className="sr-only">Crear turno</DialogTitle>
           <CreateAppointmentModal
             onSave={handleSaveAppointment}
             closeModalF={() => setCreateAppointmentModal(false)}
             appointmentData={createAppointmentData}
             servicesData={services}
+            employees={employees}
+            branches={activeBranches}
+            currentEmployeeID={currentEmployeeID}
+            canManageAll={canManageAll}
             tabMode={createAppointmentTabMode}
             onTabModeChange={setCreateAppointmentTabMode}
           />
         </DialogContent>
       </Dialog>
 
-      <Dialog open={servicesData.length === 0}>
-        <DialogContent className="sm:w-[460px] w-[93vw]">
-          <NoServicesModal />
-        </DialogContent>
-      </Dialog>
+      {servicesData.length === 0 && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Sin servicios"
+          className="z-50 flex items-center justify-center bg-black/80 p-4"
+          style={{
+            position: "fixed",
+            top: isMobile ? "4rem" : 0,
+            left: !isMobile && sidebarOpen ? "var(--sidebar-width)" : 0,
+            right: 0,
+            height: isMobile ? "calc(100svh - 4rem)" : "100svh",
+          }}
+        >
+          <div className="w-full max-w-[460px] rounded-2xl border bg-background p-6 shadow-lg">
+            <NoServicesModal />
+          </div>
+        </div>
+      )}
 
       <Dialog open={expiredModal} onOpenChange={() => setExpiredModal(false)}>
-        <DialogContent className="sm:w-[460px] w-[93vw]">
+        <DialogContent className="max-w-3xl max-h-[90dvh] overflow-y-auto w-[calc(100%-2rem)] sm:w-full px-4 sm:px-6">
+          <DialogTitle className="sr-only">Plan vencido</DialogTitle>
           <ExpiredPlanModal
             onCloseModal={() => setExpiredModal(false)}
             businessData={business}
@@ -585,189 +770,316 @@ const CalendarTurnos: React.FC<Props> = ({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={helpModal} onOpenChange={() => setHelpModal(false)}>
-        <DialogContent className="sm:w-[600px] max-w-none w-[93vw] px-0 pb-0">
-          <HelpModal onClose={() => setHelpModal(false)} />
+      <Dialog open={disableBookingsModal} onOpenChange={() => setDisableBookingsModal(false)}>
+        <DialogContent className="sm:w-[440px] w-[93vw] p-6">
+          <DialogTitle className="sr-only">Deshabilitar reservas de clientes</DialogTitle>
+          <div className="flex flex-col items-center w-full gap-5">
+            <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-orange-100">
+              <span className="absolute inset-0 rounded-full bg-orange-200/40 animate-pulse" />
+              <LuCalendarX size={30} className="text-primary relative" />
+            </div>
+            <div className="flex flex-col items-center gap-2 px-2">
+              <h3 className="text-[17px] font-bold text-gray-900 text-center leading-snug">
+                Deshabilitar reservas de clientes
+              </h3>
+              <p className="text-sm text-gray-500 text-center leading-relaxed">
+                Tus clientes no van a poder reservar turnos en tu página pública hasta que las vuelvas a habilitar. Vos podés seguir creando turnos manualmente desde el panel.
+              </p>
+            </div>
+            <div className="flex items-center w-full gap-2 mt-1">
+              <button
+                onClick={() => setDisableBookingsModal(false)}
+                className="flex-1 h-10 rounded-lg text-sm font-semibold border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  setDisableBookingsModal(false);
+                  persistBookingsEnabled(false);
+                }}
+                className="flex-1 h-10 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-500 text-white shadow-sm transition-colors"
+              >
+                Deshabilitar
+              </button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
-      {/*  Mobile dropdown (top right)  */}
-      <div className="absolute top-20 right-4 md:hidden z-40">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="h-9 w-9 flex items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm hover:bg-gray-50 active:bg-gray-100 transition-colors">
-              <IoMdMore size={20} className="text-gray-600" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" sideOffset={6} className="w-52 rounded-xl shadow-xl border-gray-100 p-1">
-            <DropdownMenuItem asChild className="gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-700 focus:bg-orange-50 focus:text-orange-700">
-              <Link href="/admin/schedule/automate">
-                <MdEditCalendar size={16} className="text-orange-500 shrink-0" />
-                <span className="text-sm font-medium">Configurar agenda</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator className="my-1" />
-            <DropdownMenuItem
-              className="gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-700 focus:bg-orange-50 focus:text-orange-700"
-              onSelect={handleSetAllDayAppointmentsModal}
-            >
-              <LuCalendarPlus size={16} className="text-orange-500 shrink-0" />
-              <span className="text-sm font-medium">Crear turnos del día</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator className="my-1" />
-            <DropdownMenuItem
-              className="gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-700 focus:bg-orange-50 focus:text-orange-700"
-              onSelect={() => setHelpModal(true)}
-            >
-              <IoInformationCircle size={16} className="text-orange-500 shrink-0" />
-              <span className="text-sm font-medium">Tutorial de uso</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      <Dialog open={helpModal} onOpenChange={() => setHelpModal(false)}>
+        <DialogContent className="sm:w-[600px] max-w-none w-[93vw] px-0 pb-0">
+          <DialogTitle className="sr-only">Ayuda</DialogTitle>
+          <HelpModal onClose={() => setHelpModal(false)} />
+        </DialogContent>
+      </Dialog>
 
       {/*  Page layout  */}
       <div className="flex flex-col w-full gap-3 pb-16 md:pb-8">
 
         {/* Page header */}
-        <div className="flex items-center justify-between mt-5 2xl:mt-6 mb-0 2xl:mb-1">
+        <div className="flex items-center justify-between gap-3 mt-5 2xl:mt-3 mb-0 2xl:mb-1">
           <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">Agenda de turnos</h1>
-          <button
-            onClick={() => setHelpModal(true)}
-            className="hidden md:flex items-center gap-1.5 text-xs font-medium text-blue-400 hover:text-blue-500 transition-colors"
-          >
-            <IoInformationCircle size={17} />
-            ¿Cómo agrego turnos?
-          </button>
+
+          {/* Mobile / tablet controls */}
+          <div className="flex lg:hidden items-center gap-2 shrink-0">
+            <button
+              onClick={() => setHelpModal(true)}
+              className="h-9 flex items-center gap-1.5 px-3 rounded-xl bg-orange-50 text-primary text-xs font-semibold hover:bg-orange-100 transition-colors shadow-sm"
+            >
+              <IoInformationCircle size={16} />
+              Cómo usar
+            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="h-9 w-9 flex items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm hover:bg-gray-50 active:bg-gray-100 transition-colors">
+                  <IoMdMore size={20} className="text-gray-600" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" sideOffset={6} className="w-[272px] rounded-xl shadow-xl border-gray-100 p-1">
+                <DropdownMenuItem
+                  onSelect={handleSetAllDayAppointmentsModal}
+                  className="gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-700 focus:bg-orange-50 focus:text-orange-700"
+                >
+                  <LuCalendarPlus size={16} className="text-orange-500 shrink-0" />
+                  <span className="text-sm font-medium">Generar turnos del día</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="my-1" />
+                <DropdownMenuItem asChild className="gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-700 focus:bg-orange-50 focus:text-orange-700">
+                  <Link href="/admin/schedule/automate">
+                    <MdEditCalendar size={16} className="text-orange-500 shrink-0" />
+                    <span className="text-sm font-medium">Automatizar tarea</span>
+                  </Link>
+                </DropdownMenuItem>
+                {canToggleBookings && (
+                  <>
+                    <DropdownMenuSeparator className="my-1" />
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleBookingsToggle(!bookingsEnabled);
+                      }}
+                      disabled={bookingsSaving}
+                      className="gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-700 focus:bg-orange-50 focus:text-orange-700"
+                    >
+                      {bookingsEnabled
+                        ? <LuCalendarX size={16} className="text-orange-500 shrink-0" />
+                        : <LuCalendarCheck size={16} className="text-orange-500 shrink-0" />}
+                      <span className="text-sm font-medium flex-1">{bookingsToggleLabel}</span>
+                      <Switch
+                        checked={bookingsEnabled}
+                        onCheckedChange={handleBookingsToggle}
+                        disabled={bookingsSaving}
+                        aria-label={bookingsToggleLabel}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Desktop controls */}
+          <div className="hidden lg:flex items-center gap-4 shrink-0">
+            {canToggleBookings && (
+              <label className="flex items-center gap-2 text-xs font-medium text-gray-600 cursor-pointer select-none">
+                <Switch
+                  checked={bookingsEnabled}
+                  onCheckedChange={handleBookingsToggle}
+                  disabled={bookingsSaving}
+                  aria-label={bookingsToggleLabel}
+                />
+                {bookingsToggleLabel}
+              </label>
+            )}
+            <button
+              onClick={() => setHelpModal(true)}
+              className="flex items-center gap-1.5 text-xs font-medium text-blue-400 hover:text-blue-500 transition-colors"
+            >
+              <IoInformationCircle size={17} />
+              ¿Cómo agrego turnos?
+            </button>
+          </div>
         </div>
+
+        {/* branch / employee filters — only rendered when each has 2+ options */}
+        {(showBranchFilter || showEmployeeFilter) && (
+          <div className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-5 lg:gap-y-2">
+            {showBranchFilter && (
+              <div className="flex items-center gap-2">
+                <LuMapPin size={13} className="text-gray-400 shrink-0" />
+                <span className="w-[72px] lg:w-auto text-xs font-medium text-gray-500 shrink-0">Sucursal</span>
+                <select
+                  value={selectedBranchFilter}
+                  onChange={(e) => handleBranchFilterChange(e.target.value)}
+                  className="h-8 flex-1 min-w-0 lg:flex-none rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-medium text-gray-700 hover:border-orange-400 focus:border-orange-500 focus:outline-none transition-colors cursor-pointer"
+                >
+                  <option value="">Todas</option>
+                  {activeBranches.map((b) => (
+                    <option key={b._id} value={b._id}>{b.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {showEmployeeFilter && (
+              <div className="flex items-center gap-2">
+                <LuUser size={13} className="text-gray-400 shrink-0" />
+                <span className="w-[72px] lg:w-auto text-xs font-medium text-gray-500 shrink-0">Empleado</span>
+                <select
+                  value={selectedEmployeeFilter}
+                  onChange={(e) => setSelectedEmployeeFilter(e.target.value)}
+                  className="h-8 flex-1 min-w-0 lg:flex-none rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-medium text-gray-700 hover:border-orange-400 focus:border-orange-500 focus:outline-none transition-colors cursor-pointer"
+                >
+                  <option value="">Todos</option>
+                  {employeeFilterOptions.map((e) => (
+                    <option key={e._id} value={e._id}>
+                      {e.surname ? `${e.name} ${e.surname}` : e.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* date controls navbar  */}
         <div className="flex flex-col gap-2">
 
           {/* Desktop — navbar card */}
-          <div className="hidden lg:grid lg:grid-cols-3 py-1 items-center bg-white rounded-xl border border-gray-100 shadow-md overflow-hidden">
+          <div className="hidden lg:flex items-center justify-between gap-2 bg-white rounded-xl border border-gray-100 shadow-sm">
 
             {/* LEFT: create all day appointments button */}
-            <div className="flex items-center px-4 py-1 border-r border-gray-100">
-              <button
-                onClick={handleSetAllDayAppointmentsModal}
-                className="flex items-center gap-1.5 h-9 bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold px-3 rounded-lg transition-colors duration-200"
-              >
-                <LuCalendarPlus size={14} />
-                Crear turnos del día
-              </button>
+            <div className="flex items-center px-4 py-2 shrink-0">
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={handleSetAllDayAppointmentsModal}
+                      aria-label="Generar turnos del día"
+                      className="flex items-center gap-2 h-9 bg-primary hover:bg-orange-500 text-white text-xs font-semibold px-3.5 rounded-lg shadow-sm transition-colors duration-200"
+                    >
+                      <LuCalendarPlus size={15} className="shrink-0" />
+                      <span className="hidden xl:inline 2xl:hidden">Generar turnos</span>
+                      <span className="hidden 2xl:inline">Generar turnos del día</span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-[220px] text-center">
+                    Creá múltiples turnos desde el principio al fin del día
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
 
             {/* CENTER: date navigation */}
-            <div className="flex items-center justify-center gap-4 px-4 py-1 border-r border-gray-100">
+            <div className="flex flex-1 min-w-0 items-center justify-center gap-2 px-2 py-2">
               <button
-                onClick={onPrevClick}
-                className="h-9 w-9 flex items-center justify-center rounded-lg bg-orange-600 hover:bg-orange-700 transition-colors text-white shrink-0"
-                aria-label="Anterior"
+                onClick={() => goToDate(now.toDate())}
+                disabled={dayjs(date).isSame(now, "day")}
+                className="h-9 px-3 rounded-lg text-xs font-semibold border transition-all duration-200 shrink-0 text-gray-600 border-gray-200 bg-white hover:border-orange-300 hover:text-primary hover:bg-orange-50 disabled:text-gray-300 disabled:border-gray-100 disabled:bg-white disabled:hover:bg-white disabled:hover:text-gray-300 disabled:cursor-default"
               >
-                <LuChevronLeft size={16} />
+                Hoy
               </button>
-              <span className="min-w-[180px] text-center capitalize text-[15px] 2xl:text-base font-semibold text-gray-700 px-1 truncate">
-                {dateLabel}
-              </span>
-              <button
-                onClick={onNextClick}
-                className="h-9 w-9 flex items-center justify-center rounded-lg bg-orange-600 hover:bg-orange-700 transition-colors text-white shrink-0"
-                aria-label="Siguiente"
-              >
-                <LuChevronRight size={16} />
-              </button>
+              <div className="flex items-center gap-1 min-w-0">
+                <button
+                  onClick={onPrevClick}
+                  className="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:border-orange-300 hover:text-primary hover:bg-orange-50 transition-all duration-200 shrink-0"
+                  aria-label="Anterior"
+                >
+                  <LuChevronLeft size={17} />
+                </button>
+                <MonthCalendarPicker
+                  date={date}
+                  onSelect={goToDate}
+                  appointmentDateSet={appointmentDateSet}
+                  className="min-w-0 xl:min-w-[190px] justify-center shadow-sm"
+                />
+                <button
+                  onClick={onNextClick}
+                  className="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:border-orange-300 hover:text-primary hover:bg-orange-50 transition-all duration-200 shrink-0"
+                  aria-label="Siguiente"
+                >
+                  <LuChevronRight size={17} />
+                </button>
+              </div>
             </div>
 
             {/* RIGHT: time-range controls */}
-            <div className="flex items-end justify-end gap-2 px-4 py-1">
-              <div className="flex flex-col gap-0.5">
-                <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
-                  Desde
-                </label>
-                <select
-                  value={selectedDaySchedule.dayStart}
-                  onChange={handleDayStartChange}
-                  className="h-6 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer"
-                >
-                  {timeOptions.map((t) => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex flex-col gap-0.5">
-                <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
-                  Hasta
-                </label>
-                <select
-                  value={selectedDaySchedule.dayEnd}
-                  onChange={handleDayEndChange}
-                  className="h-6 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer"
-                >
-                  {timeOptions.map((t) => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex flex-col gap-0.5">
-                <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
-                  Duración
-                </label>
-                <select
-                  value={selectedDaySchedule.appointmentDuration}
-                  onChange={(e) =>
-                    setSelectedDaySchedule((prev) => ({
-                      ...prev,
-                      appointmentDuration: Number(e.target.value),
-                    }))
-                  }
-                  className="h-6 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer"
-                >
-                  {durationOptions.map((d) => (
-                    <option key={d.value} value={d.value}>{d.label}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
+            <TimeRangeControls
+              dayStart={selectedDaySchedule.dayStart}
+              dayEnd={selectedDaySchedule.dayEnd}
+              appointmentDuration={selectedDaySchedule.appointmentDuration}
+              onDayStartChange={handleDayStartChange}
+              onDayEndChange={handleDayEndChange}
+              onDurationChange={handleDurationChange}
+              className="justify-end px-4 py-2 shrink-0 flex-nowrap"
+            />
           </div>
 
-          {/* Mobile — compact inline row */}
-          <div className="flex items-center gap-1.5 lg:hidden">
-            <span className="text-xs font-medium text-gray-400 shrink-0">De</span>
-            <select
-              value={selectedDaySchedule.dayStart}
-              onChange={handleDayStartChange}
-              className="flex-1 h-7 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer min-w-0"
-            >
-              {timeOptions.map((t) => (
-                <option key={t.value} value={t.value}>{t.label}</option>
-              ))}
-            </select>
-            <span className="text-xs font-medium text-gray-400 shrink-0">a</span>
-            <select
-              value={selectedDaySchedule.dayEnd}
-              onChange={handleDayEndChange}
-              className="flex-1 h-7 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer min-w-0"
-            >
-              {timeOptions.map((t) => (
-                <option key={t.value} value={t.value}>{t.label}</option>
-              ))}
-            </select>
-            <span className="text-xs text-gray-300 shrink-0">·</span>
-            <select
-              value={selectedDaySchedule.appointmentDuration}
-              onChange={(e) =>
-                setSelectedDaySchedule((prev) => ({
-                  ...prev,
-                  appointmentDuration: Number(e.target.value),
-                }))
-              }
-              className="flex-1 h-7 rounded-lg border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors cursor-pointer min-w-0"
-            >
-              {durationOptions.map((d) => (
-                <option key={d.value} value={d.value}>{d.label}</option>
-              ))}
-            </select>
+          {/* Mobile/tablet — grouped control panel */}
+          <div className="flex flex-col gap-2.5 lg:hidden bg-white rounded-xl border border-gray-100 shadow-sm p-2.5">
+
+            {/* Row 1: actions — Hoy + time range */}
+            <div className="flex items-center flex-wrap gap-2">
+              <button
+                onClick={() => goToDate(now.toDate())}
+                disabled={dayjs(date).isSame(now, "day")}
+                className="h-9 px-3 rounded-lg text-xs font-semibold border transition-all duration-200 shrink-0 text-gray-600 border-gray-200 bg-white hover:border-orange-300 hover:text-primary hover:bg-orange-50 disabled:text-gray-300 disabled:border-gray-100 disabled:bg-white disabled:hover:bg-white disabled:hover:text-gray-300 disabled:cursor-default"
+              >
+                Hoy
+              </button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex-1 flex items-center justify-center gap-1.5 h-9 px-3 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-700 [@media(hover:hover)]:hover:border-orange-300 [@media(hover:hover)]:hover:bg-orange-50 [@media(hover:hover)]:hover:text-primary active:border-orange-300 active:bg-orange-50 active:text-primary transition-all duration-200"
+                  >
+                    <LuClock size={14} className="text-gray-400 shrink-0" />
+                    {String(selectedDaySchedule.dayStart).padStart(2, "0")}:00 – {String(selectedDaySchedule.dayEnd).padStart(2, "0")}:00
+                    <span className="text-gray-300">·</span>
+                    {selectedDaySchedule.appointmentDuration} min
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-64">
+                  <TimeRangeControls
+                    dayStart={selectedDaySchedule.dayStart}
+                    dayEnd={selectedDaySchedule.dayEnd}
+                    appointmentDuration={selectedDaySchedule.appointmentDuration}
+                    onDayStartChange={handleDayStartChange}
+                    onDayEndChange={handleDayEndChange}
+                    onDurationChange={handleDurationChange}
+                    className="flex-col items-stretch"
+                    title="Rango horario"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="-mx-2.5 h-px bg-gray-100" />
+
+            {/* Row 2: date navigation — arrows flank a full-width date */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onPrevClick}
+                className="h-9 w-12 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 [@media(hover:hover)]:hover:border-orange-300 [@media(hover:hover)]:hover:text-primary [@media(hover:hover)]:hover:bg-orange-50 active:border-orange-300 active:text-primary active:bg-orange-50 transition-all duration-200 shrink-0"
+                aria-label="Anterior"
+              >
+                <LuChevronLeft size={18} />
+              </button>
+              <MonthCalendarPicker
+                date={date}
+                onSelect={goToDate}
+                appointmentDateSet={appointmentDateSet}
+                className="flex-1 justify-center"
+              />
+              <button
+                onClick={onNextClick}
+                className="h-9 w-12 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 [@media(hover:hover)]:hover:border-orange-300 [@media(hover:hover)]:hover:text-primary [@media(hover:hover)]:hover:bg-orange-50 active:border-orange-300 active:text-primary active:bg-orange-50 transition-all duration-200 shrink-0"
+                aria-label="Siguiente"
+              >
+                <LuChevronRight size={18} />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -813,21 +1125,21 @@ const CalendarTurnos: React.FC<Props> = ({
           <div className="flex lg:hidden items-center gap-3 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
             <span
               className={cn(
-                "text-sm font-semibold capitalize",
-                dayjs(date).isSame(now, "day") ? "text-orange-600" : "text-gray-700"
+                "text-sm font-semibold first-letter:uppercase",
+                dayjs(date).isSame(now, "day") ? "text-primary" : "text-gray-700"
               )}
             >
               {dayjs(date).format("dddd D [de] MMMM")}
             </span>
             {dayjs(date).isSame(now, "day") && (
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-600">
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-primary">
                 Hoy
               </span>
             )}
           </div>
 
           {/* Scrollable time grid */}
-          <div ref={gridRef} className="flex overflow-y-auto" style={{ maxHeight: "65vh" }}>
+          <div ref={gridRef} className="flex overflow-x-auto lg:overflow-y-auto lg:max-h-[65vh]">
 
             {/* Time gutter */}
             <div
@@ -938,6 +1250,9 @@ const CalendarTurnos: React.FC<Props> = ({
                             if (top + height < 0 || top > totalHeight) return null;
                             const isBooked = event.status === "booked";
                             const offsetTop = Math.max(top, 0) - Math.max(minTop, 0);
+                            const empName = getEmployeeName(event.employeeID);
+                            const branchName = getBranchName(event.branchID);
+                            const hasExtra = !!(empName || branchName);
 
                             return (
                               <div
@@ -946,13 +1261,13 @@ const CalendarTurnos: React.FC<Props> = ({
                                   "rounded-md overflow-hidden cursor-pointer transition-opacity duration-150 hover:opacity-80 select-none",
                                   isBooked
                                     ? "bg-orange-50 border-l-[3px] border-orange-400"
-                                    : "bg-orange-600 border-l-[3px] border-orange-800"
+                                    : "bg-primary border-l-[3px] border-orange-800"
                                 )}
                                 style={{
                                   marginTop: offsetTop,
                                   height: Math.max(height - 2, 20),
                                   width: "fit-content",
-                                  minWidth: 80,
+                                  minWidth: 90,
                                   flexShrink: 0,
                                 }}
                                 onClick={(e) => handleSelectEvent(event, e)}
@@ -960,7 +1275,7 @@ const CalendarTurnos: React.FC<Props> = ({
                                 <div className="px-1.5 pt-1 pb-1 h-full flex flex-col min-h-0">
                                   <span
                                     className={cn(
-                                      "text-xs font-semibold leading-tight whitespace-nowrap mb-0.5 shrink-0",
+                                      "text-xs font-semibold leading-tight whitespace-nowrap shrink-0",
                                       isBooked ? "text-orange-900" : "text-white"
                                     )}
                                   >
@@ -969,23 +1284,47 @@ const CalendarTurnos: React.FC<Props> = ({
                                   {height >= 36 && (
                                     <span
                                       className={cn(
-                                        "text-[10px] sm:text-[10px] leading-tight whitespace-nowrap shrink-0",
-                                        isBooked ? "text-orange-600" : "text-orange-100"
+                                        "text-[10px] leading-tight whitespace-nowrap shrink-0",
+                                        isBooked ? "text-primary" : "text-orange-100"
                                       )}
                                     >
                                       {event.service}
                                     </span>
                                   )}
-                                  {height >= 52 && (
+                                  {height >= 54 && (
                                     <span
                                       className={cn(
-                                        "text-[10px] mt-auto whitespace-nowrap shrink-0",
-                                        isBooked ? "text-orange-500" : "text-orange-200"
+                                        "text-[10px] whitespace-nowrap shrink-0 tabular-nums",
+                                        isBooked ? "text-orange-400" : "text-orange-200"
                                       )}
                                     >
                                       {dayjs(event.start).format("HH:mm")} –{" "}
                                       {dayjs(event.end).format("HH:mm")}
                                     </span>
+                                  )}
+                                  {height >= 70 && hasExtra && (
+                                    <div
+                                      className={cn(
+                                        "flex items-center gap-1 mt-auto shrink-0 min-w-0",
+                                        isBooked ? "text-orange-500" : "text-orange-300"
+                                      )}
+                                    >
+                                      {empName && (
+                                        <span className="flex items-center gap-0.5 min-w-0">
+                                          <LuUser size={9} className="shrink-0" />
+                                          <span className="text-[10px] leading-tight truncate">{empName}</span>
+                                        </span>
+                                      )}
+                                      {empName && branchName && (
+                                        <span className="text-[10px] shrink-0 opacity-50">·</span>
+                                      )}
+                                      {branchName && (
+                                        <span className="flex items-center gap-0.5 min-w-0">
+                                          <LuMapPin size={9} className="shrink-0" />
+                                          <span className="text-[10px] leading-tight truncate">{branchName}</span>
+                                        </span>
+                                      )}
+                                    </div>
                                   )}
                                 </div>
                               </div>
@@ -1008,7 +1347,7 @@ const CalendarTurnos: React.FC<Props> = ({
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2 text-xs text-gray-500">
               <span className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-sm bg-orange-600 inline-block" />
+                <span className="w-3 h-3 rounded-sm bg-primary inline-block" />
                 Disponible
               </span>
               <span className="flex items-center gap-1.5">
@@ -1017,12 +1356,6 @@ const CalendarTurnos: React.FC<Props> = ({
               </span>
             </div>
           </div>
-          <Link
-            href="/admin/schedule/automate"
-            className="flex items-center gap-2 text-xs font-semibold uppercase text-orange-600 hover:text-orange-700 transition-colors duration-200"
-          >
-            Configuración de agenda <FaArrowRight size={11} />
-          </Link>
         </div>
 
       </div>

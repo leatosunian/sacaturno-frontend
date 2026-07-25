@@ -1,45 +1,32 @@
 "use client";
-import styles from "@/app/css-modules/NoServicesModal.module.css";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Wrench } from "lucide-react";
 
 const NoServicesModal: React.FC = () => {
   return (
-    <>
-      <div className="flex flex-col items-center w-full gap-10 pt-3 h-fit">
-        <h4
-          className="relative inline-block w-full px-2 mx-auto text-2xl font-bold text-center uppercase"
-          style={{ fontSize: 22 }}
-        >
-          No tenés servicios
-          {/* linea */}
-          <span
-            className="absolute left-0 right-0 mx-auto"
-            style={{
-              bottom: -2,
-              height: 2,
-              background: "#dd4924",
-              width: "30%",
-            }}
-          />
-        </h4>
-
-        {/* <span>Hacé click en un turno para ver los detalles</span> */}
-        <div className="flex flex-col w-full h-fit">
-          <div className="flex flex-col w-fit h-fit">
-            <label
-              className="font-medium text-center text-md"
-            >
-              ¡Debés crear al menos un servicio para comenzar a cargar tus
-              turnos!
-            </label>
-          </div>
-        </div>
-        <Link href={"/admin/business/services"} className="w-full">
-          <Button   className="w-full text-white bg-red-600 border-none rounded-lg shadow-xl outline-none h-11 hover:bg-red-700">Crear servicio</Button>
-        </Link>
+    <div className="flex flex-col items-center gap-6 py-2 text-center">
+      <div className="flex items-center justify-center w-16 h-16 rounded-full bg-orange-50 border border-orange-100">
+        <Wrench className="w-7 h-7 text-orange-600" />
       </div>
-    </>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-xs font-semibold uppercase  text-orange-600">
+          Acción requerida
+        </span>
+        <h3 className="text-xl font-bold text-gray-800">
+          No tenés servicios creados
+        </h3>
+        <p className="text-sm text-gray-500 max-w-xs mx-auto leading-relaxed">
+          Necesitás al menos un servicio para empezar a gestionar tus turnos.
+        </p>
+      </div>
+
+      <Link href="/admin/services" className="w-full mt-1">
+        <button className="w-full bg-primary hover:bg-orange-600 text-white text-sm font-semibold py-2.5 rounded-lg transition-all duration-300 ease-in-out cursor-pointer">
+          Crear mi primer servicio
+        </button>
+      </Link>
+    </div>
   );
 };
 

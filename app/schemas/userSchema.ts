@@ -1,17 +1,25 @@
 import {z} from 'zod'
 
 export const userSchema = z.object({
-    name: z.string().min(3, {
-        message: 'El nombre debe tener al menos 3 caractéres'
-    }).max(35, {
-        message: 'El nombre debe tener menos de 35 caractéres'
+    name: z.string().trim().min(2, {
+        message: 'El nombre debe tener al menos 2 caractéres'
+    }).max(50, {
+        message: 'El nombre debe tener menos de 50 caractéres'
     }),
-    email: z.string().email({
+    surname: z.string().trim().min(2, {
+        message: 'El apellido debe tener al menos 2 caractéres'
+    }).max(50, {
+        message: 'El apellido debe tener menos de 50 caractéres'
+    }),
+    email: z.string().trim().email({
         message: 'Ingresá un correo válido'
     }),
-    phone: z.string().min(7, {
-        message: 'El teléfono es demasiado corto'
-    }).optional(),
+    phone: z.string().trim()
+        .regex(/^\d+$/, { message: 'Solo se permiten números, sin el signo +' })
+        .min(8, { message: 'El teléfono es demasiado corto' })
+        .max(15, { message: 'El teléfono debe tener menos de 15 dígitos' })
+        .optional()
+        .or(z.literal('')),
     
     /*acceptPolicy: z.coerce.boolean().refine(bool => bool == true, {
         message: 'You must agree to our terms and conditions'

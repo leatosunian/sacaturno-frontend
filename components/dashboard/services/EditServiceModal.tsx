@@ -6,7 +6,6 @@ import { IService } from "@/interfaces/service.interface";
 import { useEffect, useRef, useState } from "react";
 import { LuSave } from "react-icons/lu";
 import { IoTrashBinOutline } from "react-icons/io5";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -34,14 +33,14 @@ interface props {
   }) => void;
 }
 
-const labelClass = "text-xs font-bold tracking-wider uppercase";
+const inputClass = "h-9 w-full rounded-md border border-gray-200 bg-[rgb(235,235,235)] px-3 text-sm transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none focus:bg-gray-100 placeholder:text-gray-400";
+const labelClass = "text-xs font-medium text-gray-600";
 const errorClass = "text-xs text-red-500 mt-0.5";
-const underlineInput = "px-0 bg-transparent border-0 border-b rounded-none shadow-none border-border focus-visible:ring-0 focus:border-orange-600 transition-colors";
 
 const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteService, serviceData }) => {
   const {
-    register, handleSubmit, setValue,
-    formState: { errors },
+    register, handleSubmit, setValue, reset,
+    formState: { errors, isDirty },
   } = useForm<formInputs>({ resolver: zodResolver(createServiceSchema) });
 
   const [priceDisplay, setPriceDisplay] = useState<string>("");
@@ -49,11 +48,13 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
   const descRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
-    setValue("name", serviceData?.name);
-    setValue("price", serviceData?.price);
-    setValue("description", serviceData?.description);
-    setValue("duration", serviceData?.duration);
-    setValue("depositAmount", serviceData?.depositAmount ?? 0);
+    reset({
+      name: serviceData?.name,
+      price: serviceData?.price,
+      description: serviceData?.description,
+      duration: serviceData?.duration,
+      depositAmount: serviceData?.depositAmount ?? 0,
+    });
     setPriceDisplay(serviceData?.price ? serviceData.price.toLocaleString("es-AR") : "");
     setDepositDisplay(
       serviceData?.depositAmount ? serviceData.depositAmount.toLocaleString("es-AR") : ""
@@ -64,7 +65,7 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
         descRef.current.style.height = descRef.current.scrollHeight + "px";
       }
     }, 0);
-  }, [serviceData, setValue]);
+  }, [serviceData, reset]);
 
   const { ref: descRegisterRef, ...descRegister } = register("description");
 
@@ -84,22 +85,19 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
   };
 
   return (
-    <div className="flex flex-col w-full gap-5">
-      <h4 className="relative inline-block px-2 mx-auto text-xl font-bold text-center uppercase w-fit">
-        Editar servicio
-        <span
-          className="absolute left-0 right-0 mx-auto"
-          style={{ bottom: -2, height: 2, background: "#dd4924", width: "60%" }}
-        />
-      </h4>
+    <div className="flex flex-col w-full gap-4">
+      <div className="pb-4 border-b border-gray-100 flex flex-col gap-1">
+        <h4 className="text-lg leading-none font-semibold text-gray-800">Editar servicio</h4>
+      </div>
 
-      <form onSubmit={handleSubmit(editService)} className="flex flex-col w-full gap-4 pt-1">
+      <form onSubmit={handleSubmit(editService)} className="flex flex-col w-full gap-4">
         {/* Nombre */}
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-1">
           <label className={labelClass}>Nombre</label>
-          <Input
+          <input
             type="text"
-            className={underlineInput}
+            maxLength={30}
+            className={inputClass}
             {...register("name")}
           />
           {errors.name?.message && <span className={errorClass}>{errors.name.message}</span>}
@@ -107,19 +105,20 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
 
         {/* Precio + Seña */}
         <div className={`grid gap-4 ${mpLinked ? "grid-cols-2" : "grid-cols-1"}`}>
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-1">
             <label className={labelClass}>Precio</label>
-            <div className="flex items-center border-b border-border focus-within:border-orange-600 transition-colors">
-              <span className="text-sm text-muted-foreground mr-1">$</span>
+            <div className="flex items-center h-9 rounded-md border border-gray-200 bg-[rgb(235,235,235)] px-3 transition-all duration-200 ease-in-out hover:border-orange-600 focus-within:border-orange-600 focus-within:bg-gray-100">
+              <span className="text-sm text-gray-400 mr-1.5">$</span>
               <input
                 type="text"
                 inputMode="numeric"
-                className="flex-1 bg-transparent outline-none text-sm py-1 focus:ring-0 placeholder:text-muted-foreground"
+                className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-400"
+                placeholder="0"
                 value={priceDisplay}
                 onChange={(e) => {
                   const raw = e.target.value.replace(/\./g, "").replace(/\D/g, "");
                   setPriceDisplay(raw ? Number(raw).toLocaleString("es-AR") : "");
-                  setValue("price", raw ? Number(raw) : 0);
+                  setValue("price", raw ? Number(raw) : 0, { shouldDirty: true });
                 }}
               />
             </div>
@@ -127,19 +126,20 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
           </div>
 
           {mpLinked && (
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-1">
               <label className={labelClass}>Seña</label>
-              <div className="flex items-center border-b border-border focus-within:border-orange-600 transition-colors">
-                <span className="text-sm text-muted-foreground mr-1">$</span>
+              <div className="flex items-center h-9 rounded-md border border-gray-200 bg-[rgb(235,235,235)] px-3 transition-all duration-200 ease-in-out hover:border-orange-600 focus-within:border-orange-600 focus-within:bg-gray-100">
+                <span className="text-sm text-gray-400 mr-1.5">$</span>
                 <input
                   type="text"
                   inputMode="numeric"
-                  className="flex-1 bg-transparent outline-none text-sm py-1 focus:ring-0 placeholder:text-muted-foreground"
+                  className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-400"
+                  placeholder="0"
                   value={depositDisplay}
                   onChange={(e) => {
                     const raw = e.target.value.replace(/\./g, "").replace(/\D/g, "");
                     setDepositDisplay(raw ? Number(raw).toLocaleString("es-AR") : "");
-                    setValue("depositAmount", raw ? Number(raw) : 0);
+                    setValue("depositAmount", raw ? Number(raw) : 0, { shouldDirty: true });
                   }}
                 />
               </div>
@@ -151,13 +151,13 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
         </div>
 
         {/* Duración */}
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-1">
           <label className={labelClass}>Duración</label>
           <Select
             defaultValue={String(serviceData?.duration ?? 30)}
-            onValueChange={(val) => setValue("duration", Number(val))}
+            onValueChange={(val) => setValue("duration", Number(val), { shouldDirty: true })}
           >
-            <SelectTrigger className="px-0 h-9 bg-transparent border-0 border-b rounded-none shadow-none text-sm focus:ring-0 focus:border-orange-600 transition-colors">
+            <SelectTrigger className="h-9 text-sm border-gray-200 bg-[rgb(235,235,235)] hover:border-orange-600 focus:ring-0 focus:border-orange-600 transition-all duration-200">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -169,7 +169,7 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
                     ? mins > 0 ? `${hours}h ${mins}min` : `${hours} hora${hours > 1 ? "s" : ""}`
                     : `${mins} min`;
                 return (
-                  <SelectItem key={minutes} value={String(minutes)} className="text-xs">
+                  <SelectItem key={minutes} value={String(minutes)} className="text-sm">
                     {label}
                   </SelectItem>
                 );
@@ -179,12 +179,13 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
         </div>
 
         {/* Descripción */}
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-1">
           <label className={labelClass}>Descripción</label>
           <textarea
-            className="bg-transparent border-b border-border text-sm py-1.5 outline-none resize-none overflow-hidden focus:border-orange-600 transition-colors placeholder:text-muted-foreground"
-            rows={1}
+            className="w-full rounded-md border border-gray-200 bg-[rgb(235,235,235)] px-3 py-2 text-sm transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none focus:bg-gray-100 resize-none overflow-hidden placeholder:text-gray-400"
+            rows={2}
             maxLength={140}
+            placeholder="Describí el servicio brevemente"
             ref={(el) => { descRegisterRef(el); descRef.current = el; }}
             onInput={(e) => {
               const el = e.currentTarget;
@@ -209,7 +210,8 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
           <IoTrashBinOutline size={18} /> Eliminar
         </Button>
         <Button
-          className="flex-1 h-11 text-white bg-orange-600 hover:bg-orange-700"
+          disabled={!isDirty}
+          className="flex-1 h-11 text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-600"
           onClick={handleSubmitClick}
         >
           <LuSave size={18} /> Guardar

@@ -8,6 +8,9 @@ import { useNavigationLoading } from "@/app/context/navigationLoadingContext";
 export default function RouteChangeLoader() {
   const pathname = usePathname();
   const { isNavigating, onLinkClick, onPathnameChange } = useNavigationLoading();
+
+  // Admin has its own scoped loader inside SidebarInset
+  if (pathname.startsWith("/admin")) return null;
   const prevPathname = useRef(pathname);
   const prevIsNavigating = useRef(false);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>();

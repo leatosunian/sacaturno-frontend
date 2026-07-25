@@ -1,42 +1,25 @@
 "use client";
-import styles from "@/app/css-modules/NoServicesModal.module.css";
-import { IoIosAlert, IoMdClose } from "react-icons/io";
+import { IBusiness } from "@/interfaces/business.interface";
+import { IoIosAlert } from "react-icons/io";
+import PlanPickerCards from "@/components/dashboard/subscription/PlanPickerCards";
 
-interface props {
-  createPreference: () => void;
+interface Props {
+  businessData: IBusiness;
 }
 
-const UpgradePlanModal: React.FC<props> = ({
-  createPreference,
-}) => {
-
-
+const UpgradePlanModal: React.FC<Props> = ({ businessData }) => {
   return (
-    <>
-      <div className="flex flex-col px-5 py-10 text-black bg-white w-80 md:w-96 h-fit borderShadow">
-        <div className="flex flex-col items-center w-full gap-4 h-fit ">
-          <IoIosAlert size={100} color="#d7a954" />
-          <h4 className="mb-6 text-xl font-bold text-center uppercase ">
-            Actualiza tu plan
-          </h4>
-        </div>
-        {/* <span>Hacé click en un turno para ver los detalles</span> */}
-        <div className="flex flex-col gap-4 mb-7 w-fit h-fit">
-          <div className="flex flex-col w-fit h-fit">
-            <label
-              style={{ fontSize: "14px" }}
-              className="font-normal text-center"
-            >
-              Para crear más de un servicio debes suscribirte al Plan Full
-            </label>
-          </div>
-        </div>
-
-        <button onClick={createPreference} className={styles.button}>
-          Comprar plan
-        </button>
+    <div className="flex flex-col gap-4 w-full h-fit">
+      <div className="flex flex-col items-center w-full gap-3 h-fit">
+        <IoIosAlert size={64} color="#dc4925" />
+        <h4 className="text-xl font-bold text-center uppercase">Actualizá tu plan</h4>
+        <label style={{ fontSize: "14px" }} className="font-normal text-center text-gray-600">
+          Elegí un plan para agregar más de un servicio.
+        </label>
       </div>
-    </>
+
+      <PlanPickerCards businessData={businessData} />
+    </div>
   );
 };
 

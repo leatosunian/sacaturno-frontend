@@ -12,15 +12,33 @@ import {
   HiOutlineCalendarDays,
   HiOutlineUser,
   HiOutlineHome,
-  HiOutlineCog6Tooth,
   HiOutlineWrenchScrewdriver,
   HiOutlineCalendar,
   HiOutlineArrowPath,
   HiOutlinePresentationChartLine,
+  HiOutlineMapPin,
+  HiOutlineUsers,
+  HiOutlineCreditCard,
+  HiOutlineBanknotes,
 } from "react-icons/hi2";
 import styles from "@/app/css-modules/AdminHeader.module.css";
+import { getPlanLimits } from "@/lib/planLimits";
+import type { SubscriptionType } from "@/lib/planLimits";
 
-export default function AdminHeader() {
+interface AdminHeaderProps {
+  role?: "owner" | "employee" | null;
+  permissions?: string[];
+  subscriptionType?: string;
+}
+
+export default function AdminHeader({
+  role,
+  permissions = [],
+  subscriptionType,
+}: AdminHeaderProps) {
+  const isEmployee = role === "employee";
+  const can = (p: string) => !isEmployee || permissions.includes(p);
+  const planLimits = getPlanLimits(subscriptionType as SubscriptionType | undefined);
   const [isOpen, setIsOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState("");
   const router = useRouter();
@@ -56,88 +74,17 @@ export default function AdminHeader() {
 
   return (
     <nav style={{ backgroundColor: "#060606" }} className="text-white w-full">
-      <div className="px-6 mx-auto max-w-7xl md:px-8 lg:px-14">
+      <div className="px-6 mx-auto">
         <div className="flex items-center justify-between h-16">
-
           {/* Logo */}
           <Link href="/admin/dashboard" onClick={closeMenu}>
             <Image className="w-28" src={sacaturno_logo} alt="SacaTurno" />
           </Link>
 
-          {/* Desktop nav */}
-          <div className="items-center hidden gap-1 md:flex">
-
-            <Link
-              href="/admin/dashboard"
-              onClick={() => setOpenDropdown("")}
-              className={styles.navLink}
-            >
-              Inicio
-            </Link>
-
-            {/* Mi agenda dropdown */}
-            <div className={styles.dropdownNavLink}>
-              <div className={`${styles.dropdownTitle} flex gap-1.5 items-center`}>
-                <span className={styles.navLinkNoHover}>Mi agenda</span>
-                <FaChevronDown size={9} className={styles.dropdownChevron} />
-              </div>
-              <div className={styles.options}>
-                <Link href="/admin/schedule" className={styles.option}>
-                  <HiOutlineCalendar size={13} />
-                  Agenda de turnos
-                </Link>
-                <Link href="/admin/schedule/automate" className={styles.option}>
-                  <HiOutlineArrowPath size={13} />
-                  Automatizar agenda
-                </Link>
-              </div>
-            </div>
-
-            {/* Mi empresa dropdown */}
-            <div className={styles.dropdownNavLink}>
-              <div className={`${styles.dropdownTitle} flex gap-1.5 items-center`}>
-                <span className={styles.navLinkNoHover}>Mi empresa</span>
-                <FaChevronDown size={9} className={styles.dropdownChevron} />
-              </div>
-              <div className={styles.options}>
-                <Link href="/admin/business" className={styles.option}>
-                  <HiOutlineCog6Tooth size={13} />
-                  Ajustes
-                </Link>
-                <Link href="/admin/business/services" className={styles.option}>
-                  <HiOutlineWrenchScrewdriver size={13} />
-                  Servicios
-                </Link>
-                <Link href="/admin/analytics" className={styles.option}>
-                  <HiOutlinePresentationChartLine size={13} />
-                  Estadísticas
-                </Link>
-              </div>
-            </div>
-
-            <Link
-              href="/admin/profile"
-              onClick={() => setOpenDropdown("")}
-              className={styles.navLink}
-            >
-              Mi perfil
-            </Link>
-
-            {/* Divider */}
-            <div className="w-px h-5 bg-white opacity-10 mx-3" />
-
-            {/* Logout */}
-            <button onClick={logOut} className={styles.logoutBtn}>
-              <IoIosLogOut size={15} />
-              <span>Salir</span>
-            </button>
-
-          </div>
-
-          {/* Mobile hamburger */}
+          {/* Hamburger */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="flex items-center justify-center h-16 w-fit md:hidden"
+            className="flex items-center justify-center h-16 w-fit"
             aria-label="Abrir menú"
           >
             <RxHamburgerMenu size={23} color="white" />
@@ -145,88 +92,197 @@ export default function AdminHeader() {
         </div>
       </div>
 
-      {/* Mobile overlay */}
+      {/* Overlay */}
       <div
         onClick={closeMenu}
         className={isOpen ? styles.overlayActive : styles.overlay}
       />
 
-      {/* Mobile aside */}
+      {/* Aside */}
       <aside className={isOpen ? styles.activeAside : styles.aside}>
-
         {/* Header */}
         <div className={styles.asideHeader}>
           <Image className="w-24" src={sacaturno_logo} alt="SacaTurno" />
-          <button onClick={closeMenu} className={styles.closeBtn} aria-label="Cerrar menú">
+          <button
+            onClick={closeMenu}
+            className={styles.closeBtn}
+            aria-label="Cerrar menú"
+          >
             <RxCross2 size={18} color="rgba(255,255,255,0.65)" />
           </button>
         </div>
 
-        {/* Nav items */}
         <nav className={styles.asideNav}>
-
-          <Link onClick={closeMenu} className={styles.asideNavItem} href="/admin/dashboard">
+          {/* Inicio */}
+          <Link
+            onClick={closeMenu}
+            className={styles.asideNavItem}
+            href="/admin/dashboard"
+          >
             <HiOutlineHome size={17} />
             <span>Inicio</span>
           </Link>
 
-          {/* Mi agenda accordion */}
+          {/* Agenda accordion */}
           <div>
             <button
-              onClick={() => toggleDropdown("turnos")}
+              onClick={() => toggleDropdown("agenda")}
               className={styles.asideNavItem}
             >
               <HiOutlineCalendarDays size={17} />
-              <span>Mi agenda</span>
+              <span>Agenda</span>
               <FaChevronDown
                 size={11}
-                className={`${styles.asideChevron} ${openDropdown === "turnos" ? styles.asideChevronOpen : ""}`}
+                className={`${styles.asideChevron} ${openDropdown === "agenda" ? styles.asideChevronOpen : ""}`}
               />
             </button>
-            {openDropdown === "turnos" && (
+            {openDropdown === "agenda" && (
               <div className={styles.asideSubNav}>
-                <Link onClick={closeMenu} className={styles.asideSubItem} href="/admin/schedule">
-                  Agenda de turnos
+                <Link
+                  onClick={closeMenu}
+                  className={styles.asideSubItem}
+                  href="/admin/schedule"
+                >
+                  Turnos
                 </Link>
-                <Link onClick={closeMenu} className={styles.asideSubItem} href="/admin/schedule/automate">
-                  Automatizar agenda
-                </Link>
+                {can("manage_schedule") && (
+                  <Link
+                    onClick={closeMenu}
+                    className={styles.asideSubItem}
+                    href="/admin/schedule/automate"
+                  >
+                    Automatizar agenda
+                  </Link>
+                )}
               </div>
             )}
           </div>
 
-          {/* Mi empresa accordion */}
-          <div>
-            <button
-              onClick={() => toggleDropdown("empresa")}
+          {/* Mi empresa accordion — owner only */}
+          {!isEmployee && (
+            <div>
+              <button
+                onClick={() => toggleDropdown("empresa")}
+                className={styles.asideNavItem}
+              >
+                <HiOutlineBuildingOffice2 size={17} />
+                <span>Mi empresa</span>
+                <FaChevronDown
+                  size={11}
+                  className={`${styles.asideChevron} ${openDropdown === "empresa" ? styles.asideChevronOpen : ""}`}
+                />
+              </button>
+              {openDropdown === "empresa" && (
+                <div className={styles.asideSubNav}>
+                  <Link
+                    onClick={closeMenu}
+                    className={styles.asideSubItem}
+                    href="/admin/business"
+                  >
+                    Datos del negocio
+                  </Link>
+                  {planLimits.maxBranches > 0 && (
+                    <Link
+                      onClick={closeMenu}
+                      className={styles.asideSubItem}
+                      href="/admin/business/branches"
+                    >
+                      Sucursales
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Servicios — direct link */}
+          {(!isEmployee || can("manage_services")) && (
+            <Link
+              onClick={closeMenu}
               className={styles.asideNavItem}
+              href="/admin/services"
             >
-              <HiOutlineBuildingOffice2 size={17} />
-              <span>Mi empresa</span>
-              <FaChevronDown
-                size={11}
-                className={`${styles.asideChevron} ${openDropdown === "empresa" ? styles.asideChevronOpen : ""}`}
-              />
-            </button>
-            {openDropdown === "empresa" && (
-              <div className={styles.asideSubNav}>
-                <Link onClick={closeMenu} className={styles.asideSubItem} href="/admin/business">
-                  Ajustes
-                </Link>
-                <Link onClick={closeMenu} className={styles.asideSubItem} href="/admin/business/services">
-                  Servicios
-                </Link>
-                <Link onClick={closeMenu} className={styles.asideSubItem} href="/admin/analytics">
-                  Estadísticas
-                </Link>
-              </div>
-            )}
-          </div>
+              <HiOutlineWrenchScrewdriver size={17} />
+              <span>Mis servicios</span>
+            </Link>
+          )}
 
-          <Link onClick={closeMenu} className={styles.asideNavItem} href="/admin/profile">
-            <HiOutlineUser size={17} />
-            <span>Mi perfil</span>
-          </Link>
+          {/* Mi equipo — direct link, owner only */}
+          {!isEmployee && planLimits.maxEmployees > 0 && (
+            <Link
+              onClick={closeMenu}
+              className={styles.asideNavItem}
+              href="/admin/team/employees"
+            >
+              <HiOutlineUsers size={17} />
+              <span>Mi equipo</span>
+            </Link>
+          )}
+
+          {/* Métricas — direct link */}
+          {(!isEmployee || can("view_stats")) && (
+            <Link
+              onClick={closeMenu}
+              className={styles.asideNavItem}
+              href="/admin/analytics"
+            >
+              <HiOutlinePresentationChartLine size={17} />
+              <span>Estadísticas</span>
+            </Link>
+          )}
+
+          {/* Cuenta accordion (owner) / direct link (employee) */}
+          {!isEmployee ? (
+            <div>
+              <button
+                onClick={() => toggleDropdown("cuenta")}
+                className={styles.asideNavItem}
+              >
+                <HiOutlineUser size={17} />
+                <span>Cuenta</span>
+                <FaChevronDown
+                  size={11}
+                  className={`${styles.asideChevron} ${openDropdown === "cuenta" ? styles.asideChevronOpen : ""}`}
+                />
+              </button>
+              {openDropdown === "cuenta" && (
+                <div className={styles.asideSubNav}>
+                  <Link
+                    onClick={closeMenu}
+                    className={styles.asideSubItem}
+                    href="/admin/profile"
+                  >
+                    Mi perfil
+                  </Link>
+                  <Link
+                    onClick={closeMenu}
+                    className={styles.asideSubItem}
+                    href="/admin/account/subscription"
+                  >
+                    Suscripción y facturación
+                  </Link>
+                  {planLimits.depositsEnabled && (
+                    <Link
+                      onClick={closeMenu}
+                      className={styles.asideSubItem}
+                      href="/admin/account/mercadopago"
+                    >
+                      MercadoPago para señas
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              onClick={closeMenu}
+              className={styles.asideNavItem}
+              href="/admin/profile"
+            >
+              <HiOutlineUser size={17} />
+              <span>Mi perfil</span>
+            </Link>
+          )}
 
           <div className={styles.asideSeparator} />
 
@@ -234,7 +290,6 @@ export default function AdminHeader() {
             <IoIosLogOut size={17} />
             <span>Cerrar sesión</span>
           </button>
-
         </nav>
       </aside>
     </nav>

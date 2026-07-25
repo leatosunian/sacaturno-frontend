@@ -3,11 +3,16 @@ import axiosReq from "@/config/axios";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import { IBusiness } from "@/interfaces/business.interface";
 import { cookies } from "next/headers";
+import { getTokenPayload } from "@/lib/getTokenPayload";
 
 async function getBusinessData() {
   const cookieStore = cookies();
   const token = cookieStore.get("sacaturno_token");
   const ownerID = cookieStore.get("sacaturno_userID");
+  const payload = getTokenPayload();
+  const isEmployee = payload?.role === "employee";
+  const contextBusinessID = payload?.businessID;
+
   try {
     const authHeader = {
       headers: {
@@ -16,12 +21,10 @@ async function getBusinessData() {
       },
     };
 
-    const businessReq = await axiosReq.get(
-      `/business/get/${ownerID?.value}`,
-      authHeader
-    );
+    const businessReq = isEmployee && contextBusinessID
+      ? await axiosReq.get(`/business/getbyid/${contextBusinessID}`, authHeader)
+      : await axiosReq.get(`/business/get/${ownerID?.value}`, authHeader);
     const business: IBusiness = businessReq.data;
-
 
     const [appointmentsRes, statsRes] = await Promise.all([
       axiosReq.get(`/appointment/get/today/${business._id}`, authHeader),
@@ -64,6 +67,8 @@ const getUser = async () => {
 };
 
 const DashboardPage: React.FC = async () => {
+  const payload = getTokenPayload();
+  const isEmployee = payload?.role === "employee";
   const data = await getBusinessData();
   const { user, subscription } = await getUser();
   return (
@@ -72,6 +77,7 @@ const DashboardPage: React.FC = async () => {
         <DashboardComponent
           businessData={data ? { ...data, subscription } : undefined}
           userData={user}
+          isEmployee={isEmployee}
         />
       </div>
     </>

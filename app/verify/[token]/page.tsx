@@ -1,6 +1,8 @@
 import UserVerificationComponent from "@/components/home/register/UserVerificationComponent";
 import axiosReq from "@/config/axios";
 import styles from "@/app/css-modules/AuthCentered.module.css";
+import HeaderPublicBlack from "@/components/home/HeaderPublic";
+import Footer from "@/components/home/Footer";
 import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Confirmar correo | SacaTurno",
@@ -28,9 +30,13 @@ const verifyUser = async (token: string) => {
 const UserVerification: React.FC<propsComponent> = async ({ params }) => {
   const verification = await verifyUser(params.token);
   return (
-    <main className={styles.authBgScreen}>
-      <UserVerificationComponent userData={verification} />
-    </main>
+    <>
+      <HeaderPublicBlack />
+      <main className={styles.authBgScreen} style={{ minHeight: "100vh" }}>
+        <UserVerificationComponent userData={verification} />
+      </main>
+      <Footer />
+    </>
   );
 };
 

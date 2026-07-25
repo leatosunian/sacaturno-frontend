@@ -1,9 +1,7 @@
 export default interface ISubscription {
   businessID: string | undefined;
   ownerID: string | undefined;
-  subscriptionType: "SC_FREE" | "SC_FULL" | "SC_EXPIRED";
+  subscriptionType: "SC_FREE" | "SC_BASIC" | "SC_PRO" | "SC_FULL" | "SC_EXPIRED";
   paymentDate: Date| string;
   expiracyDate: Date | string;
-  expiracyDay?: number,
-  expiracyMonth?: number
 }

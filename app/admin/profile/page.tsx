@@ -1,9 +1,9 @@
 import FormProfileConfig from "@/components/dashboard/profile/FormProfileConfig";
-import FormMiPerfil from "@/components/dashboard/profile/FormProfileConfig";
+import EmployeeProfile from "@/components/dashboard/employees/EmployeeProfile";
 import axiosReq from "@/config/axios";
-import dayjs from "dayjs";
 import { Metadata } from "next";
 import { cookies } from "next/headers";
+import { getTokenPayload } from "@/lib/getTokenPayload";
 
 export const metadata: Metadata = {
   title: "Mi perfil | SacaTurno",
@@ -22,109 +22,63 @@ const getUser = async () => {
       },
     });
     return res.data;
-  } catch (error: any) {
+  } catch {
     const response_data = { name: "", surname: "", phone: "", email: "" };
     return { response_data };
   }
 };
 
-const getPaymentsData = async () => {
-  const cookieStore = cookies();
-  const token = cookieStore.get("sacaturno_token");
-  const userID = cookieStore.get("sacaturno_userID");
+async function getEmployeeBusinessData(businessID: string, token: string) {
   try {
-    const res = await axiosReq.get(`/subscription/payments/get/all/${userID?.value}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token?.value}`,
-      },
+    const res = await axiosReq.get(`/business/getbyid/${businessID}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
     return res.data;
-  } catch (error: any) {
-    return [];
-  }
-};
-
-async function getBusinessData() {
-  const cookieStore = cookies();
-  const token = cookieStore.get("sacaturno_token");
-  const ownerID = cookieStore.get("sacaturno_userID");
-  try {
-    const authHeader = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token?.value}`,
-      },
-    };
-    const res = await axiosReq.get(`/business/get/${ownerID?.value}`, authHeader);
-    return res.data;
-  } catch (error: any) {
-    const response_data = {
-      businessExists: false,
-      name: "",
-      businessType: "",
-      address: "",
-      appointmentDuration: "",
-      dayStart: "",
-      dayEnd: "",
-    };
-    return { response_data };
+  } catch {
+    return null;
   }
 }
 
-async function getSubscriptionData() {
+async function getEmployeeData(token: string) {
   try {
-    const cookieStore = cookies();
-    const token = cookieStore.get("sacaturno_token");
-    const ownerID = cookieStore.get("sacaturno_userID");
-    const authHeader = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token?.value}`,
-      },
-    };
-    const subscriptionData = await axiosReq.get(
-      `/subscription/get/ownerID/${ownerID?.value}`,
-      authHeader
-    );
-    if (subscriptionData.data) {
-      return {
-        businessID: subscriptionData.data.businessID,
-        ownerID: subscriptionData.data.ownerID,
-        subscriptionType: subscriptionData.data.subscriptionType,
-        paymentDate: dayjs(subscriptionData.data.paymentDate).format("DD/MM/YYYY"),
-        expiracyDate: dayjs(subscriptionData.data.expiracyDate).format("DD/MM/YYYY"),
-        expiracyDay: subscriptionData.data.expiracyDay,
-        expiracyMonth: subscriptionData.data.expiracyMonth,
-      };
-    }
-  } catch (error) {
-    const response_data = {
-      businessID: "",
-      ownerID: "",
-      subscriptionType: "",
-      paymentDate: "",
-      expiracyDate: "",
-    };
-    return { response_data };
+    const res = await axiosReq.get("/employee/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  } catch {
+    return null;
   }
 }
 
 const ProfileConfigPage = async () => {
+  const cookieStore = cookies();
+  const payload = getTokenPayload();
+  const role = payload?.role;
+  const contextBusinessID = payload?.businessID;
+  const token = cookieStore.get("sacaturno_token")?.value ?? "";
+
+  if (role === "employee") {
+    const [userData, businessData, employeeData] = await Promise.all([
+      getUser(),
+      contextBusinessID ? getEmployeeBusinessData(contextBusinessID, token) : null,
+      getEmployeeData(token),
+    ]);
+    return (
+      <div className="w-full py-4 2xl:py-3 flex flex-col gap-4 2xl:gap-6 px-4 sm:px-6 md:px-8 max-w-screen-2xl mx-auto">
+        <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">Mi perfil</h1>
+        <FormProfileConfig profileData={userData} />
+        <EmployeeProfile employeeData={employeeData} businessData={businessData} />
+        <div className="w-full h-10" />
+      </div>
+    );
+  }
+
   const data = await getUser();
-  const subscription = await getSubscriptionData();
-  const business = await getBusinessData();
-  const payments = await getPaymentsData();
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-screen-md 2xl:max-w-screen-lg mx-auto px-4 py-4 2xl:py-10">
+    <div className="w-full py-4 2xl:py-3 flex flex-col gap-4 2xl:gap-6 px-4 sm:px-6 md:px-8 max-w-screen-2xl mx-auto">
       <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">Mi perfil</h1>
-      <FormProfileConfig
-        businessData={business}
-        subscriptionData={subscription}
-        profileData={data}
-        paymentsData={payments}
-      />
+      <FormProfileConfig profileData={data} />
       <div className="w-full h-10" />
     </div>
   );
