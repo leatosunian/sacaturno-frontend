@@ -55,8 +55,12 @@ export default function SelectContextPage() {
     if (data.contextToken) {
       localStorage.setItem("sacaturno_token", data.contextToken);
     }
-    router.push("/admin/dashboard");
-    router.refresh();
+    // Navegación dura (no router.push): fuerza un request de nivel superior a
+    // /admin/dashboard con la cookie httpOnly con `role` ya commiteada. Con una
+    // navegación soft el middleware corre antes de que el browser adjunte la
+    // cookie recién seteada por /api/select-context y rebota a esta misma página
+    // (token base sin role), dejando el loader congelado hasta un F5 manual.
+    window.location.assign("/admin/dashboard");
   };
 
   if (loading || selecting) {

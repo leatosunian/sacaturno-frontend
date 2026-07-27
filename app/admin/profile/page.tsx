@@ -1,4 +1,5 @@
 import FormProfileConfig from "@/components/dashboard/profile/FormProfileConfig";
+import PasswordSecuritySection from "@/components/dashboard/profile/PasswordSecuritySection";
 import EmployeeProfile from "@/components/dashboard/employees/EmployeeProfile";
 import axiosReq from "@/config/axios";
 import { Metadata } from "next";
@@ -67,6 +68,7 @@ const ProfileConfigPage = async () => {
       <div className="w-full py-4 2xl:py-3 flex flex-col gap-4 2xl:gap-6 px-4 sm:px-6 md:px-8 max-w-screen-2xl mx-auto">
         <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">Mi perfil</h1>
         <FormProfileConfig profileData={userData} />
+        <PasswordSecuritySection hasPassword={!!userData?.response_data?.password} />
         <EmployeeProfile employeeData={employeeData} businessData={businessData} />
         <div className="w-full h-10" />
       </div>
@@ -79,6 +81,7 @@ const ProfileConfigPage = async () => {
     <div className="w-full py-4 2xl:py-3 flex flex-col gap-4 2xl:gap-6 px-4 sm:px-6 md:px-8 max-w-screen-2xl mx-auto">
       <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">Mi perfil</h1>
       <FormProfileConfig profileData={data} />
+      <PasswordSecuritySection hasPassword={!!data?.response_data?.password} />
       <div className="w-full h-10" />
     </div>
   );
