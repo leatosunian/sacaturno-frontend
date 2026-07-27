@@ -64,7 +64,8 @@
       "Bash(git -C /c/sacaturno/server remote get-url origin)",
       "Bash(git -C /c/sacaturno/server tag)",
       "Bash(git -C /c/sacaturno/server diff HEAD -- package.json)",
-      "Bash(npx next *)"
+      "Bash(npx next *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\);console.log\\('react-slot', \\(p.dependencies||{}\\)['@radix-ui/react-slot']\\); console.log\\('@types/react', \\(p.devDependencies||{}\\)['@types/react']||\\(p.dependencies||{}\\)['@types/react']\\); console.log\\('react', \\(p.dependencies||{}\\)['react']\\)\")"
     ],
     "additionalDirectories": [
       "c:\\sacaturno\\.claude\\skills"
