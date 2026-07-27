@@ -63,7 +63,8 @@
       "Bash(git -C /c/sacaturno diff HEAD -- package.json)",
       "Bash(git -C /c/sacaturno/server remote get-url origin)",
       "Bash(git -C /c/sacaturno/server tag)",
-      "Bash(git -C /c/sacaturno/server diff HEAD -- package.json)"
+      "Bash(git -C /c/sacaturno/server diff HEAD -- package.json)",
+      "Bash(npx next *)"
     ],
     "additionalDirectories": [
       "c:\\sacaturno\\.claude\\skills"

@@ -10,7 +10,7 @@ export default function RouteChangeLoader() {
   const { isNavigating, onLinkClick, onPathnameChange } = useNavigationLoading();
 
   // Admin has its own scoped loader inside SidebarInset
-  if (pathname.startsWith("/admin")) return null;
+  const isAdmin = pathname.startsWith("/admin");
   const prevPathname = useRef(pathname);
   const prevIsNavigating = useRef(false);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>();
@@ -19,6 +19,7 @@ export default function RouteChangeLoader() {
 
   // Show loader on internal link click
   useEffect(() => {
+    if (isAdmin) return;
     const handleClick = (e: MouseEvent) => {
       const anchor = (e.target as Element).closest<HTMLAnchorElement>("a[href]");
       if (!anchor) return;
@@ -33,17 +34,19 @@ export default function RouteChangeLoader() {
     };
     document.addEventListener("click", handleClick);
     return () => document.removeEventListener("click", handleClick);
-  }, [onLinkClick]);
+  }, [isAdmin, onLinkClick]);
 
   // Notify context when pathname changes (optimistic URL update)
   useEffect(() => {
+    if (isAdmin) return;
     if (pathname === prevPathname.current) return;
     prevPathname.current = pathname;
     onPathnameChange();
-  }, [pathname, onPathnameChange]);
+  }, [isAdmin, pathname, onPathnameChange]);
 
   // Drive visibility and fade animation based on isNavigating transitions
   useEffect(() => {
+    if (isAdmin) return;
     const was = prevIsNavigating.current;
     prevIsNavigating.current = isNavigating;
 
@@ -61,9 +64,9 @@ export default function RouteChangeLoader() {
         setVisible(false);
       }, 250);
     }
-  }, [isNavigating]);
+  }, [isAdmin, isNavigating]);
 
-  if (!visible) return null;
+  if (isAdmin || !visible) return null;
 
   return (
     <div
