@@ -22,7 +22,7 @@ const NoBusinessEmptyState: React.FC = () => {
         </p>
       </div>
       <Link href="/admin/business/create">
-        <button className="bg-orange-600 hover:bg-[#d92f04] text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition-all duration-300 ease-in-out cursor-pointer">
+        <button className="bg-primary hover:bg-[#d92f04] text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition-all duration-300 ease-in-out cursor-pointer">
           Crear mi empresa
         </button>
       </Link>

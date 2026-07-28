@@ -432,6 +432,9 @@ const AutomateSchedule: React.FC<Props> = ({
         onSaved();
         return;
       }
+      // Ya guardamos: evitar que el guard beforeunload dispare el prompt nativo
+      // "¿Volver a cargar?" en este reload programático.
+      bypassGuardRef.current = true;
       window.location.reload();
     } catch {
       setAlert({ msg: "Error al guardar cambios", error: true, alertType: "ERROR_ALERT" });
@@ -579,6 +582,7 @@ const AutomateSchedule: React.FC<Props> = ({
     };
 
     const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (bypassGuardRef.current) return;
       e.preventDefault();
       e.returnValue = "";
     };
