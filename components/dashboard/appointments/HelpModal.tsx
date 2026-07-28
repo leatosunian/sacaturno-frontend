@@ -45,11 +45,11 @@ const HelpModal: React.FC<Props> = ({ onClose }) => {
     {
       number: 2,
       icon: <LuCalendarDays size={22} className="text-orange-500" />,
-      title: "Configurá tu horario",
+      title: "Configurá la vista del calendario",
       badge: null,
       description:
-        'Ingresá la hora de inicio (ej: 9:00), la hora de fin (ej: 18:00) y el intervalo entre turnos (ej: 1 hora).',
-      tip: "Podés configurar horarios distintos para cada día de la semana.",
+        'La hora de inicio y fin definen qué rango del día se muestra en el calendario — no son tu horario de atención. Si tu jornada es de 9:00 a 18:00, configurá ese rango para no ver horas vacías. El intervalo controla cada cuánto se dividen las franjas visibles (ej: cada 30 min, cada 1 hora).',
+      tip: "Esta configuración es solo visual: achica o agranda lo que ves en pantalla. Tus horarios de atención reales se configuran en la sección de automatización.",
       extra: null,
     },
     {

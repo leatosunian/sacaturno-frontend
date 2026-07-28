@@ -114,7 +114,7 @@ input[type="number"] {
   -o-transition: 0.2s all ease-in-out;
 }
 
-/* PAGE LOADER */
+/* PAGE LOADER — full-screen (public routes only) */
 .pageLoader {
   position: fixed;
   inset: 0;
@@ -123,6 +123,26 @@ input[type="number"] {
   align-items: center;
   justify-content: center;
   z-index: 99999;
+}
+
+/* ADMIN CONTENT LOADER — fixed overlay covering only the content area (right of sidebar) */
+.adminContentLoader {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+@media (min-width: 768px) {
+  .adminContentLoader {
+    left: var(--sidebar-width, 240px);
+  }
 }
 
 .pageLoaderInner {
@@ -922,14 +942,14 @@ html {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 0 0% 2%;
+    --sidebar-foreground: 0 0% 75%;
+    --sidebar-primary: 12 73% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 12 73% 7%;
+    --sidebar-accent-foreground: 12 73% 50%;
+    --sidebar-border: 0 0% 6%;
+    --sidebar-ring: 12 73% 50%;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -956,14 +976,14 @@ html {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-background: 0 0% 2%;
+    --sidebar-foreground: 0 0% 75%;
+    --sidebar-primary: 12 73% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 12 73% 7%;
+    --sidebar-accent-foreground: 12 73% 50%;
+    --sidebar-border: 0 0% 6%;
+    --sidebar-ring: 12 73% 50%;
   }
 }
 

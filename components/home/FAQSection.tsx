@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import Accordion from "@/components/home/Accordion";
 import { Badge } from "./Badge";
 
@@ -224,6 +225,44 @@ const faqs = [
             </strong>{" "}
             y lo resolvemos.
           </span>
+        </div>
+      </div>
+    ),
+  },
+  {
+    title: "No pude activar mi cuenta",
+    answer: (
+      <div className="flex flex-col gap-2">
+        <div className={bullet}>
+          <span className={dot} />
+          <span>
+            Si el correo de activación no te llegó o el link expiró, podés{" "}
+            <strong className="text-gray-700 font-semibold">
+              solicitar uno nuevo
+            </strong>{" "}
+            ingresando tu correo en nuestra página de reenvío.
+          </span>
+        </div>
+        <div className={bullet}>
+          <span className={dot} />
+          <span>
+            También revisá la carpeta de{" "}
+            <strong className="text-gray-700 font-semibold">
+              spam o correo no deseado
+            </strong>{" "}
+            por si el correo original llegó ahí.
+          </span>
+        </div>
+        <div className="mt-1">
+          <Link
+            href="/resend-confirmation"
+            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#dd4924] no-underline hover:opacity-75 transition-opacity"
+          >
+            Reenviar correo de activación
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </Link>
         </div>
       </div>
     ),

@@ -14,7 +14,7 @@ interface Props {
 const steps = [
   {
     number: 1,
-    icon: <LuBuilding2 size={22} className="text-orange-500" />,
+    icon: <LuBuilding2 size={22} className="text-primary" />,
     title: "Creá tu empresa",
     description:
       "Este es el primer paso. Sin una empresa creada no vas a poder cargar servicios ni turnos.",
@@ -28,7 +28,7 @@ const steps = [
   },
   {
     number: 2,
-    icon: <LuLayoutList size={22} className="text-orange-500" />,
+    icon: <LuLayoutList size={22} className="text-primary" />,
     title: "Agregá tus servicios",
     description: "Contanos qué ofrecés. Estos son los servicios que tus clientes van a poder reservar.",
     bullets: [
@@ -41,15 +41,15 @@ const steps = [
   },
   {
     number: 3,
-    icon: <LuCalendarDays size={22} className="text-orange-500" />,
-    title: "Cargá tus turnos",
-    description: "Entrá a Mi agenda y elegí cómo querés trabajar:",
+    icon: <LuCalendarDays size={22} className="text-primary" />,
+    title: "Organizá tu agenda",
+    description: "En la sección Agenda encontrás dos herramientas para gestionar tus turnos:",
     bullets: [
-      "⚡ Automatizar turnos (recomendado) — el sistema los crea solo",
-      "✍️ Carga manual — ideal si tenés horarios variables",
-      "Cada opción tiene su propio Tutorial paso a paso dentro de la sección",
+      "⚡ Automatizar agenda (recomendado) — configurá una plantilla semanal y el sistema genera los turnos disponibles automáticamente",
+      "📅 Turnos — visualizá tu calendario y cargá turnos manualmente cuando lo necesitás",
     ],
-    tip: "¡Podés cambiar esta configuración cuando quieras!",
+    note: "Podés usar ambas opciones en conjunto: automatizá tu semana base y ajustá excepciones a mano",
+    tip: "Si configurás la automatización, el sistema crea los turnos disponibles por adelantado. Los turnos manuales son ideales para casos puntuales o días con horario especial.",
     cta: null,
   },
 ];
@@ -70,10 +70,10 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
 
   return (
     <Dialog open={openGuideDialog} onOpenChange={handleClose}>
-      <DialogContent className="sm:w-[460px] md:w-[600px] 2xl:w-[700px] w-[93vw]">
+      <DialogContent className="sm:w-[460px] md:w-[600px] 2xl:w-[700px] w-[93vw] max-h-[90svh] flex flex-col overflow-hidden">
         {showWelcome ? (
           /* ── Welcome screen (first login only) ── */
-          <div className="flex flex-col items-center gap-6 py-2 text-center">
+          <div className="flex flex-col items-center gap-6 py-2 text-center overflow-y-auto">
             <div className="flex flex-col gap-2">
               <h2 className="text-xl md:text-2xl font-bold text-gray-800">¡Bienvenido a SacaTurno!</h2>
               <p className="text-sm text-gray-500 leading-relaxed">
@@ -91,7 +91,7 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
                     {s.icon}
                   </div>
                   <div className="flex flex-col gap-0">
-                    <span className="text-[10px] font-semibold text-orange-500 uppercase tracking-wide">
+                    <span className="text-[10px] font-semibold text-primary uppercase tracking-wide">
                       Paso {s.number}
                     </span>
                     <span className="text-sm font-semibold text-gray-700">{s.title}</span>
@@ -102,14 +102,14 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
 
             <button
               onClick={() => setShowWelcome(false)}
-              className="w-full h-10 rounded-lg text-sm font-semibold bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-200"
+              className="w-full h-10 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-600 text-white transition-colors duration-200"
             >
               Empezar →
             </button>
           </div>
         ) : (
           /* ── Step-by-step guide ── */
-          <div className="flex flex-col w-full gap-0 h-full">
+          <div className="flex flex-col w-full gap-0 flex-1 min-h-0">
             {/* Header */}
             <div className="flex flex-col gap-1 pb-4 border-b border-gray-100">
               <h2 className="text-lg font-bold text-gray-800">
@@ -131,7 +131,7 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
                   className={cn(
                     "h-1.5 rounded-full transition-all duration-300",
                     i === activeStep
-                      ? "bg-orange-500 w-8"
+                      ? "bg-primary w-8"
                       : i < activeStep
                       ? "bg-orange-200 w-4"
                       : "bg-gray-200 w-4"
@@ -144,31 +144,32 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
             </div>
 
             {/* Step content */}
-            <div className="flex flex-col gap-5 flex-1 pt-4">
+            <div className="flex flex-col gap-5 flex-1 pt-4 min-h-0 overflow-y-auto pb-2">
               {/* Icon + title */}
               <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-orange-50 border border-orange-100 shrink-0">
                   {step.icon}
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-xs font-semibold text-orange-500 uppercase tracking-wide">
+                  <span className="text-xs font-semibold text-primary uppercase tracking-wide">
                     Paso {step.number}
                   </span>
                   <h3 className="text-[17px]  font-bold text-gray-800 leading-snug">{step.title}</h3>
                 </div>
               </div>
 
-              {/* Description */}
-              <p className="text-[15px] text-gray-700 leading-relaxed">{step.description}</p>
-
-              {/* Bullets */}
+              {/* Description + Bullets */}
               <div className="flex flex-col gap-2">
+                <p className="text-[15px] text-gray-700 leading-relaxed mb-1">{step.description}</p>
                 {step.bullets.map((b, i) => (
                   <div key={i} className="flex items-start gap-2">
-                    <span className="text-orange-500 font-bold text-sm leading-snug shrink-0">•</span>
+                    <span className="text-primary font-bold text-sm leading-snug shrink-0">•</span>
                     <span className="text-[14.3px] text-gray-600 leading-snug">{b}</span>
                   </div>
                 ))}
+                {step.note && (
+                  <p className="text-[14.3px] text-gray-700 leading-snug mt-2 pt-3 border-t border-gray-100">{step.note}</p>
+                )}
               </div>
 
               {/* Tip */}
@@ -202,13 +203,13 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
               {!isLast ? (
                 <button
                   onClick={() => setActiveStep((s) => Math.min(s + 1, steps.length - 1))}
-                  className="h-9 px-5 rounded-lg text-sm font-semibold bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-200"
+                  className="h-9 px-5 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-600 text-white transition-colors duration-200"
                 >
                   Siguiente
                 </button>
               ) : isFirstLogin ? (
                 <Link href="/admin/business/create" onClick={handleClose}>
-                  <button className="group flex items-center gap-2 h-9 px-5 rounded-lg text-sm font-semibold bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-200">
+                  <button className="group flex items-center gap-2 h-9 px-5 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-600 text-white transition-colors duration-200">
                     Crear mi empresa
                     <LuArrowRight size={15} className="translate-x-0 group-hover:translate-x-1 transition-transform duration-200" />
                   </button>
@@ -216,7 +217,7 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
               ) : (
                 <button
                   onClick={handleClose}
-                  className="h-9 px-5 rounded-lg text-sm font-semibold bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-200"
+                  className="h-9 px-5 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-600 text-white transition-colors duration-200"
                 >
                   ¡Entendido!
                 </button>

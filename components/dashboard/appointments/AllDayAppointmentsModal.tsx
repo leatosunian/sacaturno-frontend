@@ -102,7 +102,7 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
         <span className="absolute left-0 right-0 mx-auto" style={{ bottom: -2, height: 2, background: "#dd4924", width: "30%" }} />
       </h4>
 
-      <div className="flex flex-col items-center gap-0.5 py-3 bg-gray-50 rounded-xl border border-gray-100">
+      <div className="flex flex-col items-center gap-0.5 py-3 bg-white rounded-xl border border-gray-200 shadow-sm">
         <span className="text-sm font-bold uppercase text-gray-800 capitalize">
           &#128197; {dayjs(date).format("dddd DD [de] MMMM")}
         </span>

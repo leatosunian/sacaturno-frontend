@@ -3,12 +3,13 @@ import CalendarTurnos from "@/components/dashboard/appointments/CalendarTurnos";
 import { cookies } from "next/headers";
 import { IBusiness } from "@/interfaces/business.interface";
 import { IService } from "@/interfaces/service.interface";
-import styles from "@/app/css-modules/CreateAppointmentModal.module.css";
-import Link from "next/link";
+import { IEmployee } from "@/interfaces/employee.interface";
+import { IBranch } from "@/interfaces/branch.interface";
 import dayjs from "dayjs";
 import ISubscription from "@/interfaces/subscription.interface";
-import { IoIosAlert } from "react-icons/io";
+import NoBusinessEmptyState from "@/components/dashboard/NoBusinessEmptyState";
 import { Metadata } from "next";
+import { getTokenPayload } from "@/lib/getTokenPayload";
 
 export const metadata: Metadata = {
   title: "Mi agenda | SacaTurno",
@@ -19,6 +20,10 @@ const getAppointments = async () => {
   const cookieStore = cookies();
   const token = cookieStore.get("sacaturno_token");
   const ownerID = cookieStore.get("sacaturno_userID");
+  const payload = getTokenPayload();
+  const isEmployee = payload?.role === "employee";
+  const contextBusinessID = payload?.businessID;
+  const contextEmployeeID = payload?.employeeID;
   const authHeader = {
     headers: {
       "Content-Type": "application/json",
@@ -28,10 +33,9 @@ const getAppointments = async () => {
     },
   };
 
-  const businessFetch = await axiosReq.get(
-    `/business/get/${ownerID?.value}`,
-    authHeader
-  );
+  const businessFetch = isEmployee && contextBusinessID
+    ? await axiosReq.get(`/business/getbyid/${contextBusinessID}`, authHeader)
+    : await axiosReq.get(`/business/get/${ownerID?.value}`, authHeader);
   const businessData: IBusiness = businessFetch.data;
 
   const appointmentsFetch = await axiosReq.get(
@@ -51,18 +55,39 @@ const getAppointments = async () => {
   );
   const scheduleDays = daysAndAppointmentsFetch.data.days;
 
+  let employees: IEmployee[] = [];
+  try {
+    const employeesFetch = await axiosReq.get(
+      `/employee/list/${businessData._id}`,
+      authHeader
+    );
+    employees = employeesFetch.data ?? [];
+  } catch {}
+
+  let branches: IBranch[] = [];
+  try {
+    const branchesFetch = await axiosReq.get(
+      `/branch/list/${businessData._id}`,
+      authHeader
+    );
+    branches = branchesFetch.data ?? [];
+  } catch {}
+
   return {
     appointments: appointmentsFetch.data,
     businessData,
     services,
     scheduleDays,
+    employees,
+    branches,
+    currentEmployeeID: isEmployee ? (contextEmployeeID ?? null) : null,
+    employeePermissions: isEmployee ? (payload?.permissions ?? []) : [],
   };
 };
 
-async function getSubscriptionData() {
+async function getSubscriptionData(ownerID: string) {
   const cookieStore = cookies();
   const token = cookieStore.get("sacaturno_token");
-  const ownerID = cookieStore.get("sacaturno_userID");
   const authHeader = {
     headers: {
       "Content-Type": "application/json",
@@ -70,7 +95,7 @@ async function getSubscriptionData() {
     },
   };
   const subscriptionData = await axiosReq.get(
-    `/subscription/get/ownerID/${ownerID?.value}`,
+    `/subscription/get/ownerID/${ownerID}`,
     authHeader
   );
 
@@ -85,8 +110,6 @@ async function getSubscriptionData() {
       expiracyDate: dayjs(subscriptionData.data.expiracyDate).format(
         "DD/MM/YYYY"
       ),
-      expiracyDay: subscriptionData.data.expiracyDay,
-      expiracyMonth: subscriptionData.data.expiracyMonth,
     };
     return subscription;
   }
@@ -94,7 +117,7 @@ async function getSubscriptionData() {
 
 const MisTurnos: React.FC = async () => {
   const data = await getAppointments();
-  const subscription: ISubscription | undefined = await getSubscriptionData();
+  const subscription: ISubscription | undefined = await getSubscriptionData(data.businessData.ownerID);
 
   return (
     <>
@@ -106,22 +129,13 @@ const MisTurnos: React.FC = async () => {
             servicesData={data.services}
             subscriptionData={subscription}
             scheduleDays={data.scheduleDays}
+            employees={data.employees}
+            branches={data.branches}
+            currentEmployeeID={data.currentEmployeeID}
+            employeePermissions={data.employeePermissions}
           />
         )}
-        {!data.businessData.name && (
-          <div
-            style={{ height: "calc(100vh - 64px)" }}
-            className="flex flex-col items-center justify-center gap-6 text-center"
-          >
-            <IoIosAlert size={100} color="#d7a954" />
-            <span className="font-semibold sm:text-lg text-md md:text-xl">
-              ¡Creá tu empresa para comenzar a cargar tus turnos!
-            </span>
-            <Link href="/admin/business/create">
-              <button className={styles.button}>Crear empresa</button>
-            </Link>
-          </div>
-        )}
+        {!data.businessData.name && <NoBusinessEmptyState />}
       </div>
     </>
   );

@@ -445,6 +445,44 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 </Dialog>
 ```
 
+#### Admin — Modal inner content structure (standard convention)
+
+When the modal body is a self-contained component rendered inside a Dialog (or any overlay), use this structure for the content wrapper and title block:
+
+```tsx
+{/* Root wrapper — fills the dialog body */}
+<div className="flex flex-col w-full gap-4">
+
+  {/* Title block — always first, separated by a bottom border */}
+  <div className="pb-4 border-b border-gray-100 flex flex-col gap-1">
+    <h4 className="text-lg leading-none font-semibold text-gray-800">Título del modal</h4>
+    <p className="text-xs text-gray-400 mt-0.5">Descripción breve o instrucción</p>
+  </div>
+
+  {/* Body content (form, list, etc.) */}
+  <div className="flex flex-col gap-4">
+    {/* ... */}
+  </div>
+
+  {/* Primary action button — always at the bottom, full width */}
+  <button
+    className="w-full flex mt-2 items-center justify-center bg-orange-600 hover:bg-[#d92f04] text-white text-sm font-semibold py-2.5 rounded-lg transition-all duration-300 ease-in-out cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+    disabled={isLoading}
+  >
+    {isLoading ? <LuLoader size={16} className="animate-spin" /> : "Acción principal"}
+  </button>
+
+</div>
+```
+
+**Rules for this pattern:**
+- Root: `flex flex-col w-full gap-4` — no padding (the Dialog adds it).
+- Title block: `pb-4 border-b border-gray-100 flex flex-col gap-1`.
+  - Title: `text-lg leading-none font-semibold text-gray-800`.
+  - Subtitle: `text-xs text-gray-400 mt-0.5`.
+- Primary CTA at the bottom: full width (`w-full`), `py-2.5`, `text-sm font-semibold`, orange solid.
+- Use `<LuLoader size={16} className="animate-spin" />` for loading state inside the button.
+
 #### Custom Modal Overlay (CSS Module, when not using shadcn)
 ```css
 .modalOverlay {

@@ -1,12 +1,13 @@
-"use client";
+﻿"use client";
 import Image from "next/image";
+import Link from "next/link";
 import { IBusiness } from "../../../interfaces/business.interface";
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axiosReq from "@/config/axios";
 import { FieldValues, useForm } from "react-hook-form";
 import { businessSchema } from "@/app/schemas/businessSchema";
-import { LuSave, LuCamera, LuCopy, LuCheck } from "react-icons/lu";
+import { LuSave, LuCamera, LuCopy, LuCheck, LuLink, LuExternalLink, LuBuilding2 } from "react-icons/lu";
 import Alert from "../../Alert";
 import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
@@ -24,15 +25,17 @@ interface formInputs {
 const FormCreateBusiness = ({
   businessData,
   servicesData,
+  branchesEnabled = false,
 }: {
   businessData: IBusiness;
   servicesData: IService[];
+  branchesEnabled?: boolean;
 }) => {
   const {
     register,
     handleSubmit,
-    setValue,
-    formState: { errors },
+    reset,
+    formState: { errors, isDirty },
   } = useForm<formInputs>({
     resolver: zodResolver(businessSchema),
   });
@@ -52,13 +55,15 @@ const FormCreateBusiness = ({
 
   useEffect(() => {
     if (!businessData) return;
-    setValue("name", businessData.name);
-    setValue("address", businessData.address);
-    setValue("businessType", businessData.businessType);
-    setValue("phone", businessData.phone.toString());
-    setValue("email", businessData.email);
-    setValue("slug", businessData.slug);
-  }, [businessData, setValue]);
+    reset({
+      name: businessData.name,
+      address: businessData.address,
+      businessType: businessData.businessType,
+      phone: businessData.phone?.toString() ?? "",
+      email: businessData.email,
+      slug: businessData.slug,
+    });
+  }, [businessData, reset]);
 
   const handleClick = () => {
     const fileInput = document.querySelector(".inputField") as HTMLElement;
@@ -124,6 +129,14 @@ const FormCreateBusiness = ({
       }
 
       if (updatedUser.data.msg === "BUSINESS_EDITED") {
+        reset({
+          name: data.name,
+          address: data.address,
+          businessType: data.businessType,
+          phone: data.phone,
+          email: data.email,
+          slug: data.slug,
+        });
         setAlert({ msg: "Los cambios han sido guardados", error: true, alertType: "OK_ALERT" });
         hideAlert();
         setLoading(false);
@@ -142,7 +155,7 @@ const FormCreateBusiness = ({
 
   return (
     <>
-      <form onSubmit={handleSubmit(saveChanges)} className="flex flex-col gap-4 w-full">
+      <form onSubmit={handleSubmit(saveChanges)} className="flex flex-col gap-6 sm:gap-4 w-full max-w-4xl">
         {/* Identidad */}
         <div className="flex flex-col gap-0 bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">
           <div className="px-6 py-4 2xl:px-8 2xl:py-5 border-b border-gray-100">
@@ -209,16 +222,28 @@ const FormCreateBusiness = ({
               </div>
 
               <div className="flex flex-col gap-1 md:col-span-2">
-                <label className="text-xs 2xl:text-sm font-medium text-gray-700">Domicilio de sucursal</label>
-                <input
-                  type="text"
-                  maxLength={40}
-                  {...register("address")}
-                  placeholder="Calle, número, ciudad"
-                  className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.address ? "border-red-500" : "border-gray-200"}`}
-                />
-                {errors.address?.message && (
-                  <span className="text-xs 2xl:text-sm text-red-500">{errors.address.message}</span>
+                <label className="text-xs 2xl:text-sm font-medium text-gray-700">Domicilio del negocio</label>
+                {branchesEnabled ? (
+                  <Link
+                    href="/admin/business/branches"
+                    className="flex items-center justify-center gap-1.5 h-8 2xl:h-10 w-full sm:w-fit sm:px-5 rounded-md bg-primary hover:bg-[#d92f04] text-white text-xs 2xl:text-sm font-semibold transition-all duration-300 ease-in-out cursor-pointer"
+                  >
+                    <LuBuilding2 size={14} />
+                    Mis sucursales
+                  </Link>
+                ) : (
+                  <>
+                    <input
+                      type="text"
+                      maxLength={40}
+                      {...register("address")}
+                      placeholder="Calle, número, ciudad"
+                      className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.address ? "border-red-500" : "border-gray-200"}`}
+                    />
+                    {errors.address?.message && (
+                      <span className="text-xs 2xl:text-sm text-red-500">{errors.address.message}</span>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -258,45 +283,71 @@ const FormCreateBusiness = ({
               )}
             </div>
 
-            <div className="flex flex-col gap-1 md:col-span-2">
-              <label className="text-xs 2xl:text-sm font-medium text-gray-700">Link público</label>
-              <p className="text-xs 2xl:text-sm text-gray-400">
-                Este es el link que podés compartir con tus clientes para que reserven turnos online.
-              </p>
-              <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-2">
-                <div
-                  className={`flex items-center w-full md:flex-1 h-8 2xl:h-10 rounded-md border overflow-hidden bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus-within:border-orange-600 ${errors.slug ? "border-red-500" : "border-gray-200"}`}
-                >
-                  <span className="px-3 text-xs 2xl:text-sm text-gray-500 bg-gray-100 h-full flex items-center border-r border-gray-200 whitespace-nowrap flex-shrink-0">
-                    sacaturno.com.ar/
-                  </span>
-                  <input
-                    type="text"
-                    maxLength={30}
-                    {...register("slug")}
-                    placeholder="mi-empresa"
-                    className="flex-1 h-full px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] focus:outline-none"
-                  />
+            <div className="md:col-span-2 mt-1">
+              <div className="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50/60 p-5 2xl:p-6 flex flex-col gap-4">
+                {/* Header */}
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-9 h-9 2xl:w-10 2xl:h-10 rounded-lg bg-primary text-white flex-shrink-0 shadow-sm">
+                    <LuLink size={16} />
+                  </div>
+                  <div>
+                    <p className="text-xs 2xl:text-sm font-semibold text-gray-800">Tu link público de reservas</p>
+                    <p className="text-xs text-gray-500">Compartí este link para que tus clientes reserven turnos online</p>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={copyPublicLink}
-                  title="Copiar link público"
-                  className={`flex items-center justify-center gap-1.5 h-8 2xl:h-10 px-4 rounded-lg border text-xs 2xl:text-sm font-semibold transition-all duration-300 ease-in-out whitespace-nowrap flex-shrink-0 cursor-pointer ${copied ? "border-green-700 bg-green-700 text-white" : "border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white"}`}
-                >
-                  {copied ? <LuCheck size={14} /> : <LuCopy size={14} />}
-                  {copied ? "¡Copiado!" : "Copiar link"}
-                </button>
+
+                {/* URL input + actions */}
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div
+                    className={`flex items-center flex-1 h-9 2xl:h-10 rounded-lg border overflow-hidden bg-white shadow-sm transition-all duration-200 ease-in-out focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-100 ${errors.slug ? "border-red-400" : "border-orange-200"}`}
+                  >
+                    <span className="px-3 text-xs 2xl:text-sm text-orange-600 font-medium bg-orange-50 h-full flex items-center border-r border-orange-200 whitespace-nowrap flex-shrink-0">
+                      sacaturno.com.ar/
+                    </span>
+                    <input
+                      type="text"
+                      maxLength={30}
+                      {...register("slug")}
+                      placeholder="mi-empresa"
+                      className="flex-1 h-full px-3 text-xs 2xl:text-sm bg-white focus:outline-none text-gray-700 font-medium"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={copyPublicLink}
+                      title="Copiar link público"
+                      className={`flex items-center justify-center gap-1.5 h-9 2xl:h-10 px-5 rounded-lg text-xs 2xl:text-sm font-semibold transition-all duration-300 ease-in-out whitespace-nowrap flex-shrink-0 cursor-pointer shadow-sm ${
+                        copied
+                          ? "bg-green-600 text-white"
+                          : "bg-primary text-white hover:bg-orange-500"
+                      }`}
+                    >
+                      {copied ? <LuCheck size={14} /> : <LuCopy size={14} />}
+                      {copied ? "¡Copiado!" : "Copiar link"}
+                    </button>
+                    <a
+                      href={`https://sacaturno.com.ar/${businessData?.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Ver página pública"
+                      className="flex items-center justify-center w-9 h-9 2xl:w-10 2xl:h-10 rounded-lg border border-orange-200 bg-white text-orange-600 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 ease-in-out flex-shrink-0 shadow-sm"
+                    >
+                      <LuExternalLink size={14} />
+                    </a>
+                  </div>
+                </div>
+
+                {errors.slug?.message && (
+                  <span className="text-xs text-red-500">{errors.slug.message}</span>
+                )}
               </div>
-              {errors.slug?.message && (
-                <span className="text-xs 2xl:text-sm text-red-500">{errors.slug.message}</span>
-              )}
             </div>
           </div>
         </div>
 
         {/* Save */}
-        <div className="flex justify-end">
+        <div className="flex justify-end mt-6">
           {loading ? (
             <div className="flex items-center justify-center w-32 h-9">
               <div className="loaderSmall"></div>
@@ -304,7 +355,8 @@ const FormCreateBusiness = ({
           ) : (
             <button
               type="submit"
-              className="flex items-center gap-2 bg-orange-600 hover:bg-[#d92f04] text-white text-xs 2xl:text-sm font-semibold px-5 2xl:px-6 py-2.5 2xl:py-3 rounded-lg transition-all duration-300 ease-in-out cursor-pointer"
+              disabled={!isDirty}
+              className="flex items-center gap-2 bg-primary hover:bg-orange-500 text-white text-xs 2xl:text-sm font-semibold px-5 2xl:px-6 py-2.5 2xl:py-3 rounded-lg transition-all duration-300 ease-in-out cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary"
             >
               <LuSave size={14} />
               Guardar cambios

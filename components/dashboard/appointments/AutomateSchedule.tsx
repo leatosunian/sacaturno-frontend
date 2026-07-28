@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import dayjs from "dayjs";
 import "dayjs/locale/es-mx";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -11,7 +11,7 @@ import { IService } from "@/interfaces/service.interface";
 import NoServicesModal from "../services/NoServicesModal";
 import ISubscription from "@/interfaces/subscription.interface";
 import ExpiredPlanModal from "./ExpiredPlanModal";
-import { LuSave } from "react-icons/lu";
+import { LuSave, LuUser, LuMapPin, LuZap, LuCalendarDays, LuTimer, LuCalendarCog, LuActivity } from "react-icons/lu";
 import TutorialAutomateModal from "./TutorialAutomateModal";
 import { FaArrowLeft, FaCircleInfo } from "react-icons/fa6";
 import { LuBookOpen } from "react-icons/lu";
@@ -23,10 +23,12 @@ import Alert from "@/components/Alert";
 import Link from "next/link";
 import { IDaySchedule } from "@/interfaces/daySchedule.interface";
 import { IAppointmentSchedule } from "@/interfaces/appointmentSchedule.interface";
-import { timeOptions } from "@/helpers/timeOptions";
+import { IEmployee } from "@/interfaces/employee.interface";
+import { IBranch } from "@/interfaces/branch.interface";
+import TimeRangeControls from "./TimeRangeControls";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
 dayjs.locale("es-mx");
@@ -34,7 +36,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(advanced);
 
-const HOUR_HEIGHT = 57;
+const HOUR_HEIGHT = 78;
 const TIME_GUTTER = 60;
 const CARD_GUTTER = 4;
 const CARD_GAP = 5;
@@ -132,6 +134,8 @@ interface Props {
     appointments: IAppointmentSchedule[];
   };
   subscriptionData: ISubscription | undefined;
+  employees?: IEmployee[];
+  branches?: IBranch[];
 }
 
 const AutomateSchedule: React.FC<Props> = ({
@@ -139,7 +143,10 @@ const AutomateSchedule: React.FC<Props> = ({
   servicesData,
   subscriptionData,
   daysAndAppointments,
+  employees,
+  branches,
 }) => {
+  const { isMobile, open: sidebarOpen } = useSidebar();
   const [alert, setAlert] = useState<AlertInterface>();
   const [business, setBusiness] = useState<IBusiness>();
   const [services, setServices] = useState<IService[]>();
@@ -168,8 +175,14 @@ const AutomateSchedule: React.FC<Props> = ({
   >();
   const [selectedDayID, setSelectedDayID] = useState<string>("");
   const [loadingButton, setLoadingButton] = useState(false);
+  const [leaveModal, setLeaveModal] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const pendingNavRef = useRef<(() => void) | null>(null);
+  const bypassGuardRef = useRef(false);
+  const originalDaysRef = useRef<
+    Record<string, { dayStart: number; dayEnd: number; appointmentDuration: number }> | null
+  >(null);
 
   const hideAlert = () => {
     setTimeout(() => {
@@ -208,6 +221,14 @@ const AutomateSchedule: React.FC<Props> = ({
   }, [selectedDayStart, selectedDayEnd]);
 
   useEffect(() => {
+    if (!originalDaysRef.current) {
+      originalDaysRef.current = Object.fromEntries(
+        daysAndAppointments.days.map((d) => [
+          d.day,
+          { dayStart: d.dayStart, dayEnd: d.dayEnd, appointmentDuration: d.appointmentDuration },
+        ])
+      );
+    }
     setDaysSchedule(daysAndAppointments.days);
     setAppointmentsSchedule(daysAndAppointments.appointments);
     setSelectedAppointmentDuration(daysAndAppointments.days[0].appointmentDuration);
@@ -219,6 +240,16 @@ const AutomateSchedule: React.FC<Props> = ({
     setSelectedDaysToCreate(businessData.scheduleDaysToCreate);
     setSelectedAutomaticSchedule(businessData.automaticSchedule);
   }, [businessData, services, servicesData, subscriptionData, daysAndAppointments]);
+
+  useEffect(() => {
+    if (servicesData.length === 0) {
+      const original = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = original;
+      };
+    }
+  }, [servicesData.length]);
 
   useEffect(() => {
     setLoadingNewAppointments(false);
@@ -268,18 +299,17 @@ const AutomateSchedule: React.FC<Props> = ({
     setEventModal(true);
   };
 
-  const handleSelectAppointmentDuration: React.ChangeEventHandler<HTMLSelectElement> = (e) => {
-    setSelectedAppointmentDuration(Number(e.target.value));
+  const handleSelectAppointmentDuration = (val: number) => {
+    setSelectedAppointmentDuration(val);
     editDaySchedule({
       day: selectedDay.dayName,
       dayStart: selectedDayStart,
       dayEnd: selectedDayEnd,
-      appointmentDuration: Number(e.target.value),
+      appointmentDuration: val,
     });
   };
 
-  const handleSelectDayStart: React.ChangeEventHandler<HTMLSelectElement> = (e) => {
-    const val = Number(e.target.value);
+  const handleSelectDayStart = (val: number) => {
     if (val >= selectedDayEnd) {
       setAlert({ msg: "El horario de inicio debe ser menor al horario de fin", error: true, alertType: "ERROR_ALERT" });
       hideAlert();
@@ -302,8 +332,7 @@ const AutomateSchedule: React.FC<Props> = ({
     });
   };
 
-  const handleSelectDayEnd: React.ChangeEventHandler<HTMLSelectElement> = (e) => {
-    const val = Number(e.target.value);
+  const handleSelectDayEnd = (val: number) => {
     if (val <= selectedDayStart) {
       setAlert({ msg: "El horario de fin debe ser mayor al horario de inicio", error: true, alertType: "ERROR_ALERT" });
       hideAlert();
@@ -365,7 +394,7 @@ const AutomateSchedule: React.FC<Props> = ({
     });
   };
 
-  const saveChanges = async () => {
+  const saveChanges = async (onSaved?: () => void) => {
     setLoadingButton(true);
     if (selectedAnticipation >= selectedDaysToCreate) {
       setAlert({
@@ -395,10 +424,17 @@ const AutomateSchedule: React.FC<Props> = ({
         },
         authHeader
       );
-      if (daysChanged.length > 0) saveModifiedScheduleDays();
+      if (daysChanged.length > 0) await saveModifiedScheduleDays();
       setAlert({ msg: "Cambios guardados con éxito", error: true, alertType: "OK_ALERT" });
       hideAlert();
       setLoadingButton(false);
+      if (onSaved) {
+        onSaved();
+        return;
+      }
+      // Ya guardamos: evitar que el guard beforeunload dispare el prompt nativo
+      // "¿Volver a cargar?" en este reload programático.
+      bypassGuardRef.current = true;
       window.location.reload();
     } catch {
       setAlert({ msg: "Error al guardar cambios", error: true, alertType: "ERROR_ALERT" });
@@ -446,6 +482,19 @@ const AutomateSchedule: React.FC<Props> = ({
     [selectedDayAppointments]
   );
 
+  const appointmentCountByDay = useMemo(() => {
+    const counts = new Map<string, number>();
+    (appointmentsSchedule ?? []).forEach((a) =>
+      counts.set(a.day, (counts.get(a.day) ?? 0) + 1)
+    );
+    return counts;
+  }, [appointmentsSchedule]);
+
+  const weeklyAppointmentsTotal = useMemo(
+    () => Array.from(appointmentCountByDay.values()).reduce((sum, n) => sum + n, 0),
+    [appointmentCountByDay]
+  );
+
   const getEventTop = (event: IAppointmentSchedule): number => {
     const eventMins = dayjs(event.start).hour() * 60 + dayjs(event.start).minute();
     return ((eventMins - selectedDayStart * 60) / selectedAppointmentDuration) * HOUR_HEIGHT;
@@ -469,9 +518,144 @@ const AutomateSchedule: React.FC<Props> = ({
     createNewAppointment({ start, end });
   };
 
+  const getEmployeeName = (employeeID: string | null | undefined): string | null => {
+    if (!employeeID || !employees?.length) return null;
+    const emp = employees.find((e) => e._id === employeeID);
+    if (!emp) return null;
+    return emp.surname ? `${emp.name} ${emp.surname[0]}.` : emp.name;
+  };
+
+  const getBranchName = (branchID: string | null | undefined): string | null => {
+    if (!branchID || !branches?.length) return null;
+    const branch = branches.find((b) => b._id === branchID);
+    return branch?.name ?? null;
+  };
+
   const totalHeight = slots.length * HOUR_HEIGHT;
 
-  // Render 
+  // Summary panel (reflects last-saved state)
+  const savedAuto = businessData.automaticSchedule;
+
+  const daysDirty = useMemo(() => {
+    const original = originalDaysRef.current;
+    if (!original) return false;
+    return daysChanged.some((d) => {
+      const o = original[d.day];
+      return (
+        !o ||
+        o.dayStart !== d.dayStart ||
+        o.dayEnd !== d.dayEnd ||
+        o.appointmentDuration !== d.appointmentDuration
+      );
+    });
+  }, [daysChanged]);
+
+  const hasUnsavedChanges =
+    selectedAutomaticSchedule !== businessData.automaticSchedule ||
+    selectedDaysToCreate !== businessData.scheduleDaysToCreate ||
+    selectedAnticipation !== businessData.scheduleAnticipation ||
+    daysDirty;
+  const discardChanges = () => {
+    setSelectedAutomaticSchedule(businessData.automaticSchedule);
+    setSelectedDaysToCreate(businessData.scheduleDaysToCreate);
+    setSelectedAnticipation(businessData.scheduleAnticipation);
+    const original = originalDaysRef.current;
+    if (original) {
+      setDaysSchedule((days) => days.map((d) => ({ ...d, ...(original[d.day] ?? {}) })));
+      const current = original[selectedDay.dayName];
+      if (current) {
+        setSelectedDayStart(current.dayStart);
+        setSelectedDayEnd(current.dayEnd);
+        setSelectedAppointmentDuration(current.appointmentDuration);
+      }
+    }
+    setDaysChanged([]);
+  };
+
+  // Unsaved-changes navigation guard
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+
+    const askBeforeLeaving = (proceed: () => void) => {
+      pendingNavRef.current = proceed;
+      setLeaveModal(true);
+    };
+
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (bypassGuardRef.current) return;
+      e.preventDefault();
+      e.returnValue = "";
+    };
+
+    const onClickCapture = (e: MouseEvent) => {
+      if (bypassGuardRef.current) return;
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+        return;
+      const anchor = (e.target as HTMLElement | null)?.closest?.("a");
+      if (!anchor) return;
+      const href = anchor.getAttribute("href");
+      if (!href || href.startsWith("#") || anchor.target === "_blank") return;
+      const url = new URL(anchor.href, window.location.href);
+      if (url.origin !== window.location.origin) return;
+      if (url.pathname === window.location.pathname) return;
+      e.preventDefault();
+      e.stopPropagation();
+      askBeforeLeaving(() => {
+        bypassGuardRef.current = true;
+        router.replace(url.pathname + url.search);
+      });
+    };
+
+    // Sentinel entry so browser back/forward can be intercepted
+    window.history.pushState(null, "", window.location.href);
+
+    const onPopState = () => {
+      if (bypassGuardRef.current) return;
+      window.history.pushState(null, "", window.location.href);
+      askBeforeLeaving(() => {
+        bypassGuardRef.current = true;
+        window.history.go(-2);
+      });
+    };
+
+    window.addEventListener("beforeunload", onBeforeUnload);
+    window.addEventListener("popstate", onPopState);
+    document.addEventListener("click", onClickCapture, true);
+
+    return () => {
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      window.removeEventListener("popstate", onPopState);
+      document.removeEventListener("click", onClickCapture, true);
+    };
+  }, [hasUnsavedChanges, router]);
+
+  const handleLeaveDiscard = () => {
+    const proceed = pendingNavRef.current;
+    pendingNavRef.current = null;
+    setLeaveModal(false);
+    discardChanges();
+    proceed?.();
+  };
+
+  const handleLeaveSave = () => {
+    const proceed = pendingNavRef.current;
+    saveChanges(() => {
+      pendingNavRef.current = null;
+      setLeaveModal(false);
+      proceed?.();
+    });
+  };
+
+  const scheduleEndLabel = businessData.scheduleEnd
+    ? dayjs(businessData.scheduleEnd).format("DD/MM/YYYY")
+    : "—";
+  const nextGenLabel = businessData.scheduleEnd
+    ? dayjs(businessData.scheduleEnd)
+        .subtract(businessData.scheduleAnticipation, "day")
+        .format("ddd DD/MM")
+    : "—";
+
+  // Render
 
   return (
     <>
@@ -492,7 +676,8 @@ const AutomateSchedule: React.FC<Props> = ({
       </Dialog> */}
 
       <Dialog open={eventModal} onOpenChange={() => setEventModal(false)}>
-        <DialogContent className="sm:w-[400px] w-[93vw]">
+        <DialogContent className="md:w-[510px] w-[93vw]">
+          <DialogTitle className="sr-only">Detalle del turno</DialogTitle>
           <ScheduleAppointmentModal
             onDeleteAppointment={(deleted) => {
               setSelectedDayAppointments((prev) =>
@@ -505,12 +690,15 @@ const AutomateSchedule: React.FC<Props> = ({
             }}
             appointment={eventData}
             closeModalF={() => setEventModal(false)}
+            employees={employees}
+            branches={branches}
           />
         </DialogContent>
       </Dialog>
 
       <Dialog open={createAppointmentModal} onOpenChange={() => setCreateAppointmentModal(false)}>
         <DialogContent className="sm:w-[400px] w-[93vw]">
+          <DialogTitle className="sr-only">Crear turno</DialogTitle>
           <CreateScheduleAppointmentModal
             onNewAppointment={(newAppt) => {
               setSelectedDayAppointments([...selectedDayAppointments!, newAppt]);
@@ -518,24 +706,89 @@ const AutomateSchedule: React.FC<Props> = ({
             }}
             appointmentData={createAppointmentData}
             servicesData={services}
+            employees={employees}
+            branches={branches}
             closeModalF={() => setCreateAppointmentModal(false)}
           />
         </DialogContent>
       </Dialog>
 
-      <Dialog open={servicesData.length === 0}>
-        <DialogContent className="sm:w-[460px] w-[93vw]">
-          <NoServicesModal />
-        </DialogContent>
-      </Dialog>
+      {servicesData.length === 0 && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Sin servicios"
+          className="z-50 flex items-center justify-center bg-black/80 p-4"
+          style={{
+            position: "fixed",
+            top: isMobile ? "4rem" : 0,
+            left: !isMobile && sidebarOpen ? "var(--sidebar-width)" : 0,
+            right: 0,
+            height: isMobile ? "calc(100svh - 4rem)" : "100svh",
+          }}
+        >
+          <div className="w-full max-w-[460px] rounded-2xl border bg-background p-6 shadow-lg">
+            <NoServicesModal />
+          </div>
+        </div>
+      )}
 
       <Dialog open={expiredModal} onOpenChange={() => setExpiredModal(false)}>
         <DialogTitle />
-        <DialogContent className="sm:w-[400px] w-[93vw]">
+        <DialogContent className="max-w-3xl max-h-[90dvh] overflow-y-auto w-[calc(100%-2rem)] sm:w-full px-4 sm:px-6">
           <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={business} />
         </DialogContent>
       </Dialog>
 
+
+      <Dialog
+        open={leaveModal}
+        onOpenChange={(open) => {
+          if (!open && !loadingButton) {
+            pendingNavRef.current = null;
+            setLeaveModal(false);
+          }
+        }}
+      >
+        <DialogContent className="rounded-2xl sm:w-[460px] w-[93vw]">
+          <DialogTitle className="sr-only">Cambios sin guardar</DialogTitle>
+          <div className="flex flex-col w-full gap-4">
+            <div className="pb-4 border-b border-gray-100 flex flex-col gap-1">
+              <h4 className="text-lg leading-none font-semibold text-gray-800">
+                Tenés cambios sin guardar
+              </h4>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Si salís de esta página vas a perder los cambios que hiciste en la configuración de
+                la agenda.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+              <button
+                onClick={handleLeaveDiscard}
+                disabled={loadingButton}
+                className="border border-gray-200 text-gray-600 text-xs font-medium px-4 py-2.5 rounded-lg hover:bg-gray-50 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                Descartar cambios
+              </button>
+              <button
+                onClick={handleLeaveSave}
+                disabled={loadingButton}
+                className="flex items-center justify-center gap-1.5 bg-orange-600 hover:bg-[#d92f04] text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {loadingButton ? (
+                  <div className="loaderSmall" />
+                ) : (
+                  <>
+                    <LuSave size={14} />
+                    Guardar y salir
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={tutorialModal} onOpenChange={() => setTutorialModal(false)}>
         <DialogContent className="sm:w-[460px] md:w-[700px] w-[93vw]">
@@ -544,39 +797,27 @@ const AutomateSchedule: React.FC<Props> = ({
       </Dialog>
 
       {/* Page layout */}
-      <div className="flex flex-col w-full gap-5 pb-24 md:pb-10">
+      <div
+        className={cn(
+          "flex flex-col w-full gap-5 md:pb-10 transition-[padding] duration-300 ease-out",
+          hasUnsavedChanges ? "pb-24" : "pb-6"
+        )}
+      >
 
         {/* Page header */}
-        <div className="flex items-center justify-between mt-4 xl:mt-7">
+        <div className="flex items-center justify-between mt-4 xl:mt-2">
           <div className="flex items-center gap-3">
             <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">Automatizar agenda</h1>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Tutorial button (mobile and desktop) */}
-            <button
-              onClick={() => setTutorialModal(true)}
-              className="flex items-center gap-1.5 h-9 px-3 rounded-lg border border-orange-200 bg-orange-50 hover:bg-orange-100 text-orange-600 text-xs font-semibold transition-colors duration-200"
-              title="Ver tutorial paso a paso"
-            >
-              <LuBookOpen size={14} />
-              <span>Tutorial</span>
-            </button>
-
-            {!loadingButton ? (
-              <button
-                onClick={saveChanges}
-                className="hidden md:flex items-center gap-1.5 h-9 bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold px-4 rounded-lg transition-colors duration-200"
-              >
-                <LuSave size={14} />
-                Guardar cambios
-              </button>
-            ) : (
-              <div className="hidden md:flex items-center justify-center w-32 h-9">
-                <div className="loaderSmall" />
-              </div>
-            )}
-          </div>
+          <button
+            onClick={() => setTutorialModal(true)}
+            className="flex items-center gap-1.5 h-9 px-3 rounded-lg border border-orange-200 bg-orange-50 hover:bg-orange-100 text-primary text-xs font-semibold transition-colors duration-200"
+            title="Ver tutorial paso a paso"
+          >
+            <LuBookOpen size={14} />
+            <span>Tutorial</span>
+          </button>
         </div>
 
         {/* Expired subscription banner */}
@@ -593,116 +834,260 @@ const AutomateSchedule: React.FC<Props> = ({
         )}
 
         {/* Card 1: Automatic schedule config */}
-        <Card className="p-5 md:p-6">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1">
-              <h2 className="text-base font-semibold text-gray-800">
-                Frecuencia y cantidad de días
-              </h2>
-              <p className="text-sm text-gray-500">
-                Activá la agenda automática para que los turnos se generen sin intervención manual.
-              </p>
+        <Card className="p-0 overflow-hidden">
+          <div className="flex flex-col">
+
+            {/* Header */}
+            <div className="flex items-start gap-3 px-5 md:px-6 py-4 md:py-5 border-b border-gray-100">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-orange-50 text-primary shrink-0">
+                <LuCalendarCog size={20} />
+              </div>
+              <div className="flex flex-col gap-1">
+                <h2 className="text-base font-semibold text-gray-800">
+                  Frecuencia y cantidad de días
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Activá la agenda automática para que los turnos se generen sin intervención manual.
+                </p>
+              </div>
             </div>
 
-            <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
-              <FaCircleInfo size={13} className="text-blue-400 mt-0.5 shrink-0" />
-              <p className="text-sm text-blue-500 leading-relaxed">
-                Ingresá la cantidad de días que querés crear turnos y cuántos días antes del último
-                turno querés que se vuelvan a generar los turnos programados.
-              </p>
-            </div>
+            {/* Body */}
+            <div className="flex flex-col gap-4 p-5 md:p-6">
+              <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                <FaCircleInfo size={13} className="text-blue-400 mt-0.5 shrink-0" />
+                <p className="text-sm text-blue-500 leading-relaxed">
+                  Ingresá la cantidad de días que querés crear turnos y cuántos días antes del último
+                  turno querés que se vuelvan a generar los turnos programados.
+                </p>
+              </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-              {/* Toggle */}
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-gray-600">
-                  Crear turnos automáticamente
-                </label>
-                <div className="flex items-center gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedAutomaticSchedule(!selectedAutomaticSchedule)}
+              {/* Two columns: controls (left) + summary (right) */}
+              <div className="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] gap-4">
+
+                {/* Left — controls */}
+                <div className="flex flex-col gap-3">
+                  {/* Days to create + anticipation */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1.5 p-3.5 rounded-xl border border-gray-200 bg-gray-50">
+                      <label className="flex items-center gap-1.5 text-sm font-medium text-gray-600">
+                        <LuCalendarDays size={14} className="text-gray-400 shrink-0" />
+                        Días con turnos disponibles
+                      </label>
+                      <select
+                        value={selectedDaysToCreate}
+                        onChange={(e) => setSelectedDaysToCreate(Number(e.target.value))}
+                        className="h-9 rounded-md border border-gray-200 bg-gray-100 px-3 text-sm text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-all duration-200 cursor-pointer"
+                      >
+                        <option value="7">Crear 7 días</option>
+                        <option value="15">Crear 15 días</option>
+                        <option value="30">Crear 30 días</option>
+                      </select>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5 p-3.5 rounded-xl border border-gray-200 bg-gray-50">
+                      <label className="flex items-center gap-1.5 text-sm font-medium text-gray-600">
+                        <LuTimer size={14} className="text-gray-400 shrink-0" />
+                        ¿Con qué anticipación crear turnos?
+                      </label>
+                      <select
+                        value={selectedAnticipation}
+                        onChange={(e) => setSelectedAnticipation(Number(e.target.value))}
+                        className="h-9 rounded-md border border-gray-200 bg-gray-100 px-3 text-sm text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-all duration-200 cursor-pointer"
+                      >
+                        {Array.from({ length: 16 }, (_, i) => (
+                          <option key={i} value={i}>
+                            {i === 0 ? "0 días antes" : `${i} ${i === 1 ? "día" : "días"} antes`}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Master toggle */}
+                  <div
                     className={cn(
-                      "relative inline-flex h-5 w-10 items-center rounded-full transition-colors duration-200 focus:outline-none shrink-0",
-                      selectedAutomaticSchedule ? "bg-orange-600" : "bg-gray-200"
+                      "flex items-center justify-between gap-3 p-4 rounded-xl border transition-colors duration-200",
+                      selectedAutomaticSchedule
+                        ? "bg-orange-50/60 border-orange-200"
+                        : "bg-gray-50 border-gray-200"
                     )}
                   >
-                    <span
-                      className={cn(
-                        "inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200",
-                        selectedAutomaticSchedule ? "translate-x-5" : "translate-x-0.5"
-                      )}
-                    />
-                  </button>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className={cn(
+                          "flex items-center justify-center w-9 h-9 rounded-full shrink-0 transition-colors duration-200",
+                          selectedAutomaticSchedule
+                            ? "bg-primary text-white"
+                            : "bg-white text-gray-400 border border-gray-200"
+                        )}
+                      >
+                        <LuZap size={16} />
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-semibold text-gray-800">
+                          Crear turnos automáticamente
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {selectedAutomaticSchedule
+                            ? "La agenda se completa sola, sin que hagas nada."
+                            : "Vas a tener que generar los turnos de forma manual."}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 shrink-0">
+                      <span
+                        className={cn(
+                          "text-xs font-semibold hidden sm:inline",
+                          selectedAutomaticSchedule ? "text-primary" : "text-gray-400"
+                        )}
+                      >
+                        {selectedAutomaticSchedule ? "Activado" : "Desactivado"}
+                      </span>
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={selectedAutomaticSchedule}
+                        aria-label="Crear turnos automáticamente"
+                        onClick={() => setSelectedAutomaticSchedule(!selectedAutomaticSchedule)}
+                        className={cn(
+                          "relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shrink-0",
+                          selectedAutomaticSchedule ? "bg-primary" : "bg-gray-300"
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "inline-block h-5 w-5 rounded-full bg-white shadow transition-transform duration-200",
+                            selectedAutomaticSchedule ? "translate-x-5" : "translate-x-0.5"
+                          )}
+                        />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right — automation summary (last-saved state) */}
+                <div
+                  className={cn(
+                    "flex flex-col rounded-xl border p-4 transition-colors duration-200",
+                    savedAuto ? "bg-orange-50/50 border-orange-100" : "bg-gray-50 border-gray-200"
+                  )}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <LuActivity size={15} className={savedAuto ? "text-primary" : "text-gray-400"} />
+                    <span className="text-sm font-semibold text-gray-800">
+                      Resumen de tu automatización
+                    </span>
+                  </div>
                   <span
                     className={cn(
-                      "text-sm font-semibold",
-                      selectedAutomaticSchedule ? "text-gray-800" : "text-gray-400"
+                      "text-[11px] mt-0.5",
+                      hasUnsavedChanges ? "text-orange-500 font-medium" : "text-gray-400"
                     )}
                   >
-                    {selectedAutomaticSchedule ? "Activado" : "Desactivado"}
+                    {hasUnsavedChanges ? "Tenés cambios sin guardar" : "Según lo último guardado"}
                   </span>
+
+                  <div
+                    className={cn(
+                      "flex flex-col mt-3 divide-y",
+                      savedAuto ? "divide-orange-100" : "divide-gray-200"
+                    )}
+                  >
+                    <div className="flex items-center justify-between py-2.5 first:pt-0">
+                      <span className="text-xs text-gray-500">Estado</span>
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border",
+                          savedAuto
+                            ? "bg-orange-50 border-orange-200 text-orange-700"
+                            : "bg-gray-100 border-gray-200 text-gray-500"
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "w-1.5 h-1.5 rounded-full",
+                            savedAuto ? "bg-primary" : "bg-gray-400"
+                          )}
+                        />
+                        {savedAuto ? "Activada" : "Desactivada"}
+                      </span>
+                    </div>
+
+                    {savedAuto && (
+                      <div className="flex items-center justify-between py-2.5">
+                        <span className="text-xs text-gray-500">Agenda cargada hasta</span>
+                        <span className="text-xs font-semibold text-gray-800 tabular-nums">
+                          {scheduleEndLabel}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between py-2.5">
+                      <span className="text-xs text-gray-500">Próxima generación</span>
+                      <span
+                        className={cn(
+                          "text-xs font-semibold",
+                          savedAuto ? "text-gray-800 capitalize" : "text-gray-400"
+                        )}
+                      >
+                        {savedAuto ? nextGenLabel : "Se genera al activar"}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between py-2.5">
+                      <span className="text-xs text-gray-500">Turnos por semana</span>
+                      <span className="text-xs font-semibold text-gray-800 tabular-nums">
+                        {weeklyAppointmentsTotal}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between py-2.5 last:pb-0">
+                      <span className="text-xs text-gray-500">Ventana</span>
+                      <span className="text-xs font-semibold text-gray-800">
+                        {businessData.scheduleDaysToCreate} días · {businessData.scheduleAnticipation} antes
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              {/* Days to create */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-600">
-                  Días con turnos disponibles
-                </label>
-                <select
-                  value={selectedDaysToCreate}
-                  onChange={(e) => setSelectedDaysToCreate(Number(e.target.value))}
-                  className="h-8 rounded-md border border-gray-200 bg-[rgb(235,235,235)] px-3 text-sm text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-all duration-200 cursor-pointer"
-                >
-                  <option value="7">Crear 7 días</option>
-                  <option value="15">Crear 15 días</option>
-                  <option value="30">Crear 30 días</option>
-                </select>
-              </div>
-
-              {/* Anticipation */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-600">
-                  ¿Con qué anticipación crear turnos?
-                </label>
-                <select
-                  value={selectedAnticipation}
-                  onChange={(e) => setSelectedAnticipation(Number(e.target.value))}
-                  className="h-8 rounded-md border border-gray-200 bg-[rgb(235,235,235)] px-3 text-sm text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-all duration-200 cursor-pointer"
-                >
-                  {Array.from({ length: 16 }, (_, i) => (
-                    <option key={i} value={i}>
-                      {i === 0 ? "0 días antes" : `${i} ${i === 1 ? "día" : "días"} antes`}
-                    </option>
-                  ))}
-                </select>
               </div>
             </div>
 
-            {/* Status messages */}
-            {selectedAutomaticSchedule && businessData.automaticSchedule && (
-              <div className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg border border-orange-100">
-                <FaCircleInfo size={13} className="text-orange-500 shrink-0" />
-                <span className="text-xs font-medium text-orange-700">
-                  Tus próximos turnos se crearán el{" "}
-                  {dayjs(businessData.scheduleEnd)
-                    .subtract(businessData.scheduleAnticipation, "day")
-                    .format("dddd DD/MM")}
-                  .
-                </span>
+            {/* Footer — save action, revealed only when there are unsaved changes
+                (desktop expands downward; mobile uses the fixed bottom bar) */}
+            <div
+              aria-hidden={!hasUnsavedChanges}
+              className={cn(
+                "hidden md:grid transition-all duration-300 ease-out",
+                hasUnsavedChanges
+                  ? "grid-rows-[1fr] opacity-100"
+                  : "grid-rows-[0fr] opacity-0 pointer-events-none"
+              )}
+            >
+              <div className="overflow-hidden">
+                <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+                  <span className="text-xs text-orange-500 font-medium mr-auto">
+                    Tenés cambios sin guardar
+                  </span>
+                  {!loadingButton ? (
+                    <button
+                      onClick={() => saveChanges()}
+                      disabled={!hasUnsavedChanges}
+                      className="flex items-center gap-1.5 h-9 bg-primary hover:bg-orange-500 text-white text-xs font-semibold px-4 rounded-lg transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-primary"
+                    >
+                      <LuSave size={14} />
+                      Guardar cambios
+                    </button>
+                  ) : (
+                    <div className="flex items-center justify-center w-32 h-9">
+                      <div className="loaderSmall" />
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
-            {selectedAutomaticSchedule && !businessData.automaticSchedule && (
-              <div className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg border border-orange-100">
-                <FaCircleInfo size={13} className="text-orange-500 shrink-0" />
-                <span className="text-xs font-medium text-orange-700">
-                  A partir de hoy se crearán turnos durante {selectedDaysToCreate} días.{" "}
-                  {selectedAnticipation} {selectedAnticipation === 1 ? "día" : "días"} antes del
-                  último turno, se volverá a generar tu agenda.
-                </span>
-              </div>
-            )}
+            </div>
           </div>
         </Card>
 
@@ -715,7 +1100,7 @@ const AutomateSchedule: React.FC<Props> = ({
               <div className="flex flex-col gap-1">
                 <h2 className="text-base font-semibold text-gray-800">Horario de atención</h2>
                 <p className="text-sm text-gray-500">
-                  Por cada día de la semana, configurá el horario y agregá los turnos y servicios.
+                  Por cada día de la semana, configurá el horario y agregá los turnos en cada horario deseado.
                 </p>
               </div>
               {/* <button
@@ -729,79 +1114,47 @@ const AutomateSchedule: React.FC<Props> = ({
 
             {/* Day selector tabs */}
             <div className="flex gap-1.5 flex-wrap">
-              {daysOfWeek.map((day) => (
-                <button
-                  key={day.dayName}
-                  onClick={() => handleSelectDay(day)}
-                  className={cn(
-                    "px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all duration-200",
-                    selectedDay.dayName === day.dayName
-                      ? "bg-orange-600 border-orange-600 text-white shadow-sm"
-                      : "border-gray-200 text-gray-600 hover:border-orange-600 hover:text-orange-600 bg-white"
-                  )}
-                >
-                  {day.dayName}
-                </button>
-              ))}
+              {daysOfWeek.map((day) => {
+                const count = appointmentCountByDay.get(day.dayName) ?? 0;
+                const isActive = selectedDay.dayName === day.dayName;
+                return (
+                  <button
+                    key={day.dayName}
+                    onClick={() => handleSelectDay(day)}
+                    className={cn(
+                      "relative px-3.5 py-2 text-xs font-semibold rounded-lg border transition-all duration-200",
+                      isActive
+                        ? "bg-primary border-orange-600 text-white shadow-md"
+                        : "border-gray-200 text-gray-600 hover:border-orange-600 hover:text-orange-600 bg-white"
+                    )}
+                  >
+                    {day.dayName}
+                    {count > 0 && (
+                      <span
+                        className={cn(
+                          "absolute -top-1.5 -right-1.5 flex items-center justify-center h-4 w-4 rounded-full text-[9px] font-bold",
+                          isActive ? "bg-white text-primary" : "bg-primary text-white"
+                        )}
+                      >
+                        {count > 9 ? "9+" : count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Time controls */}
-            <div className="flex items-end gap-3 flex-wrap border-t border-gray-50 pt-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                  Desde
-                </label>
-                <select
-                  value={selectedDayStart}
-                  onChange={handleSelectDayStart}
-                  className="h-8 rounded-md border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors duration-200 cursor-pointer"
-                >
-                  {timeOptions.map((t) => (
-                    <option key={t.value} value={t.value}>
-                      {t.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                  Hasta
-                </label>
-                <select
-                  value={selectedDayEnd}
-                  onChange={handleSelectDayEnd}
-                  className="h-8 rounded-md border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors duration-200 cursor-pointer"
-                >
-                  {timeOptions.map((t) => (
-                    <option key={t.value} value={t.value}>
-                      {t.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                  Duración
-                </label>
-                <select
-                  value={selectedAppointmentDuration}
-                  onChange={handleSelectAppointmentDuration}
-                  className="h-8 rounded-md border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-colors duration-200 cursor-pointer"
-                >
-                  <option value="15">15 min</option>
-                  <option value="30">30 min</option>
-                  <option value="45">45 min</option>
-                  <option value="60">1 h</option>
-                  <option value="75">1:15 hs</option>
-                  <option value="90">1:30 hs</option>
-                  <option value="105">1:45 hs</option>
-                  <option value="120">2 hs</option>
-                </select>
-              </div>
-
-              <span className="text-xs text-gray-400 mb-1.5 hidden sm:block">
+            <div className="flex flex-col gap-2 border-t border-gray-50 pt-4">
+              <TimeRangeControls
+                dayStart={selectedDayStart}
+                dayEnd={selectedDayEnd}
+                appointmentDuration={selectedAppointmentDuration}
+                onDayStartChange={handleSelectDayStart}
+                onDayEndChange={handleSelectDayEnd}
+                onDurationChange={handleSelectAppointmentDuration}
+              />
+              <span className="text-xs text-gray-400 hidden sm:block">
                 Hacé clic en un horario para agregar un turno
               </span>
             </div>
@@ -811,7 +1164,7 @@ const AutomateSchedule: React.FC<Props> = ({
 
               {/* Day header */}
               <div className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
-                <span className="text-xs font-semibold capitalize text-orange-600">
+                <span className="text-xs font-semibold capitalize text-primary">
                   {selectedDay.dayName}
                 </span>
                 <span className="text-xs text-gray-400">
@@ -824,7 +1177,7 @@ const AutomateSchedule: React.FC<Props> = ({
               </div>
 
               {/* Scrollable grid */}
-              <div ref={gridRef} className="flex overflow-y-auto" style={{ maxHeight: "60vh" }}>
+              <div ref={gridRef} className="flex">
 
                 {/* Time gutter */}
                 <div
@@ -901,17 +1254,20 @@ const AutomateSchedule: React.FC<Props> = ({
                           const height = getEventHeight(event);
                           if (top + height < 0 || top > totalHeight) return null;
                           const offsetTop = Math.max(top, 0) - Math.max(minTop, 0);
+                          const empName = getEmployeeName(event.employeeID);
+                          const branchName = getBranchName(event.branchID);
+                          const hasExtra = !!(empName || branchName);
                           return (
                             <div
                               key={event._id ?? eventIdx}
+                              className="rounded-md overflow-hidden cursor-pointer transition-opacity duration-150 hover:opacity-80 select-none bg-primary border-l-[3px] border-orange-800"
                               style={{
                                 marginTop: offsetTop,
                                 height: Math.max(height - 2, 20),
                                 width: "fit-content",
-                                minWidth: 80,
+                                minWidth: 90,
                                 flexShrink: 0,
                               }}
-                              className="rounded-md bg-orange-600 border-l-[3px] border-orange-800 cursor-pointer hover:opacity-80 transition-opacity duration-150 overflow-hidden select-none"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleSelectEvent(event);
@@ -922,13 +1278,32 @@ const AutomateSchedule: React.FC<Props> = ({
                                   {event.service || "Turno"}
                                 </span>
                                 {height >= 36 && (
-                                  <span className="text-xs text-orange-100 leading-tight whitespace-nowrap shrink-0 tabular-nums">
+                                  <span className="text-[10px] text-orange-100 leading-tight whitespace-nowrap shrink-0 tabular-nums">
                                     {dayjs(event.start).format("HH:mm")} –{" "}
                                     {dayjs(event.end).format("HH:mm")}
                                   </span>
                                 )}
-                                {height >= 52 && event.price > 0 && (
-                                  <span className="text-xs text-orange-200 mt-auto whitespace-nowrap shrink-0">
+                                {height >= 54 && hasExtra && (
+                                  <div className="flex items-center gap-1 shrink-0 text-orange-200 min-w-0">
+                                    {empName && (
+                                      <span className="flex items-center gap-0.5 min-w-0">
+                                        <LuUser size={9} className="shrink-0" />
+                                        <span className="text-[10px] leading-tight truncate">{empName}</span>
+                                      </span>
+                                    )}
+                                    {empName && branchName && (
+                                      <span className="text-[10px] shrink-0 opacity-50">·</span>
+                                    )}
+                                    {branchName && (
+                                      <span className="flex items-center gap-0.5 min-w-0">
+                                        <LuMapPin size={9} className="shrink-0" />
+                                        <span className="text-[10px] leading-tight truncate">{branchName}</span>
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+                                {height >= 70 && event.price > 0 && (
+                                  <span className="text-[10px] text-orange-200 mt-auto whitespace-nowrap shrink-0">
                                     {formatCurrency(event.price)}
                                   </span>
                                 )}
@@ -945,7 +1320,7 @@ const AutomateSchedule: React.FC<Props> = ({
               {/* Legend */}
               <div className="flex items-center gap-4 px-4 py-2 border-t border-gray-100 bg-gray-50">
                 <span className="flex items-center gap-1.5 text-xs text-gray-400">
-                  <span className="w-3 h-3 rounded-sm bg-orange-600 border-l-2 border-orange-800 inline-block" />
+                  <span className="w-3 h-3 rounded-sm bg-primary border-l-2 border-orange-800 inline-block" />
                   Turno configurado
                 </span>
                 <span className="text-xs text-gray-400">
@@ -957,12 +1332,19 @@ const AutomateSchedule: React.FC<Props> = ({
         </Card>
       </div>
 
-      {/* Mobile bottom save bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white border-t border-gray-200 p-4">
+      {/* Mobile bottom save bar — slides up when there are unsaved changes */}
+      <div
+        aria-hidden={!hasUnsavedChanges}
+        className={cn(
+          "fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white border-t border-gray-200 p-4 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] transition-transform duration-300 ease-out",
+          hasUnsavedChanges ? "translate-y-0" : "translate-y-full pointer-events-none"
+        )}
+      >
         {!loadingButton ? (
           <button
-            onClick={saveChanges}
-            className="flex items-center justify-center gap-1.5 w-full h-11 bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold rounded-lg transition-colors duration-200"
+            onClick={() => saveChanges()}
+            disabled={!hasUnsavedChanges}
+            className="flex items-center justify-center gap-1.5 w-full h-11 bg-primary hover:bg-orange-500 text-white text-sm font-semibold rounded-lg transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-primary"
           >
             <LuSave size={16} />
             Guardar cambios

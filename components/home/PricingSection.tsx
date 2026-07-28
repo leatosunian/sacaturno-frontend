@@ -1,10 +1,11 @@
 "use client";
-import { FaCheck, FaMedal } from "react-icons/fa6";
+import { FaCheck, FaMedal, FaRocket, FaGem } from "react-icons/fa6";
 import { MdMoneyOff } from "react-icons/md";
 import { SiAdguard } from "react-icons/si";
 import { motion } from "framer-motion";
 import { Badge } from "./Badge";
 import { ShimmerButton } from "@/components/ui/ShimmerButton";
+import { PAID_PLAN_CARDS, PaidPlan } from "@/lib/planLimits";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -20,45 +21,42 @@ const headerItem = {
 
 const cardsContainer = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.2, delayChildren: 0.05 } },
+  show: { transition: { staggerChildren: 0.15, delayChildren: 0.05 } },
 };
 
 const cardVariant = {
-  hidden: { opacity: 0, y: 50, scale: 0.96 },
-  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.65, ease } },
+  hidden: { opacity: 0, y: 44, scale: 0.97 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, ease } },
 };
 
 const featureList = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.07, delayChildren: 0.25 } },
+  show: { transition: { staggerChildren: 0.06, delayChildren: 0.2 } },
 };
 
 const featureItem = {
-  hidden: { opacity: 0, x: -12 },
-  show: { opacity: 1, x: 0, transition: { duration: 0.35, ease: "easeOut" } },
+  hidden: { opacity: 0, x: -10 },
+  show: { opacity: 1, x: 0, transition: { duration: 0.3, ease: "easeOut" } },
 };
 
+// El plan gratis tiene las mismas prestaciones que el Plan Básico durante la prueba.
 const PLAN_PRUEBA = [
   "Prueba gratuita de 15 días",
-  "1 servicio por empresa",
-  "Un turno por horario",
-  "Notificaciones por email",
-  "Soporte 24/7",
+  ...PAID_PLAN_CARDS.find((card) => card.plan === "SC_BASIC")!.features,
 ];
 
-const PLAN_FULL = [
-  "Reservas con seña",
-  "Turnos ilimitados",
-  "Servicios ilimitados",
-  "Notificaciones por email",
-  "Turnos simultáneos en un mismo horario",
-];
+const getPlanIcon = (plan: PaidPlan, isPro: boolean) => {
+  const color = isPro ? "white" : "#dd4924";
+  if (plan === "SC_BASIC") return <FaRocket color={color} size={17} />;
+  if (plan === "SC_PRO") return <FaGem color={color} size={17} />;
+  return <FaMedal color={color} size={17} />;
+};
 
 const PricingSection = () => {
   return (
     <div
       id="pricing"
-      className="flex relative overflow-hidden flex-col items-center justify-center w-full gap-12 text-black h-fit pt-24 pb-16 lg:py-18 2xl:py-24"
+      className="flex relative overflow-hidden flex-col items-center justify-center w-full gap-14 text-black h-fit pt-24 pb-16 lg:py-20 2xl:py-28"
     >
       {/* Top/bottom white fades */}
       <div
@@ -71,7 +69,10 @@ const PricingSection = () => {
       />
 
       {/* Orange glow blobs */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0"
+      >
         <div
           className="absolute"
           style={{
@@ -110,126 +111,192 @@ const PricingSection = () => {
 
       {/* Header */}
       <motion.div
-        className="w-full text-center h-fit"
+        className="w-full text-center h-fit px-6"
         variants={headerContainer}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.4 }}
       >
         <motion.div variants={headerItem}>
-          <Badge className="rounded-full text-orange-600 bg-orange-50 px-4 py-1.5 text-sm font-medium mb-4" variant="secondary">
+          <Badge
+            className="rounded-full text-orange-600 bg-orange-50 px-4 py-1.5 text-sm font-medium mb-5"
+            variant="secondary"
+          >
             Planes
           </Badge>
         </motion.div>
         <motion.h2
           variants={headerItem}
-          className="text-3xl mb-6 font-bold tracking-tight md:text-4xl 2xl:text-5xl"
+          className="text-3xl mb-4 font-bold tracking-tight md:text-4xl 2xl:text-5xl"
         >
           Simple. Accesible. A tu medida.
         </motion.h2>
-        <motion.span
+        <motion.p
           variants={headerItem}
-          className="flex items-center justify-center gap-2 mt-4 text-lg font-normal text-gray-600 px-7 md:px-0"
+          className="text-base text-gray-500 max-w-xl mx-auto mb-3 leading-relaxed px-4 md:px-0"
         >
-          <SiAdguard className="hidden md:block" />
+          Cada turno sin confirmar es plata que perdés. Con SacaTurno
+          automatizás tu agenda, cobrás señas y eliminás las ausencias.
+        </motion.p>
+        <motion.p
+          variants={headerItem}
+          className="text-base text-gray-500 font-bold md:text-lg max-w-xl mx-auto mb-3 leading-relaxed px-4 md:px-0"
+        >
+          <span className="text-orange-600  ">Probalo gratis 15 días</span> y
+          escalá de plan cuando lo necesites.
+        </motion.p>
+        {/* <motion.span
+          variants={headerItem}
+          className="flex items-center justify-center gap-2 text-sm text-gray-400"
+        >
+          <SiAdguard className="hidden md:block" size={13} />
           Pagá de manera segura mediante Mercado Pago
-        </motion.span>
+        </motion.span> */}
       </motion.div>
 
       {/* Cards */}
       <motion.div
-        className="flex flex-col items-center gap-6 w-[90%] md:flex-row md:w-fit md:gap-9 md:px-20 md:py-9"
+        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 items-stretch gap-10 sm:gap-5 lg:gap-4 w-[95%] max-w-7xl mx-auto py-4"
         variants={cardsContainer}
         initial="hidden"
         whileInView="show"
-        viewport={{ once: true, amount: 0.2 }}
+        viewport={{ once: true, amount: 0.1 }}
       >
         {/* Plan Prueba */}
         <motion.div
           variants={cardVariant}
-          whileHover={{ y: -8, transition: { duration: 0.3, ease: "easeOut" } }}
-          className="flex flex-col w-full md:w-[390px] h-full rounded-xl p-6 md:p-[30px] text-black z-[20] lg:bg-transparent backdrop-blur-md bg-white/60 hover:bg-white/70 border border-black/[0.15] shadow-lg hover:shadow-orange-200/60 hover:border-orange-300/40 transition-colors duration-300 cursor-pointer"
+          whileHover={{
+            y: -6,
+            transition: { duration: 0.25, ease: "easeOut" },
+          }}
+          className="relative flex flex-col w-full rounded-2xl p-5 z-[20] bg-white/65 backdrop-blur-md border border-black/[0.09] shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer"
         >
           <div className="mb-5">
-            <h4 className="flex items-center gap-2 mb-3 text-2xl font-semibold xl:text-3xl">
-              <MdMoneyOff color="#dd4924" className="hidden xl:block" size={35} />
-              <MdMoneyOff color="#dd4924" className="block xl:hidden" size={30} />
-              Plan Prueba
-            </h4>
-            <span className="text-2xl font-semibold">GRATIS</span>
-          </div>
-
-          <div className="w-full h-px bg-black/20" />
-
-          <motion.div
-            className="flex flex-col gap-2 mt-5"
-            variants={featureList}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.5 }}
-          >
-            <h5 className="mb-2 text-base font-semibold text-center">EL PLAN INCLUYE</h5>
-            {PLAN_PRUEBA.map((item) => (
-              <motion.div key={item} variants={featureItem} className="flex items-center gap-3 w-fit">
-                <FaCheck color="#dd4924" size={12} />
-                <span className="text-sm text-black">{item}</span>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          <div className="w-full h-px bg-black/20 my-8" />
-
-          <div className="flex justify-center w-full mt-auto">
-            <ShimmerButton primary href="/register" className="w-full">
-              Comenzar Prueba Gratuita
-            </ShimmerButton>
-          </div>
-        </motion.div>
-
-        {/* Plan Full */}
-        <motion.div
-          variants={cardVariant}
-          whileHover={{ y: -8, transition: { duration: 0.3, ease: "easeOut" } }}
-          className="flex flex-col w-full md:w-[390px] h-full rounded-xl p-6 md:p-[30px] text-black z-20 lg:bg-transparent backdrop-blur-md bg-white/60 hover:bg-white/70 border border-black/[0.15] shadow-lg hover:shadow-orange-200/60 hover:border-orange-300/40 transition-colors duration-300 cursor-pointer"
-        >
-          <div className="mb-5">
-            <h4 className="flex items-center gap-3 mb-3 text-2xl font-semibold xl:text-3xl">
-              <FaMedal color="#dd4924" className="hidden xl:block" size={30} />
-              <FaMedal color="#dd4924" className="block xl:hidden" size={25} />
-              Plan Full
-            </h4>
-            <div>
-              <span className="mr-1 text-2xl font-semibold">$12.890</span>
-              <span className="text-sm text-gray-800">ARS/mes</span>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-50 flex-shrink-0">
+                <MdMoneyOff color="#dd4924" size={18} />
+              </span>
+              <h4 className="text-2xl font-bold text-black">Plan Prueba</h4>
             </div>
+            <span className="text-3xl font-bold text-black">GRATIS</span>
           </div>
 
-          <div className="w-full h-px bg-black/20" />
-
-          <motion.div
-            className="flex flex-col gap-2 mt-5"
-            variants={featureList}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.5 }}
-          >
-            <h5 className="mb-2 text-base font-semibold text-center">EL PLAN INCLUYE</h5>
-            {PLAN_FULL.map((item) => (
-              <motion.div key={item} variants={featureItem} className="flex items-center gap-3 w-fit">
-                <FaCheck color="#dd4924" size={12} />
-                <span className="text-sm text-black">{item}</span>
-              </motion.div>
+          <div className="flex flex-col gap-2 flex-1">
+            {PLAN_PRUEBA.map((item) => (
+              <div key={item} className="flex items-center gap-2">
+                <span className="flex-shrink-0 w-4 h-4 rounded-full bg-orange-50 flex items-center justify-center">
+                  <FaCheck color="#dd4924" size={7} />
+                </span>
+                <span className="text-xs text-gray-600">{item}</span>
+              </div>
             ))}
-          </motion.div>
+          </div>
 
-          <div className="w-full h-px bg-black/20 my-8" />
-
-          <div className="flex justify-center w-full mt-auto">
+          <div className="mt-7">
             <ShimmerButton primary href="/register" className="w-full">
-              Comenzar Plan Full
+              Comenzar Gratis
             </ShimmerButton>
           </div>
         </motion.div>
+
+        {/* Planes pagos: Básico, Pro, Full */}
+        {PAID_PLAN_CARDS.map((card) => {
+          const isPro = card.plan === "SC_PRO";
+          return (
+            <motion.div
+              key={card.plan}
+              variants={cardVariant}
+              whileHover={{
+                y: isPro ? -8 : -6,
+                transition: { duration: 0.25, ease: "easeOut" },
+              }}
+              className={`relative flex flex-col w-full rounded-2xl p-5 z-[20] transition-shadow duration-300 cursor-pointer ${
+                isPro
+                  ? "bg-orange-600 text-white shadow-2xl shadow-orange-300/40"
+                  : "bg-white/65 backdrop-blur-md border border-black/[0.09] shadow-md hover:shadow-lg text-black"
+              }`}
+            >
+              {isPro && (
+                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-white text-orange-600 text-[10px] font-bold px-3 py-1 rounded-full shadow-md whitespace-nowrap tracking-widest">
+                  MÁS ELEGIDO
+                </span>
+              )}
+
+              <div className="mb-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <span
+                    className={`flex items-center justify-center w-8 h-8 rounded-full flex-shrink-0 ${
+                      isPro ? "bg-white/20" : "bg-orange-50"
+                    }`}
+                  >
+                    {getPlanIcon(card.plan, isPro)}
+                  </span>
+                  <h4
+                    className={`text-2xl font-bold ${isPro ? "text-white" : "text-black"}`}
+                  >
+                    {card.label}
+                  </h4>
+                </div>
+                <div className="flex items-end gap-1.5">
+                  <span
+                    className={`text-3xl font-bold ${isPro ? "text-white" : "text-black"}`}
+                  >
+                    ${card.price.toLocaleString("es-AR")}
+                  </span>
+                  <span
+                    className={`text-xs mb-1 ${isPro ? "text-orange-100" : "text-gray-500"}`}
+                  >
+                    ARS/mes
+                  </span>
+                </div>
+              </div>
+
+              <motion.div
+                className="flex flex-col gap-2 flex-1"
+                variants={featureList}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, amount: 0.3 }}
+              >
+                {card.features.map((item) => (
+                  <motion.div
+                    key={item}
+                    variants={featureItem}
+                    className="flex items-center gap-2"
+                  >
+                    <span
+                      className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${
+                        isPro ? "bg-white/25" : "bg-orange-50"
+                      }`}
+                    >
+                      <FaCheck color={isPro ? "white" : "#dd4924"} size={8} />
+                    </span>
+                    <span
+                      className={`text-xs whitespace-nowrap ${isPro ? "text-orange-50" : "text-gray-600"}`}
+                    >
+                      {item}
+                    </span>
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              <div className="mt-7">
+                {isPro ? (
+                  <a
+                    href="/register"
+                    className="flex items-center justify-center w-full py-[15px] px-9 bg-white text-orange-600 font-bold text-[14px] rounded-xl hover:bg-orange-50 transition-all duration-[180ms] hover:opacity-90 hover:-translate-y-px"
+                  >
+                    Comenzar {card.label}
+                  </a>
+                ) : (
+                  <ShimmerButton primary href="/register" className="w-full">
+                    Comenzar {card.label}
+                  </ShimmerButton>
+                )}
+              </div>
+            </motion.div>
+          );
+        })}
       </motion.div>
     </div>
   );

@@ -4,37 +4,45 @@ import { useRouter, useSearchParams } from "next/navigation";
 import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
 import ISubscription from "@/interfaces/subscription.interface";
-import { CheckCircle2, Loader2, Lock, ShieldCheck, Unlink } from "lucide-react";
+import { CheckCircle2, Info, Loader2, Lock, ShieldCheck, Unlink } from "lucide-react";
 import { toast } from "sonner";
 import { SiMercadopago } from "react-icons/si";
+import { getPlanLimits } from "@/lib/planLimits";
+import PlanPickerModal from "@/components/dashboard/subscription/PlanPickerModal";
 
 interface Props {
   businessData: IBusiness;
   subscriptionData?: ISubscription | { response_data: object };
 }
 
-const MercadoPagoConnect: React.FC<Props> = ({ businessData, subscriptionData }) => {
+const MercadoPagoConnect: React.FC<Props> = ({
+  businessData,
+  subscriptionData,
+}) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isLinked, setIsLinked] = useState<boolean>(businessData.mpLinked ?? false);
+  const [isLinked, setIsLinked] = useState<boolean>(
+    businessData.mpLinked ?? false,
+  );
   const [loading, setLoading] = useState<boolean>(false);
-  const [loadingPlan, setLoadingPlan] = useState<boolean>(false);
+  const [pickerOpen, setPickerOpen] = useState<boolean>(false);
 
-  const subscription = subscriptionData && "subscriptionType" in subscriptionData
-    ? subscriptionData as ISubscription
-    : null;
+  const subscription =
+    subscriptionData && "subscriptionType" in subscriptionData
+      ? (subscriptionData as ISubscription)
+      : null;
 
-  const isFullPlan = subscription?.subscriptionType === "SC_FULL";
+  const depositsEnabled = getPlanLimits(subscription?.subscriptionType).depositsEnabled;
 
   useEffect(() => {
     const mpStatus = searchParams.get("mp");
     if (mpStatus === "success") {
       setIsLinked(true);
       toast.success("Mercado Pago vinculado correctamente");
-      router.replace("/admin/business/services");
+      router.replace("/admin/account/mercadopago");
     } else if (mpStatus === "error") {
       toast.error("Error al vincular Mercado Pago. Intentá de nuevo.");
-      router.replace("/admin/business/services");
+      router.replace("/admin/account/mercadopago");
     }
   }, [searchParams, router]);
 
@@ -42,9 +50,12 @@ const MercadoPagoConnect: React.FC<Props> = ({ businessData, subscriptionData })
     setLoading(true);
     try {
       const token = localStorage.getItem("sacaturno_token");
-      const res = await axiosReq.get(`/mp/oauth/connect?businessID=${businessData._id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axiosReq.get(
+        `/mp/oauth/connect?businessID=${businessData._id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       window.location.href = res.data.url;
     } catch {
       toast.error("No se pudo iniciar la vinculación. Intentá de nuevo.");
@@ -56,9 +67,12 @@ const MercadoPagoConnect: React.FC<Props> = ({ businessData, subscriptionData })
     setLoading(true);
     try {
       const token = localStorage.getItem("sacaturno_token");
-      await axiosReq.delete(`/mp/oauth/disconnect?businessID=${businessData._id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axiosReq.delete(
+        `/mp/oauth/disconnect?businessID=${businessData._id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       setIsLinked(false);
       toast.success("Mercado Pago desvinculado");
     } catch {
@@ -68,31 +82,8 @@ const MercadoPagoConnect: React.FC<Props> = ({ businessData, subscriptionData })
     }
   };
 
-  const handleBuyFullPlan = async () => {
-    setLoadingPlan(true);
-    try {
-      const token = localStorage.getItem("sacaturno_token");
-      const authHeader = {
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      };
-      const data = {
-        title: "Plan Full",
-        businessID: businessData._id,
-        ownerID: businessData.ownerID,
-        email: businessData.email,
-        quantity: 1,
-        currency_id: "ARS",
-      };
-      const preference = await axiosReq.post("/subscription/pay/full", data, authHeader);
-      router.push(preference.data.init_point);
-    } catch {
-      toast.error("No se pudo generar el pago. Intentá de nuevo.");
-      setLoadingPlan(false);
-    }
-  };
-
   return (
-    <div className="flex flex-col gap-0 bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">
+    <div className="gap-0 bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden  flex flex-col w-full max-w-4xl">
       {/* Header */}
       <div className="flex items-center gap-3 px-6 py-4 2xl:px-8 2xl:py-5 border-b border-gray-100">
         <div
@@ -102,49 +93,88 @@ const MercadoPagoConnect: React.FC<Props> = ({ businessData, subscriptionData })
           <SiMercadopago size={18} className="text-white" />
         </div>
         <div className="flex flex-col">
-          <h2 className="text-sm 2xl:text-base font-semibold text-gray-800 leading-tight">Mercado Pago</h2>
-          <span className="text-xs text-gray-400 font-medium">Cobro de señas</span>
+          <h2 className="text-sm 2xl:text-base font-semibold text-gray-800 leading-tight">
+            Mercado Pago
+          </h2>
+          <span className="text-xs text-gray-400 font-medium">
+            Cobro de señas
+          </span>
         </div>
       </div>
 
-      {!isFullPlan ? (
+      {!depositsEnabled ? (
         <div className="flex flex-col items-center justify-center gap-3 px-6 py-10 2xl:py-12">
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-orange-100 shrink-0">
             <Lock size={18} className="text-accent" />
           </div>
           <div className="flex flex-col items-center gap-1 text-center">
-                <span className="text-sm 2xl:text-base font-semibold text-gray-800">
-              Función exclusiva del Plan Full</span>
+            <span className="text-sm 2xl:text-base font-semibold text-gray-800">
+              Función disponible en los planes pagos
+            </span>
             <span className="text-xs 2xl:text-sm text-gray-500 leading-relaxed">
-              El cobro de señas está disponible solo para cuentas con Plan Full.
+              El cobro de señas está disponible en los planes Básico, Pro y Full.
             </span>
           </div>
           <button
-            onClick={handleBuyFullPlan}
-            disabled={loadingPlan}
-            className="mt-1 flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-orange-600 hover:bg-orange-500 rounded-lg transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+            onClick={() => setPickerOpen(true)}
+            className="mt-1 flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-orange-600 hover:bg-orange-500 rounded-lg transition-colors duration-200 cursor-pointer"
           >
-            {loadingPlan && <Loader2 size={13} className="animate-spin" />}
-            Comprar Plan Full
+            Elegir un plan
           </button>
         </div>
       ) : (
         <div className="p-6 2xl:p-8 flex flex-col gap-4">
           {/* Info box */}
-          <div className="flex items-start gap-3 px-4 py-3 rounded-lg bg-gray-50 border border-gray-100">
-            <ShieldCheck size={15} className="shrink-0 text-gray-400 mt-px" />
-            <p className="text-xs sm:text-[13px] text-gray-500 leading-relaxed">
-              Vinculá tu cuenta de Mercado Pago para habilitar el cobro de señas cuando tus clientes reserven un turno.
-            </p>
+          <div className="flex flex-col gap-3 px-4 py-4 rounded-lg bg-gray-50 border border-gray-100">
+            <div className="flex items-start gap-3">
+              <ShieldCheck size={15} className="shrink-0 text-gray-400 mt-px" />
+              <p className="text-xs sm:text-[13px] text-gray-600 font-semibold leading-relaxed">
+                Vinculá tu cuenta de Mercado Pago de forma segura para cobrar señas cuando tus clientes reserven un turno.
+              </p>
+            </div>
+            <ul className="flex flex-col gap-2 pl-1">
+              <li className="flex items-start gap-2 text-[13px] text-gray-500 leading-relaxed">
+                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#009ee3] shrink-0" />
+                Los pagos de señas se acreditan directamente en tu cuenta de Mercado Pago, sin intermediarios.
+              </li>
+              <li className="flex items-start gap-2 text-[13px] text-gray-500 leading-relaxed">
+                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#009ee3] shrink-0" />
+                Necesitás tener una cuenta vinculada para poder activar el cobro de señas en tus servicios.
+              </li>
+              <li className="flex items-start gap-2 text-[13px] text-gray-500 leading-relaxed">
+                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#009ee3] shrink-0" />
+                La vinculación usa OAuth de Mercado Pago: nunca almacenamos tu contraseña.
+              </li>
+              <li className="flex items-center gap-2 text-[13px] text-gray-500 leading-relaxed">
+                <Info size={14} className="shrink-0 text-orange-500" />
+                <span>SacaTurno <span className="font-semibold text-gray-600">no cobra ninguna comisión</span> por las señas — el 100% va directo a tu cuenta.</span>
+              </li>
+            </ul>
           </div>
 
           {isLinked ? (
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-3 px-4 py-3 bg-green-50 border border-green-100 rounded-lg">
                 <CheckCircle2 size={16} className="shrink-0 text-green-500" />
-                <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-green-700">Cuenta vinculada</span>
-                  <span className="text-xs text-green-600 opacity-80">Tu cuenta de Mercado Pago está activa</span>
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-xs font-semibold text-green-700">
+                    Cuenta vinculada
+                  </span>
+                  {businessData.mpAccountName && (
+                    <span className="text-xs text-green-700 font-medium">
+                      {businessData.mpAccountName}
+                    </span>
+                  )}
+                  {businessData.mpAccountEmail && (
+                    <span className="text-xs text-green-600 opacity-75">
+                      {businessData.mpAccountEmail}
+                    </span>
+                  )}
+                  {!businessData.mpAccountName && !businessData.mpAccountEmail && (
+                    <span className="text-xs text-green-600 opacity-80">
+                      Tu cuenta de Mercado Pago está activa
+                    </span>
+                  )}
                 </div>
               </div>
               <button
@@ -152,7 +182,11 @@ const MercadoPagoConnect: React.FC<Props> = ({ businessData, subscriptionData })
                 disabled={loading}
                 className="flex items-center md:max-w-56 justify-center gap-2 w-full px-4 py-2.5 border border-red-200 text-red-600 text-xs font-semibold rounded-lg hover:bg-red-50 transition-all duration-300 ease-in-out disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
               >
-                {loading ? <Loader2 className="animate-spin" size={14} /> : <Unlink size={14} />}
+                {loading ? (
+                  <Loader2 className="animate-spin" size={14} />
+                ) : (
+                  <Unlink size={14} />
+                )}
                 Desvincular cuenta
               </button>
             </div>
@@ -162,12 +196,18 @@ const MercadoPagoConnect: React.FC<Props> = ({ businessData, subscriptionData })
               disabled={loading}
               className="flex items-center md:max-w-56 justify-center gap-2.5 w-full px-4 py-2.5 text-white text-xs font-semibold rounded-lg transition-all duration-300 ease-in-out disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer bg-[#009ee3] hover:bg-[#0081c0]"
             >
-              {loading ? <Loader2 className="animate-spin" size={15} /> : <SiMercadopago size={17} />}
+              {loading ? (
+                <Loader2 className="animate-spin" size={15} />
+              ) : (
+                <SiMercadopago size={17} />
+              )}
               Vincular Mercado Pago
             </button>
           )}
         </div>
       )}
+
+      <PlanPickerModal open={pickerOpen} onOpenChange={setPickerOpen} businessData={businessData} />
     </div>
   );
 };

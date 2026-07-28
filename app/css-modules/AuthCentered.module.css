@@ -38,10 +38,9 @@
   }
 }
 
-/* Fixed-height variant: fills exactly the viewport below the 64px navbar */
+/* Fills at least the viewport below the 64px navbar */
 .authBgScreen {
-  height: calc(100vh - 64px);
-  overflow: hidden;
+  min-height: calc(100vh - 64px);
   position: relative;
   display: flex;
   flex-direction: column;

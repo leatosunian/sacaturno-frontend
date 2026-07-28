@@ -20,21 +20,33 @@ const config: Config = {
   		animation: {
   			marquee: 'marquee var(--duration) linear infinite',
   			'marquee-vertical': 'marquee-vertical var(--duration) linear infinite',
-  			'ticker-scroll': 'ticker-scroll 28s linear infinite',
+  			'ticker-scroll': 'ticker-scroll 28s linear infinite'
   		},
   		keyframes: {
   			marquee: {
-  				from: { transform: 'translateX(0)' },
-  				to: { transform: 'translateX(calc(-100% - var(--gap)))' },
+  				from: {
+  					transform: 'translateX(0)'
+  				},
+  				to: {
+  					transform: 'translateX(calc(-100% - var(--gap)))'
+  				}
   			},
   			'marquee-vertical': {
-  				from: { transform: 'translateY(0)' },
-  				to: { transform: 'translateY(calc(-100% - var(--gap)))' },
+  				from: {
+  					transform: 'translateY(0)'
+  				},
+  				to: {
+  					transform: 'translateY(calc(-100% - var(--gap)))'
+  				}
   			},
   			'ticker-scroll': {
-  				from: { transform: 'translateX(0)' },
-  				to: { transform: 'translateX(-50%)' },
-  			},
+  				from: {
+  					transform: 'translateX(0)'
+  				},
+  				to: {
+  					transform: 'translateX(-50%)'
+  				}
+  			}
   		},
   		colors: {
   			background: 'hsl(var(--background))',

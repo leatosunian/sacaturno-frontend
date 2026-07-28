@@ -14,6 +14,7 @@ import type { DateRange } from "react-day-picker";
 import { es } from "react-day-picker/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import NoBusinessEmptyState from "@/components/dashboard/NoBusinessEmptyState";
 
 interface MonthData {
   month: string;
@@ -286,6 +287,10 @@ const AnalyticsComponent: React.FC<Props> = ({ businessId }) => {
     );
   }
 
+  if (!businessId) {
+    return <NoBusinessEmptyState />;
+  }
+
   if (error || !data) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3">
@@ -298,6 +303,29 @@ const AnalyticsComponent: React.FC<Props> = ({ businessId }) => {
   }
 
   const { monthlyData, summary } = data;
+
+  if (summary.totalAppointments === 0) {
+    return (
+      <div className="flex h-fit w-full px-4 sm:px-6 md:px-8 max-w-screen-2xl mx-auto pt-7 sm:pt-[35px] md:pt-10 pb-16">
+        <div className="flex flex-col w-full gap-8 h-fit">
+          <div className="flex flex-col gap-1">
+            <h4 className="text-2xl font-bold md:text-3xl">Estadísticas</h4>
+          </div>
+          <div className="flex flex-col items-center justify-center py-20 gap-3 text-center">
+            <LuCalendar size={36} className="text-gray-200" />
+            <span className="text-sm font-semibold text-gray-500">Todavía no hay turnos registrados</span>
+            <span className="text-xs text-gray-400 max-w-xs">
+              Las estadísticas aparecerán aquí una vez que empieces a recibir reservas.
+            </span>
+            <Link href="/admin/schedule" className="text-xs text-orange-600 hover:underline mt-1">
+              Ir a agenda →
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const currentMonth = monthlyData[monthlyData.length - 1];
   const ticketPromedio =
     (currentMonth?.appointments ?? 0) > 0
@@ -327,7 +355,7 @@ const AnalyticsComponent: React.FC<Props> = ({ businessId }) => {
       : 0;
 
   return (
-    <div className="flex h-fit mx-auto w-full px-[25px] pt-7 sm:pt-[35px] md:w-4/5 md:pt-10 2xl:pt-10 md:px-0 pb-16">
+    <div className="flex h-fit w-full px-4 sm:px-6 md:px-8 max-w-screen-2xl mx-auto pt-7 sm:pt-[35px] md:pt-10 pb-16">
       <div className="flex flex-col w-full gap-8 h-fit">
 
         {/* HEADER */}

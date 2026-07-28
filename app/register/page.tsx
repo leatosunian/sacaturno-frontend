@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import HeaderPublic from "@/components/home/HeaderPublic";
 import Footer from "@/components/home/Footer";
-import FormRegistrate from "@/components/home/register/FormRegistrate";
+import AuthSection from "@/components/home/AuthSection";
 import styles from "@/app/css-modules/AuthCentered.module.css";
 
 export const metadata: Metadata = {
@@ -44,7 +44,7 @@ export default function Register() {
             </div>
 
             <div className="pt-5 max-[1535px]:pt-[14px] px-7 max-[1535px]:px-[22px] pb-7 max-[1535px]:pb-[22px]">
-              <FormRegistrate />
+              <AuthSection mode="register" />
             </div>
           </div>
 
