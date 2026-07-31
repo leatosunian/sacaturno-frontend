@@ -25,3 +25,19 @@ export async function proxyGet(path: string, searchParams?: URLSearchParams) {
     return NextResponse.json({ error: "Request failed" }, { status });
   }
 }
+
+// Write proxy: el token vive en una cookie httpOnly, así que la mutación debe
+// pasar por este route handler (el JS de cliente no puede leer la cookie).
+export async function proxyPut(path: string, body: unknown) {
+  const token = getHqToken();
+  try {
+    const res = await axios.put(`${backendUrl}${path}`, body, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return NextResponse.json(res.data);
+  } catch (err: any) {
+    const status = err?.response?.status || 500;
+    console.error("Backstage proxy error:", path, err?.message);
+    return NextResponse.json({ error: "Request failed" }, { status });
+  }
+}

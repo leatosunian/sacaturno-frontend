@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Badge } from "./Badge";
 import { ShimmerButton } from "@/components/ui/ShimmerButton";
 import { PAID_PLAN_CARDS, PaidPlan } from "@/lib/planLimits";
+import { usePlanPrices } from "@/lib/usePlanPrices";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -53,6 +54,7 @@ const getPlanIcon = (plan: PaidPlan, isPro: boolean) => {
 };
 
 const PricingSection = () => {
+  const prices = usePlanPrices();
   return (
     <div
       id="pricing"
@@ -241,7 +243,7 @@ const PricingSection = () => {
                   <span
                     className={`text-3xl font-bold ${isPro ? "text-white" : "text-black"}`}
                   >
-                    ${card.price.toLocaleString("es-AR")}
+                    ${prices[card.plan].toLocaleString("es-AR")}
                   </span>
                   <span
                     className={`text-xs mb-1 ${isPro ? "text-orange-100" : "text-gray-500"}`}

@@ -20,7 +20,9 @@ const config: Config = {
   		animation: {
   			marquee: 'marquee var(--duration) linear infinite',
   			'marquee-vertical': 'marquee-vertical var(--duration) linear infinite',
-  			'ticker-scroll': 'ticker-scroll 28s linear infinite'
+  			'ticker-scroll': 'ticker-scroll 28s linear infinite',
+  			'sectors-left': 'sectors-left var(--sectors-duration, 40s) linear infinite',
+  			'sectors-right': 'sectors-right var(--sectors-duration, 40s) linear infinite'
   		},
   		keyframes: {
   			marquee: {
@@ -45,6 +47,22 @@ const config: Config = {
   				},
   				to: {
   					transform: 'translateX(-50%)'
+  				}
+  			},
+  			'sectors-left': {
+  				from: {
+  					transform: 'translateX(0)'
+  				},
+  				to: {
+  					transform: 'translateX(-50%)'
+  				}
+  			},
+  			'sectors-right': {
+  				from: {
+  					transform: 'translateX(-50%)'
+  				},
+  				to: {
+  					transform: 'translateX(0)'
   				}
   			}
   		},

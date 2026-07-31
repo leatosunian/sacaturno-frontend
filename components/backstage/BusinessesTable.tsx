@@ -1,11 +1,13 @@
 import { formatDate } from "./format";
 import { PLAN_SHORT_LABELS, SubscriptionType } from "@/lib/planLimits";
+import { getCategoryLabel } from "@/lib/businessCategories";
 
 interface BusinessRow {
   _id: string;
   name: string;
   slug: string;
   businessType: string;
+  businessCategory?: string | null;
   email?: string;
   phone?: number;
   createdAt: string;
@@ -70,7 +72,20 @@ const BusinessesTable = ({ businesses }: { businesses: BusinessRow[] }) => {
           {businesses.map((b) => (
             <tr key={b._id} className="border-b border-gray-50 transition-colors duration-150 hover:bg-gray-50">
               <td className="px-4 py-3 font-medium text-gray-800">{b.name}</td>
-              <td className="px-4 py-3 text-gray-600">{b.businessType}</td>
+              <td className="px-4 py-3">
+                <div className="flex flex-col gap-1">
+                  <span className="text-gray-700">{b.businessType}</span>
+                  {b.businessCategory ? (
+                    <span className="w-fit rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-medium text-orange-700">
+                      {getCategoryLabel(b.businessCategory)}
+                    </span>
+                  ) : (
+                    <span className="w-fit rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
+                      Sin categoría
+                    </span>
+                  )}
+                </div>
+              </td>
               <td className="px-4 py-3">
                 <PlanBadge type={b.subscription?.subscriptionType} />
               </td>

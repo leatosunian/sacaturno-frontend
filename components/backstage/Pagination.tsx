@@ -5,15 +5,17 @@ interface Props {
   totalPages: number;
   basePath: string;
   search?: string;
+  category?: string;
 }
 
-const Pagination = ({ page, totalPages, basePath, search }: Props) => {
+const Pagination = ({ page, totalPages, basePath, search, category }: Props) => {
   if (totalPages <= 1) return null;
 
   const hrefFor = (p: number) => {
     const params = new URLSearchParams();
     params.set("page", String(p));
     if (search) params.set("search", search);
+    if (category) params.set("category", category);
     return `${basePath}?${params.toString()}`;
   };
 

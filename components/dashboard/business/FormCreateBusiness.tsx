@@ -9,6 +9,7 @@ import { BsFillCheckCircleFill } from "react-icons/bs";
 import { LuBuilding2, LuLink, LuMail, LuPlus } from "react-icons/lu";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import RubroPicker from "./RubroPicker";
 
 interface Props {
   userEmail: string;
@@ -16,6 +17,7 @@ interface Props {
 
 interface formInputs {
   name: string;
+  businessCategory: string;
   businessType: string;
   address: string;
   appointmentDuration: string;
@@ -36,6 +38,7 @@ const FormCreateBusiness: React.FC<Props> = ({ userEmail }) => {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<formInputs>({
     resolver: zodResolver(createBusinessSchema),
@@ -43,8 +46,15 @@ const FormCreateBusiness: React.FC<Props> = ({ userEmail }) => {
       appointmentDuration: "30",
       dayStart: "6",
       dayEnd: "22",
+      businessCategory: "",
+      businessType: "",
     },
   });
+
+  register("businessCategory");
+  register("businessType");
+  const businessCategory = watch("businessCategory");
+  const businessType = watch("businessType");
 
   const [loading, setLoading] = useState<boolean>(false);
   const [isCreated, setIsCreated] = useState<boolean>(false);
@@ -132,18 +142,17 @@ const FormCreateBusiness: React.FC<Props> = ({ userEmail }) => {
               )}
             </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-700">Rubro principal</label>
-              <input
-                type="text"
-                maxLength={20}
-                placeholder="Ej: Peluquería"
-                {...register("businessType")}
-                className={inputClass(!!errors.businessType)}
+            <div className="flex flex-col gap-1 md:col-span-2">
+              <RubroPicker
+                category={businessCategory}
+                type={businessType}
+                onChange={(cat, type) => {
+                  setValue("businessCategory", cat, { shouldValidate: !!errors.businessCategory });
+                  setValue("businessType", type, { shouldValidate: !!errors.businessType });
+                }}
+                categoryError={errors.businessCategory?.message}
+                typeError={errors.businessType?.message}
               />
-              {errors.businessType?.message && (
-                <span className="text-sm text-red-500">{errors.businessType.message}</span>
-              )}
             </div>
 
             <div className="flex flex-col gap-1 md:col-span-2">

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import AdminHeader from "@/components/dashboard/AdminHeader";
 import AdminSidebar from "@/components/dashboard/AdminSidebar";
 import AdminBreadcrumbs from "@/components/dashboard/AdminBreadcrumbs";
@@ -43,13 +44,17 @@ export default async function Layout({
   let userName = "";
   let userEmail = "";
   let userAvatar = "";
+  let authFailed = false;
   if (payload?.userId && token) {
     try {
       const res = await fetch(
         `${process.env.BACKEND_URL}/user/get/${payload.userId}`,
         { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" },
       );
-      if (res.ok) {
+      if (res.status === 401) {
+        // Token expirado/inválido: no renderizar el panel con datos vacíos.
+        authFailed = true;
+      } else if (res.ok) {
         const { response_data } = await res.json();
         userName = [response_data.name, response_data.surname]
           .filter(Boolean)
@@ -61,6 +66,11 @@ export default async function Layout({
         }
       }
     } catch {}
+  }
+
+  // redirect() lanza NEXT_REDIRECT; va fuera del try/catch para que propague.
+  if (authFailed) {
+    redirect("/login");
   }
 
   let subscriptionPlan: string | undefined;

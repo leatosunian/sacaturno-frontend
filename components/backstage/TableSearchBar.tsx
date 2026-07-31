@@ -19,17 +19,17 @@ const TableSearchBar = ({ placeholder }: { placeholder: string }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center gap-2">
+    <form onSubmit={handleSubmit} className="flex w-full items-center gap-2 sm:w-auto">
       <input
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder}
-        className="h-9 w-64 rounded-lg border border-gray-200 bg-white px-3 text-xs text-gray-800 outline-none transition-colors focus:border-orange-600"
+        className="h-9 min-w-0 flex-1 rounded-lg border border-gray-200 bg-white px-3 text-xs text-gray-800 outline-none transition-colors focus:border-orange-600 sm:w-64 sm:flex-none"
       />
       <button
         type="submit"
-        className="h-9 rounded-lg border border-gray-200 px-3 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
+        className="h-9 shrink-0 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
       >
         Buscar
       </button>

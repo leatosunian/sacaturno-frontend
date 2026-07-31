@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { FaCheck, FaMedal, FaRocket, FaGem } from "react-icons/fa6";
 import { IBusiness } from "@/interfaces/business.interface";
 import { PAID_PLAN_CARDS, PaidPlan } from "@/lib/planLimits";
+import { usePlanPrices } from "@/lib/usePlanPrices";
 import { createSubscriptionPreference } from "@/lib/subscriptionPreference";
 
 interface Props {
@@ -23,6 +24,7 @@ const getPlanIcon = (plan: PaidPlan, isPro: boolean) => {
 // componentes que ya viven dentro de un Dialog ajeno (ExpiredPlanModal, UpgradePlanModal).
 const PlanPickerCards: React.FC<Props> = ({ businessData }) => {
   const router = useRouter();
+  const prices = usePlanPrices();
   const [loadingPlan, setLoadingPlan] = useState<PaidPlan | null>(null);
 
   const handleSelectPlan = async (targetPlan: PaidPlan) => {
@@ -81,7 +83,7 @@ const PlanPickerCards: React.FC<Props> = ({ businessData }) => {
                 <span
                   className={`text-2xl 2xl:text-3xl font-bold ${isPro ? "text-white" : "text-black"}`}
                 >
-                  ${card.price.toLocaleString("es-AR")}
+                  ${prices[card.plan].toLocaleString("es-AR")}
                 </span>
                 <span
                   className={`text-xs mb-1 ${isPro ? "text-orange-100" : "text-gray-500"}`}

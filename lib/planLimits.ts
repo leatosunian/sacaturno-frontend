@@ -41,8 +41,10 @@ export const PAID_PLANS: PaidPlan[] = ["SC_BASIC", "SC_PRO", "SC_FULL"];
 export const isPaidPlan = (value: unknown): value is PaidPlan =>
   typeof value === "string" && (PAID_PLANS as string[]).includes(value);
 
-// Solo para mostrar en el selector de planes — el cobro real siempre lo resuelve el
-// backend a partir de las env vars BASIC_PLAN_PRICE/PRO_PLAN_PRICE/FULL_PLAN_PRICE.
+// Fallback de display. La fuente real de precios es el doc singleton en Mongo,
+// editable desde /backstage/pricing y expuesto en GET /subscription/plan-prices
+// (ver usePlanPrices). Estos valores solo se usan si el fetch falla o mientras
+// carga. El cobro real siempre lo resuelve el backend (getPlanPrice → cache DB).
 export const PLAN_DISPLAY_PRICES: Record<PaidPlan, number> = {
   SC_BASIC: 9990,
   SC_PRO: 19990,

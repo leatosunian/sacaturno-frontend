@@ -107,13 +107,16 @@ function MarqueeRow({
   direction: "left" | "right";
   duration: number;
 }) {
+  const animClass =
+    direction === "left" ? "animate-sectors-left" : "animate-sectors-right";
   return (
     <div
-      className="flex w-max gap-3.5 hover:[animation-play-state:paused] cursor-pointer motion-reduce:!animate-none"
-      style={{
-        animation: `marquee-${direction} ${duration}s linear infinite`,
-        willChange: "transform",
-      }}
+      className={`flex w-max gap-3.5 cursor-pointer will-change-transform [@media(hover:hover)]:hover:[animation-play-state:paused] ${animClass}`}
+      style={
+        {
+          ["--sectors-duration" as any]: `${duration}s`,
+        } as React.CSSProperties
+      }
     >
       {tags.map((t, i) => (
         <IndustryPill
@@ -292,10 +295,10 @@ export default function Sectors() {
               href="/register"
               className="
                 shrink-0 w-full sm:w-auto text-center
-                rounded-lg bg-orange-600 px-5 py-2.5
+                rounded-lg bg-primary px-5 py-2.5
                 text-xs font-bold text-white
                 transition-all duration-300 ease-in-out
-                hover:bg-orange-700
+                hover:bg-primary/90
               "
             >
               Probalo gratis →
@@ -304,25 +307,6 @@ export default function Sectors() {
         </motion.div>
       </div>
 
-      {/* Keyframes */}
-      <style jsx global>{`
-        @keyframes marquee-left {
-          from {
-            transform: translateX(0);
-          }
-          to {
-            transform: translateX(-50%);
-          }
-        }
-        @keyframes marquee-right {
-          from {
-            transform: translateX(-50%);
-          }
-          to {
-            transform: translateX(0);
-          }
-        }
-      `}</style>
     </section>
   );
 }

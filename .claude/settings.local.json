@@ -67,7 +67,11 @@
       "Bash(npx next *)",
       "Bash(node -e \"const p=require\\('./package.json'\\);console.log\\('react-slot', \\(p.dependencies||{}\\)['@radix-ui/react-slot']\\); console.log\\('@types/react', \\(p.devDependencies||{}\\)['@types/react']||\\(p.dependencies||{}\\)['@types/react']\\); console.log\\('react', \\(p.dependencies||{}\\)['react']\\)\")",
       "Bash(git -C /c/sacaturno log -3 --oneline)",
-      "Bash(git -C /c/sacaturno diff HEAD -- components/dashboard/NoBusinessEmptyState.tsx)"
+      "Bash(git -C /c/sacaturno diff HEAD -- components/dashboard/NoBusinessEmptyState.tsx)",
+      "Bash(git -C server diff --stat)",
+      "Bash(git -C /c/sacaturno diff -- lib/planLimits.ts config/axios.tsx next.config.mjs)",
+      "Bash(git -C /c/sacaturno/server diff -- src/routes/appointmentRoutes.ts src/routes/subscriptionRoutes.ts src/routes/superadminRoutes.ts)",
+      "Bash(git -C /c/sacaturno/server diff -- src/controllers/appointmentController.ts)"
     ],
     "additionalDirectories": [
       "c:\\sacaturno\\.claude\\skills"

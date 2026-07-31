@@ -122,18 +122,10 @@ export default function BookAppointmentModal({
   }
 
   const handleCancelBooking = async () => {
-    if (!bookedAppointmentData) return
+    if (!bookedAppointmentData?.cancelToken) return
     try {
-      await axiosReq.put("/appointment/book/cancel", {
-        _id:           bookedAppointmentData._id,
-        start:         bookedAppointmentData.startISO,
-        end:           bookedAppointmentData.endISO,
-        name:          bookedAppointmentData.name,
-        phone:         bookedAppointmentData.phone,
-        service:       bookedAppointmentData.service,
-        email:         bookedAppointmentData.email,
-        status:        bookedAppointmentData.status,
-        businessEmail: businessData.email,
+      await axiosReq.put("/appointment/book/cancel/token", {
+        token: bookedAppointmentData.cancelToken,
       })
       closeModalF("CANCELLED")
     } catch (error) {
