@@ -62,7 +62,7 @@ const BackstageLoginForm = () => {
       <button
         type="submit"
         disabled={loading}
-        className="mt-2 h-10 w-full rounded-lg bg-orange-600 text-sm font-semibold text-white transition-colors hover:bg-orange-700 disabled:opacity-60"
+        className="mt-2 h-10 w-full rounded-lg bg-primary text-sm font-semibold text-white transition-colors hover:bg-primary/90 disabled:opacity-60"
       >
         {loading ? "Ingresando..." : "Ingresar"}
       </button>

@@ -12,9 +12,12 @@ import Alert from "../../Alert";
 import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
 import { IService } from "@/interfaces/service.interface";
+import RubroPicker from "./RubroPicker";
+import { inferCategoryCode } from "@/lib/businessCategories";
 
 interface formInputs {
   name: string;
+  businessCategory: string;
   businessType: string;
   address: string;
   phone: string;
@@ -35,10 +38,17 @@ const FormCreateBusiness = ({
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors, isDirty },
   } = useForm<formInputs>({
     resolver: zodResolver(businessSchema),
   });
+
+  register("businessCategory");
+  register("businessType");
+  const businessCategory = watch("businessCategory");
+  const businessType = watch("businessType");
 
   const [alert, setAlert] = useState<AlertInterface>();
   const [loading, setLoading] = useState<boolean>(false);
@@ -58,6 +68,7 @@ const FormCreateBusiness = ({
     reset({
       name: businessData.name,
       address: businessData.address,
+      businessCategory: businessData.businessCategory || inferCategoryCode(businessData.businessType) || "",
       businessType: businessData.businessType,
       phone: businessData.phone?.toString() ?? "",
       email: businessData.email,
@@ -132,6 +143,7 @@ const FormCreateBusiness = ({
         reset({
           name: data.name,
           address: data.address,
+          businessCategory: data.businessCategory,
           businessType: data.businessType,
           phone: data.phone,
           email: data.email,
@@ -207,18 +219,17 @@ const FormCreateBusiness = ({
                 )}
               </div>
 
-              <div className="flex flex-col gap-1">
-                <label className="text-xs 2xl:text-sm font-medium text-gray-700">Rubro principal</label>
-                <input
-                  type="text"
-                  maxLength={20}
-                  {...register("businessType")}
-                  placeholder="Ej: Peluquería"
-                  className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.businessType ? "border-red-500" : "border-gray-200"}`}
+              <div className="flex flex-col gap-1 md:col-span-2">
+                <RubroPicker
+                  category={businessCategory}
+                  type={businessType}
+                  onChange={(cat, type) => {
+                    setValue("businessCategory", cat, { shouldValidate: !!errors.businessCategory, shouldDirty: true });
+                    setValue("businessType", type, { shouldValidate: !!errors.businessType, shouldDirty: true });
+                  }}
+                  categoryError={errors.businessCategory?.message}
+                  typeError={errors.businessType?.message}
                 />
-                {errors.businessType?.message && (
-                  <span className="text-xs 2xl:text-sm text-red-500">{errors.businessType.message}</span>
-                )}
               </div>
 
               <div className="flex flex-col gap-1 md:col-span-2">
@@ -299,9 +310,9 @@ const FormCreateBusiness = ({
                 {/* URL input + actions */}
                 <div className="flex flex-col sm:flex-row gap-2">
                   <div
-                    className={`flex items-center flex-1 h-9 2xl:h-10 rounded-lg border overflow-hidden bg-white shadow-sm transition-all duration-200 ease-in-out focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-100 ${errors.slug ? "border-red-400" : "border-orange-200"}`}
+                    className={`flex items-center min-w-0 flex-1 min-h-8 h-12 sm:h-11  rounded-lg border overflow-hidden bg-white shadow-sm transition-all duration-200 ease-in-out focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-100 ${errors.slug ? "border-red-400" : "border-orange-200"}`}
                   >
-                    <span className="px-3 text-xs 2xl:text-sm text-orange-600 font-medium bg-orange-50 h-full flex items-center border-r border-orange-200 whitespace-nowrap flex-shrink-0">
+                    <span className="px-2.5 sm:px-3 text-xs 2xl:text-sm min-h-8 text-orange-600 font-medium bg-orange-50 h-full flex items-center border-r border-orange-200 whitespace-nowrap flex-shrink-0">
                       sacaturno.com.ar/
                     </span>
                     <input
@@ -309,7 +320,7 @@ const FormCreateBusiness = ({
                       maxLength={30}
                       {...register("slug")}
                       placeholder="mi-empresa"
-                      className="flex-1 h-full px-3 text-xs 2xl:text-sm bg-white focus:outline-none text-gray-700 font-medium"
+                      className="min-w-0 flex-1 h-full px-3 text-xs 2xl:text-sm bg-white focus:outline-none text-gray-700 font-medium"
                     />
                   </div>
                   <div className="flex gap-2">
@@ -317,7 +328,7 @@ const FormCreateBusiness = ({
                       type="button"
                       onClick={copyPublicLink}
                       title="Copiar link público"
-                      className={`flex items-center justify-center gap-1.5 h-9 2xl:h-10 px-5 rounded-lg text-xs 2xl:text-sm font-semibold transition-all duration-300 ease-in-out whitespace-nowrap flex-shrink-0 cursor-pointer shadow-sm ${
+                      className={`flex flex-1 sm:flex-none items-center justify-center gap-1.5 h-12 sm:h-11 px-4 sm:px-5 rounded-lg text-xs 2xl:text-sm font-semibold transition-all duration-300 ease-in-out whitespace-nowrap cursor-pointer shadow-sm ${
                         copied
                           ? "bg-green-600 text-white"
                           : "bg-primary text-white hover:bg-orange-500"
@@ -331,7 +342,8 @@ const FormCreateBusiness = ({
                       target="_blank"
                       rel="noopener noreferrer"
                       title="Ver página pública"
-                      className="flex items-center justify-center w-9 h-9 2xl:w-10 2xl:h-10 rounded-lg border border-orange-200 bg-white text-orange-600 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 ease-in-out flex-shrink-0 shadow-sm"
+                      aria-label="Ver página pública"
+                      className="flex items-center justify-center w-12 sm:w-11 h-12 sm:h-11 rounded-lg border border-orange-200 bg-white text-orange-600 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 ease-in-out flex-shrink-0 shadow-sm"
                     >
                       <LuExternalLink size={14} />
                     </a>
@@ -347,7 +359,7 @@ const FormCreateBusiness = ({
         </div>
 
         {/* Save */}
-        <div className="flex justify-end mt-6">
+        <div className="flex justify-end my-5">
           {loading ? (
             <div className="flex items-center justify-center w-32 h-9">
               <div className="loaderSmall"></div>

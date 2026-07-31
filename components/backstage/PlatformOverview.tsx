@@ -1,4 +1,5 @@
 import { formatCurrency, formatPercent } from "./format";
+import { getCategoryLabel } from "@/lib/businessCategories";
 
 interface TopBusiness {
   businessID: string;
@@ -14,6 +15,7 @@ interface FeatureAdoption {
   businessesUsingBranches: number;
   totalBusinesses: number;
   byBusinessType: { businessType: string; count: number }[];
+  byCategory: { businessCategory: string | null; count: number }[];
 }
 
 interface OverviewData {
@@ -110,7 +112,16 @@ const PlatformOverview = ({ data }: { data: OverviewData | null }) => {
               <span className="font-semibold">{featureAdoption.businessesUsingBranches} negocios</span>
             </div>
             <div className="mt-2 flex flex-col gap-1 border-t border-gray-100 pt-3">
-              <span className="text-xs font-medium uppercase text-gray-400">Por rubro</span>
+              <span className="text-xs font-medium uppercase text-gray-400">Por categoría</span>
+              {featureAdoption.byCategory?.map((c) => (
+                <div key={c.businessCategory ?? "sin"} className="flex items-center justify-between text-xs">
+                  <span className="text-gray-600">{getCategoryLabel(c.businessCategory)}</span>
+                  <span className="font-medium text-gray-800">{c.count}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-2 flex flex-col gap-1 border-t border-gray-100 pt-3">
+              <span className="text-xs font-medium uppercase text-gray-400">Por especialidad</span>
               {featureAdoption.byBusinessType.slice(0, 5).map((t) => (
                 <div key={t.businessType} className="flex items-center justify-between text-xs">
                   <span className="text-gray-600">{t.businessType}</span>

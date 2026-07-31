@@ -144,6 +144,7 @@ export interface FormattedAppointment {
   dateStr: string;
   employeeID: string | null;
   branchID: string | null;
+  cancelToken?: string | null;
 }
 
 // ── Wizard steps ─────────────────────────────────────────────

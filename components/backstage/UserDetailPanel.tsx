@@ -90,12 +90,15 @@ const UserDetailPanel = ({ data }: { data: UserDetail }) => {
         <div className="flex flex-col divide-y divide-gray-50">
           {ownedBusinesses.length === 0 && <p className="px-6 py-4 text-xs text-gray-400">No creó ningún negocio.</p>}
           {ownedBusinesses.map((b) => (
-            <div key={b._id} className="flex items-center justify-between px-6 py-3 text-xs">
-              <div className="flex flex-col gap-0.5">
-                <span className="font-medium text-gray-800">{b.name}</span>
-                <span className="text-gray-400">{b.businessType} · alta {formatDate(b.createdAt)}</span>
+            <div
+              key={b._id}
+              className="flex flex-col gap-2 px-4 py-3 text-xs sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-6"
+            >
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <span className="truncate font-medium text-gray-800">{b.name}</span>
+                <span className="truncate text-gray-400">{b.businessType} · alta {formatDate(b.createdAt)}</span>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <span className="text-gray-600">{b.appointmentsCount} turnos</span>
                 <span className="text-gray-600">{b.subscription?.subscriptionType ?? "SC_FREE"}</span>
                 {b.isActive ? (
@@ -116,12 +119,15 @@ const UserDetailPanel = ({ data }: { data: UserDetail }) => {
         <div className="flex flex-col divide-y divide-gray-50">
           {memberships.length === 0 && <p className="px-6 py-4 text-xs text-gray-400">No es empleado de ningún negocio.</p>}
           {memberships.map((m) => (
-            <div key={m.businessID} className="flex items-center justify-between px-6 py-3 text-xs">
-              <div className="flex flex-col gap-0.5">
-                <span className="font-medium text-gray-800">{m.business?.name ?? "Negocio eliminado"}</span>
-                <span className="text-gray-400">{m.permissions.join(", ") || "Sin permisos"}</span>
+            <div
+              key={m.businessID}
+              className="flex flex-col gap-2 px-4 py-3 text-xs sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-6"
+            >
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <span className="truncate font-medium text-gray-800">{m.business?.name ?? "Negocio eliminado"}</span>
+                <span className="truncate text-gray-400">{m.permissions.join(", ") || "Sin permisos"}</span>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <span className="text-gray-600">{m.appointmentsCount} turnos</span>
                 <span className="rounded-full bg-gray-100 px-2.5 py-1 font-medium text-gray-700">{m.status}</span>
               </div>
@@ -137,10 +143,17 @@ const UserDetailPanel = ({ data }: { data: UserDetail }) => {
         <div className="flex flex-col divide-y divide-gray-50">
           {subscriptionPayments.length === 0 && <p className="px-6 py-4 text-xs text-gray-400">Sin pagos registrados.</p>}
           {subscriptionPayments.map((p) => (
-            <div key={p._id} className="flex items-center justify-between px-6 py-3 text-xs">
+            <div
+              key={p._id}
+              className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 px-4 py-3 text-xs sm:flex sm:items-center sm:justify-between sm:px-6"
+            >
               <span className="text-gray-600">{formatDate(p.paymentDate)}</span>
-              <span className="text-gray-600">{p.subscriptionType}</span>
-              <span className="font-medium text-gray-800">{formatCurrency(p.price)}</span>
+              <span className="col-start-2 row-start-1 justify-self-end font-medium text-gray-800 sm:col-auto sm:row-auto sm:justify-self-auto">
+                {formatCurrency(p.price)}
+              </span>
+              <span className="col-span-2 text-gray-400 sm:col-span-1 sm:order-none sm:text-gray-600">
+                {p.subscriptionType}
+              </span>
             </div>
           ))}
         </div>

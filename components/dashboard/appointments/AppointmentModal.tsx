@@ -32,6 +32,7 @@ interface eventType2 {
 interface props {
   appointment: eventType2 | undefined;
   onDelete: (id: string) => void;
+  onCancel?: (id: string) => void;
   closeModalF: () => void;
   canDelete?: boolean;
   employees?: IEmployee[];
@@ -71,21 +72,34 @@ const Field = ({ label, value }: { label: string; value: React.ReactNode }) => (
 const AppointmentModal: React.FC<props> = ({
   appointment,
   onDelete,
+  onCancel,
   closeModalF,
   canDelete = true,
   employees,
   branches,
 }) => {
   const [isBooked, setIsBooked] = useState(false);
+  const [confirmCancel, setConfirmCancel] = useState(false);
 
   useEffect(() => {
     setIsBooked(appointment?.status === "booked");
+    setConfirmCancel(false);
   }, [appointment]);
 
   const handleDelete = () => {
     if (!appointment?._id) return;
     onDelete(appointment._id);
   };
+
+  const handleCancel = () => {
+    if (!appointment?._id || !onCancel) return;
+    onCancel(appointment._id);
+  };
+
+  const willRefund =
+    appointment?.depositStatus === "paid" &&
+    appointment?.depositAmount !== undefined &&
+    appointment.depositAmount > 0;
 
   const hasDeposit =
     appointment?.depositAmount !== undefined && appointment.depositAmount > 0;
@@ -249,6 +263,47 @@ const AppointmentModal: React.FC<props> = ({
             <FaWhatsapp color="white" /> Contactar cliente por WhatsApp
           </Button>
         </Link>
+
+        {/* Cancelar turno */}
+        {onCancel && canDelete && (
+          <>
+            {!confirmCancel ? (
+              <Button
+                onClick={() => setConfirmCancel(true)}
+                className="w-full bg-white text-red-600 border border-red-200 rounded-lg h-11 hover:bg-red-50"
+              >
+                Cancelar turno
+              </Button>
+            ) : (
+              <div className="flex flex-col gap-3 rounded-xl border border-red-100 bg-red-50 px-4 py-3.5">
+                <p className="text-[13px] leading-relaxed text-red-600 text-center font-medium">
+                  Se liberará este turno y se le avisará al cliente por email.
+                  {willRefund && (
+                    <>
+                      {" "}Se le <strong>reembolsará la seña de $
+                      {appointment!.depositAmount!.toLocaleString("es-AR")}</strong>{" "}
+                      vía Mercado Pago.
+                    </>
+                  )}
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => setConfirmCancel(false)}
+                    className="flex-1 h-9 text-xs bg-gray-100 text-gray-700 hover:bg-gray-200 border-none rounded-lg"
+                  >
+                    Volver
+                  </Button>
+                  <Button
+                    onClick={handleCancel}
+                    className="flex-1 h-9 text-xs text-white bg-red-600 hover:bg-red-700 border-none rounded-lg"
+                  >
+                    Confirmar cancelación
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
     );
   }

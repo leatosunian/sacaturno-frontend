@@ -403,7 +403,7 @@ const DashboardComponent: React.FC<Props> = ({
                   className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
                 >
                   <span className="text-sm font-semibold text-white">
-                    Mi agenda
+                    Turnos
                   </span>
                   <LuCalendarDays size={22} color="white" />
                 </div>

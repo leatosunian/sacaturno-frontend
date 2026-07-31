@@ -434,6 +434,49 @@ const CalendarTurnos: React.FC<Props> = ({
     }
   };
 
+  const handleCancelAppointment = async (id: string) => {
+    setEventModal(false);
+    const original = appointmentsData.find((a) => a._id === id);
+    // Optimista: el slot se libera (vuelve a "unbooked" limpio)
+    setAppointmentsData((prev) =>
+      prev.map((a) =>
+        a._id === id
+          ? {
+              ...a,
+              status: "unbooked",
+              title: "Disponible",
+              name: "",
+              email: "",
+              phone: 0,
+              depositStatus: "none",
+            }
+          : a
+      )
+    );
+    const toastId = toast.loading("Cancelando turno...", { position: "top-center" });
+    try {
+      const { data } = await axiosReq.put(
+        "/appointment/book/cancel",
+        { _id: id },
+        getAuthHeader()
+      );
+      toast.success(
+        data?.refunded
+          ? "Turno cancelado y seña reembolsada"
+          : "Turno cancelado correctamente",
+        { id: toastId, position: "top-center" }
+      );
+      router.refresh();
+    } catch {
+      if (original) {
+        setAppointmentsData((prev) =>
+          prev.map((a) => (a._id === id ? original : a))
+        );
+      }
+      toast.error("No se pudo cancelar el turno", { id: toastId, position: "top-center" });
+    }
+  };
+
   const handleSaveDayAppointments = async (dayAppointments: IAppointment[]) => {
     setAllDayAppointmentsModal(false);
     const tempIds = dayAppointments.map((_, i) => `temp_day_${Date.now()}_${i}`);
@@ -708,6 +751,7 @@ const CalendarTurnos: React.FC<Props> = ({
           <AppointmentModal
             appointment={eventData}
             onDelete={handleDeleteAppointment}
+            onCancel={handleCancelAppointment}
             closeModalF={() => setEventModal(false)}
             canDelete={eventCanDelete}
             employees={employees}

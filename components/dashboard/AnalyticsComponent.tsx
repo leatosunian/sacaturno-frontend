@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { LuArrowLeft, LuCalendar, LuTrendingUp, LuUsers, LuX } from "react-icons/lu";
+import { LuArrowLeft, LuCalendar, LuTrendingUp, LuUsers, LuX, LuCalendarX } from "react-icons/lu";
 import {
   Dialog,
   DialogContent,
@@ -24,12 +24,14 @@ interface MonthData {
   revenue: number;
   paidDeposits: number;
   issuedAppointments: number;
+  cancellations: number;
 }
 
 interface AnalyticsSummary {
   totalRevenue: number;
   totalAppointments: number;
   totalDeposits: number;
+  totalCancellations: number;
   avgMonthlyRevenue: number;
   avgMonthlyAppointments: number;
 }
@@ -468,6 +470,22 @@ const AnalyticsComponent: React.FC<Props> = ({ businessId }) => {
                     <span className="text-gray-400 text-sm font-normal">señas</span>
                   </span>
                   <span className="text-xs text-gray-500">con seña abonada</span>
+                </div>
+
+                <div style={cardShadow} className="flex flex-col gap-3 p-4 bg-white rounded-xl">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide pr-3 sm:pr-0">
+                      Cancelaciones
+                    </span>
+                    <div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ backgroundColor: "#fff3ef" }}>
+                      <LuCalendarX size={15} color="#dd4924" />
+                    </div>
+                  </div>
+                  <span className="text-2xl font-bold">
+                    {summary.totalCancellations}{" "}
+                    <span className="text-gray-400 text-sm font-normal">turnos</span>
+                  </span>
+                  <span className="text-xs text-gray-500">historial completo</span>
                 </div>
 
               </div>

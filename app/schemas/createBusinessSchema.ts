@@ -7,10 +7,14 @@ export const createBusinessSchema = z.object({
         message: 'El nombre debe tener menos de 35 caractéres'
     }),
 
-    businessType: z.string().trim().min(5, {
-        message: 'Ingresá un rubro'
+    businessCategory: z.string().trim().min(1, {
+        message: 'Elegí un rubro'
+    }),
+
+    businessType: z.string().trim().min(2, {
+        message: 'Elegí o especificá una especialidad'
     }).max(35, {
-        message: 'El rubro debe tener menos de 35 caractéres'
+        message: 'La especialidad debe tener menos de 35 caractéres'
     }),
 
     address: z.string().trim().optional(),

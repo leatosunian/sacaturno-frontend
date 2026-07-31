@@ -18,6 +18,7 @@ export async function POST(req: Request) {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax" as const,
     path: "/",
+    maxAge: 60 * 60 * 24 * 30, // 30 días, alineado al expiry del JWT
   };
 
   cookieStore.set("sacaturno_token", token, cookieOpts);

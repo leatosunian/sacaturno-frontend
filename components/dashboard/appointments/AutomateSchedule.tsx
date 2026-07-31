@@ -166,6 +166,8 @@ const AutomateSchedule: React.FC<Props> = ({
   const [selectedAnticipation, setSelectedAnticipation] = useState<number>(0);
   const [selectedDaysToCreate, setSelectedDaysToCreate] = useState<number>(0);
   const [selectedAutomaticSchedule, setSelectedAutomaticSchedule] = useState<boolean>(false);
+  const [selectedCancelWindow, setSelectedCancelWindow] = useState<number>(24);
+  const [savingCancelWindow, setSavingCancelWindow] = useState<boolean>(false);
   const [daysSchedule, setDaysSchedule] = useState<IDaySchedule[]>([]);
   const [appointmentsSchedule, setAppointmentsSchedule] = useState<IAppointmentSchedule[]>();
   const [selectedAppointmentDuration, setSelectedAppointmentDuration] = useState<number>(30);
@@ -239,6 +241,7 @@ const AutomateSchedule: React.FC<Props> = ({
     setSelectedAnticipation(businessData.scheduleAnticipation);
     setSelectedDaysToCreate(businessData.scheduleDaysToCreate);
     setSelectedAutomaticSchedule(businessData.automaticSchedule);
+    setSelectedCancelWindow(businessData.cancellationWindowHours ?? 24);
   }, [businessData, services, servicesData, subscriptionData, daysAndAppointments]);
 
   useEffect(() => {
@@ -441,6 +444,32 @@ const AutomateSchedule: React.FC<Props> = ({
       hideAlert();
       setLoadingButton(false);
       setLoadingNewAppointments(false);
+    }
+  };
+
+  const saveCancelWindow = async () => {
+    setSavingCancelWindow(true);
+    const token = localStorage.getItem("sacaturno_token");
+    const authHeader = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        "Cache-Control": "no-store",
+      },
+    };
+    try {
+      await axiosReq.put(
+        "/business/schedule/parameters/" + business?._id,
+        { cancellationWindowHours: selectedCancelWindow },
+        authHeader
+      );
+      setAlert({ msg: "Política de cancelación guardada", error: true, alertType: "OK_ALERT" });
+      hideAlert();
+    } catch {
+      setAlert({ msg: "Error al guardar la política de cancelación", error: true, alertType: "ERROR_ALERT" });
+      hideAlert();
+    } finally {
+      setSavingCancelWindow(false);
     }
   };
 
@@ -1086,6 +1115,76 @@ const AutomateSchedule: React.FC<Props> = ({
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* ── Card: Cancellation policy ── */}
+        <Card className="p-0 overflow-hidden">
+          <div className="flex flex-col">
+            <div className="flex items-start gap-3 px-5 md:px-6 py-4 md:py-5 border-b border-gray-100">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-orange-50 text-primary shrink-0">
+                <LuTimer size={20} />
+              </div>
+              <div className="flex flex-col gap-1">
+                <h2 className="text-base font-semibold text-gray-800">
+                  Política de cancelación
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Definí con cuánta anticipación un cliente puede cancelar su turno por su cuenta.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4 p-5 md:p-6">
+              <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                <FaCircleInfo size={13} className="text-blue-400 mt-0.5 shrink-0" />
+                <p className="text-sm text-blue-500 leading-relaxed">
+                  Pasado ese plazo, el cliente ya no podrá cancelar online y deberá contactarte.
+                  Vos siempre podés cancelar cualquier turno desde tu agenda. La seña, si la hubo,
+                  no se reembolsa cuando cancela el cliente; sí se reembolsa cuando cancelás vos.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-[1.35fr_1fr] gap-4 items-end">
+                <div className="flex flex-col gap-1.5 p-3.5 rounded-xl border border-gray-200 bg-gray-50">
+                  <label className="flex items-center gap-1.5 text-sm font-medium text-gray-600">
+                    <LuTimer size={14} className="text-gray-400 shrink-0" />
+                    Antelación mínima para cancelar
+                  </label>
+                  <select
+                    value={selectedCancelWindow}
+                    onChange={(e) => setSelectedCancelWindow(Number(e.target.value))}
+                    className="h-9 rounded-md border border-gray-200 bg-gray-100 px-3 text-sm text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-all duration-200 cursor-pointer"
+                  >
+                    <option value="0">Sin restricción (siempre permitido)</option>
+                    <option value="2">Hasta 2 horas antes</option>
+                    <option value="6">Hasta 6 horas antes</option>
+                    <option value="12">Hasta 12 horas antes</option>
+                    <option value="24">Hasta 24 horas antes</option>
+                    <option value="48">Hasta 48 horas antes</option>
+                    <option value="72">Hasta 72 horas antes</option>
+                  </select>
+                </div>
+
+                <button
+                  onClick={saveCancelWindow}
+                  disabled={
+                    savingCancelWindow ||
+                    selectedCancelWindow === (businessData.cancellationWindowHours ?? 24)
+                  }
+                  className="flex items-center justify-center gap-1.5 h-9 bg-primary hover:bg-orange-500 text-white text-xs font-semibold px-4 rounded-lg transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-primary"
+                >
+                  {savingCancelWindow ? (
+                    <div className="loaderSmall" />
+                  ) : (
+                    <>
+                      <LuSave size={14} />
+                      Guardar
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>
