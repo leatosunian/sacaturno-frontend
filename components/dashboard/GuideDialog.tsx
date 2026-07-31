@@ -69,8 +69,14 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
   };
 
   return (
-    <Dialog open={openGuideDialog} onOpenChange={handleClose}>
-      <DialogContent className="sm:w-[460px] md:w-[600px] 2xl:w-[700px] w-[93vw] max-h-[90svh] flex flex-col overflow-hidden">
+    <Dialog open={openGuideDialog} onOpenChange={isFirstLogin ? undefined : handleClose}>
+      <DialogContent
+        hideCloseButton={isFirstLogin}
+        onEscapeKeyDown={isFirstLogin ? (e) => e.preventDefault() : undefined}
+        onPointerDownOutside={isFirstLogin ? (e) => e.preventDefault() : undefined}
+        onInteractOutside={isFirstLogin ? (e) => e.preventDefault() : undefined}
+        className="sm:w-[460px] md:w-[600px] 2xl:w-[700px] w-[93vw] max-h-[90svh] flex flex-col overflow-hidden"
+      >
         {showWelcome ? (
           /* ── Welcome screen (first login only) ── */
           <div className="flex flex-col items-center gap-6 py-2 text-center overflow-y-auto">

@@ -71,7 +71,14 @@
       "Bash(git -C server diff --stat)",
       "Bash(git -C /c/sacaturno diff -- lib/planLimits.ts config/axios.tsx next.config.mjs)",
       "Bash(git -C /c/sacaturno/server diff -- src/routes/appointmentRoutes.ts src/routes/subscriptionRoutes.ts src/routes/superadminRoutes.ts)",
-      "Bash(git -C /c/sacaturno/server diff -- src/controllers/appointmentController.ts)"
+      "Bash(git -C /c/sacaturno/server diff -- src/controllers/appointmentController.ts)",
+      "PowerShell(Resolve-DnsName sacaturno.com.ar -Type A -ErrorAction SilentlyContinue)",
+      "PowerShell(Resolve-DnsName www.sacaturno.com.ar -Type A -ErrorAction SilentlyContinue)",
+      "PowerShell(Resolve-DnsName sacaturno.com.ar -Type NS -ErrorAction SilentlyContinue)",
+      "PowerShell(Resolve-DnsName sacaturno.com.ar -Server 8.8.8.8 -Type A -ErrorAction SilentlyContinue)",
+      "PowerShell(Resolve-DnsName sacaturno.com.ar -Server 8.8.8.8 -Type NS -ErrorAction SilentlyContinue)",
+      "PowerShell(Resolve-DnsName sacaturno.com.ar -Server a.dns.ar -Type NS -ErrorAction SilentlyContinue)",
+      "PowerShell(nslookup sacaturno.com.ar 8.8.8.8 2>&1)"
     ],
     "additionalDirectories": [
       "c:\\sacaturno\\.claude\\skills"
