@@ -78,7 +78,8 @@
       "PowerShell(Resolve-DnsName sacaturno.com.ar -Server 8.8.8.8 -Type A -ErrorAction SilentlyContinue)",
       "PowerShell(Resolve-DnsName sacaturno.com.ar -Server 8.8.8.8 -Type NS -ErrorAction SilentlyContinue)",
       "PowerShell(Resolve-DnsName sacaturno.com.ar -Server a.dns.ar -Type NS -ErrorAction SilentlyContinue)",
-      "PowerShell(nslookup sacaturno.com.ar 8.8.8.8 2>&1)"
+      "PowerShell(nslookup sacaturno.com.ar 8.8.8.8 2>&1)",
+      "Bash(echo \"---exit:$?---\")"
     ],
     "additionalDirectories": [
       "c:\\sacaturno\\.claude\\skills"

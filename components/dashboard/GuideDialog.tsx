@@ -2,7 +2,16 @@
 import { useState } from "react";
 import Link from "next/dist/client/link";
 import { Dialog, DialogContent } from "../ui/dialog";
-import { LuBuilding2, LuLayoutList, LuCalendarDays, LuArrowRight } from "react-icons/lu";
+import {
+  LuBuilding2,
+  LuLayoutList,
+  LuCalendarDays,
+  LuShare2,
+  LuArrowRight,
+  LuCheck,
+  LuClock,
+} from "react-icons/lu";
+import { IconType } from "react-icons";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -11,46 +20,88 @@ interface Props {
   isFirstLogin: boolean | undefined;
 }
 
-const steps = [
+interface Bullet {
+  strong?: string;
+  text: string;
+}
+
+interface Step {
+  number: number;
+  Icon: IconType;
+  title: string;
+  tagline: string;
+  description: string;
+  bullets: Bullet[];
+  note?: string;
+  tip: string;
+}
+
+const steps: Step[] = [
   {
     number: 1,
-    icon: <LuBuilding2 size={22} className="text-primary" />,
+    Icon: LuBuilding2,
     title: "Creá tu empresa",
+    tagline: "Tus datos y tu link de reservas online",
     description:
-      "Este es el primer paso. Sin una empresa creada no vas a poder cargar servicios ni turnos.",
+      "Cargás el nombre, el rubro y los datos de contacto de tu negocio. Al terminar obtenés tu link público de reservas, el que vas a compartir con tus clientes para que puedan reservar tus turnos.",
     bullets: [
-      "Definí el nombre de tu negocio",
-      "Configurá tus datos básicos",
-      "Ajustá horarios y preferencias generales",
+      { text: "Nombre, rubro y datos de contacto de tu negocio" },
+      {
+        strong: "Personalizá tu link de reservas",
+        text: "sacaturno.com.ar/tu-negocio, lo copiás y compartís con tus clientes",
+      },
     ],
-    tip: "Sin empresa creada no podés avanzar. Es el único requisito obligatorio antes de empezar.",
-    cta: null,
+    tip: "Sin una empresa creada no vas a poder cargar servicios ni turnos. Es lo único que necesitás para arrancar.",
   },
   {
     number: 2,
-    icon: <LuLayoutList size={22} className="text-primary" />,
-    title: "Agregá tus servicios",
-    description: "Contanos qué ofrecés. Estos son los servicios que tus clientes van a poder reservar.",
+    Icon: LuLayoutList,
+    title: "Cargá tus servicios",
+    tagline: "Lo que tus clientes van a poder reservar",
+    description:
+      "Creá cada servicio que ofrecés con su precio y duración. Son las opciones que aparecen cuando un cliente pide un turno.",
     bullets: [
-      "Creá uno o más servicios",
-      "Definí la duración de cada uno",
-      "Elegí si requieren seña para reservar",
+      { text: "Definí el precio y la duración de cada servicio" },
+      { text: "Creá todos los que ofrezcas; los editás cuando quieras" },
+      {
+        strong: "Seña opcional",
+        text: "se cobra al reservar (requiere vincular tu Mercado Pago)",
+      },
     ],
-    tip: "Podés agregar o editar servicios en cualquier momento desde el panel.",
-    cta: null,
+    tip: "Podés agregar, editar o eliminar servicios en cualquier momento desde el panel.",
   },
   {
     number: 3,
-    icon: <LuCalendarDays size={22} className="text-primary" />,
-    title: "Organizá tu agenda",
-    description: "En la sección Agenda encontrás dos herramientas para gestionar tus turnos:",
+    Icon: LuCalendarDays,
+    title: "Prepará tu agenda",
+    tagline: "Definí cuándo estás disponible",
+    description:
+      "En la sección Agenda elegís tu horario de atención y cómo se generan los turnos disponibles. Tenés dos formas de trabajar:",
     bullets: [
-      "⚡ Automatizar agenda (recomendado) — configurá una plantilla semanal y el sistema genera los turnos disponibles automáticamente",
-      "📅 Turnos — visualizá tu calendario y cargá turnos manualmente cuando lo necesitás",
+      {
+        strong: "Automatizar agenda",
+        text: "armás una plantilla semanal de turnos y el sistema los crea automáticamente durante el tiempo que vos definas (ej. 3 semanas hacia adelante y se vuelven a generar 5 dias antes del último turno disponible)",
+      },
+      {
+        strong: "Turnos",
+        text: "cargás turnos a mano para casos puntuales o días con horario especial",
+      },
     ],
-    note: "Podés usar ambas opciones en conjunto: automatizá tu semana base y ajustá excepciones a mano",
-    tip: "Si configurás la automatización, el sistema crea los turnos disponibles por adelantado. Los turnos manuales son ideales para casos puntuales o días con horario especial.",
-    cta: null,
+    note: "Podés combinar ambas: automatizá tu semana base y ajustá las excepciones a mano.",
+    tip: "Ahí mismo definís tu política de cancelación: hasta cuándo un cliente puede cancelar su turno por su cuenta.",
+  },
+  {
+    number: 4,
+    Icon: LuShare2,
+    title: "Compartí tu link y recibí reservas",
+    tagline: "¡Todo listo para trabajar!",
+    description:
+      "Compartí tu link público por WhatsApp, Instagram o donde quieras. Tus clientes eligen un servicio, un horario libre y reservan online.",
+    bullets: [
+      { text: "Cada reserva aparece automáticamente en tu agenda y te notificamos por correo" },
+      { text: "Recibís los turnos sin mensajes, llamadas ni idas y vueltas" },
+    ],
+    tip: "Vas a poder ver y gestionar todos tus turnos desde el panel de control.",
   },
 ];
 
@@ -75,65 +126,94 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
         onEscapeKeyDown={isFirstLogin ? (e) => e.preventDefault() : undefined}
         onPointerDownOutside={isFirstLogin ? (e) => e.preventDefault() : undefined}
         onInteractOutside={isFirstLogin ? (e) => e.preventDefault() : undefined}
-        className="sm:w-[460px] md:w-[600px] 2xl:w-[700px] w-[93vw] max-h-[90svh] flex flex-col overflow-hidden"
+        className="sm:w-[460px] md:w-[600px] 2xl:w-[640px] w-[93vw] max-h-[90svh] flex flex-col overflow-hidden p-0"
       >
         {showWelcome ? (
           /* ── Welcome screen (first login only) ── */
-          <div className="flex flex-col items-center gap-6 py-2 text-center overflow-y-auto">
-            <div className="flex flex-col gap-2">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-800">¡Bienvenido a SacaTurno!</h2>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                En 3 pasos simples vas a dejar tu agenda lista para empezar a recibir turnos.
-              </p>
+          <div className="flex flex-col overflow-hidden">
+            {/* Hero */}
+            <div className="relative flex flex-col items-center gap-3 px-6 pt-8 pb-6 text-center bg-gradient-to-b from-orange-50 to-white border-b border-orange-100/60">
+              <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary text-white shadow-md shadow-orange-200">
+                <LuCalendarDays size={26} />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-800">
+                  ¡Bienvenido a SacaTurno!
+                </h2>
+                <p className="text-sm text-gray-500 leading-relaxed max-w-sm">
+                  Poné tu agenda a punto y empezá a recibir turnos online. Te guiamos en 4 pasos
+                  simples.
+                </p>
+              </div>
+              <span className="flex items-center gap-1.5 rounded-full bg-white border border-orange-100 px-3 py-1 text-xs font-semibold text-primary shadow-sm">
+                <LuClock size={13} />
+                Te toma menos de 5 minutos
+              </span>
             </div>
 
-            <div className="flex flex-col gap-3 w-full">
+            {/* Vertical stepper preview */}
+            <div className="flex flex-col px-6 py-5 overflow-y-auto">
               {steps.map((s, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100 text-left"
-                >
-                  <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-orange-50 border border-orange-100 shrink-0">
-                    {s.icon}
+                <div key={i} className="flex gap-3.5">
+                  {/* Rail */}
+                  <div className="flex flex-col items-center">
+                    <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-orange-50 border border-orange-100 text-primary shrink-0">
+                      <s.Icon size={17} />
+                    </div>
+                    {i < steps.length - 1 && (
+                      <div className="w-px flex-1 my-1 bg-gradient-to-b from-orange-200 to-orange-100" />
+                    )}
                   </div>
-                  <div className="flex flex-col gap-0">
-                    <span className="text-[10px] font-semibold text-primary uppercase tracking-wide">
+                  {/* Text */}
+                  <div className={cn("flex flex-col", i < steps.length - 1 ? "pb-4" : "pb-0")}>
+                    <span className="text-[10px] font-bold text-primary uppercase tracking-wider">
                       Paso {s.number}
                     </span>
-                    <span className="text-sm font-semibold text-gray-700">{s.title}</span>
+                    <span className="text-[15px] font-semibold text-gray-800 leading-snug">
+                      {s.title}
+                    </span>
+                    <span className="text-xs text-gray-500 leading-snug">{s.tagline}</span>
                   </div>
                 </div>
               ))}
             </div>
 
-            <button
-              onClick={() => setShowWelcome(false)}
-              className="w-full h-10 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-600 text-white transition-colors duration-200"
-            >
-              Empezar →
-            </button>
+            {/* Footer */}
+            <div className="px-6 pb-6 pt-1">
+              <button
+                onClick={() => setShowWelcome(false)}
+                className="group w-full flex items-center justify-center gap-2 h-11 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-600 text-white transition-colors duration-200"
+              >
+                Empezar
+                <LuArrowRight
+                  size={16}
+                  className="translate-x-0 group-hover:translate-x-1 transition-transform duration-200"
+                />
+              </button>
+            </div>
           </div>
         ) : (
           /* ── Step-by-step guide ── */
           <div className="flex flex-col w-full gap-0 flex-1 min-h-0">
             {/* Header */}
-            <div className="flex flex-col gap-1 pb-4 border-b border-gray-100">
+            <div className="flex flex-col gap-1 px-6 pt-6 pb-4 border-b border-gray-100">
               <h2 className="text-lg font-bold text-gray-800">
-                {isFirstLogin ? "Primeros pasos" : "¿Cómo utilizo la plataforma?"}
+                {isFirstLogin ? "Primeros pasos" : "¿Cómo funciona SacaTurno?"}
               </h2>
               <p className="text-sm text-gray-500">
                 {isFirstLogin
                   ? "Seguí estos pasos para dejar tu agenda lista."
-                  : "Los pasos básicos para configurar tu agenda."}
+                  : "Los pasos para configurar tu agenda y recibir turnos."}
               </p>
             </div>
 
             {/* Step indicators */}
-            <div className="flex items-center gap-1.5 pt-5 pb-2">
+            <div className="flex items-center gap-1.5 px-6 pt-4 pb-1">
               {steps.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setActiveStep(i)}
+                  aria-label={`Ir al paso ${i + 1}`}
                   className={cn(
                     "h-1.5 rounded-full transition-all duration-300",
                     i === activeStep
@@ -150,31 +230,42 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
             </div>
 
             {/* Step content */}
-            <div className="flex flex-col gap-5 flex-1 pt-4 min-h-0 overflow-y-auto pb-2">
+            <div className="flex flex-col gap-5 flex-1 px-6 pt-4 min-h-0 overflow-y-auto pb-2">
               {/* Icon + title */}
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-orange-50 border border-orange-100 shrink-0">
-                  {step.icon}
+              <div className="flex items-center gap-3.5">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100 text-primary shrink-0">
+                  <step.Icon size={23} />
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-xs font-semibold text-primary uppercase tracking-wide">
-                    Paso {step.number}
+                  <span className="text-[11px] font-bold text-primary uppercase tracking-wide">
+                    Paso {step.number} · {step.tagline}
                   </span>
-                  <h3 className="text-[17px]  font-bold text-gray-800 leading-snug">{step.title}</h3>
+                  <h3 className="text-[17px] font-bold text-gray-800 leading-snug">{step.title}</h3>
                 </div>
               </div>
 
               {/* Description + Bullets */}
-              <div className="flex flex-col gap-2">
-                <p className="text-[15px] text-gray-700 leading-relaxed mb-1">{step.description}</p>
-                {step.bullets.map((b, i) => (
-                  <div key={i} className="flex items-start gap-2">
-                    <span className="text-primary font-bold text-sm leading-snug shrink-0">•</span>
-                    <span className="text-[14.3px] text-gray-600 leading-snug">{b}</span>
-                  </div>
-                ))}
+              <div className="flex flex-col gap-3">
+                <p className="text-[15px] text-gray-700 leading-relaxed my-1.5">{step.description}</p>
+                <div className="flex flex-col gap-2">
+                  {step.bullets.map((b, i) => (
+                    <div key={i} className="flex items-start gap-2.5">
+                      <span className="flex items-center justify-center w-4 h-4 mt-0.5 rounded-full bg-orange-100 text-primary shrink-0">
+                        <LuCheck size={11} strokeWidth={3} />
+                      </span>
+                      <span className="text-[14px] text-gray-600 leading-snug">
+                        {b.strong && (
+                          <span className="font-semibold text-gray-800">{b.strong} — </span>
+                        )}
+                        {b.text}
+                      </span>
+                    </div>
+                  ))}
+                </div>
                 {step.note && (
-                  <p className="text-[14.3px] text-gray-700 leading-snug mt-2 pt-3 border-t border-gray-100">{step.note}</p>
+                  <p className="text-[13.5px] text-gray-600 leading-snug mt-1 pt-3 border-t border-gray-100">
+                    {step.note}
+                  </p>
                 )}
               </div>
 
@@ -186,7 +277,7 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
             </div>
 
             {/* Navigation */}
-            <div className="flex items-center justify-between pt-5 mt-4 border-t border-gray-100">
+            <div className="flex items-center justify-between px-6 pb-6 pt-5 mt-1 border-t border-gray-100">
               <button
                 onClick={() => {
                   if (isFirst && isFirstLogin) {
@@ -203,7 +294,7 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
                     : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
                 )}
               >
-                Anterior
+                {isFirst && isFirstLogin ? "Volver" : "Anterior"}
               </button>
 
               {!isLast ? (
@@ -217,7 +308,10 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
                 <Link href="/admin/business/create" onClick={handleClose}>
                   <button className="group flex items-center gap-2 h-9 px-5 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-600 text-white transition-colors duration-200">
                     Crear mi empresa
-                    <LuArrowRight size={15} className="translate-x-0 group-hover:translate-x-1 transition-transform duration-200" />
+                    <LuArrowRight
+                      size={15}
+                      className="translate-x-0 group-hover:translate-x-1 transition-transform duration-200"
+                    />
                   </button>
                 </Link>
               ) : (
