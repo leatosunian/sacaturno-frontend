@@ -446,7 +446,7 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
                     onChange={(e) => setNewName(e.target.value)}
                     placeholder="Nombre"
                     maxLength={40}
-                    className="h-9 w-full rounded-md border border-gray-200 px-3 text-sm bg-[rgb(235,235,235)] focus:border-orange-600 focus:outline-none transition-colors"
+                    className="h-9 w-full rounded-md border border-gray-200 px-3 text-sm bg-[rgb(245,245,245)] focus:border-orange-600 focus:outline-none transition-colors"
                   />
                 </div>
                 <div className="flex flex-col gap-1 flex-1">
@@ -457,7 +457,7 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
                     onChange={(e) => setNewSurname(e.target.value)}
                     placeholder="Apellido"
                     maxLength={40}
-                    className="h-9 w-full rounded-md border border-gray-200 px-3 text-sm bg-[rgb(235,235,235)] focus:border-orange-600 focus:outline-none transition-colors"
+                    className="h-9 w-full rounded-md border border-gray-200 px-3 text-sm bg-[rgb(245,245,245)] focus:border-orange-600 focus:outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -471,7 +471,7 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
                   onChange={(e) => setNewEmail(e.target.value)}
                   placeholder="email@ejemplo.com"
                   maxLength={60}
-                  className="h-9 w-full rounded-md border border-gray-200 px-3 text-sm bg-[rgb(235,235,235)] focus:border-orange-600 focus:outline-none transition-colors"
+                  className="h-9 w-full rounded-md border border-gray-200 px-3 text-sm bg-[rgb(245,245,245)] focus:border-orange-600 focus:outline-none transition-colors"
                 />
               </div>
             </div>

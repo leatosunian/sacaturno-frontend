@@ -29,7 +29,7 @@ interface formInputs {
 }
 
 const inputClass = (hasError: boolean) =>
-  `h-9 w-full rounded-md border px-3 text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${
+  `h-9 w-full rounded-md border px-3 text-sm bg-[rgb(245,245,245)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${
     hasError ? "border-red-500" : "border-gray-200"
   }`;
 
@@ -261,7 +261,7 @@ const FormCreateBusiness: React.FC<Props> = ({ userEmail }) => {
               <label className="text-sm font-medium text-gray-700">Duración de cada turno</label>
               <select
                 {...register("appointmentDuration")}
-                className="h-9 w-full rounded-md border border-gray-200 bg-[rgb(235,235,235)] px-3 text-sm transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none"
+                className="h-9 w-full rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 text-sm transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none"
               >
                 <option value="15">15 min</option>
                 <option value="30">30 min</option>
@@ -276,7 +276,7 @@ const FormCreateBusiness: React.FC<Props> = ({ userEmail }) => {
               <label className="text-sm font-medium text-gray-700">Hora de apertura</label>
               <select
                 {...register("dayStart")}
-                className="h-9 w-full rounded-md border border-gray-200 bg-[rgb(235,235,235)] px-3 text-sm transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none"
+                className="h-9 w-full rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 text-sm transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none"
               >
                 {Array.from({ length: 24 }, (_, i) => (
                   <option key={i} value={String(i)}>
@@ -290,7 +290,7 @@ const FormCreateBusiness: React.FC<Props> = ({ userEmail }) => {
               <label className="text-sm font-medium text-gray-700">Hora de cierre</label>
               <select
                 {...register("dayEnd")}
-                className="h-9 w-full rounded-md border border-gray-200 bg-[rgb(235,235,235)] px-3 text-sm transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none"
+                className="h-9 w-full rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 text-sm transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none"
               >
                 {Array.from({ length: 24 }, (_, i) => (
                   <option key={i} value={String(i)}>

@@ -44,9 +44,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import axiosReq from "@/config/axios";
 import { cn } from "@/lib/utils";
+
+const ALL_FILTER_VALUE = "__all__";
 
 dayjs.locale("es-mx");
 dayjs.extend(timezone);
@@ -954,34 +963,62 @@ const CalendarTurnos: React.FC<Props> = ({
               <div className="flex items-center gap-2">
                 <LuMapPin size={13} className="text-gray-400 shrink-0" />
                 <span className="w-[72px] lg:w-auto text-xs font-medium text-gray-500 shrink-0">Sucursal</span>
-                <select
-                  value={selectedBranchFilter}
-                  onChange={(e) => handleBranchFilterChange(e.target.value)}
-                  className="h-8 flex-1 min-w-0 lg:flex-none rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-medium text-gray-700 hover:border-orange-400 focus:border-orange-500 focus:outline-none transition-colors cursor-pointer"
+                <Select
+                  value={selectedBranchFilter ? selectedBranchFilter : ALL_FILTER_VALUE}
+                  onValueChange={(value) => handleBranchFilterChange(value === ALL_FILTER_VALUE ? "" : value)}
                 >
-                  <option value="">Todas</option>
-                  {activeBranches.map((b) => (
-                    <option key={b._id} value={b._id}>{b.name}</option>
-                  ))}
-                </select>
+                  <SelectTrigger className="h-8 flex-1 min-w-0 lg:flex-none lg:w-auto rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-2.5 text-xs font-medium text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600">
+                    <SelectValue placeholder="Todas" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    <SelectItem
+                      value={ALL_FILTER_VALUE}
+                      className="cursor-pointer text-xs text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
+                    >
+                      Todas
+                    </SelectItem>
+                    {activeBranches.map((b) => (
+                      <SelectItem
+                        key={b._id}
+                        value={b._id}
+                        className="cursor-pointer text-xs text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
+                      >
+                        {b.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
             {showEmployeeFilter && (
               <div className="flex items-center gap-2">
                 <LuUser size={13} className="text-gray-400 shrink-0" />
                 <span className="w-[72px] lg:w-auto text-xs font-medium text-gray-500 shrink-0">Empleado</span>
-                <select
-                  value={selectedEmployeeFilter}
-                  onChange={(e) => setSelectedEmployeeFilter(e.target.value)}
-                  className="h-8 flex-1 min-w-0 lg:flex-none rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-medium text-gray-700 hover:border-orange-400 focus:border-orange-500 focus:outline-none transition-colors cursor-pointer"
+                <Select
+                  value={selectedEmployeeFilter ? selectedEmployeeFilter : ALL_FILTER_VALUE}
+                  onValueChange={(value) => setSelectedEmployeeFilter(value === ALL_FILTER_VALUE ? "" : value)}
                 >
-                  <option value="">Todos</option>
-                  {employeeFilterOptions.map((e) => (
-                    <option key={e._id} value={e._id}>
-                      {e.surname ? `${e.name} ${e.surname}` : e.name}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="h-8 flex-1 min-w-0 lg:flex-none lg:w-auto rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-2.5 text-xs font-medium text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600">
+                    <SelectValue placeholder="Todos" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    <SelectItem
+                      value={ALL_FILTER_VALUE}
+                      className="cursor-pointer text-xs text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
+                    >
+                      Todos
+                    </SelectItem>
+                    {employeeFilterOptions.map((e) => (
+                      <SelectItem
+                        key={e._id}
+                        value={e._id}
+                        className="cursor-pointer text-xs text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
+                      >
+                        {e.surname ? `${e.name} ${e.surname}` : e.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
           </div>

@@ -174,7 +174,7 @@ const FormProfileConfig: React.FC<Props> = ({ profileData }: Props) => {
                 {...register("name")}
                 maxLength={35}
                 placeholder="Tu nombre"
-                className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.name ? "border-red-500" : "border-gray-200"}`}
+                className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(245,245,245)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.name ? "border-red-500" : "border-gray-200"}`}
               />
               {errors.name?.message && (
                 <span className="text-xs 2xl:text-sm text-red-500">{errors.name.message}</span>
@@ -188,7 +188,7 @@ const FormProfileConfig: React.FC<Props> = ({ profileData }: Props) => {
                 {...register("surname")}
                 maxLength={35}
                 placeholder="Tu apellido"
-                className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.surname ? "border-red-500" : "border-gray-200"}`}
+                className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(245,245,245)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.surname ? "border-red-500" : "border-gray-200"}`}
               />
               {errors.surname?.message && (
                 <span className="text-xs 2xl:text-sm text-red-500">{errors.surname.message}</span>
@@ -203,7 +203,7 @@ const FormProfileConfig: React.FC<Props> = ({ profileData }: Props) => {
                 disabled
                 maxLength={40}
                 title="El email no se puede modificar"
-                className="h-8 2xl:h-10 w-full rounded-md border border-gray-200 px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] text-gray-400 cursor-not-allowed"
+                className="h-8 2xl:h-10 w-full rounded-md border border-gray-200 px-3 text-xs 2xl:text-sm bg-[rgb(245,245,245)] text-gray-400 cursor-not-allowed"
               />
             </div>
 
@@ -216,7 +216,7 @@ const FormProfileConfig: React.FC<Props> = ({ profileData }: Props) => {
                 pattern="[0-9]*"
                 inputMode="numeric"
                 placeholder="Ej: 2234567890"
-                className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.phone ? "border-red-500" : "border-gray-200"}`}
+                className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(245,245,245)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.phone ? "border-red-500" : "border-gray-200"}`}
               />
               {errors.phone?.message && (
                 <span className="text-xs 2xl:text-sm text-red-500">{errors.phone.message}</span>

@@ -15,7 +15,7 @@ import NoBusinessEmptyState from "@/components/dashboard/NoBusinessEmptyState";
 
 interface Props {}
 export const metadata: Metadata = {
-  title: "Mi Empresa | SacaTurno",
+  title: "Configuración | SacaTurno",
   description: "Aplicación de turnos online",
 };
 
@@ -103,7 +103,7 @@ const BussinessConfigPage: NextPage<Props> = async ({}) => {
         <div className="w-full py-4 2xl:py-3 flex flex-col gap-4 2xl:gap-6 px-4 sm:px-6 md:px-8 max-w-screen-2xl mx-auto">
           <div className="flex items-center justify-between">
             <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">
-              Mi empresa
+              Configuración
             </h1>
             {/* <Link
               href="/admin/services"

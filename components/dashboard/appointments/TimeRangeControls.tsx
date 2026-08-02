@@ -8,6 +8,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useHoverCapable } from "@/hooks/use-hover-capable";
 import { cn } from "@/lib/utils";
 
@@ -22,19 +29,22 @@ interface TimeRangeControlsProps {
   title?: string;
 }
 
-const selectClass =
-  "h-8 rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-medium text-gray-700 hover:border-orange-400 focus:border-orange-500 focus:outline-none transition-colors duration-200 cursor-pointer";
+const triggerClass =
+  "h-8 rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-2.5 text-xs font-medium text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600";
+
+const itemClass =
+  "cursor-pointer text-xs text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700";
 
 const labelClass = "text-[10px] font-semibold text-gray-400 uppercase tracking-wider";
 
-interface SelectWithHintProps {
+interface HintedTriggerProps {
   hoverCapable: boolean;
   hint: ReactNode;
   hintClassName?: string;
   children: ReactNode;
 }
 
-function SelectWithHint({ hoverCapable, hint, hintClassName, children }: SelectWithHintProps) {
+function HintedTrigger({ hoverCapable, hint, hintClassName, children }: HintedTriggerProps) {
   if (!hoverCapable) return <>{children}</>;
   return (
     <Tooltip>
@@ -66,32 +76,38 @@ export default function TimeRangeControls({
       <div className={cn("flex items-end gap-3 flex-wrap", className)}>
         <div className="flex flex-col gap-1">
           <label className={labelClass}>Desde</label>
-          <SelectWithHint hoverCapable={hoverCapable} hint="Inicio del día">
-            <select
-              value={dayStart}
-              onChange={(e) => onDayStartChange(Number(e.target.value))}
-              className={selectClass}
-            >
+          <Select value={String(dayStart)} onValueChange={(v) => onDayStartChange(Number(v))}>
+            <HintedTrigger hoverCapable={hoverCapable} hint="Inicio del día">
+              <SelectTrigger className={triggerClass}>
+                <SelectValue />
+              </SelectTrigger>
+            </HintedTrigger>
+            <SelectContent className="max-h-72">
               {timeOptions.map((t) => (
-                <option key={t.value} value={t.value}>{t.label}</option>
+                <SelectItem key={t.value} value={String(t.value)} className={itemClass}>
+                  {t.label}
+                </SelectItem>
               ))}
-            </select>
-          </SelectWithHint>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="flex flex-col gap-1">
           <label className={labelClass}>Hasta</label>
-          <SelectWithHint hoverCapable={hoverCapable} hint="Fin del día">
-            <select
-              value={dayEnd}
-              onChange={(e) => onDayEndChange(Number(e.target.value))}
-              className={selectClass}
-            >
+          <Select value={String(dayEnd)} onValueChange={(v) => onDayEndChange(Number(v))}>
+            <HintedTrigger hoverCapable={hoverCapable} hint="Fin del día">
+              <SelectTrigger className={triggerClass}>
+                <SelectValue />
+              </SelectTrigger>
+            </HintedTrigger>
+            <SelectContent className="max-h-72">
               {timeOptions.map((t) => (
-                <option key={t.value} value={t.value}>{t.label}</option>
+                <SelectItem key={t.value} value={String(t.value)} className={itemClass}>
+                  {t.label}
+                </SelectItem>
               ))}
-            </select>
-          </SelectWithHint>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="flex flex-col gap-1">
@@ -104,21 +120,24 @@ export default function TimeRangeControls({
             </label>
             <LuInfo size={11} className="hidden lg:inline-flex text-gray-400" />
           </div>
-          <SelectWithHint
-            hoverCapable={hoverCapable}
-            hint="Divide el horario en intervalos de este tamaño (ej: turnos disponibles cada 30 minutos)"
-            hintClassName="max-w-[220px] text-center"
-          >
-            <select
-              value={appointmentDuration}
-              onChange={(e) => onDurationChange(Number(e.target.value))}
-              className={selectClass}
+          <Select value={String(appointmentDuration)} onValueChange={(v) => onDurationChange(Number(v))}>
+            <HintedTrigger
+              hoverCapable={hoverCapable}
+              hint="Divide el horario en intervalos de este tamaño (ej: turnos disponibles cada 30 minutos)"
+              hintClassName="max-w-[220px] text-center"
             >
+              <SelectTrigger className={triggerClass}>
+                <SelectValue />
+              </SelectTrigger>
+            </HintedTrigger>
+            <SelectContent className="max-h-72">
               {durationOptions.map((d) => (
-                <option key={d.value} value={d.value}>{d.label}</option>
+                <SelectItem key={d.value} value={String(d.value)} className={itemClass}>
+                  {d.label}
+                </SelectItem>
               ))}
-            </select>
-          </SelectWithHint>
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </TooltipProvider>

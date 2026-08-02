@@ -8,12 +8,20 @@ import axiosReq from "@/config/axios";
 import { FieldValues, useForm } from "react-hook-form";
 import { businessSchema } from "@/app/schemas/businessSchema";
 import { LuSave, LuCamera, LuCopy, LuCheck, LuLink, LuExternalLink, LuBuilding2 } from "react-icons/lu";
+import { FaCircleInfo } from "react-icons/fa6";
 import Alert from "../../Alert";
 import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
 import { IService } from "@/interfaces/service.interface";
 import RubroPicker from "./RubroPicker";
 import { inferCategoryCode } from "@/lib/businessCategories";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface formInputs {
   name: string;
@@ -23,6 +31,7 @@ interface formInputs {
   phone: string;
   email: string;
   slug: string;
+  cancellationWindowHours: number;
 }
 
 const FormCreateBusiness = ({
@@ -47,8 +56,10 @@ const FormCreateBusiness = ({
 
   register("businessCategory");
   register("businessType");
+  register("cancellationWindowHours", { valueAsNumber: true });
   const businessCategory = watch("businessCategory");
   const businessType = watch("businessType");
+  const cancellationWindowHours = watch("cancellationWindowHours");
 
   const [alert, setAlert] = useState<AlertInterface>();
   const [loading, setLoading] = useState<boolean>(false);
@@ -73,6 +84,7 @@ const FormCreateBusiness = ({
       phone: businessData.phone?.toString() ?? "",
       email: businessData.email,
       slug: businessData.slug,
+      cancellationWindowHours: businessData.cancellationWindowHours ?? 24,
     });
   }, [businessData, reset]);
 
@@ -148,6 +160,7 @@ const FormCreateBusiness = ({
           phone: data.phone,
           email: data.email,
           slug: data.slug,
+          cancellationWindowHours: data.cancellationWindowHours,
         });
         setAlert({ msg: "Los cambios han sido guardados", error: true, alertType: "OK_ALERT" });
         hideAlert();
@@ -212,7 +225,7 @@ const FormCreateBusiness = ({
                   maxLength={30}
                   {...register("name")}
                   placeholder="Nombre de la empresa"
-                  className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.name ? "border-red-500" : "border-gray-200"}`}
+                  className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(245,245,245)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.name ? "border-red-500" : "border-gray-200"}`}
                 />
                 {errors.name?.message && (
                   <span className="text-xs 2xl:text-sm text-red-500">{errors.name.message}</span>
@@ -249,7 +262,7 @@ const FormCreateBusiness = ({
                       maxLength={40}
                       {...register("address")}
                       placeholder="Calle, número, ciudad"
-                      className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.address ? "border-red-500" : "border-gray-200"}`}
+                      className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(245,245,245)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.address ? "border-red-500" : "border-gray-200"}`}
                     />
                     {errors.address?.message && (
                       <span className="text-xs 2xl:text-sm text-red-500">{errors.address.message}</span>
@@ -274,7 +287,7 @@ const FormCreateBusiness = ({
                 maxLength={40}
                 {...register("email")}
                 placeholder="contacto@empresa.com"
-                className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.email ? "border-red-500" : "border-gray-200"}`}
+                className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(245,245,245)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.email ? "border-red-500" : "border-gray-200"}`}
               />
               {errors.email?.message && (
                 <span className="text-xs 2xl:text-sm text-red-500">{errors.email.message}</span>
@@ -287,7 +300,7 @@ const FormCreateBusiness = ({
                 type="number"
                 {...register("phone")}
                 placeholder="Ej: 2234567890"
-                className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.phone ? "border-red-500" : "border-gray-200"}`}
+                className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(245,245,245)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.phone ? "border-red-500" : "border-gray-200"}`}
               />
               {errors.phone?.message && (
                 <span className="text-xs 2xl:text-sm text-red-500">{errors.phone.message}</span>
@@ -354,6 +367,57 @@ const FormCreateBusiness = ({
                   <span className="text-xs text-red-500">{errors.slug.message}</span>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Política de cancelación */}
+        <div className="flex flex-col gap-0 bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">
+          <div className="px-6 py-4 2xl:px-8 2xl:py-5 border-b border-gray-100">
+            <h2 className="text-sm 2xl:text-base font-semibold text-gray-800">Política de cancelación</h2>
+            <p className="text-xs text-gray-500 mt-0.5">Definí con cuánta anticipación un cliente puede cancelar su turno por su cuenta.</p>
+          </div>
+          <div className="p-6 2xl:p-8 flex flex-col gap-4 2xl:gap-5">
+            <div className="flex items-start gap-2 p-3 2xl:p-3.5 bg-blue-50 rounded-lg border border-blue-100">
+              <FaCircleInfo size={13} className="text-blue-400 mt-0.5 shrink-0" />
+              <p className="text-xs 2xl:text-sm text-blue-500 leading-relaxed">
+                Pasado ese plazo, el cliente ya no podrá cancelar online y deberá contactarte. Vos
+                siempre podés cancelar cualquier turno desde tu agenda. La seña, si la hubo, no se
+                reembolsa cuando cancela el cliente; sí se reembolsa cuando cancelás vos.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-1 w-full sm:max-w-sm">
+              <label className="text-xs 2xl:text-sm font-medium text-gray-700">Antelación mínima para cancelar</label>
+              <Select
+                value={cancellationWindowHours !== undefined && cancellationWindowHours !== null ? String(cancellationWindowHours) : undefined}
+                onValueChange={(value) =>
+                  setValue("cancellationWindowHours", Number(value), { shouldDirty: true, shouldValidate: true })
+                }
+              >
+                <SelectTrigger className="h-8 2xl:h-10 w-full rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 text-xs 2xl:text-sm text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600">
+                  <SelectValue placeholder="Elegí una opción" />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {[
+                    { value: "0", label: "Sin restricción (siempre permitido)" },
+                    { value: "2", label: "Hasta 2 horas antes" },
+                    { value: "6", label: "Hasta 6 horas antes" },
+                    { value: "12", label: "Hasta 12 horas antes" },
+                    { value: "24", label: "Hasta 24 horas antes" },
+                    { value: "48", label: "Hasta 48 horas antes" },
+                    { value: "72", label: "Hasta 72 horas antes" },
+                  ].map((opt) => (
+                    <SelectItem
+                      key={opt.value}
+                      value={opt.value}
+                      className="cursor-pointer text-xs 2xl:text-sm text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
+                    >
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>

@@ -11,7 +11,7 @@ import { IService } from "@/interfaces/service.interface";
 import NoServicesModal from "../services/NoServicesModal";
 import ISubscription from "@/interfaces/subscription.interface";
 import ExpiredPlanModal from "./ExpiredPlanModal";
-import { LuSave, LuUser, LuMapPin, LuZap, LuCalendarDays, LuTimer, LuCalendarCog, LuActivity } from "react-icons/lu";
+import { LuSave, LuUser, LuMapPin, LuZap, LuCalendarDays, LuTimer, LuCalendarCog, LuActivity, LuArrowRight } from "react-icons/lu";
 import TutorialAutomateModal from "./TutorialAutomateModal";
 import { FaArrowLeft, FaCircleInfo } from "react-icons/fa6";
 import { LuBookOpen } from "react-icons/lu";
@@ -29,6 +29,13 @@ import TimeRangeControls from "./TimeRangeControls";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useSidebar } from "@/components/ui/sidebar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 dayjs.locale("es-mx");
@@ -166,8 +173,6 @@ const AutomateSchedule: React.FC<Props> = ({
   const [selectedAnticipation, setSelectedAnticipation] = useState<number>(0);
   const [selectedDaysToCreate, setSelectedDaysToCreate] = useState<number>(0);
   const [selectedAutomaticSchedule, setSelectedAutomaticSchedule] = useState<boolean>(false);
-  const [selectedCancelWindow, setSelectedCancelWindow] = useState<number>(24);
-  const [savingCancelWindow, setSavingCancelWindow] = useState<boolean>(false);
   const [daysSchedule, setDaysSchedule] = useState<IDaySchedule[]>([]);
   const [appointmentsSchedule, setAppointmentsSchedule] = useState<IAppointmentSchedule[]>();
   const [selectedAppointmentDuration, setSelectedAppointmentDuration] = useState<number>(30);
@@ -241,7 +246,6 @@ const AutomateSchedule: React.FC<Props> = ({
     setSelectedAnticipation(businessData.scheduleAnticipation);
     setSelectedDaysToCreate(businessData.scheduleDaysToCreate);
     setSelectedAutomaticSchedule(businessData.automaticSchedule);
-    setSelectedCancelWindow(businessData.cancellationWindowHours ?? 24);
   }, [businessData, services, servicesData, subscriptionData, daysAndAppointments]);
 
   useEffect(() => {
@@ -447,31 +451,6 @@ const AutomateSchedule: React.FC<Props> = ({
     }
   };
 
-  const saveCancelWindow = async () => {
-    setSavingCancelWindow(true);
-    const token = localStorage.getItem("sacaturno_token");
-    const authHeader = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-        "Cache-Control": "no-store",
-      },
-    };
-    try {
-      await axiosReq.put(
-        "/business/schedule/parameters/" + business?._id,
-        { cancellationWindowHours: selectedCancelWindow },
-        authHeader
-      );
-      setAlert({ msg: "Política de cancelación guardada", error: true, alertType: "OK_ALERT" });
-      hideAlert();
-    } catch {
-      setAlert({ msg: "Error al guardar la política de cancelación", error: true, alertType: "ERROR_ALERT" });
-      hideAlert();
-    } finally {
-      setSavingCancelWindow(false);
-    }
-  };
 
   const saveModifiedScheduleDays = async () => {
     try {
@@ -562,8 +541,18 @@ const AutomateSchedule: React.FC<Props> = ({
 
   const totalHeight = slots.length * HOUR_HEIGHT;
 
-  // Summary panel (reflects last-saved state)
+  // Summary panel — live preview of the pending configuration so the user can
+  // review it before saving. When nothing is dirty, selected* equals the saved
+  // values, so the preview matches the last-saved state exactly.
   const savedAuto = businessData.automaticSchedule;
+  const previewAuto = selectedAutomaticSchedule;
+  const autoChanged = previewAuto !== savedAuto;
+
+  const savedWindowLabel = `${businessData.scheduleDaysToCreate} días · ${businessData.scheduleAnticipation} antes`;
+  const previewWindowLabel = `${selectedDaysToCreate} días · ${selectedAnticipation} antes`;
+  const windowChanged =
+    selectedDaysToCreate !== businessData.scheduleDaysToCreate ||
+    selectedAnticipation !== businessData.scheduleAnticipation;
 
   const daysDirty = useMemo(() => {
     const original = originalDaysRef.current;
@@ -678,11 +667,22 @@ const AutomateSchedule: React.FC<Props> = ({
   const scheduleEndLabel = businessData.scheduleEnd
     ? dayjs(businessData.scheduleEnd).format("DD/MM/YYYY")
     : "—";
-  const nextGenLabel = businessData.scheduleEnd
+  const savedNextGenLabel = businessData.scheduleEnd
     ? dayjs(businessData.scheduleEnd)
         .subtract(businessData.scheduleAnticipation, "day")
         .format("ddd DD/MM")
     : "—";
+  // Next generation uses the already-loaded scheduleEnd (past) minus the newly
+  // selected anticipation (new), so the preview reflects both.
+  const previewNextGenLabel = businessData.scheduleEnd
+    ? dayjs(businessData.scheduleEnd)
+        .subtract(selectedAnticipation, "day")
+        .format("ddd DD/MM")
+    : "—";
+  const nextGenChanged =
+    !!businessData.scheduleEnd &&
+    previewAuto &&
+    selectedAnticipation !== businessData.scheduleAnticipation;
 
   // Render
 
@@ -903,15 +903,29 @@ const AutomateSchedule: React.FC<Props> = ({
                         <LuCalendarDays size={14} className="text-gray-400 shrink-0" />
                         Días con turnos disponibles
                       </label>
-                      <select
-                        value={selectedDaysToCreate}
-                        onChange={(e) => setSelectedDaysToCreate(Number(e.target.value))}
-                        className="h-9 rounded-md border border-gray-200 bg-gray-100 px-3 text-sm text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-all duration-200 cursor-pointer"
+                      <Select
+                        value={String(selectedDaysToCreate)}
+                        onValueChange={(value) => setSelectedDaysToCreate(Number(value))}
                       >
-                        <option value="7">Crear 7 días</option>
-                        <option value="15">Crear 15 días</option>
-                        <option value="30">Crear 30 días</option>
-                      </select>
+                        <SelectTrigger className="h-9 rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 text-sm text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-72">
+                          {[
+                            { value: "7", label: "Crear 7 días" },
+                            { value: "15", label: "Crear 15 días" },
+                            { value: "30", label: "Crear 30 días" },
+                          ].map((opt) => (
+                            <SelectItem
+                              key={opt.value}
+                              value={opt.value}
+                              className="cursor-pointer text-sm text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
+                            >
+                              {opt.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <div className="flex flex-col gap-1.5 p-3.5 rounded-xl border border-gray-200 bg-gray-50">
@@ -919,17 +933,25 @@ const AutomateSchedule: React.FC<Props> = ({
                         <LuTimer size={14} className="text-gray-400 shrink-0" />
                         ¿Con qué anticipación crear turnos?
                       </label>
-                      <select
-                        value={selectedAnticipation}
-                        onChange={(e) => setSelectedAnticipation(Number(e.target.value))}
-                        className="h-9 rounded-md border border-gray-200 bg-gray-100 px-3 text-sm text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-all duration-200 cursor-pointer"
+                      <Select
+                        value={String(selectedAnticipation)}
+                        onValueChange={(value) => setSelectedAnticipation(Number(value))}
                       >
-                        {Array.from({ length: 16 }, (_, i) => (
-                          <option key={i} value={i}>
-                            {i === 0 ? "0 días antes" : `${i} ${i === 1 ? "día" : "días"} antes`}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger className="h-9 rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 text-sm text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-72">
+                          {Array.from({ length: 16 }, (_, i) => (
+                            <SelectItem
+                              key={i}
+                              value={String(i)}
+                              className="cursor-pointer text-sm text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
+                            >
+                              {i === 0 ? "0 días antes" : `${i} ${i === 1 ? "día" : "días"} antes`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
 
@@ -996,15 +1018,15 @@ const AutomateSchedule: React.FC<Props> = ({
                   </div>
                 </div>
 
-                {/* Right — automation summary (last-saved state) */}
+                {/* Right — automation summary (live preview of pending config) */}
                 <div
                   className={cn(
                     "flex flex-col rounded-xl border p-4 transition-colors duration-200",
-                    savedAuto ? "bg-orange-50/50 border-orange-100" : "bg-gray-50 border-gray-200"
+                    previewAuto ? "bg-orange-50/50 border-orange-100" : "bg-gray-50 border-gray-200"
                   )}
                 >
                   <div className="flex items-center gap-1.5">
-                    <LuActivity size={15} className={savedAuto ? "text-primary" : "text-gray-400"} />
+                    <LuActivity size={15} className={previewAuto ? "text-primary" : "text-gray-400"} />
                     <span className="text-sm font-semibold text-gray-800">
                       Resumen de tu automatización
                     </span>
@@ -1015,36 +1037,49 @@ const AutomateSchedule: React.FC<Props> = ({
                       hasUnsavedChanges ? "text-orange-500 font-medium" : "text-gray-400"
                     )}
                   >
-                    {hasUnsavedChanges ? "Tenés cambios sin guardar" : "Según lo último guardado"}
+                    {hasUnsavedChanges ? "Vista previa · sin guardar" : "Según lo último guardado"}
                   </span>
 
                   <div
                     className={cn(
                       "flex flex-col mt-3 divide-y",
-                      savedAuto ? "divide-orange-100" : "divide-gray-200"
+                      previewAuto ? "divide-orange-100" : "divide-gray-200"
                     )}
                   >
-                    <div className="flex items-center justify-between py-2.5 first:pt-0">
-                      <span className="text-xs text-gray-500">Estado</span>
-                      <span
-                        className={cn(
-                          "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border",
-                          savedAuto
-                            ? "bg-orange-50 border-orange-200 text-orange-700"
-                            : "bg-gray-100 border-gray-200 text-gray-500"
+                    {/* Estado */}
+                    <div className="flex items-center justify-between gap-2 py-2.5 first:pt-0">
+                      <span className="text-xs text-gray-500 shrink-0">Estado</span>
+                      <div className="flex items-center gap-1.5">
+                        {autoChanged && (
+                          <>
+                            <span className="text-[11px] text-gray-400 line-through">
+                              {savedAuto ? "Activada" : "Desactivada"}
+                            </span>
+                            <LuArrowRight size={11} className="text-orange-400 shrink-0" />
+                          </>
                         )}
-                      >
                         <span
                           className={cn(
-                            "w-1.5 h-1.5 rounded-full",
-                            savedAuto ? "bg-primary" : "bg-gray-400"
+                            "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border",
+                            previewAuto
+                              ? "bg-orange-50 border-orange-200 text-orange-700"
+                              : "bg-gray-100 border-gray-200 text-gray-500",
+                            autoChanged && "ring-1 ring-orange-200"
                           )}
-                        />
-                        {savedAuto ? "Activada" : "Desactivada"}
-                      </span>
+                        >
+                          <span
+                            className={cn(
+                              "w-1.5 h-1.5 rounded-full",
+                              previewAuto ? "bg-primary" : "bg-gray-400"
+                            )}
+                          />
+                          {previewAuto ? "Activada" : "Desactivada"}
+                        </span>
+                      </div>
                     </div>
 
-                    {savedAuto && (
+                    {/* Agenda cargada hasta */}
+                    {previewAuto && businessData.scheduleEnd && (
                       <div className="flex items-center justify-between py-2.5">
                         <span className="text-xs text-gray-500">Agenda cargada hasta</span>
                         <span className="text-xs font-semibold text-gray-800 tabular-nums">
@@ -1053,18 +1088,35 @@ const AutomateSchedule: React.FC<Props> = ({
                       </div>
                     )}
 
-                    <div className="flex items-center justify-between py-2.5">
-                      <span className="text-xs text-gray-500">Próxima generación</span>
-                      <span
-                        className={cn(
-                          "text-xs font-semibold",
-                          savedAuto ? "text-gray-800 capitalize" : "text-gray-400"
-                        )}
-                      >
-                        {savedAuto ? nextGenLabel : "Se genera al activar"}
-                      </span>
+                    {/* Próxima generación */}
+                    <div className="flex items-center justify-between gap-2 py-2.5">
+                      <span className="text-xs text-gray-500 shrink-0">Próxima generación</span>
+                      {!previewAuto ? (
+                        <span className="text-xs font-semibold text-gray-400">
+                          {autoChanged ? "Se pausará al guardar" : "Se genera al activar"}
+                        </span>
+                      ) : !businessData.scheduleEnd ? (
+                        <span className="text-xs font-semibold text-gray-400">
+                          {autoChanged ? "Se genera al guardar" : "—"}
+                        </span>
+                      ) : nextGenChanged ? (
+                        <span className="flex flex-wrap items-center justify-end gap-x-1.5 gap-y-0.5 pl-2">
+                          <span className="text-[11px] text-gray-400 line-through capitalize">
+                            {savedNextGenLabel}
+                          </span>
+                          <LuArrowRight size={11} className="text-orange-400 shrink-0" />
+                          <span className="text-xs font-semibold text-orange-600 capitalize">
+                            {previewNextGenLabel}
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="text-xs font-semibold text-gray-800 capitalize">
+                          {previewNextGenLabel}
+                        </span>
+                      )}
                     </div>
 
+                    {/* Turnos por semana */}
                     <div className="flex items-center justify-between py-2.5">
                       <span className="text-xs text-gray-500">Turnos por semana</span>
                       <span className="text-xs font-semibold text-gray-800 tabular-nums">
@@ -1072,11 +1124,24 @@ const AutomateSchedule: React.FC<Props> = ({
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between py-2.5 last:pb-0">
-                      <span className="text-xs text-gray-500">Ventana</span>
-                      <span className="text-xs font-semibold text-gray-800">
-                        {businessData.scheduleDaysToCreate} días · {businessData.scheduleAnticipation} antes
-                      </span>
+                    {/* Ventana */}
+                    <div className="flex items-center justify-between gap-2 py-2.5 last:pb-0">
+                      <span className="text-xs text-gray-500 shrink-0">Ventana</span>
+                      {windowChanged ? (
+                        <span className="flex flex-wrap items-center justify-end gap-x-1.5 gap-y-0.5 pl-2">
+                          <span className="text-[11px] text-gray-400 line-through">
+                            {savedWindowLabel}
+                          </span>
+                          <LuArrowRight size={11} className="text-orange-400 shrink-0" />
+                          <span className="text-xs font-semibold text-orange-600">
+                            {previewWindowLabel}
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="text-xs font-semibold text-gray-800">
+                          {previewWindowLabel}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1115,76 +1180,6 @@ const AutomateSchedule: React.FC<Props> = ({
                     </div>
                   )}
                 </div>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* ── Card: Cancellation policy ── */}
-        <Card className="p-0 overflow-hidden">
-          <div className="flex flex-col">
-            <div className="flex items-start gap-3 px-5 md:px-6 py-4 md:py-5 border-b border-gray-100">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-orange-50 text-primary shrink-0">
-                <LuTimer size={20} />
-              </div>
-              <div className="flex flex-col gap-1">
-                <h2 className="text-base font-semibold text-gray-800">
-                  Política de cancelación
-                </h2>
-                <p className="text-sm text-gray-500">
-                  Definí con cuánta anticipación un cliente puede cancelar su turno por su cuenta.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-4 p-5 md:p-6">
-              <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                <FaCircleInfo size={13} className="text-blue-400 mt-0.5 shrink-0" />
-                <p className="text-sm text-blue-500 leading-relaxed">
-                  Pasado ese plazo, el cliente ya no podrá cancelar online y deberá contactarte.
-                  Vos siempre podés cancelar cualquier turno desde tu agenda. La seña, si la hubo,
-                  no se reembolsa cuando cancela el cliente; sí se reembolsa cuando cancelás vos.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-[1.35fr_1fr] gap-4 items-end">
-                <div className="flex flex-col gap-1.5 p-3.5 rounded-xl border border-gray-200 bg-gray-50">
-                  <label className="flex items-center gap-1.5 text-sm font-medium text-gray-600">
-                    <LuTimer size={14} className="text-gray-400 shrink-0" />
-                    Antelación mínima para cancelar
-                  </label>
-                  <select
-                    value={selectedCancelWindow}
-                    onChange={(e) => setSelectedCancelWindow(Number(e.target.value))}
-                    className="h-9 rounded-md border border-gray-200 bg-gray-100 px-3 text-sm text-gray-700 hover:border-orange-600 focus:border-orange-600 focus:outline-none transition-all duration-200 cursor-pointer"
-                  >
-                    <option value="0">Sin restricción (siempre permitido)</option>
-                    <option value="2">Hasta 2 horas antes</option>
-                    <option value="6">Hasta 6 horas antes</option>
-                    <option value="12">Hasta 12 horas antes</option>
-                    <option value="24">Hasta 24 horas antes</option>
-                    <option value="48">Hasta 48 horas antes</option>
-                    <option value="72">Hasta 72 horas antes</option>
-                  </select>
-                </div>
-
-                <button
-                  onClick={saveCancelWindow}
-                  disabled={
-                    savingCancelWindow ||
-                    selectedCancelWindow === (businessData.cancellationWindowHours ?? 24)
-                  }
-                  className="flex items-center justify-center gap-1.5 h-9 bg-primary hover:bg-orange-500 text-white text-xs font-semibold px-4 rounded-lg transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-primary"
-                >
-                  {savingCancelWindow ? (
-                    <div className="loaderSmall" />
-                  ) : (
-                    <>
-                      <LuSave size={14} />
-                      Guardar
-                    </>
-                  )}
-                </button>
               </div>
             </div>
           </div>

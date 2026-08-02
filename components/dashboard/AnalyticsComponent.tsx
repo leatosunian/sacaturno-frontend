@@ -14,7 +14,16 @@ import type { DateRange } from "react-day-picker";
 import { es } from "react-day-picker/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import NoBusinessEmptyState from "@/components/dashboard/NoBusinessEmptyState";
+
+const ALL_SERVICES_VALUE = "__all__";
 
 interface MonthData {
   month: string;
@@ -742,16 +751,31 @@ const AnalyticsComponent: React.FC<Props> = ({ businessId }) => {
                   onChange={(e) => setFilterPhone(e.target.value)}
                   className="border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-700 placeholder:text-gray-400 focus:outline-none focus:border-orange-400 w-full sm:w-36"
                 />
-                <select
-                  value={filterService}
-                  onChange={(e) => setFilterService(e.target.value)}
-                  className="border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-orange-400 bg-white w-full sm:w-auto"
+                <Select
+                  value={filterService ? filterService : ALL_SERVICES_VALUE}
+                  onValueChange={(value) => setFilterService(value === ALL_SERVICES_VALUE ? "" : value)}
                 >
-                  <option value="">Todos los servicios</option>
-                  {uniqueServices.map((s) => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
+                  <SelectTrigger className="h-auto w-full sm:w-auto rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 py-2 text-xs text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600">
+                    <SelectValue placeholder="Todos los servicios" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    <SelectItem
+                      value={ALL_SERVICES_VALUE}
+                      className="cursor-pointer text-xs text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
+                    >
+                      Todos los servicios
+                    </SelectItem>
+                    {uniqueServices.map((s) => (
+                      <SelectItem
+                        key={s}
+                        value={s}
+                        className="cursor-pointer text-xs text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
+                      >
+                        {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
                 {/* DATE RANGE PICKER */}
                 <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>

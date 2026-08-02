@@ -39,7 +39,7 @@ interface Props {
 }
 
 const selectClass = (hasError: boolean) =>
-  `h-9 w-full rounded-md border px-3 text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${
+  `h-9 w-full rounded-md border px-3 text-sm bg-[rgb(245,245,245)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${
     hasError ? "border-red-500" : "border-gray-200"
   }`;
 
@@ -114,7 +114,7 @@ const RubroPicker: React.FC<Props> = ({ category, type, onChange, categoryError,
                 className={`flex items-center gap-2 h-9 px-3 rounded-md border text-xs font-semibold transition-all duration-200 ease-in-out cursor-pointer ${
                   active
                     ? "border-orange-600 bg-orange-600 text-white shadow-sm"
-                    : "border-gray-200 bg-[rgb(235,235,235)] text-gray-700 hover:border-orange-600"
+                    : "border-gray-200 bg-[rgb(245,245,245)] text-gray-700 hover:border-orange-600"
                 }`}
               >
                 <Icon size={15} className={active ? "text-white" : "text-orange-600"} />
@@ -132,7 +132,7 @@ const RubroPicker: React.FC<Props> = ({ category, type, onChange, categoryError,
           <label className="text-sm font-medium text-gray-700">Especialidad</label>
           <Select value={specialty || undefined} onValueChange={selectSpecialty}>
             <SelectTrigger
-              className={`h-9 w-full rounded-md bg-[rgb(235,235,235)] px-3 text-sm text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600 ${
+              className={`h-9 w-full rounded-md bg-[rgb(245,245,245)] px-3 text-sm text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600 ${
                 !!typeError && specialty !== OTHER_SPECIALTY ? "border-red-500" : "border-gray-200"
               }`}
             >

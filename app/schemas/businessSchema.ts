@@ -34,4 +34,6 @@ export const businessSchema = z.object({
     }).max(35, {
         message: 'El link debe tener menos de 35 caractéres'
     }).refine(s => !s.includes(' '), 'El link no debe contener espacios'),
+
+    cancellationWindowHours: z.coerce.number().optional(),
 })

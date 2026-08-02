@@ -6,7 +6,7 @@ import { LuBuilding2, LuMapPin, LuPhone, LuMail } from "react-icons/lu";
 const labelCls = "text-xs font-bold uppercase text-gray-700";
 
 const fieldCls = (hasError: boolean) =>
-  `h-9 w-full rounded-md border px-3 text-sm bg-[rgb(235,235,235)] focus:outline-none transition-colors ${
+  `h-9 w-full rounded-md border px-3 text-sm bg-[rgb(245,245,245)] focus:outline-none transition-colors ${
     hasError ? "border-red-500 focus:border-red-500" : "border-gray-200 focus:border-orange-600"
   }`;
 

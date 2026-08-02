@@ -103,7 +103,7 @@ export default function PasswordSecuritySection({ hasPassword }: Props) {
               autoComplete="new-password"
               {...register("password")}
               placeholder="Al menos 6 caractéres"
-              className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${
+              className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(245,245,245)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${
                 errors.password ? "border-red-500" : "border-gray-200"
               }`}
             />
@@ -123,7 +123,7 @@ export default function PasswordSecuritySection({ hasPassword }: Props) {
               autoComplete="new-password"
               {...register("confirmPassword")}
               placeholder="Repetí la contraseña"
-              className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(235,235,235)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${
+              className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(245,245,245)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${
                 errors.confirmPassword ? "border-red-500" : "border-gray-200"
               }`}
             />

@@ -21,7 +21,7 @@ const ROUTE_MAP: Record<string, Crumb[]> = {
     { label: "agenda", href: "/admin/schedule" },
     { label: "automatizar agenda" },
   ],
-  "/admin/business": [{ label: "mi empresa" }, { label: "datos del negocio" }],
+  "/admin/business": [{ label: "mi empresa" }, { label: "configuración" }],
   "/admin/business/create": [
     { label: "mi empresa", href: "/admin/business" },
     { label: "crear negocio" },

@@ -174,7 +174,7 @@ export default function AdminSidebar({
                     icon={HiOutlineBuildingOffice2}
                     exactMatch
                   >
-                    Datos del negocio
+                    Configuración
                   </NavItem>
                   {planLimits.maxBranches > 0 && (
                     <NavItem
