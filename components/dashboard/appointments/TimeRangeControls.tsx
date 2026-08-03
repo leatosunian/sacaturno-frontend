@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode } from "react";
+import { ReactNode, useRef, useState } from "react";
 import { LuInfo } from "react-icons/lu";
 import { timeOptions, durationOptions } from "@/helpers/timeOptions";
 import {
@@ -30,7 +30,7 @@ interface TimeRangeControlsProps {
 }
 
 const triggerClass =
-  "h-8 rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-2.5 text-xs font-medium text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600";
+  "h-8 rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-2.5 text-xs font-medium text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus-visible:border-orange-600 data-[state=open]:border-orange-600";
 
 const itemClass =
   "cursor-pointer text-xs text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700";
@@ -45,10 +45,33 @@ interface HintedTriggerProps {
 }
 
 function HintedTrigger({ hoverCapable, hint, hintClassName, children }: HintedTriggerProps) {
+  const [open, setOpen] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+
   if (!hoverCapable) return <>{children}</>;
+
+  // Hover-only: opening is driven exclusively by pointer enter/leave so the tooltip
+  // never reappears when the Select restores focus to the trigger on close. We only
+  // honor Radix's onOpenChange for closing (e.g. Escape), never for opening.
+  const openSoon = () => {
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setOpen(true), 150);
+  };
+  const closeNow = () => {
+    clearTimeout(timerRef.current);
+    setOpen(false);
+  };
+
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>{children}</TooltipTrigger>
+    <Tooltip open={open} onOpenChange={(next) => { if (!next) closeNow(); }}>
+      <TooltipTrigger
+        asChild
+        onPointerEnter={openSoon}
+        onPointerLeave={closeNow}
+        onPointerDown={closeNow}
+      >
+        {children}
+      </TooltipTrigger>
       <TooltipContent side="top" className={hintClassName}>{hint}</TooltipContent>
     </Tooltip>
   );

@@ -27,6 +27,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
   TooltipContent,
@@ -51,11 +52,37 @@ import { toast } from "sonner";
 import axiosReq from "@/config/axios";
 import { cn } from "@/lib/utils";
 
+// Placeholder shown while a lazy modal's JS chunk is still downloading (first open only)
+const ModalSkeleton = () => (
+  <div className="flex flex-col gap-4 py-2">
+    <Skeleton className="h-5 w-40" />
+    <Skeleton className="h-9 w-full" />
+    <Skeleton className="h-9 w-full" />
+    <Skeleton className="h-24 w-full" />
+    <div className="flex gap-2 pt-1">
+      <Skeleton className="h-10 flex-1" />
+      <Skeleton className="h-10 flex-1" />
+    </div>
+  </div>
+);
+
 // on-demand-loaded modals. js is downloaded when opening, not in initial bundle
-const AppointmentModal = dynamic(() => import("./AppointmentModal"));
-const CreateAppointmentModal = dynamic(() => import("./CreateAppointmentModal"));
-const AllDayAppointmentsModal = dynamic(() => import("./AllDayAppointmentsModal"));
-const HelpModal = dynamic(() => import("./HelpModal"));
+const AppointmentModal = dynamic(() => import("./AppointmentModal"), {
+  loading: () => <ModalSkeleton />,
+});
+
+import CreateAppointmentModal from "./CreateAppointmentModal"
+//const CreateAppointmentModal = dynamic(() => import("./CreateAppointmentModal"), {
+//loading: () => <ModalSkeleton />,
+//});
+
+const AllDayAppointmentsModal = dynamic(() => import("./AllDayAppointmentsModal"), {
+  loading: () => <ModalSkeleton />,
+});
+
+const HelpModal = dynamic(() => import("./HelpModal"), {
+  loading: () => <ModalSkeleton />,
+});
 
 const ALL_FILTER_VALUE = "__all__";
 
@@ -731,13 +758,17 @@ const CalendarTurnos: React.FC<Props> = ({
         open={allDayAppointmentsModal}
         onOpenChange={() => setAllDayAppointmentsModal(false)}
       >
-        <DialogContent className="sm:w-[400px] w-[93vw]">
+        <DialogContent className="sm:w-[420px] w-[93vw] p-0 gap-0 flex flex-col max-h-[90dvh] overflow-hidden">
           <DialogTitle className="sr-only">Crear turnos del día</DialogTitle>
           <AllDayAppointmentsModal
             business={business}
             services={services}
             date={date}
             selectedDay={selectedDaySchedule}
+            employees={employees}
+            branches={activeBranches}
+            currentEmployeeID={currentEmployeeID}
+            canManageAll={canManageAll}
             onSave={handleSaveDayAppointments}
             closeModalF={() => setAllDayAppointmentsModal(false)}
           />
@@ -957,7 +988,7 @@ const CalendarTurnos: React.FC<Props> = ({
                   value={selectedBranchFilter ? selectedBranchFilter : ALL_FILTER_VALUE}
                   onValueChange={(value) => handleBranchFilterChange(value === ALL_FILTER_VALUE ? "" : value)}
                 >
-                  <SelectTrigger className="h-8 flex-1 min-w-0 lg:flex-none lg:w-auto rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-2.5 text-xs font-medium text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600">
+                  <SelectTrigger className="h-8 flex-1 min-w-0 lg:flex-none lg:w-auto rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-2.5 text-xs font-medium text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus-visible:border-orange-600 data-[state=open]:border-orange-600">
                     <SelectValue placeholder="Todas" />
                   </SelectTrigger>
                   <SelectContent className="max-h-72">
@@ -988,7 +1019,7 @@ const CalendarTurnos: React.FC<Props> = ({
                   value={selectedEmployeeFilter ? selectedEmployeeFilter : ALL_FILTER_VALUE}
                   onValueChange={(value) => setSelectedEmployeeFilter(value === ALL_FILTER_VALUE ? "" : value)}
                 >
-                  <SelectTrigger className="h-8 flex-1 min-w-0 lg:flex-none lg:w-auto rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-2.5 text-xs font-medium text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600">
+                  <SelectTrigger className="h-8 flex-1 min-w-0 lg:flex-none lg:w-auto rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-2.5 text-xs font-medium text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus-visible:border-orange-600 data-[state=open]:border-orange-600">
                     <SelectValue placeholder="Todos" />
                   </SelectTrigger>
                   <SelectContent className="max-h-72">

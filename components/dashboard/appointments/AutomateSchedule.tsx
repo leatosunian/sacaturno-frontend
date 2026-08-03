@@ -907,7 +907,7 @@ const AutomateSchedule: React.FC<Props> = ({
                         value={String(selectedDaysToCreate)}
                         onValueChange={(value) => setSelectedDaysToCreate(Number(value))}
                       >
-                        <SelectTrigger className="h-9 rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 text-sm text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600">
+                        <SelectTrigger className="h-9 rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 text-sm text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus-visible:border-orange-600 data-[state=open]:border-orange-600">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="max-h-72">
@@ -937,7 +937,7 @@ const AutomateSchedule: React.FC<Props> = ({
                         value={String(selectedAnticipation)}
                         onValueChange={(value) => setSelectedAnticipation(Number(value))}
                       >
-                        <SelectTrigger className="h-9 rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 text-sm text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600">
+                        <SelectTrigger className="h-9 rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 text-sm text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus-visible:border-orange-600 data-[state=open]:border-orange-600">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="max-h-72">
