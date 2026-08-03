@@ -79,7 +79,8 @@
       "PowerShell(Resolve-DnsName sacaturno.com.ar -Server 8.8.8.8 -Type NS -ErrorAction SilentlyContinue)",
       "PowerShell(Resolve-DnsName sacaturno.com.ar -Server a.dns.ar -Type NS -ErrorAction SilentlyContinue)",
       "PowerShell(nslookup sacaturno.com.ar 8.8.8.8 2>&1)",
-      "Bash(echo \"---exit:$?---\")"
+      "Bash(echo \"---exit:$?---\")",
+      "Bash(xargs -I{} sh -c 'echo \"checking {}\"; grep -o \"translate-x:50px\\\\|--tw-enter-translate-x: *50px\\\\|enter-translate-x:50px\" \"{}\" | head -2')"
     ],
     "additionalDirectories": [
       "c:\\sacaturno\\.claude\\skills"

@@ -3,23 +3,19 @@ import dayjs from "dayjs";
 import "dayjs/locale/es-mx";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import AppointmentModal from "./AppointmentModal";
+import dynamic from "next/dynamic";
 import { IBusiness } from "@/interfaces/business.interface";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import advanced from "dayjs/plugin/advancedFormat";
 import { useRouter } from "next/navigation";
-import CreateAppointmentModal from "./CreateAppointmentModal";
 import { IService } from "@/interfaces/service.interface";
 import NoServicesModal from "../services/NoServicesModal";
 import ISubscription from "@/interfaces/subscription.interface";
 import ExpiredPlanModal from "./ExpiredPlanModal";
-import AllDayAppointmentsModal from "./AllDayAppointmentsModal";
 import { LuCalendar, LuCalendarPlus, LuCalendarCheck, LuCalendarX, LuChevronLeft, LuChevronRight, LuClock, LuUser, LuMapPin } from "react-icons/lu";
 import { IoInformationCircle } from "react-icons/io5";
 import { IoMdMore, IoIosAlert } from "react-icons/io";
-import HelpModal from "./HelpModal";
 import { MdEditCalendar } from "react-icons/md";
 import { IDaySchedule } from "@/interfaces/daySchedule.interface";
 import { IEmployee } from "@/interfaces/employee.interface";
@@ -54,6 +50,12 @@ import {
 import { toast } from "sonner";
 import axiosReq from "@/config/axios";
 import { cn } from "@/lib/utils";
+
+// on-demand-loaded modals. js is downloaded when opening, not in initial bundle
+const AppointmentModal = dynamic(() => import("./AppointmentModal"));
+const CreateAppointmentModal = dynamic(() => import("./CreateAppointmentModal"));
+const AllDayAppointmentsModal = dynamic(() => import("./AllDayAppointmentsModal"));
+const HelpModal = dynamic(() => import("./HelpModal"));
 
 const ALL_FILTER_VALUE = "__all__";
 
@@ -689,18 +691,6 @@ const CalendarTurnos: React.FC<Props> = ({
     else onPrevClick();
   };
 
-  const slideVariants = {
-    enter: (dir: "left" | "right") => ({
-      x: dir === "left" ? 50 : -50,
-      opacity: 0,
-    }),
-    center: { x: 0, opacity: 1 },
-    exit: (dir: "left" | "right") => ({
-      x: dir === "left" ? -50 : 50,
-      opacity: 0,
-    }),
-  };
-
   const getEmployeeName = (employeeID: string | null | undefined): string | null => {
     if (!employeeID || !employees?.length) return null;
     const emp = employees.find((e) => e._id === employeeID);
@@ -980,7 +970,7 @@ const CalendarTurnos: React.FC<Props> = ({
                     {activeBranches.map((b) => (
                       <SelectItem
                         key={b._id}
-                        value={b._id}
+                        value={b._id ?? ""}
                         className="cursor-pointer text-xs text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
                       >
                         {b.name}
@@ -1011,7 +1001,7 @@ const CalendarTurnos: React.FC<Props> = ({
                     {employeeFilterOptions.map((e) => (
                       <SelectItem
                         key={e._id}
-                        value={e._id}
+                        value={e._id!}
                         className="cursor-pointer text-xs text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
                       >
                         {e.surname ? `${e.name} ${e.surname}` : e.name}
@@ -1171,35 +1161,28 @@ const CalendarTurnos: React.FC<Props> = ({
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          <AnimatePresence>
-            {showSwipeHint && (
-              <motion.div
-                key="swipe-hint"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0 z-20 flex items-center justify-center md:hidden pointer-events-none"
-                style={{ background: "rgba(243,244,246,0.72)", backdropFilter: "blur(2px)" }}
-              >
-                <div className="flex items-center gap-3 bg-white/80 border border-gray-200 rounded-2xl px-5 py-3 shadow-sm">
-                  <LuChevronLeft size={15} className="text-gray-400" />
-                  <span className="text-xs font-medium text-gray-500 tracking-wide">Deslizá para cambiar de día</span>
-                  <LuChevronRight size={15} className="text-gray-400" />
-                </div>
-              </motion.div>
+          <div
+            className={cn(
+              "absolute inset-0 z-20 flex items-center justify-center md:hidden pointer-events-none transition-opacity duration-300",
+              showSwipeHint ? "opacity-100" : "opacity-0"
             )}
-          </AnimatePresence>
+            style={{ background: "rgba(243,244,246,0.72)", backdropFilter: "blur(2px)" }}
+          >
+            <div className="flex items-center gap-3 bg-white/80 border border-gray-200 rounded-2xl px-5 py-3 shadow-sm">
+              <LuChevronLeft size={15} className="text-gray-400" />
+              <span className="text-xs font-medium text-gray-500 tracking-wide">Deslizá para cambiar de día</span>
+              <LuChevronRight size={15} className="text-gray-400" />
+            </div>
+          </div>
 
-          <AnimatePresence mode="wait" custom={swipeDir.current}>
-          <motion.div
+          <div
             key={dayjs(date).format("YYYY-MM-DD")}
-            custom={swipeDir.current}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.18, ease: "easeInOut" }}
+            className={cn(
+              "animate-in fade-in duration-200",
+              swipeDir.current === "left"
+                ? "slide-in-from-right-[50px]"
+                : "slide-in-from-left-[50px]"
+            )}
           >
 
           {/* Day header */}
@@ -1419,8 +1402,7 @@ const CalendarTurnos: React.FC<Props> = ({
               })}
             </div>
           </div>
-          </motion.div>
-          </AnimatePresence>
+          </div>
         </div>
 
         {/* Desktop footer */}
