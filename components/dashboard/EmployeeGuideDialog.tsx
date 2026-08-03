@@ -64,7 +64,7 @@ const EmployeeGuideDialog: React.FC<Props> = ({ open, onClose }) => {
 
           <button
             onClick={onClose}
-            className="w-full h-10 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-600 text-white transition-colors duration-200"
+            className="w-full h-10 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-500 text-white transition-colors duration-200"
           >
             ¡Entendido!
           </button>

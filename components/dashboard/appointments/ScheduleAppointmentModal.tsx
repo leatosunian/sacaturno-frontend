@@ -145,7 +145,7 @@ const ScheduleAppointmentModal: React.FC<props> = ({
       {!confirmDelete ? (
         <Button
           onClick={() => setConfirmDelete(true)}
-          className="w-full text-white bg-red-600 border-none rounded-lg h-11 hover:bg-orange-700"
+          className="w-full text-white bg-red-600 border-none rounded-lg h-11 hover:bg-red-700"
         >
           Eliminar turno
         </Button>

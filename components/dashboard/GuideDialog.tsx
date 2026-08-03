@@ -182,7 +182,7 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
             <div className="px-6 pb-6 pt-1">
               <button
                 onClick={() => setShowWelcome(false)}
-                className="group w-full flex items-center justify-center gap-2 h-11 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-600 text-white transition-colors duration-200"
+                className="group w-full flex items-center justify-center gap-2 h-11 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-500 text-white transition-colors duration-200"
               >
                 Empezar
                 <LuArrowRight
@@ -300,13 +300,13 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
               {!isLast ? (
                 <button
                   onClick={() => setActiveStep((s) => Math.min(s + 1, steps.length - 1))}
-                  className="h-9 px-5 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-600 text-white transition-colors duration-200"
+                  className="h-9 px-5 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-500 text-white transition-colors duration-200"
                 >
                   Siguiente
                 </button>
               ) : isFirstLogin ? (
                 <Link href="/admin/business/create" onClick={handleClose}>
-                  <button className="group flex items-center gap-2 h-9 px-5 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-600 text-white transition-colors duration-200">
+                  <button className="group flex items-center gap-2 h-9 px-5 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-500 text-white transition-colors duration-200">
                     Crear mi empresa
                     <LuArrowRight
                       size={15}
@@ -317,7 +317,7 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
               ) : (
                 <button
                   onClick={handleClose}
-                  className="h-9 px-5 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-600 text-white transition-colors duration-200"
+                  className="h-9 px-5 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-500 text-white transition-colors duration-200"
                 >
                   ¡Entendido!
                 </button>

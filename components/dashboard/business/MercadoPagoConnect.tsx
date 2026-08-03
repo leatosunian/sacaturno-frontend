@@ -117,7 +117,7 @@ const MercadoPagoConnect: React.FC<Props> = ({
           </div>
           <button
             onClick={() => setPickerOpen(true)}
-            className="mt-1 flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-orange-600 hover:bg-orange-500 rounded-lg transition-colors duration-200 cursor-pointer"
+            className="mt-1 flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-primary hover:bg-orange-500 rounded-lg transition-colors duration-200 cursor-pointer"
           >
             Elegir un plan
           </button>

@@ -54,14 +54,14 @@ import { cn } from "@/lib/utils";
 
 // Placeholder shown while a lazy modal's JS chunk is still downloading (first open only)
 const ModalSkeleton = () => (
-  <div className="flex flex-col gap-4 py-2">
-    <Skeleton className="h-5 w-40" />
-    <Skeleton className="h-9 w-full" />
-    <Skeleton className="h-9 w-full" />
-    <Skeleton className="h-24 w-full" />
-    <div className="flex gap-2 pt-1">
-      <Skeleton className="h-10 flex-1" />
-      <Skeleton className="h-10 flex-1" />
+  <div className="flex flex-col gap-2 sm:gap-4 p-4 sm:p-6">
+    <Skeleton className="h-3.5 sm:h-5 w-24 sm:w-40" />
+    <Skeleton className="h-7 sm:h-9 w-full" />
+    <Skeleton className="h-7 sm:h-9 w-full" />
+    <Skeleton className="h-12 sm:h-24 w-full" />
+    <div className="flex gap-2 pt-0.5 sm:pt-1">
+      <Skeleton className="h-8 sm:h-10 flex-1" />
+      <Skeleton className="h-8 sm:h-10 flex-1" />
     </div>
   </div>
 );
@@ -922,7 +922,7 @@ const CalendarTurnos: React.FC<Props> = ({
                 <DropdownMenuItem asChild className="gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-700 focus:bg-orange-50 focus:text-orange-700">
                   <Link href="/admin/schedule/automate">
                     <MdEditCalendar size={16} className="text-orange-500 shrink-0" />
-                    <span className="text-sm font-medium">Automatizar tarea</span>
+                    <span className="text-sm font-medium">Automatizar agenda</span>
                   </Link>
                 </DropdownMenuItem>
                 {canToggleBookings && (
@@ -1085,7 +1085,7 @@ const CalendarTurnos: React.FC<Props> = ({
               <div className="flex items-center gap-1 min-w-0">
                 <button
                   onClick={onPrevClick}
-                  className="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:border-orange-300 hover:text-primary hover:bg-orange-50 transition-all duration-200 shrink-0"
+                  className="h-9 w-9 flex items-center justify-center rounded-lg border border-orange-300 bg-orange-50 text-primary hover:border-primary hover:bg-orange-100 transition-all duration-200 shrink-0"
                   aria-label="Anterior"
                 >
                   <LuChevronLeft size={17} />
@@ -1098,7 +1098,7 @@ const CalendarTurnos: React.FC<Props> = ({
                 />
                 <button
                   onClick={onNextClick}
-                  className="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:border-orange-300 hover:text-primary hover:bg-orange-50 transition-all duration-200 shrink-0"
+                  className="h-9 w-9 flex items-center justify-center rounded-lg border border-orange-300 bg-orange-50 text-primary hover:border-primary hover:bg-orange-100 transition-all duration-200 shrink-0"
                   aria-label="Siguiente"
                 >
                   <LuChevronRight size={17} />
@@ -1163,7 +1163,7 @@ const CalendarTurnos: React.FC<Props> = ({
             <div className="flex items-center gap-2">
               <button
                 onClick={onPrevClick}
-                className="h-9 w-12 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 [@media(hover:hover)]:hover:border-orange-300 [@media(hover:hover)]:hover:text-primary [@media(hover:hover)]:hover:bg-orange-50 active:border-orange-300 active:text-primary active:bg-orange-50 transition-all duration-200 shrink-0"
+                className="h-9 w-12 flex items-center justify-center rounded-lg border border-orange-300 bg-orange-50 text-primary [@media(hover:hover)]:hover:border-primary [@media(hover:hover)]:hover:bg-orange-100 active:border-primary active:bg-orange-100 transition-all duration-200 shrink-0"
                 aria-label="Anterior"
               >
                 <LuChevronLeft size={18} />
@@ -1176,7 +1176,7 @@ const CalendarTurnos: React.FC<Props> = ({
               />
               <button
                 onClick={onNextClick}
-                className="h-9 w-12 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 [@media(hover:hover)]:hover:border-orange-300 [@media(hover:hover)]:hover:text-primary [@media(hover:hover)]:hover:bg-orange-50 active:border-orange-300 active:text-primary active:bg-orange-50 transition-all duration-200 shrink-0"
+                className="h-9 w-12 flex items-center justify-center rounded-lg border border-orange-300 bg-orange-50 text-primary [@media(hover:hover)]:hover:border-primary [@media(hover:hover)]:hover:bg-orange-100 active:border-primary active:bg-orange-100 transition-all duration-200 shrink-0"
                 aria-label="Siguiente"
               >
                 <LuChevronRight size={18} />

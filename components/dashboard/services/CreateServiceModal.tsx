@@ -179,7 +179,7 @@ const CreateServiceModal: React.FC<props> = ({ mpLinked, isLoading, onCreateServ
       </form>
 
       <button
-        className="w-full flex mt-2 items-center justify-center bg-orange-600 hover:bg-[#d92f04] text-white text-sm font-semibold py-2.5 rounded-lg transition-all duration-300 ease-in-out cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full flex mt-2 items-center justify-center bg-primary hover:bg-orange-500 text-white text-sm font-semibold py-2.5 rounded-lg transition-all duration-300 ease-in-out cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
         onClick={handleSubmitClick}
         disabled={isLoading}
       >

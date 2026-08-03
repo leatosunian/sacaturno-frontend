@@ -113,7 +113,7 @@ const RubroPicker: React.FC<Props> = ({ category, type, onChange, categoryError,
                 onClick={() => selectCategory(cat.code)}
                 className={`flex items-center gap-2 h-9 px-3 rounded-md border text-xs font-semibold transition-all duration-200 ease-in-out cursor-pointer ${
                   active
-                    ? "border-orange-600 bg-orange-600 text-white shadow-sm"
+                    ? "border-primary bg-primary text-white shadow-sm"
                     : "border-gray-200 bg-[rgb(245,245,245)] text-gray-700 hover:border-orange-600"
                 }`}
               >

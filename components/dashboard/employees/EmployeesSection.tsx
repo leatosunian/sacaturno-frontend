@@ -296,7 +296,7 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
             <button
               type="button"
               onClick={() => setAddModal(true)}
-              className="flex items-center gap-1.5 bg-orange-600 hover:bg-[#d92f04] text-white text-[11px] 2xl:text-xs font-semibold px-3 2xl:px-4 py-1.5 2xl:py-2 rounded-lg transition-all duration-300 ease-in-out cursor-pointer"
+              className="flex items-center gap-1.5 bg-primary hover:bg-orange-500 text-white text-[11px] 2xl:text-xs font-semibold px-3 2xl:px-4 py-1.5 2xl:py-2 rounded-lg transition-all duration-300 ease-in-out cursor-pointer"
             >
               <LuUserPlus size={14} />
               Invitar empleado

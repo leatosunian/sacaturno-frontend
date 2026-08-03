@@ -274,7 +274,7 @@ const ServicesComponent = ({
           {canAddService ? (
             <button
               onClick={() => setCreateServiceModal(true)}
-              className="flex items-center gap-1.5 bg-primary hover:bg-orange-600 text-white text-[11px] 2xl:text-xs font-semibold px-3 2xl:px-4 py-1.5 2xl:py-2 rounded-lg transition-all duration-300 ease-in-out cursor-pointer"
+              className="flex items-center gap-1.5 bg-primary hover:bg-orange-500 text-white text-[11px] 2xl:text-xs font-semibold px-3 2xl:px-4 py-1.5 2xl:py-2 rounded-lg transition-all duration-300 ease-in-out cursor-pointer"
             >
               <TbPlaylistAdd size={16} />
               Nuevo servicio
@@ -317,7 +317,7 @@ const ServicesComponent = ({
               </div>
               <button
                 onClick={() => setCreateServiceModal(true)}
-                className="mt-1 flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-primary hover:bg-orange-600 rounded-lg transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                className="mt-1 flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-primary hover:bg-orange-500 rounded-lg transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
               >
                 {/* <TbPlaylistAdd size={16} /> */}
                 Crear servicio

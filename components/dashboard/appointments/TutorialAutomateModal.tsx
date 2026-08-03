@@ -84,7 +84,7 @@ const TutorialAutomateModal: React.FC<Props> = ({ onClose }) => {
             className={cn(
               "h-1.5 rounded-full transition-all duration-300",
               i === activeStep
-                ? "bg-orange-500 w-8"
+                ? "bg-primary w-8"
                 : i < activeStep
                 ? "bg-orange-200 w-4"
                 : "bg-gray-200 w-4"
@@ -139,14 +139,14 @@ const TutorialAutomateModal: React.FC<Props> = ({ onClose }) => {
         {!isLast ? (
           <button
             onClick={() => setActiveStep((s) => Math.min(s + 1, steps.length - 1))}
-            className="h-9 px-5 rounded-lg text-sm font-semibold bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-200"
+            className="h-9 px-5 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-500 text-white transition-colors duration-200"
           >
             Siguiente
           </button>
         ) : (
           <button
             onClick={onClose}
-            className="h-9 px-5 rounded-lg text-sm font-semibold bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-200"
+            className="h-9 px-5 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-500 text-white transition-colors duration-200"
           >
             ¡Entendido!
           </button>

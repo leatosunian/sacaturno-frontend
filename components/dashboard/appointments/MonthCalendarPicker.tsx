@@ -84,8 +84,8 @@ export default function MonthCalendarPicker({
         className={cn(
           "group flex items-center gap-2 h-9 pl-3.5 pr-2.5 rounded-lg border text-[15px] 2xl:text-base font-semibold transition-all duration-200 min-w-0 cursor-pointer",
           open
-            ? "border-primary bg-orange-50 text-primary ring-2 ring-primary/15"
-            : "border-gray-200 bg-white text-gray-800 hover:border-orange-300 hover:bg-orange-50 hover:text-primary",
+            ? "border-primary bg-orange-100 text-primary ring-2 ring-primary/20"
+            : "border-orange-300 bg-orange-50 text-primary [@media(hover:hover)]:hover:border-primary [@media(hover:hover)]:hover:bg-orange-100",
           className
         )}
       >
@@ -94,7 +94,7 @@ export default function MonthCalendarPicker({
         <LuChevronDown
           size={15}
           className={cn(
-            "shrink-0 text-gray-400 transition-all duration-200 group-hover:text-primary",
+            "shrink-0 text-primary transition-all duration-200",
             open && "rotate-180 text-primary"
           )}
         />

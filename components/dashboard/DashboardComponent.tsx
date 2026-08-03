@@ -198,7 +198,7 @@ const DashboardComponent: React.FC<Props> = ({
         />
       )}
 
-      <div className="w-full py-4 2xl:py-3 mt-2 flex flex-col gap-6 px-4 sm:px-6 md:px-8 max-w-screen-2xl mx-auto">
+      <div className="w-full pt-4 2xl:pt-3 pb-12 md:pb-16 mt-2 flex flex-col gap-6 px-4 sm:px-6 md:px-8 max-w-screen-2xl mx-auto">
         <div className="flex flex-col w-full gap-8 h-fit">
           {/* HEADER */}
           <div className="flex items-start justify-between gap-2">
@@ -541,16 +541,45 @@ const DashboardComponent: React.FC<Props> = ({
 
             {!loading &&
               (!appointmentsData || appointmentsData.length === 0) && (
-                <div className="flex flex-col items-center justify-center py-8 gap-4">
-                  <span className="text-sm text-gray-500 text-center">
-                    No tenés turnos reservados para el resto del día.
-                  </span>
-                  <Link href="/admin/schedule">
-                    <button className="bg-[#dd4924] hover:opacity-90 text-white text-xs font-semibold px-7 py-2 rounded-lg transition-all duration-300 ease-in-out cursor-pointer">
-                      Ver agenda
-                    </button>
-                  </Link>
-                </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  style={cardShadow}
+                  className="flex flex-col items-center justify-center gap-4 px-6 py-10 md:py-16 text-center bg-white rounded-xl"
+                >
+                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-orange-50 border border-orange-100">
+                    <LuCalendarCheck size={28} className="text-primary" />
+                  </div>
+                  <div className="flex flex-col items-center gap-1.5 max-w-md">
+                    <h5 className="text-base font-bold text-gray-800">
+                      Estás al día
+                    </h5>
+                    <p className="text-sm text-gray-500 leading-relaxed">
+                      No tenés más turnos reservados para hoy. Revisá tu agenda o
+                      generá nuevos turnos disponibles para tus clientes.
+                    </p>
+                  </div>
+                  <div className="flex flex-col w-full gap-2.5 mt-1 sm:flex-row sm:w-auto">
+                    <Link href="/admin/schedule" className="w-full sm:w-auto">
+                      <button className="flex items-center justify-center w-full gap-2 px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-200 rounded-lg shadow-sm bg-primary hover:bg-orange-500">
+                        <LuCalendarDays size={16} />
+                        Ver agenda
+                      </button>
+                    </Link>
+                    {(!isEmployee || can("manage_schedule")) && (
+                      <Link
+                        href="/admin/schedule/automate"
+                        className="w-full sm:w-auto"
+                      >
+                        <button className="flex items-center justify-center w-full gap-2 px-6 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 border border-gray-200 rounded-lg hover:border-orange-300 hover:bg-orange-50 hover:text-primary">
+                          <TbCalendarCog size={16} />
+                          Automatizar agenda
+                        </button>
+                      </Link>
+                    )}
+                  </div>
+                </motion.div>
               )}
           </div>
         </div>

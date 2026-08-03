@@ -259,7 +259,7 @@ const AppointmentModal: React.FC<props> = ({
           href={`https://wa.me/54${appointment?.phone}`}
           className="w-full"
         >
-          <Button className="w-full text-white bg-primary border-none rounded-lg h-11 hover:bg-orange-700">
+          <Button className="w-full text-white bg-primary border-none rounded-lg h-11 hover:bg-orange-500">
             <FaWhatsapp color="white" /> Contactar cliente por WhatsApp
           </Button>
         </Link>
@@ -427,7 +427,7 @@ const AppointmentModal: React.FC<props> = ({
           />
           <Button
             onClick={handleDelete}
-            className="w-full text-white bg-red-600 border-none rounded-lg h-11 hover:bg-orange-700"
+            className="w-full text-white bg-red-600 border-none rounded-lg h-11 hover:bg-red-700"
           >
             Eliminar turno
           </Button>

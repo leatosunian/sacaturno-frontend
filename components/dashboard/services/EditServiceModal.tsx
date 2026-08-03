@@ -211,7 +211,7 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
         </Button>
         <Button
           disabled={!isDirty}
-          className="flex-1 h-11 text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-600"
+          className="flex-1 h-11 text-white bg-primary hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary"
           onClick={handleSubmitClick}
         >
           <LuSave size={18} /> Guardar

@@ -26,7 +26,7 @@ const HelpModal: React.FC<Props> = ({ onClose }) => {
   const steps: Step[] = [
     {
       number: 1,
-      icon: <FaRepeat size={18} className="text-orange-500" />,
+      icon: <FaRepeat size={18} className="text-primary" />,
       title: "Turnos automáticos",
       badge: "Recomendado",
       description:
@@ -35,7 +35,7 @@ const HelpModal: React.FC<Props> = ({ onClose }) => {
       extra: (
         <Link
           href="/admin/schedule/automate"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600 hover:text-orange-700 underline underline-offset-2 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-orange-500 underline underline-offset-2 transition-colors"
         >
           <FaExternalLinkAlt size={11} />
           Ir a Automatizar agenda
@@ -44,7 +44,7 @@ const HelpModal: React.FC<Props> = ({ onClose }) => {
     },
     {
       number: 2,
-      icon: <LuCalendarDays size={22} className="text-orange-500" />,
+      icon: <LuCalendarDays size={22} className="text-primary" />,
       title: "Configurá la vista del calendario",
       badge: null,
       description:
@@ -54,7 +54,7 @@ const HelpModal: React.FC<Props> = ({ onClose }) => {
     },
     {
       number: 3,
-      icon: <LuMousePointerClick size={22} className="text-orange-500" />,
+      icon: <LuMousePointerClick size={22} className="text-primary" />,
       title: "Agregá un turno",
       badge: null,
       description:
@@ -64,7 +64,7 @@ const HelpModal: React.FC<Props> = ({ onClose }) => {
     },
     {
       number: 4,
-      icon: <LuCalendarClock size={22} className="text-orange-500" />,
+      icon: <LuCalendarClock size={22} className="text-primary" />,
       title: "Crear turnos del día",
       badge: null,
       description:
@@ -74,7 +74,7 @@ const HelpModal: React.FC<Props> = ({ onClose }) => {
     },
     {
       number: 5,
-      icon: <LuPencilLine size={22} className="text-orange-500" />,
+      icon: <LuPencilLine size={22} className="text-primary" />,
       title: "Combiná los dos modos",
       badge: null,
       description:
@@ -107,7 +107,7 @@ const HelpModal: React.FC<Props> = ({ onClose }) => {
             className={cn(
               "h-1.5 rounded-full transition-all duration-300",
               i === activeStep
-                ? "bg-orange-500 w-8"
+                ? "bg-primary w-8"
                 : i < activeStep
                 ? "bg-orange-200 w-4"
                 : "bg-gray-200 w-4"
@@ -132,7 +132,7 @@ const HelpModal: React.FC<Props> = ({ onClose }) => {
                 Paso {step.number}
               </span> */}
               {step.badge && (
-                <span className="text-[10px] font-semibold bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-semibold bg-orange-100 text-primary px-2 py-0.5 rounded-full">
                   {step.badge}
                 </span>
               )}
@@ -174,14 +174,14 @@ const HelpModal: React.FC<Props> = ({ onClose }) => {
         {!isLast ? (
           <button
             onClick={() => setActiveStep((s) => Math.min(s + 1, steps.length - 1))}
-            className="h-9 px-5 rounded-lg text-sm font-semibold bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-200"
+            className="h-9 px-5 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-500 text-white transition-colors duration-200"
           >
             Siguiente
           </button>
         ) : (
           <button
             onClick={onClose}
-            className="h-9 px-5 rounded-lg text-sm font-semibold bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-200"
+            className="h-9 px-5 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-500 text-white transition-colors duration-200"
           >
             ¡Entendido!
           </button>

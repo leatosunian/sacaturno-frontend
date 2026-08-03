@@ -22,7 +22,7 @@ const NoServicesModal: React.FC = () => {
       </div>
 
       <Link href="/admin/services" className="w-full mt-1">
-        <button className="w-full bg-primary hover:bg-orange-600 text-white text-sm font-semibold py-2.5 rounded-lg transition-all duration-300 ease-in-out cursor-pointer">
+        <button className="w-full bg-primary hover:bg-orange-500 text-white text-sm font-semibold py-2.5 rounded-lg transition-all duration-300 ease-in-out cursor-pointer">
           Crear mi primer servicio
         </button>
       </Link>
