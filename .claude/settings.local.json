@@ -80,7 +80,19 @@
       "PowerShell(Resolve-DnsName sacaturno.com.ar -Server a.dns.ar -Type NS -ErrorAction SilentlyContinue)",
       "PowerShell(nslookup sacaturno.com.ar 8.8.8.8 2>&1)",
       "Bash(echo \"---exit:$?---\")",
-      "Bash(xargs -I{} sh -c 'echo \"checking {}\"; grep -o \"translate-x:50px\\\\|--tw-enter-translate-x: *50px\\\\|enter-translate-x:50px\" \"{}\" | head -2')"
+      "Bash(xargs -I{} sh -c 'echo \"checking {}\"; grep -o \"translate-x:50px\\\\|--tw-enter-translate-x: *50px\\\\|enter-translate-x:50px\" \"{}\" | head -2')",
+      "Bash(node \"C:/Users/Gaming/AppData/Local/Temp/claude/C--sacaturno/39c03c1e-c493-47f8-a07a-d5a3b7feb3b8/scratchpad/migrate.js\")",
+      "Bash(node \"C:/Users/Gaming/AppData/Local/Temp/claude/C--sacaturno/39c03c1e-c493-47f8-a07a-d5a3b7feb3b8/scratchpad/preview.js\")",
+      "Bash(node \"C:/Users/Gaming/AppData/Local/Temp/claude/C--sacaturno/39c03c1e-c493-47f8-a07a-d5a3b7feb3b8/scratchpad/serve.js\")",
+      "Bash(echo \"exit: $?\")",
+      "Bash(node \"C:/Users/Gaming/AppData/Local/Temp/claude/C--sacaturno/39c03c1e-c493-47f8-a07a-d5a3b7feb3b8/scratchpad/migrate2.js\")",
+      "Bash(node \"C:/Users/Gaming/AppData/Local/Temp/claude/C--sacaturno/39c03c1e-c493-47f8-a07a-d5a3b7feb3b8/scratchpad/preview-all.js\")",
+      "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process -Filter \"Name='\\\\''node.exe'\\\\''\" | Where-Object { $_.CommandLine -like '\\\\''*serve.js*'\\\\'' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }')",
+      "Bash(node \"C:/Users/Gaming/AppData/Local/Temp/claude/C--sacaturno/39c03c1e-c493-47f8-a07a-d5a3b7feb3b8/scratchpad/convert-logo.js\")",
+      "Bash(git -C server status)",
+      "Bash(git -C server diff)",
+      "Bash(git -C server diff --staged)",
+      "Bash(git -C server log --oneline -10)"
     ],
     "additionalDirectories": [
       "c:\\sacaturno\\.claude\\skills"

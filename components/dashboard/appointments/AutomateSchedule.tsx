@@ -228,19 +228,47 @@ const AutomateSchedule: React.FC<Props> = ({
   }, [selectedDayStart, selectedDayEnd]);
 
   useEffect(() => {
+    // Reconcile each day's dayStart/dayEnd with its saved appointments.
+    // Why: if the user extended the window (e.g. 9→8), created an appointment
+    // at 8:00 (auto-persisted), and never saved the window change, the DB has
+    // dayStart=9 with an appt at 8:00. Rendering that would clamp the 8:00
+    // card to the 9:00 row via Math.max(minTop, 0) in the cluster layout.
+    const apptsByDay = new Map<string, IAppointmentSchedule[]>();
+    daysAndAppointments.appointments.forEach((a) => {
+      const list = apptsByDay.get(a.day);
+      if (list) list.push(a);
+      else apptsByDay.set(a.day, [a]);
+    });
+
+    const adjustedDays = daysAndAppointments.days.map((d) => {
+      const appts = apptsByDay.get(d.day);
+      if (!appts?.length) return d;
+      const earliestHour = Math.min(...appts.map((a) => dayjs(a.start).hour()));
+      const latestHour = Math.max(
+        ...appts.map((a) => {
+          const end = dayjs(a.end);
+          return end.hour() + (end.minute() > 0 ? 1 : 0);
+        })
+      );
+      const dayStart = Math.min(d.dayStart, earliestHour);
+      const dayEnd = Math.max(d.dayEnd, latestHour);
+      if (dayStart === d.dayStart && dayEnd === d.dayEnd) return d;
+      return { ...d, dayStart, dayEnd };
+    });
+
     if (!originalDaysRef.current) {
       originalDaysRef.current = Object.fromEntries(
-        daysAndAppointments.days.map((d) => [
+        adjustedDays.map((d) => [
           d.day,
           { dayStart: d.dayStart, dayEnd: d.dayEnd, appointmentDuration: d.appointmentDuration },
         ])
       );
     }
-    setDaysSchedule(daysAndAppointments.days);
+    setDaysSchedule(adjustedDays);
     setAppointmentsSchedule(daysAndAppointments.appointments);
-    setSelectedAppointmentDuration(daysAndAppointments.days[0].appointmentDuration);
-    setSelectedDayEnd(daysAndAppointments.days[0].dayEnd);
-    setSelectedDayStart(daysAndAppointments.days[0].dayStart);
+    setSelectedAppointmentDuration(adjustedDays[0].appointmentDuration);
+    setSelectedDayEnd(adjustedDays[0].dayEnd);
+    setSelectedDayStart(adjustedDays[0].dayStart);
     setBusiness(businessData);
     setServices(servicesData);
     setSelectedAnticipation(businessData.scheduleAnticipation);
@@ -317,11 +345,6 @@ const AutomateSchedule: React.FC<Props> = ({
   };
 
   const handleSelectDayStart = (val: number) => {
-    if (val >= selectedDayEnd) {
-      setAlert({ msg: "El horario de inicio debe ser menor al horario de fin", error: true, alertType: "ERROR_ALERT" });
-      hideAlert();
-      return;
-    }
     if (parsedSelectedAppointments.length) {
       const earliestHour = Math.min(...parsedSelectedAppointments.map((a) => dayjs(a.start).hour()));
       if (val > earliestHour) {
@@ -330,21 +353,29 @@ const AutomateSchedule: React.FC<Props> = ({
         return;
       }
     }
+    // Si el nuevo inicio invade el fin actual, corremos el fin manteniendo el span
+    // para que el usuario pueda desplazar el rango en un solo paso.
+    let nextEnd = selectedDayEnd;
+    if (val >= selectedDayEnd) {
+      const span = Math.max(selectedDayEnd - selectedDayStart, 1);
+      nextEnd = Math.min(val + span, 23);
+      if (nextEnd <= val) {
+        setAlert({ msg: "El horario de inicio no puede ser 23:00 hs", error: true, alertType: "ERROR_ALERT" });
+        hideAlert();
+        return;
+      }
+    }
     setSelectedDayStart(val);
+    if (nextEnd !== selectedDayEnd) setSelectedDayEnd(nextEnd);
     editDaySchedule({
       day: selectedDay.dayName,
       dayStart: val,
-      dayEnd: selectedDayEnd,
+      dayEnd: nextEnd,
       appointmentDuration: selectedAppointmentDuration,
     });
   };
 
   const handleSelectDayEnd = (val: number) => {
-    if (val <= selectedDayStart) {
-      setAlert({ msg: "El horario de fin debe ser mayor al horario de inicio", error: true, alertType: "ERROR_ALERT" });
-      hideAlert();
-      return;
-    }
     if (parsedSelectedAppointments.length) {
       const latestHour = Math.max(
         ...parsedSelectedAppointments.map((a) => dayjs(a.end).hour() + (dayjs(a.end).minute() > 0 ? 1 : 0))
@@ -355,10 +386,23 @@ const AutomateSchedule: React.FC<Props> = ({
         return;
       }
     }
+    // Espejo del start: si el nuevo fin cae por debajo del inicio actual,
+    // arrastramos el inicio para preservar el span.
+    let nextStart = selectedDayStart;
+    if (val <= selectedDayStart) {
+      const span = Math.max(selectedDayEnd - selectedDayStart, 1);
+      nextStart = Math.max(val - span, 0);
+      if (nextStart >= val) {
+        setAlert({ msg: "El horario de fin no puede ser 00:00 hs", error: true, alertType: "ERROR_ALERT" });
+        hideAlert();
+        return;
+      }
+    }
     setSelectedDayEnd(val);
+    if (nextStart !== selectedDayStart) setSelectedDayStart(nextStart);
     editDaySchedule({
       day: selectedDay.dayName,
-      dayStart: selectedDayStart,
+      dayStart: nextStart,
       dayEnd: val,
       appointmentDuration: selectedAppointmentDuration,
     });

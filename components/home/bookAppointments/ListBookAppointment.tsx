@@ -984,30 +984,30 @@ export default function ListBookAppointment({
 
       {/* Summary */}
       {selectedSlot && (
-        <div className="rounded-2xl bg-orange-50 border border-orange-200 overflow-hidden">
+        <div className="rounded-2xl bg-primary/5 border border-primary/20 overflow-hidden">
           {/* Fecha/hora header */}
-          <div className="flex items-center gap-3 bg-orange-500 px-4 py-3">
-            <CalendarDays className="size-4 text-white shrink-0" />
+          <div className="flex items-center gap-3 bg-primary px-4 py-3">
+            <CalendarDays className="size-4 text-primary-foreground shrink-0" />
             <div>
-              <p className="text-lg font-bold text-white capitalize">{modalDateStr}</p>
-              <p className="text-sm text-orange-100">{selectedSlot.timeLabel} — {selectedSlot.endTimeLabel} hs</p>
+              <p className="text-lg font-bold text-primary-foreground capitalize">{modalDateStr}</p>
+              <p className="text-sm text-primary-foreground/80">{selectedSlot.timeLabel} — {selectedSlot.endTimeLabel} hs</p>
             </div>
           </div>
 
-          <div className="px-4 py-3.5 flex flex-col gap-3">
+          <div className="px-4 py-3.5 flex flex-col gap-3 bg-white">
             {/* Servicio + precio inline */}
             {selectedServiceObj && (
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-2 min-w-0">
-                  <Tag className="size-3.5 text-orange-500 shrink-0 mt-0.5" />
+                  <Tag className="size-3.5 text-primary shrink-0 mt-0.5" />
                   <div className="min-w-0">
-                    <span className="text-[10px] uppercase tracking-widest font-bold text-orange-500 leading-none">Servicio</span>
+                    <span className="text-[10px] uppercase tracking-widest font-bold text-primary leading-none">Servicio</span>
                     <p className="font-extrabold text-base text-neutral-900 leading-tight">{selectedServiceObj.name}</p>
                   </div>
                 </div>
                 <div className="text-right shrink-0">
                   <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Precio</span>
-                  <p className="text-2xl font-black text-orange-600 leading-none mt-0.5">${selectedSlot.price.toLocaleString("es-AR")}</p>
+                  <p className="text-2xl font-black text-primary leading-none mt-0.5">${selectedSlot.price.toLocaleString("es-AR")}</p>
                 </div>
               </div>
             )}
@@ -1016,16 +1016,16 @@ export default function ListBookAppointment({
             {(displayBranchObj || selectedEmployeeObj) && (
               <div className="flex flex-wrap gap-2">
                 {displayBranchObj && (
-                  <span className="inline-flex items-center gap-1.5 bg-white border border-orange-200 px-2.5 py-1 rounded-full text-xs font-semibold text-neutral-700">
-                    <MapPin className="size-3 text-orange-500 shrink-0" />
+                  <span className="inline-flex items-center gap-1.5 bg-white border border-primary/20 px-2.5 py-1 rounded-full text-xs font-semibold text-neutral-700">
+                    <MapPin className="size-3 text-primary shrink-0" />
                     {displayBranchObj.street && displayBranchObj.number
                       ? `${displayBranchObj.street} ${displayBranchObj.number}`
                       : displayBranchObj.name}
                   </span>
                 )}
                 {selectedEmployeeObj && (
-                  <span className="inline-flex items-center gap-1.5 bg-white border border-orange-200 px-2.5 py-1 rounded-full text-xs font-semibold text-neutral-700">
-                    <User className="size-3 text-orange-500 shrink-0" />
+                  <span className="inline-flex items-center gap-1.5 bg-white border border-primary/20 px-2.5 py-1 rounded-full text-xs font-semibold text-neutral-700">
+                    <User className="size-3 text-primary shrink-0" />
                     {selectedEmployeeObj.name} {selectedEmployeeObj.surname}
                   </span>
                 )}
@@ -1034,9 +1034,9 @@ export default function ListBookAppointment({
 
             {/* Seña: solo cuando el turno la requiere */}
             {requiresDeposit && (
-              <div className="border-t border-orange-200 pt-3">
+              <div className="border-t border-primary/20 pt-3">
                 <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Seña · Mercado Pago</span>
-                <p className="text-sm font-bold text-orange-600">${selectedServiceObj!.depositAmount!.toLocaleString("es-AR")}</p>
+                <p className="text-sm font-bold text-primary">${selectedServiceObj!.depositAmount!.toLocaleString("es-AR")}</p>
               </div>
             )}
           </div>
@@ -1050,7 +1050,7 @@ export default function ListBookAppointment({
       <button
         onClick={handleSubmit(onSubmit)}
         disabled={bookingSpinner}
-        className="h-12 rounded-xl text-sm font-bold uppercase tracking-wider bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-60 transition-all"
+        className="h-12 rounded-xl text-sm font-bold uppercase tracking-wider bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-60 transition-all"
       >
         {bookingSpinner ? (
           <Loader2 className="size-4 animate-spin" />
@@ -1122,22 +1122,43 @@ export default function ListBookAppointment({
         <main className="flex flex-col flex-1 w-full max-w-7xl pt-[84px] pb-4 mx-auto px-4 md:px-8 md:pb-6">
           <div className="rounded-3xl bg-white overflow-hidden shadow-2xl border border-orange-100/70">
             <BusinessHeaderStrip />
-            <div className="flex flex-col items-center gap-5 py-16 px-6">
-              <div className="size-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                <CircleCheck className="text-white size-12" strokeWidth={2.5} />
+            <div className="flex flex-col w-fit mx-auto items-center gap-6 py-16 md:py-20 px-6">
+              <div className="relative">
+                <div className="absolute inset-0 rounded-full bg-emerald-500/15 blur-2xl scale-150" />
+                <div className="relative size-16 rounded-full bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center">
+                  <Check className="text-emerald-600 size-8" strokeWidth={3} />
+                </div>
               </div>
-              <h2 className="text-xl md:text-2xl 2xl:text-3xl font-black">
-                Turno reservado
-              </h2>
-              <p className="text-sm text-muted-foreground text-center max-w-xs">
-                Te enviamos la confirmación a tu email. ¡Nos vemos pronto!
-              </p>
+
+              <div className="flex flex-col items-center gap-3 max-w-md">
+                <h2 className="text-2xl md:text-3xl font-black tracking-tight text-neutral-900">
+                  Turno reservado
+                </h2>
+                <p className="text-base text-muted-foreground text-center leading-relaxed">
+                  Te enviamos los datos de la reserva a tu email. Si no lo ves, chequeá tu carpeta de correo no deseado.
+                </p>
+              </div>
+
+              <div className="w-full max-w-md mt-2 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3 text-left">
+                <div className="mt-0.5 shrink-0 size-8 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center">
+                  <Clock className="size-4 text-amber-700" strokeWidth={2.5} />
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-xs font-bold uppercase tracking-wider text-amber-800">
+                    Recordatorio
+                  </span>
+                  <p className="text-sm text-amber-900/90 leading-relaxed">
+                    Por favor, llegá con anticipación al horario de inicio. La puntualidad es clave para que todo salga bien. ¡Nos vemos pronto!
+                  </p>
+                </div>
+              </div>
+
               <button
                 onClick={() => {
                   setWizardStep("service");
                   setSelectedSlot(null);
                 }}
-                className="mt-2 h-11 px-6 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm font-bold shadow-lg hover:shadow-xl transition-all"
+                className="mt-2 w-full xs:w-fit h-11 px-6 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-bold shadow-md hover:shadow-lg transition-all"
               >
                 Reservar otro turno
               </button>

@@ -343,7 +343,7 @@ const ServicesComponent = ({
                   </p>
                 </div>
               )}
-              <div className="flex flex-col divide-y divide-gray-100">
+              <div className="flex flex-col gap-2">
                 {services?.map((service) => (
                   <div
                     key={service._id}
