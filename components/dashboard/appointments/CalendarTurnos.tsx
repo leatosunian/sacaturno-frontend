@@ -84,6 +84,10 @@ const HelpModal = dynamic(() => import("./HelpModal"), {
   loading: () => <ModalSkeleton />,
 });
 
+const CancelledAppointments = dynamic(() => import("./CancelledAppointments"), {
+  loading: () => <ModalSkeleton />,
+});
+
 const ALL_FILTER_VALUE = "__all__";
 
 dayjs.locale("es-mx");
@@ -248,6 +252,7 @@ const CalendarTurnos: React.FC<Props> = ({
   const [createAppointmentTabMode, setCreateAppointmentTabMode] = useState<"pending" | "booked">("pending");
   const [allDayAppointmentsModal, setAllDayAppointmentsModal] = useState(false);
   const [helpModal, setHelpModal] = useState(false);
+  const [cancelledModal, setCancelledModal] = useState(false);
   const [date, setDate] = useState<Date>(now.toDate());
   const [expiredModal, setExpiredModal] = useState(false);
   const [loadingNewAppointments, setLoadingNewAppointments] = useState(true);
@@ -256,6 +261,9 @@ const CalendarTurnos: React.FC<Props> = ({
   const [disableBookingsModal, setDisableBookingsModal] = useState(false);
   const [bookingsSaving, setBookingsSaving] = useState(false);
   const canToggleBookings = !isEmployee || canManageAll;
+  // El historial de cancelaciones expone datos de contacto y montos: mismo permiso
+  // que el resto de las vistas de estadísticas del backend.
+  const canViewCancelled = !isEmployee || employeePermissions.includes("view_stats");
   const bookingsToggleLabel = bookingsEnabled ? "Deshabilitar reservas" : "Habilitar reservas";
   const [selectedDaySchedule, setSelectedDaySchedule] = useState({
     dayStart: 8,
@@ -888,6 +896,13 @@ const CalendarTurnos: React.FC<Props> = ({
         </DialogContent>
       </Dialog>
 
+      <Dialog open={cancelledModal} onOpenChange={setCancelledModal}>
+        <DialogContent className="sm:w-[720px] max-w-none w-[93vw] max-h-[90dvh] overflow-y-auto">
+          <DialogTitle className="sr-only">Turnos cancelados</DialogTitle>
+          {cancelledModal && <CancelledAppointments businessID={businessData._id ?? ""} />}
+        </DialogContent>
+      </Dialog>
+
       {/*  Page layout  */}
       <div className="flex flex-col w-full gap-3 pb-16 md:pb-8">
 
@@ -925,6 +940,18 @@ const CalendarTurnos: React.FC<Props> = ({
                     <span className="text-sm font-medium">Automatizar agenda</span>
                   </Link>
                 </DropdownMenuItem>
+                {canViewCancelled && (
+                  <>
+                    <DropdownMenuSeparator className="my-1" />
+                    <DropdownMenuItem
+                      onSelect={() => setCancelledModal(true)}
+                      className="gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-700 focus:bg-orange-50 focus:text-orange-700"
+                    >
+                      <LuCalendarX size={16} className="text-orange-500 shrink-0" />
+                      <span className="text-sm font-medium">Turnos cancelados</span>
+                    </DropdownMenuItem>
+                  </>
+                )}
                 {canToggleBookings && (
                   <>
                     <DropdownMenuSeparator className="my-1" />
@@ -1051,8 +1078,8 @@ const CalendarTurnos: React.FC<Props> = ({
           {/* Desktop — navbar card */}
           <div className="hidden lg:flex items-center justify-between gap-2 bg-white rounded-xl border border-gray-100 shadow-sm">
 
-            {/* LEFT: create all day appointments button */}
-            <div className="flex items-center px-4 py-2 shrink-0">
+            {/* LEFT: create all day appointments + cancelled history */}
+            <div className="flex items-center gap-2 px-4 py-2 shrink-0">
               <TooltipProvider delayDuration={150}>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -1071,6 +1098,25 @@ const CalendarTurnos: React.FC<Props> = ({
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
+
+              {canViewCancelled && (
+                <TooltipProvider delayDuration={150}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => setCancelledModal(true)}
+                        aria-label="Turnos cancelados"
+                        className="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:border-orange-300 hover:bg-orange-50 hover:text-primary transition-all duration-200 shrink-0"
+                      >
+                        <LuCalendarX size={16} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-[220px] text-center">
+                      Historial de turnos cancelados y devolución de señas
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
             </div>
 
             {/* CENTER: date navigation */}
