@@ -31,6 +31,11 @@ export const createBusinessSchema = z.object({
         message: 'El link debe tener menos de 35 caractéres'
     }).refine(s => !s.includes(' '), 'El link no debe contener espacios'),
 
+    cancellationWindowHours: z.coerce.number({
+        required_error: 'Elegí una política de cancelación',
+        invalid_type_error: 'Elegí una política de cancelación'
+    }),
+
     appointmentDuration: z.string(),
 
     dayStart: z.string(),
