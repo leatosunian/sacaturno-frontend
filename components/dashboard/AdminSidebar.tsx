@@ -27,7 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import sacaturno_logo from "@/public/sacaturno-white.svg";
+import sacaturno_logo from "@/public/sacaturno-orange.svg";
 import { getPlanLimits } from "@/lib/planLimits";
 import type { SubscriptionType } from "@/lib/planLimits";
 import {

@@ -103,7 +103,9 @@
       "Bash(git --no-pager diff -- server/src/services/scheduleServices.ts app/admin/schedule/automate/page.tsx)",
       "Bash(git --no-pager diff -- components/dashboard/appointments/AutomateSchedule.tsx)",
       "PowerShell(npx tsc --noEmit -p tsconfig.json 2>&1)",
-      "PowerShell(git -C C:\\\\sacaturno status --short)"
+      "PowerShell(git -C C:\\\\sacaturno status --short)",
+      "PowerShell(git -C C:\\\\sacaturno log --oneline -3)",
+      "PowerShell(git -C C:\\\\sacaturno log --oneline -2 -- app/admin/dashboard/page.tsx)"
     ],
     "additionalDirectories": [
       "c:\\sacaturno\\.claude\\skills"

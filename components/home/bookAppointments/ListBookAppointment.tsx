@@ -1124,22 +1124,36 @@ export default function ListBookAppointment({
             <BusinessHeaderStrip />
             <div className="flex flex-col w-fit mx-auto items-center gap-6 py-16 md:py-20 px-6">
               <div className="relative">
-                <div className="absolute inset-0 rounded-full bg-emerald-500/15 blur-2xl scale-150" />
-                <div className="relative size-16 rounded-full bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center">
-                  <Check className="text-emerald-600 size-8" strokeWidth={3} />
+                <div className="booking-glow absolute inset-0 rounded-full bg-emerald-500/15 blur-2xl" />
+                <div className="booking-ripple absolute inset-0 rounded-full border-2 border-emerald-500/60" />
+                <div
+                  className="booking-ripple absolute inset-0 rounded-full border-2 border-emerald-500/40"
+                  style={{ animationDelay: "0.3s" }}
+                />
+                <div className="booking-badge relative size-16 rounded-full bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center">
+                  <Check className="booking-check text-emerald-600 size-8" strokeWidth={3} />
                 </div>
               </div>
 
               <div className="flex flex-col items-center gap-3 max-w-md">
-                <h2 className="text-2xl md:text-3xl font-black tracking-tight text-neutral-900">
+                <h2
+                  className="booking-rise text-2xl md:text-3xl font-black tracking-tight text-neutral-900"
+                  style={{ "--rise-delay": "0.45s" } as React.CSSProperties}
+                >
                   Turno reservado
                 </h2>
-                <p className="text-base text-muted-foreground text-center leading-relaxed">
+                <p
+                  className="booking-rise text-base text-muted-foreground text-center leading-relaxed"
+                  style={{ "--rise-delay": "0.55s" } as React.CSSProperties}
+                >
                   Te enviamos los datos de la reserva a tu email. Si no lo ves, chequeá tu carpeta de correo no deseado.
                 </p>
               </div>
 
-              <div className="w-full max-w-md mt-2 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3 text-left">
+              <div
+                className="booking-rise w-full max-w-md mt-2 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3 text-left"
+                style={{ "--rise-delay": "0.68s" } as React.CSSProperties}
+              >
                 <div className="mt-0.5 shrink-0 size-8 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center">
                   <Clock className="size-4 text-amber-700" strokeWidth={2.5} />
                 </div>
@@ -1158,7 +1172,8 @@ export default function ListBookAppointment({
                   setWizardStep("service");
                   setSelectedSlot(null);
                 }}
-                className="mt-2 w-full xs:w-fit h-11 px-6 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-bold shadow-md hover:shadow-lg transition-all"
+                className="booking-rise mt-2 w-full xs:w-fit h-11 px-6 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-bold shadow-md hover:shadow-lg transition-all"
+                style={{ "--rise-delay": "0.8s" } as React.CSSProperties}
               >
                 Reservar otro turno
               </button>

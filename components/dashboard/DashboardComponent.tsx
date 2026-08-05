@@ -11,13 +11,15 @@ import {
   LuCheck,
   LuClock,
   LuX,
+  LuRefreshCw,
 } from "react-icons/lu";
 import { MdOutlineWorkOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import Link from "next/link";
 import { IoMdMore } from "react-icons/io";
 import { IAppointment } from "@/interfaces/appointment.interface";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
 import "dayjs/locale/es-mx";
 import utc from "dayjs/plugin/utc";
@@ -31,7 +33,7 @@ import { usePermissions } from "@/components/dashboard/PermissionsProvider";
 import { IoInformationCircle } from "react-icons/io5";
 import axiosReq from "@/config/axios";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Separator } from "../ui/separator";
 import { PLAN_LABELS, SubscriptionType } from "@/lib/planLimits";
 import { IBranch } from "@/interfaces/branch.interface";
@@ -143,6 +145,14 @@ const DashboardComponent: React.FC<Props> = ({
     useState<boolean>(false);
   const [selectedAppointment, setSelectedAppointment] = useState<eventType>();
   const [openGuideDialog, setOpenGuideDialog] = useState<boolean>(false);
+  const router = useRouter();
+  const reduceMotion = useReducedMotion();
+  const [isRefreshing, startRefresh] = useTransition();
+  const [newAppointmentIds, setNewAppointmentIds] = useState<Set<string>>(
+    new Set(),
+  );
+  // IDs conocidos del render anterior: null en el primer render (nada es "nuevo")
+  const knownIdsRef = useRef<Set<string> | null>(null);
 
   const stats = businessData?.stats ?? null;
   const employees = businessData?.employees ?? [];
@@ -158,6 +168,13 @@ const DashboardComponent: React.FC<Props> = ({
       setOpenGuideDialog(true);
     }
   }, [userData]);
+
+  // El resaltado de "nuevo" es temporal: se apaga solo a los 6 segundos
+  useEffect(() => {
+    if (newAppointmentIds.size === 0) return;
+    const timer = setTimeout(() => setNewAppointmentIds(new Set()), 6000);
+    return () => clearTimeout(timer);
+  }, [newAppointmentIds]);
 
   const handleSelectEvent = (event: eventType) => {
     setSelectedAppointment({
@@ -208,8 +225,26 @@ const DashboardComponent: React.FC<Props> = ({
       });
     });
     list.sort((a, b) => a.start.getTime() - b.start.getTime());
+
+    const currentIds = new Set(
+      list.map((a) => a._id).filter((id): id is string => !!id),
+    );
+    const knownIds = knownIdsRef.current;
+    const freshIds = knownIds
+      ? list
+          .map((a) => a._id)
+          .filter((id): id is string => !!id && !knownIds.has(id))
+      : [];
+    knownIdsRef.current = currentIds;
+    setNewAppointmentIds(new Set(freshIds));
+
     setAppointmentsData(list);
     setLoading(false);
+  };
+
+  const handleRefresh = () => {
+    if (isRefreshing) return;
+    startRefresh(() => router.refresh());
   };
 
   // Nombre + inicial del apellido: el chip es una referencia rápida,
@@ -553,22 +588,42 @@ const DashboardComponent: React.FC<Props> = ({
           {/* TODAY'S APPOINTMENTS */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between gap-3">
-              <div className="flex items-baseline gap-2">
+              <div className="flex items-baseline gap-2 min-w-0">
                 <span className="text-lg font-semibold">Turnos de hoy</span>
                 {!loading && todayCount > 0 && (
-                  <span className="text-xs font-semibold text-gray-400">
+                  <span className="text-xs font-semibold text-gray-400 whitespace-nowrap">
                     {todayCount} {todayCount === 1 ? "turno" : "turnos"}
                   </span>
                 )}
               </div>
-              {!loading && todayCount > 0 && (
-                <Link
-                  href="/admin/schedule"
-                  className="text-xs font-medium text-primary hover:underline whitespace-nowrap"
-                >
-                  Ver agenda →
-                </Link>
-              )}
+              <div className="flex items-center gap-2 shrink-0">
+                {!loading && (
+                  <button
+                    type="button"
+                    onClick={handleRefresh}
+                    disabled={isRefreshing}
+                    aria-label="Actualizar turnos"
+                    title="Actualizar turnos"
+                    className="flex items-center justify-center gap-1.5 h-8 min-w-8 px-2.5 text-gray-500 border border-gray-200 rounded-md transition-all duration-200 ease-in-out hover:text-primary hover:border-orange-300 hover:bg-orange-50 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    <LuRefreshCw
+                      size={13}
+                      className={isRefreshing ? "animate-spin" : ""}
+                    />
+                    <span className="hidden text-xs font-medium sm:inline">
+                      {isRefreshing ? "Actualizando…" : "Actualizar"}
+                    </span>
+                  </button>
+                )}
+                {!loading && todayCount > 0 && (
+                  <Link
+                    href="/admin/schedule"
+                    className="text-xs font-medium text-primary hover:underline whitespace-nowrap"
+                  >
+                    Ver agenda →
+                  </Link>
+                )}
+              </div>
             </div>
 
             <AnimatePresence>
@@ -584,7 +639,26 @@ const DashboardComponent: React.FC<Props> = ({
               )}
             </AnimatePresence>
 
-            {!loading && appointmentsData && appointmentsData.length > 0 && (
+            <div className="relative" aria-busy={isRefreshing}>
+              <AnimatePresence>
+                {isRefreshing && !loading && (
+                  <motion.div
+                    key="refresh-overlay"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                    className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-xl bg-white/75"
+                  >
+                    <div className="loaderSmall" />
+                    <span className="text-xs font-medium text-gray-500">
+                      Actualizando turnos…
+                    </span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {!loading && appointmentsData && appointmentsData.length > 0 && (
               <div
                 style={cardShadow}
                 className="bg-white rounded-xl overflow-hidden"
@@ -620,17 +694,29 @@ const DashboardComponent: React.FC<Props> = ({
                       ? DEPOSIT_BADGES[appointment.depositStatus]
                       : null;
                   const isNext = idx === 0;
+                  const isNew = !!(
+                    appointment._id && newAppointmentIds.has(appointment._id)
+                  );
                   const hasMeta = !!(branchName || employeeName || deposit);
 
                   return (
-                    <div
+                    <motion.div
                       key={appointment._id}
+                      initial={
+                        isNew && !reduceMotion
+                          ? { opacity: 0, y: -14, scaleY: 0.9 }
+                          : false
+                      }
+                      animate={{ opacity: 1, y: 0, scaleY: 1 }}
+                      transition={{ duration: 0.35, ease: "easeOut" }}
                       role="button"
                       tabIndex={0}
                       className={`flex items-start gap-3 px-4 py-3 border-l-[3px] cursor-pointer transition-colors duration-200 hover:bg-gray-50 focus:outline-none focus-visible:bg-gray-50 ${
-                        isNext
-                          ? "border-l-primary bg-orange-50/40"
-                          : "border-l-transparent"
+                        isNew
+                          ? "border-l-primary bg-orange-50"
+                          : isNext
+                            ? "border-l-primary bg-orange-50/40"
+                            : "border-l-transparent"
                       } ${
                         idx !== appointmentsData.length - 1
                           ? "border-b border-b-gray-100"
@@ -666,10 +752,16 @@ const DashboardComponent: React.FC<Props> = ({
                           <span className="text-sm font-semibold text-gray-800 truncate">
                             {appointment.name}
                           </span>
-                          {isNext && (
-                            <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide leading-none rounded text-primary bg-orange-100 shrink-0">
-                              Próximo
+                          {isNew ? (
+                            <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide leading-none text-white rounded bg-primary shrink-0">
+                              Nuevo
                             </span>
+                          ) : (
+                            isNext && (
+                              <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide leading-none rounded text-primary bg-orange-100 shrink-0">
+                                Próximo
+                              </span>
+                            )
                           )}
                           {appointment.price != null && appointment.price > 0 && (
                             <span className="ml-auto text-xs font-semibold text-gray-700 tabular-nums shrink-0">
@@ -705,11 +797,11 @@ const DashboardComponent: React.FC<Props> = ({
                         color="#9ca3af"
                         className="shrink-0 mt-0.5"
                       />
-                    </div>
+                    </motion.div>
                   );
                 })}
               </div>
-            )}
+              )}
 
             {!loading &&
               (!appointmentsData || appointmentsData.length === 0) && (
@@ -754,6 +846,7 @@ const DashboardComponent: React.FC<Props> = ({
                   </div>
                 </motion.div>
               )}
+            </div>
           </div>
         </div>
       </div>

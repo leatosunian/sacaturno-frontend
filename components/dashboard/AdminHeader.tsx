@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import sacaturno_logo from "@/public/sacaturno-white.svg";
+import sacaturno_logo from "@/public/sacaturno-orange.svg";
 import { RxCross2, RxHamburgerMenu } from "react-icons/rx";
 import { useRouter } from "next/navigation";
 import { IoIosLogOut } from "react-icons/io";
@@ -102,7 +102,7 @@ export default function AdminHeader({
       <aside className={isOpen ? styles.activeAside : styles.aside}>
         {/* Header */}
         <div className={styles.asideHeader}>
-          <Image className="w-24" src={sacaturno_logo} alt="SacaTurno" />
+          <Image className="w-28" src={sacaturno_logo} alt="SacaTurno" />
           <button
             onClick={closeMenu}
             className={styles.closeBtn}
@@ -119,7 +119,7 @@ export default function AdminHeader({
             className={styles.asideNavItem}
             href="/admin/dashboard"
           >
-            <HiOutlineHome size={17} />
+            <HiOutlineHome size={19} />
             <span>Inicio</span>
           </Link>
 
@@ -129,7 +129,7 @@ export default function AdminHeader({
               onClick={() => toggleDropdown("agenda")}
               className={styles.asideNavItem}
             >
-              <HiOutlineCalendarDays size={17} />
+              <HiOutlineCalendarDays size={19} />
               <span>Agenda</span>
               <FaChevronDown
                 size={11}
@@ -165,7 +165,7 @@ export default function AdminHeader({
                 onClick={() => toggleDropdown("empresa")}
                 className={styles.asideNavItem}
               >
-                <HiOutlineBuildingOffice2 size={17} />
+                <HiOutlineBuildingOffice2 size={19} />
                 <span>Mi empresa</span>
                 <FaChevronDown
                   size={11}
@@ -202,7 +202,7 @@ export default function AdminHeader({
               className={styles.asideNavItem}
               href="/admin/services"
             >
-              <HiOutlineWrenchScrewdriver size={17} />
+              <HiOutlineWrenchScrewdriver size={19} />
               <span>Mis servicios</span>
             </Link>
           )}
@@ -214,7 +214,7 @@ export default function AdminHeader({
               className={styles.asideNavItem}
               href="/admin/team/employees"
             >
-              <HiOutlineUsers size={17} />
+              <HiOutlineUsers size={19} />
               <span>Mi equipo</span>
             </Link>
           )}
@@ -226,7 +226,7 @@ export default function AdminHeader({
               className={styles.asideNavItem}
               href="/admin/analytics"
             >
-              <HiOutlinePresentationChartLine size={17} />
+              <HiOutlinePresentationChartLine size={19} />
               <span>Estadísticas</span>
             </Link>
           )}
@@ -238,7 +238,7 @@ export default function AdminHeader({
                 onClick={() => toggleDropdown("cuenta")}
                 className={styles.asideNavItem}
               >
-                <HiOutlineUser size={17} />
+                <HiOutlineUser size={19} />
                 <span>Cuenta</span>
                 <FaChevronDown
                   size={11}
@@ -279,7 +279,7 @@ export default function AdminHeader({
               className={styles.asideNavItem}
               href="/admin/profile"
             >
-              <HiOutlineUser size={17} />
+              <HiOutlineUser size={19} />
               <span>Mi perfil</span>
             </Link>
           )}
@@ -287,7 +287,7 @@ export default function AdminHeader({
           <div className={styles.asideSeparator} />
 
           <button onClick={logOut} className={styles.asideLogout}>
-            <IoIosLogOut size={17} />
+            <IoIosLogOut size={19} />
             <span>Cerrar sesión</span>
           </button>
         </nav>
