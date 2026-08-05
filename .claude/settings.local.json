@@ -92,7 +92,18 @@
       "Bash(git -C server status)",
       "Bash(git -C server diff)",
       "Bash(git -C server diff --staged)",
-      "Bash(git -C server log --oneline -10)"
+      "Bash(git -C server log --oneline -10)",
+      "Bash(npx ts-node *)",
+      "Bash(git -C /c/sacaturno status --short)",
+      "Bash(git -C /c/sacaturno/server status --short)",
+      "Bash(git -C /c/sacaturno/server log --oneline -3)",
+      "Bash(git -C /c/sacaturno/server branch --show-current)",
+      "Bash(node -e \"const p=require\\('./package.json'\\);console.log\\('next',p.dependencies.next,'react',p.dependencies.react,'swr',p.dependencies.swr\\)\")",
+      "Bash(git --no-pager diff --stat -- components/dashboard/appointments/AutomateSchedule.tsx app/admin/schedule/automate/page.tsx server/src/services/scheduleServices.ts)",
+      "Bash(git --no-pager diff -- server/src/services/scheduleServices.ts app/admin/schedule/automate/page.tsx)",
+      "Bash(git --no-pager diff -- components/dashboard/appointments/AutomateSchedule.tsx)",
+      "PowerShell(npx tsc --noEmit -p tsconfig.json 2>&1)",
+      "PowerShell(git -C C:\\\\sacaturno status --short)"
     ],
     "additionalDirectories": [
       "c:\\sacaturno\\.claude\\skills"

@@ -1,7 +1,14 @@
 ﻿"use client";
 import dayjs from "dayjs";
 import "dayjs/locale/es-mx";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { IBusiness } from "@/interfaces/business.interface";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -133,6 +140,61 @@ const parseAppointments = (
   });
 };
 
+type DayBaseline = Record<
+  string,
+  { dayStart: number; dayEnd: number; appointmentDuration: number }
+>;
+
+// Reconcilia el dayStart/dayEnd de cada día con sus turnos guardados.
+// Por qué: si el usuario amplió la ventana (9→8), creó un turno a las 8:00
+// (que se persiste solo) y nunca guardó el cambio de ventana, la DB queda con
+// dayStart=9 y un turno a las 8:00. Renderizar eso clavaría la tarjeta de las
+// 8:00 en la fila de las 9:00 por el Math.max(minTop, 0) del layout de clusters.
+const reconcileDays = (
+  days: IDaySchedule[],
+  appointments: IAppointmentSchedule[]
+): IDaySchedule[] => {
+  const apptsByDay = new Map<string, IAppointmentSchedule[]>();
+  appointments.forEach((a) => {
+    const list = apptsByDay.get(a.day);
+    if (list) list.push(a);
+    else apptsByDay.set(a.day, [a]);
+  });
+
+  return days.map((d) => {
+    const appts = apptsByDay.get(d.day);
+    if (!appts?.length) return d;
+    const earliestHour = Math.min(...appts.map((a) => dayjs(a.start).hour()));
+    const latestHour = Math.max(
+      ...appts.map((a) => {
+        const end = dayjs(a.end);
+        return end.hour() + (end.minute() > 0 ? 1 : 0);
+      })
+    );
+    const dayStart = Math.min(d.dayStart, earliestHour);
+    const dayEnd = Math.max(d.dayEnd, latestHour);
+    if (dayStart === d.dayStart && dayEnd === d.dayEnd) return d;
+    return { ...d, dayStart, dayEnd };
+  });
+};
+
+const toDayBaseline = (days: IDaySchedule[]): DayBaseline =>
+  Object.fromEntries(
+    days.map((d) => [
+      d.day,
+      {
+        dayStart: d.dayStart,
+        dayEnd: d.dayEnd,
+        appointmentDuration: d.appointmentDuration,
+      },
+    ])
+  );
+
+// Fuera del componente a propósito: sobrevive al desmontaje cuando se navega a
+// otra ruta y sólo se resetea con una recarga real del navegador, donde los
+// datos del servidor ya llegan frescos.
+let visitedThisSession = false;
+
 interface Props {
   businessData: IBusiness;
   servicesData: IService[];
@@ -155,41 +217,95 @@ const AutomateSchedule: React.FC<Props> = ({
 }) => {
   const { isMobile, open: sidebarOpen } = useSidebar();
   const [alert, setAlert] = useState<AlertInterface>();
-  const [business, setBusiness] = useState<IBusiness>();
-  const [services, setServices] = useState<IService[]>();
   const [eventModal, setEventModal] = useState(false);
   const [eventData, setEventData] = useState<IAppointmentSchedule | undefined>();
   const [createAppointmentModal, setCreateAppointmentModal] = useState(false);
   const [createAppointmentData, setCreateAppointmentData] = useState<IAppointmentSchedule>();
   const [tutorialModal, setTutorialModal] = useState(false);
   const [expiredModal, setExpiredModal] = useState(false);
-  const [loadingNewAppointments, setLoadingNewAppointments] = useState(true);
   const [selectedDay, setSelectedDay] = useState<{ dayName: string; dayNumber: number }>({
     dayName: "LUN",
     dayNumber: 1,
   });
-  const [selectedDayStart, setSelectedDayStart] = useState<number>(0);
-  const [selectedDayEnd, setSelectedDayEnd] = useState<number>(0);
-  const [selectedAnticipation, setSelectedAnticipation] = useState<number>(0);
-  const [selectedDaysToCreate, setSelectedDaysToCreate] = useState<number>(0);
-  const [selectedAutomaticSchedule, setSelectedAutomaticSchedule] = useState<boolean>(false);
-  const [daysSchedule, setDaysSchedule] = useState<IDaySchedule[]>([]);
-  const [appointmentsSchedule, setAppointmentsSchedule] = useState<IAppointmentSchedule[]>();
-  const [selectedAppointmentDuration, setSelectedAppointmentDuration] = useState<number>(30);
-  const [daysChanged, setDaysChanged] = useState<IDaySchedule[]>([]);
-  const [selectedDayAppointments, setSelectedDayAppointments] = useState<
-    IAppointmentSchedule[] | undefined
-  >();
-  const [selectedDayID, setSelectedDayID] = useState<string>("");
+  const [selectedAnticipation, setSelectedAnticipation] = useState<number>(
+    businessData.scheduleAnticipation
+  );
+  const [selectedDaysToCreate, setSelectedDaysToCreate] = useState<number>(
+    businessData.scheduleDaysToCreate
+  );
+  const [selectedAutomaticSchedule, setSelectedAutomaticSchedule] = useState<boolean>(
+    businessData.automaticSchedule
+  );
+  const [daysSchedule, setDaysSchedule] = useState<IDaySchedule[]>(() =>
+    reconcileDays(daysAndAppointments.days, daysAndAppointments.appointments)
+  );
+  const [appointmentsSchedule, setAppointmentsSchedule] = useState<IAppointmentSchedule[]>(
+    daysAndAppointments.appointments
+  );
+  // Última verdad conocida del servidor. Es la referencia contra la que se mide
+  // "hay cambios sin guardar", y se rebasea tanto al guardar como cuando llegan
+  // props nuevas — por eso la vista ya no depende de un F5.
+  const [savedConfig, setSavedConfig] = useState({
+    automaticSchedule: businessData.automaticSchedule,
+    scheduleDaysToCreate: businessData.scheduleDaysToCreate,
+    scheduleAnticipation: businessData.scheduleAnticipation,
+  });
+  const [savedDays, setSavedDays] = useState<DayBaseline>(() =>
+    toDayBaseline(reconcileDays(daysAndAppointments.days, daysAndAppointments.appointments))
+  );
   const [loadingButton, setLoadingButton] = useState(false);
   const [leaveModal, setLeaveModal] = useState(false);
+  const [isRefreshing, startRefresh] = useTransition();
   const gridRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pendingNavRef = useRef<(() => void) | null>(null);
   const bypassGuardRef = useRef(false);
-  const originalDaysRef = useRef<
-    Record<string, { dayStart: number; dayEnd: number; appointmentDuration: number }> | null
-  >(null);
+  const sentinelPushedRef = useRef(false);
+  const didMountRef = useRef(false);
+  const skipFirstSyncRef = useRef(true);
+  const hasUnsavedRef = useRef(false);
+
+  // El día seleccionado se deriva de daysSchedule en lugar de duplicarse en
+  // estado: cuando llegan datos nuevos del servidor la vista se actualiza sola
+  // y deja de mostrar los horarios del lunes parada sobre otro día.
+  const selectedDaySchedule = useMemo(
+    () => daysSchedule.find((d) => d.day === selectedDay.dayName),
+    [daysSchedule, selectedDay.dayName]
+  );
+  const selectedDayStart = selectedDaySchedule?.dayStart ?? 0;
+  const selectedDayEnd = selectedDaySchedule?.dayEnd ?? 0;
+  const selectedAppointmentDuration = selectedDaySchedule?.appointmentDuration ?? 30;
+  const selectedDayID = selectedDaySchedule?._id ?? "";
+
+  const selectedDayAppointments = useMemo(
+    () => appointmentsSchedule.filter((a) => a.day === selectedDay.dayName),
+    [appointmentsSchedule, selectedDay.dayName]
+  );
+
+  const dirtyDays = useMemo(
+    () =>
+      daysSchedule.filter((d) => {
+        const saved = savedDays[d.day];
+        return (
+          !saved ||
+          saved.dayStart !== d.dayStart ||
+          saved.dayEnd !== d.dayEnd ||
+          saved.appointmentDuration !== d.appointmentDuration
+        );
+      }),
+    [daysSchedule, savedDays]
+  );
+
+  const hasUnsavedChanges =
+    selectedAutomaticSchedule !== savedConfig.automaticSchedule ||
+    selectedDaysToCreate !== savedConfig.scheduleDaysToCreate ||
+    selectedAnticipation !== savedConfig.scheduleAnticipation ||
+    dirtyDays.length > 0;
+  hasUnsavedRef.current = hasUnsavedChanges;
+
+  const refreshData = useCallback(() => {
+    startRefresh(() => router.refresh());
+  }, [router]);
 
   const hideAlert = () => {
     setTimeout(() => {
@@ -197,84 +313,45 @@ const AutomateSchedule: React.FC<Props> = ({
     }, 3300);
   };
 
-  const handleSelectDay = ({
-    dayName,
-    dayNumber,
-  }: {
-    dayName: string;
-    dayNumber: number;
-  }) => {
-    setSelectedDay({ dayName, dayNumber });
+  const handleSelectDay = (day: { dayName: string; dayNumber: number }) => {
+    setSelectedDay(day);
   };
 
-  const onSelectDay = ({ dayName }: { dayName: string }) => {
-    const dayObj = daysSchedule?.find((d) => d.day === dayName);
-    if (dayObj) {
-      setSelectedAppointmentDuration(dayObj.appointmentDuration);
-      setSelectedDayEnd(dayObj.dayEnd);
-      setSelectedDayStart(dayObj.dayStart);
-      setSelectedDayID(dayObj._id!);
+  // Props nuevas del servidor (router.refresh, o volver a entrar a la ruta):
+  // se rebasean los valores guardados y se re-sincroniza la vista, salvo que el
+  // usuario tenga ediciones en curso — esas nunca se pisan.
+  useEffect(() => {
+    if (skipFirstSyncRef.current) {
+      skipFirstSyncRef.current = false;
+      return;
     }
-    const dayAppointments = appointmentsSchedule?.filter((a) => a.day === dayName);
-    setSelectedDayAppointments(dayAppointments);
-  };
-
-  useEffect(() => {
-    onSelectDay(selectedDay);
-  }, [selectedDay]);
-
-  useEffect(() => {
-    onSelectDay(selectedDay);
-  }, [selectedDayStart, selectedDayEnd]);
-
-  useEffect(() => {
-    // Reconcile each day's dayStart/dayEnd with its saved appointments.
-    // Why: if the user extended the window (e.g. 9→8), created an appointment
-    // at 8:00 (auto-persisted), and never saved the window change, the DB has
-    // dayStart=9 with an appt at 8:00. Rendering that would clamp the 8:00
-    // card to the 9:00 row via Math.max(minTop, 0) in the cluster layout.
-    const apptsByDay = new Map<string, IAppointmentSchedule[]>();
-    daysAndAppointments.appointments.forEach((a) => {
-      const list = apptsByDay.get(a.day);
-      if (list) list.push(a);
-      else apptsByDay.set(a.day, [a]);
+    const nextDays = reconcileDays(
+      daysAndAppointments.days,
+      daysAndAppointments.appointments
+    );
+    setSavedDays(toDayBaseline(nextDays));
+    setSavedConfig({
+      automaticSchedule: businessData.automaticSchedule,
+      scheduleDaysToCreate: businessData.scheduleDaysToCreate,
+      scheduleAnticipation: businessData.scheduleAnticipation,
     });
-
-    const adjustedDays = daysAndAppointments.days.map((d) => {
-      const appts = apptsByDay.get(d.day);
-      if (!appts?.length) return d;
-      const earliestHour = Math.min(...appts.map((a) => dayjs(a.start).hour()));
-      const latestHour = Math.max(
-        ...appts.map((a) => {
-          const end = dayjs(a.end);
-          return end.hour() + (end.minute() > 0 ? 1 : 0);
-        })
-      );
-      const dayStart = Math.min(d.dayStart, earliestHour);
-      const dayEnd = Math.max(d.dayEnd, latestHour);
-      if (dayStart === d.dayStart && dayEnd === d.dayEnd) return d;
-      return { ...d, dayStart, dayEnd };
-    });
-
-    if (!originalDaysRef.current) {
-      originalDaysRef.current = Object.fromEntries(
-        adjustedDays.map((d) => [
-          d.day,
-          { dayStart: d.dayStart, dayEnd: d.dayEnd, appointmentDuration: d.appointmentDuration },
-        ])
-      );
-    }
-    setDaysSchedule(adjustedDays);
     setAppointmentsSchedule(daysAndAppointments.appointments);
-    setSelectedAppointmentDuration(adjustedDays[0].appointmentDuration);
-    setSelectedDayEnd(adjustedDays[0].dayEnd);
-    setSelectedDayStart(adjustedDays[0].dayStart);
-    setBusiness(businessData);
-    setServices(servicesData);
-    setSelectedAnticipation(businessData.scheduleAnticipation);
-    setSelectedDaysToCreate(businessData.scheduleDaysToCreate);
+    if (hasUnsavedRef.current) return;
+    setDaysSchedule(nextDays);
     setSelectedAutomaticSchedule(businessData.automaticSchedule);
-  }, [businessData, services, servicesData, subscriptionData, daysAndAppointments]);
+    setSelectedDaysToCreate(businessData.scheduleDaysToCreate);
+    setSelectedAnticipation(businessData.scheduleAnticipation);
+  }, [businessData, daysAndAppointments]);
+
+  // Volver a esta ruta con navegación de cliente sirve el Router Cache de Next,
+  // que puede estar viejo. En la primera visita de la sesión los datos ya vienen
+  // frescos del servidor, así que sólo revalidamos al reingresar.
+  useEffect(() => {
+    if (didMountRef.current) return;
+    didMountRef.current = true;
+    if (visitedThisSession) refreshData();
+    else visitedThisSession = true;
+  }, [refreshData]);
 
   useEffect(() => {
     if (servicesData.length === 0) {
@@ -285,17 +362,6 @@ const AutomateSchedule: React.FC<Props> = ({
       };
     }
   }, [servicesData.length]);
-
-  useEffect(() => {
-    setLoadingNewAppointments(false);
-  }, [appointmentsSchedule]);
-
-  useEffect(() => {
-    setSelectedDay({ dayName: "LUN", dayNumber: 1 });
-    onSelectDay({ dayName: "LUN" });
-    setSelectedDayEnd(daysSchedule[0]?.dayEnd);
-    setSelectedDayStart(daysSchedule[0]?.dayStart);
-  }, []);
 
   const createNewAppointment = async ({
     start,
@@ -313,7 +379,7 @@ const AutomateSchedule: React.FC<Props> = ({
     const userID = localStorage.getItem("sacaturno_userID");
 
     const appointmentData: IAppointmentSchedule = {
-      businessID: business?._id!,
+      businessID: businessData._id!,
       start: startDate,
       end: endDate,
       service: "",
@@ -335,7 +401,6 @@ const AutomateSchedule: React.FC<Props> = ({
   };
 
   const handleSelectAppointmentDuration = (val: number) => {
-    setSelectedAppointmentDuration(val);
     editDaySchedule({
       day: selectedDay.dayName,
       dayStart: selectedDayStart,
@@ -365,8 +430,6 @@ const AutomateSchedule: React.FC<Props> = ({
         return;
       }
     }
-    setSelectedDayStart(val);
-    if (nextEnd !== selectedDayEnd) setSelectedDayEnd(nextEnd);
     editDaySchedule({
       day: selectedDay.dayName,
       dayStart: val,
@@ -398,8 +461,6 @@ const AutomateSchedule: React.FC<Props> = ({
         return;
       }
     }
-    setSelectedDayEnd(val);
-    if (nextStart !== selectedDayStart) setSelectedDayStart(nextStart);
     editDaySchedule({
       day: selectedDay.dayName,
       dayStart: nextStart,
@@ -419,34 +480,14 @@ const AutomateSchedule: React.FC<Props> = ({
     dayEnd: number;
     appointmentDuration: number;
   }) => {
-    const dayToEdit = daysSchedule?.find((d) => d.day === day);
-    if (!dayToEdit) return;
-    const dayEdited: IDaySchedule = { ...dayToEdit, dayStart, dayEnd, appointmentDuration };
-
-    setDaysChanged((days) => {
-      const index = days.findIndex((d) => d.day === selectedDay.dayName);
-      if (index !== -1) {
-        const updated = [...days];
-        updated[index].dayEnd = dayEnd;
-        updated[index].dayStart = dayStart;
-        updated[index].appointmentDuration = appointmentDuration;
-        return updated;
-      }
-      return [...days, dayEdited];
-    });
-
-    setDaysSchedule((days) => {
-      const index = days.findIndex((d) => d.day === selectedDay.dayName);
-      const updated = [...days];
-      updated[index].dayEnd = dayEnd;
-      updated[index].dayStart = dayStart;
-      updated[index].appointmentDuration = appointmentDuration;
-      return updated;
-    });
+    setDaysSchedule((days) =>
+      days.map((d) =>
+        d.day === day ? { ...d, dayStart, dayEnd, appointmentDuration } : d
+      )
+    );
   };
 
   const saveChanges = async (onSaved?: () => void) => {
-    setLoadingButton(true);
     if (selectedAnticipation >= selectedDaysToCreate) {
       setAlert({
         msg: "Elige una anticipación menor a los dias a crear",
@@ -454,9 +495,9 @@ const AutomateSchedule: React.FC<Props> = ({
         alertType: "ERROR_ALERT",
       });
       hideAlert();
-      setLoadingButton(false);
       return;
     }
+    setLoadingButton(true);
     const token = localStorage.getItem("sacaturno_token");
     const authHeader = {
       headers: {
@@ -467,7 +508,7 @@ const AutomateSchedule: React.FC<Props> = ({
     };
     try {
       await axiosReq.put(
-        "/business/schedule/parameters/" + business?._id,
+        "/business/schedule/parameters/" + businessData._id,
         {
           scheduleAnticipation: selectedAnticipation,
           scheduleDaysToCreate: selectedDaysToCreate,
@@ -475,39 +516,29 @@ const AutomateSchedule: React.FC<Props> = ({
         },
         authHeader
       );
-      if (daysChanged.length > 0) await saveModifiedScheduleDays();
+      if (dirtyDays.length > 0) {
+        await axiosReq.put("/schedule/appointment/editmany", dirtyDays, authHeader);
+      }
+      // Rebase local inmediato: el indicador de "sin guardar" se apaga al toque,
+      // sin esperar el round-trip del server component.
+      setSavedConfig({
+        automaticSchedule: selectedAutomaticSchedule,
+        scheduleDaysToCreate: selectedDaysToCreate,
+        scheduleAnticipation: selectedAnticipation,
+      });
+      setSavedDays(toDayBaseline(daysSchedule));
       setAlert({ msg: "Cambios guardados con éxito", error: true, alertType: "OK_ALERT" });
       hideAlert();
       setLoadingButton(false);
-      if (onSaved) {
-        onSaved();
-        return;
-      }
-      // Ya guardamos: evitar que el guard beforeunload dispare el prompt nativo
-      // "¿Volver a cargar?" en este reload programático.
-      bypassGuardRef.current = true;
-      window.location.reload();
+      // Trae lo que el backend recalculó (scheduleEnd, turnos regenerados) e
+      // invalida el Router Cache para el resto del panel.
+      refreshData();
+      onSaved?.();
     } catch {
       setAlert({ msg: "Error al guardar cambios", error: true, alertType: "ERROR_ALERT" });
       hideAlert();
       setLoadingButton(false);
-      setLoadingNewAppointments(false);
     }
-  };
-
-
-  const saveModifiedScheduleDays = async () => {
-    try {
-      const token = localStorage.getItem("sacaturno_token");
-      const authHeader = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          "Cache-Control": "no-store",
-        },
-      };
-      await axiosReq.put("/schedule/appointment/editmany", daysChanged, authHeader);
-    } catch { }
   };
 
   // ── Calendar grid helpers ────────────────────────────────────────────────
@@ -588,50 +619,21 @@ const AutomateSchedule: React.FC<Props> = ({
   // Summary panel — live preview of the pending configuration so the user can
   // review it before saving. When nothing is dirty, selected* equals the saved
   // values, so the preview matches the last-saved state exactly.
-  const savedAuto = businessData.automaticSchedule;
+  const savedAuto = savedConfig.automaticSchedule;
   const previewAuto = selectedAutomaticSchedule;
   const autoChanged = previewAuto !== savedAuto;
 
-  const savedWindowLabel = `${businessData.scheduleDaysToCreate} días · ${businessData.scheduleAnticipation} antes`;
+  const savedWindowLabel = `${savedConfig.scheduleDaysToCreate} días · ${savedConfig.scheduleAnticipation} antes`;
   const previewWindowLabel = `${selectedDaysToCreate} días · ${selectedAnticipation} antes`;
   const windowChanged =
-    selectedDaysToCreate !== businessData.scheduleDaysToCreate ||
-    selectedAnticipation !== businessData.scheduleAnticipation;
+    selectedDaysToCreate !== savedConfig.scheduleDaysToCreate ||
+    selectedAnticipation !== savedConfig.scheduleAnticipation;
 
-  const daysDirty = useMemo(() => {
-    const original = originalDaysRef.current;
-    if (!original) return false;
-    return daysChanged.some((d) => {
-      const o = original[d.day];
-      return (
-        !o ||
-        o.dayStart !== d.dayStart ||
-        o.dayEnd !== d.dayEnd ||
-        o.appointmentDuration !== d.appointmentDuration
-      );
-    });
-  }, [daysChanged]);
-
-  const hasUnsavedChanges =
-    selectedAutomaticSchedule !== businessData.automaticSchedule ||
-    selectedDaysToCreate !== businessData.scheduleDaysToCreate ||
-    selectedAnticipation !== businessData.scheduleAnticipation ||
-    daysDirty;
   const discardChanges = () => {
-    setSelectedAutomaticSchedule(businessData.automaticSchedule);
-    setSelectedDaysToCreate(businessData.scheduleDaysToCreate);
-    setSelectedAnticipation(businessData.scheduleAnticipation);
-    const original = originalDaysRef.current;
-    if (original) {
-      setDaysSchedule((days) => days.map((d) => ({ ...d, ...(original[d.day] ?? {}) })));
-      const current = original[selectedDay.dayName];
-      if (current) {
-        setSelectedDayStart(current.dayStart);
-        setSelectedDayEnd(current.dayEnd);
-        setSelectedAppointmentDuration(current.appointmentDuration);
-      }
-    }
-    setDaysChanged([]);
+    setSelectedAutomaticSchedule(savedConfig.automaticSchedule);
+    setSelectedDaysToCreate(savedConfig.scheduleDaysToCreate);
+    setSelectedAnticipation(savedConfig.scheduleAnticipation);
+    setDaysSchedule((days) => days.map((d) => ({ ...d, ...(savedDays[d.day] ?? {}) })));
   };
 
   // Unsaved-changes navigation guard
@@ -668,8 +670,13 @@ const AutomateSchedule: React.FC<Props> = ({
       });
     };
 
-    // Sentinel entry so browser back/forward can be intercepted
-    window.history.pushState(null, "", window.location.href);
+    // Sentinel entry so browser back/forward can be intercepted. Se agrega una
+    // sola vez por montaje: guardar ya no recarga la página, así que el flag de
+    // cambios puede prenderse y apagarse varias veces sin ensuciar el historial.
+    if (!sentinelPushedRef.current) {
+      sentinelPushedRef.current = true;
+      window.history.pushState(null, "", window.location.href);
+    }
 
     const onPopState = () => {
       if (bypassGuardRef.current) return;
@@ -713,7 +720,7 @@ const AutomateSchedule: React.FC<Props> = ({
     : "—";
   const savedNextGenLabel = businessData.scheduleEnd
     ? dayjs(businessData.scheduleEnd)
-        .subtract(businessData.scheduleAnticipation, "day")
+        .subtract(savedConfig.scheduleAnticipation, "day")
         .format("ddd DD/MM")
     : "—";
   // Next generation uses the already-loaded scheduleEnd (past) minus the newly
@@ -726,25 +733,16 @@ const AutomateSchedule: React.FC<Props> = ({
   const nextGenChanged =
     !!businessData.scheduleEnd &&
     previewAuto &&
-    selectedAnticipation !== businessData.scheduleAnticipation;
+    selectedAnticipation !== savedConfig.scheduleAnticipation;
 
   // Render
 
   return (
     <>
-      {loadingNewAppointments && (
-        <div
-          style={{ height: "calc(100vh - 64px)" }}
-          className="absolute z-50 flex items-center justify-center w-full bg-white"
-        >
-          <div className="loader" />
-        </div>
-      )}
-
       {/* Dialogs */}
       {/* <Dialog open={subscriptionData?.subscriptionType === "SC_EXPIRED"}>
         <DialogContent className="sm:w-[460px] w-[93vw]">
-          <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={business} />
+          <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={businessData} />
         </DialogContent>
       </Dialog> */}
 
@@ -753,13 +751,10 @@ const AutomateSchedule: React.FC<Props> = ({
           <DialogTitle className="sr-only">Detalle del turno</DialogTitle>
           <ScheduleAppointmentModal
             onDeleteAppointment={(deleted) => {
-              setSelectedDayAppointments((prev) =>
-                prev?.filter((a) => a._id !== deleted._id)
-              );
-              setLoadingNewAppointments(true);
               setAppointmentsSchedule((prev) =>
-                prev?.filter((a) => a._id !== deleted._id)
+                prev.filter((a) => a._id !== deleted._id)
               );
+              refreshData();
             }}
             appointment={eventData}
             closeModalF={() => setEventModal(false)}
@@ -774,11 +769,11 @@ const AutomateSchedule: React.FC<Props> = ({
           <DialogTitle className="sr-only">Crear turno</DialogTitle>
           <CreateScheduleAppointmentModal
             onNewAppointment={(newAppt) => {
-              setSelectedDayAppointments([...selectedDayAppointments!, newAppt]);
-              setAppointmentsSchedule([...appointmentsSchedule!, newAppt]);
+              setAppointmentsSchedule((prev) => [...prev, newAppt]);
+              refreshData();
             }}
             appointmentData={createAppointmentData}
-            servicesData={services}
+            servicesData={servicesData}
             employees={employees}
             branches={branches}
             closeModalF={() => setCreateAppointmentModal(false)}
@@ -809,7 +804,7 @@ const AutomateSchedule: React.FC<Props> = ({
       <Dialog open={expiredModal} onOpenChange={() => setExpiredModal(false)}>
         <DialogTitle />
         <DialogContent className="max-w-3xl max-h-[90dvh] overflow-y-auto w-[calc(100%-2rem)] sm:w-full px-4 sm:px-6">
-          <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={business} />
+          <ExpiredPlanModal onCloseModal={() => setExpiredModal(false)} businessData={businessData} />
         </DialogContent>
       </Dialog>
 
@@ -881,6 +876,16 @@ const AutomateSchedule: React.FC<Props> = ({
         <div className="flex items-center justify-between mt-4 xl:mt-2">
           <div className="flex items-center gap-3">
             <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">Automatizar agenda</h1>
+            <span
+              aria-live="polite"
+              className={cn(
+                "flex items-center gap-1.5 text-xs text-gray-400 transition-opacity duration-200",
+                isRefreshing ? "opacity-100" : "opacity-0"
+              )}
+            >
+              <span className="loaderSmall" />
+              Actualizando
+            </span>
           </div>
 
           <button

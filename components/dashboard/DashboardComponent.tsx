@@ -6,6 +6,11 @@ import {
   LuCalendarCheck,
   LuTrendingUp,
   LuUsers,
+  LuMapPin,
+  LuUser,
+  LuCheck,
+  LuClock,
+  LuX,
 } from "react-icons/lu";
 import { MdOutlineWorkOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
@@ -29,6 +34,9 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { AnimatePresence, motion } from "framer-motion";
 import { Separator } from "../ui/separator";
 import { PLAN_LABELS, SubscriptionType } from "@/lib/planLimits";
+import { IBranch } from "@/interfaces/branch.interface";
+import { IEmployee } from "@/interfaces/employee.interface";
+import { IService } from "@/interfaces/service.interface";
 
 interface IDashboardStats {
   todayRemaining: number;
@@ -52,10 +60,14 @@ interface Props {
         subscription: { subscriptionType: SubscriptionType } | undefined;
         appointments: IAppointment[] | undefined;
         stats: IDashboardStats | null;
+        employees?: IEmployee[];
+        branches?: IBranch[];
+        services?: IService[];
       }
     | undefined;
   userData: IUser | undefined;
   isEmployee?: boolean;
+  currentEmployeeID?: string | null;
 }
 
 interface eventType extends IAppointment {
@@ -71,6 +83,7 @@ interface eventType extends IAppointment {
   service: string | undefined;
   status?: "booked" | "unbooked" | undefined;
   price: number | undefined;
+  depositAmount?: number;
 }
 
 const cardShadow = { boxShadow: "5px 5px 8px hsla(0, 0%, 12%, 0.17)" };
@@ -82,10 +95,46 @@ const formatCurrency = (amount: number) =>
     maximumFractionDigits: 0,
   }).format(amount);
 
+const DEPOSIT_BADGES = {
+  paid: {
+    label: "Seña abonada",
+    className: "bg-green-50 text-green-700 border-green-200",
+    Icon: LuCheck,
+  },
+  pending: {
+    label: "Seña pendiente",
+    className: "bg-amber-50 text-amber-700 border-amber-200",
+    Icon: LuClock,
+  },
+  failed: {
+    label: "Seña rechazada",
+    className: "bg-red-50 text-red-600 border-red-200",
+    Icon: LuX,
+  },
+} as const;
+
+const MetaChip = ({
+  Icon,
+  children,
+  className = "bg-gray-100 text-gray-600 border-gray-200",
+}: {
+  Icon: React.ComponentType<{ size?: number; className?: string }>;
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <span
+    className={`inline-flex items-center gap-1 max-w-[160px] px-1.5 py-0.5 text-[11px] font-medium leading-none border rounded-md ${className}`}
+  >
+    <Icon size={11} className="shrink-0" />
+    <span className="truncate">{children}</span>
+  </span>
+);
+
 const DashboardComponent: React.FC<Props> = ({
   businessData,
   userData,
   isEmployee,
+  currentEmployeeID,
 }) => {
   const { can } = usePermissions();
   const [loading, setLoading] = useState<boolean>(true);
@@ -96,10 +145,13 @@ const DashboardComponent: React.FC<Props> = ({
   const [openGuideDialog, setOpenGuideDialog] = useState<boolean>(false);
 
   const stats = businessData?.stats ?? null;
+  const employees = businessData?.employees ?? [];
+  const branches = businessData?.branches ?? [];
 
   useEffect(() => {
     parseAppointments(businessData?.appointments);
-  }, [businessData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [businessData, isEmployee, currentEmployeeID]);
 
   useEffect(() => {
     if (userData?.isFirstLogin) {
@@ -121,6 +173,10 @@ const DashboardComponent: React.FC<Props> = ({
       service: event.service,
       price: event.price,
       depositStatus: event.depositStatus,
+      depositAmount: event.depositAmount,
+      mpPaymentID: event.mpPaymentID,
+      employeeID: event.employeeID,
+      branchID: event.branchID,
     });
     setAppointmentInfoModal(true);
   };
@@ -132,27 +188,52 @@ const DashboardComponent: React.FC<Props> = ({
 
     const list: eventType[] = [];
     appointments?.forEach((appt) => {
-      if (appt.status === "booked") {
-        list.push({
-          ...appt,
-          title: appt.title,
-          clientID: appt.clientID,
-          name: appt.name,
-          email: appt.email,
-          phone: appt.phone,
-          service: appt.service,
-          price: appt.price,
-          start: dayjs(appt.start)
-            .tz("America/Argentina/Buenos_Aires")
-            .toDate(),
-          end: dayjs(appt.end).tz("America/Argentina/Buenos_Aires").toDate(),
-        });
-      }
+      if (appt.status !== "booked") return;
+      // El empleado sólo ve los turnos asignados a sí mismo
+      if (isEmployee && appt.employeeID !== currentEmployeeID) return;
+      list.push({
+        ...appt,
+        title: appt.title,
+        clientID: appt.clientID,
+        name: appt.name,
+        email: appt.email,
+        phone: appt.phone,
+        service: appt.service,
+        price: appt.price,
+        depositAmount: businessData?.services?.find(
+          (s) => s.name === appt.service,
+        )?.depositAmount,
+        start: dayjs(appt.start).tz("America/Argentina/Buenos_Aires").toDate(),
+        end: dayjs(appt.end).tz("America/Argentina/Buenos_Aires").toDate(),
+      });
     });
     list.sort((a, b) => a.start.getTime() - b.start.getTime());
     setAppointmentsData(list);
     setLoading(false);
   };
+
+  // Nombre + inicial del apellido: el chip es una referencia rápida,
+  // el nombre completo se ve al abrir el turno.
+  const getEmployeeName = (employeeID: string | null | undefined) => {
+    if (!employeeID) return null;
+    const emp = employees.find((e) => e._id === employeeID);
+    if (!emp) return null;
+    const initial = emp.surname?.trim()?.[0];
+    return initial ? `${emp.name} ${initial}.` : emp.name;
+  };
+
+  const getBranchName = (branchID: string | null | undefined) => {
+    if (!branchID) return null;
+    return branches.find((b) => b._id === branchID)?.name ?? null;
+  };
+
+  const todayCount = appointmentsData?.length ?? 0;
+  const todayTotal =
+    appointmentsData?.reduce((sum, a) => sum + (a.price ?? 0), 0) ?? 0;
+  const pendingDeposits =
+    appointmentsData?.filter((a) => a.depositStatus === "pending").length ?? 0;
+  // El empleado sólo cuenta sus propios turnos; el dueño, los de todo el negocio
+  const todayPending = isEmployee ? todayCount : stats?.todayRemaining ?? 0;
 
   async function checkFirstLogin() {
     setOpenGuideDialog(false);
@@ -184,6 +265,8 @@ const DashboardComponent: React.FC<Props> = ({
             appointment={selectedAppointment}
             closeModalF={() => setAppointmentInfoModal(false)}
             onDelete={() => {}}
+            employees={employees}
+            branches={branches}
           />
         </DialogContent>
       </Dialog>
@@ -258,17 +341,19 @@ const DashboardComponent: React.FC<Props> = ({
                     <LuCalendarCheck size={15} color="#dd4924" />
                   </div>
                 </div>
-                {false ? (
+                {loading ? (
                   <div className="h-8 w-16 bg-gray-100 rounded animate-pulse" />
                 ) : (
                   <span className="text-2xl font-bold">
-                    {stats?.todayRemaining ?? 0}{" "}
+                    {todayPending}{" "}
                     <span className="text-gray-400 text-sm font-normal">
-                      turnos
+                      {todayPending === 1 ? "turno" : "turnos"}
                     </span>
                   </span>
                 )}
-                <span className="text-xs text-gray-500">pendientes hoy</span>
+                <span className="text-xs text-gray-500">
+                  {todayPending === 1 ? "pendiente hoy" : "pendientes hoy"}
+                </span>
               </div>
 
               {/* Semana */}
@@ -467,7 +552,24 @@ const DashboardComponent: React.FC<Props> = ({
 
           {/* TODAY'S APPOINTMENTS */}
           <div className="flex flex-col gap-3">
-            <span className="text-lg font-semibold">Turnos de hoy</span>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-baseline gap-2">
+                <span className="text-lg font-semibold">Turnos de hoy</span>
+                {!loading && todayCount > 0 && (
+                  <span className="text-xs font-semibold text-gray-400">
+                    {todayCount} {todayCount === 1 ? "turno" : "turnos"}
+                  </span>
+                )}
+              </div>
+              {!loading && todayCount > 0 && (
+                <Link
+                  href="/admin/schedule"
+                  className="text-xs font-medium text-primary hover:underline whitespace-nowrap"
+                >
+                  Ver agenda →
+                </Link>
+              )}
+            </div>
 
             <AnimatePresence>
               {loading && (
@@ -487,55 +589,125 @@ const DashboardComponent: React.FC<Props> = ({
                 style={cardShadow}
                 className="bg-white rounded-xl overflow-hidden"
               >
-                {appointmentsData.map((appointment, idx) => (
-                  <div
-                    key={appointment._id}
-                    className={`flex items-center px-4 py-3 gap-3 cursor-pointer hover:bg-gray-50 transition-colors ${
-                      idx !== appointmentsData.length - 1
-                        ? "border-b border-gray-100"
-                        : ""
-                    }`}
-                    onClick={() => handleSelectEvent(appointment)}
-                  >
-                    <div className="flex flex-col items-center min-w-[44px]">
-                      <span
-                        className="text-sm font-bold"
-                        style={{ color: "#dd4924" }}
-                      >
-                        {dayjs(appointment.start).format("HH:mm")}
+                {/* Resumen del día */}
+                <div className="flex items-center justify-between gap-3 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                    {isEmployee ? "Tu jornada" : "Resumen del día"}
+                  </span>
+                  <div className="flex items-center gap-3">
+                    {pendingDeposits > 0 && (
+                      <span className="text-[11px] font-medium text-amber-600">
+                        {pendingDeposits}{" "}
+                        {pendingDeposits === 1
+                          ? "seña pendiente"
+                          : "señas pendientes"}
                       </span>
-                      <span className="text-xs text-gray-400">hs</span>
-                    </div>
-                    <div
-                      style={{
-                        width: "1px",
-                        height: "32px",
-                        backgroundColor: "#e5e7eb",
-                      }}
-                    />
-                    <div className="flex flex-col flex-1 min-w-0">
-                      <span className="text-sm font-semibold truncate">
-                        {appointment.name}
-                      </span>
-                      <span className="text-xs text-gray-500 truncate">
-                        {appointment.service}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 ml-auto">
-                      {appointment.price != null && appointment.price > 0 && (
-                        <span className="text-xs font-semibold text-gray-600 hidden sm:block">
-                          {formatCurrency(appointment.price)}
-                        </span>
-                      )}
-                      {appointment.depositStatus === "paid" && (
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700 hidden sm:block">
-                          Seña abonada
-                        </span>
-                      )}
-                      <IoMdMore size={20} color="#9ca3af" />
-                    </div>
+                    )}
+                    <span className="text-xs font-bold text-gray-700 tabular-nums">
+                      {formatCurrency(todayTotal)}
+                    </span>
                   </div>
-                ))}
+                </div>
+
+                {appointmentsData.map((appointment, idx) => {
+                  const branchName = getBranchName(appointment.branchID);
+                  const employeeName = isEmployee
+                    ? null
+                    : getEmployeeName(appointment.employeeID);
+                  const deposit =
+                    appointment.depositStatus &&
+                    appointment.depositStatus !== "none"
+                      ? DEPOSIT_BADGES[appointment.depositStatus]
+                      : null;
+                  const isNext = idx === 0;
+                  const hasMeta = !!(branchName || employeeName || deposit);
+
+                  return (
+                    <div
+                      key={appointment._id}
+                      role="button"
+                      tabIndex={0}
+                      className={`flex items-start gap-3 px-4 py-3 border-l-[3px] cursor-pointer transition-colors duration-200 hover:bg-gray-50 focus:outline-none focus-visible:bg-gray-50 ${
+                        isNext
+                          ? "border-l-primary bg-orange-50/40"
+                          : "border-l-transparent"
+                      } ${
+                        idx !== appointmentsData.length - 1
+                          ? "border-b border-b-gray-100"
+                          : ""
+                      }`}
+                      onClick={() => handleSelectEvent(appointment)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          handleSelectEvent(appointment);
+                        }
+                      }}
+                    >
+                      {/* Horario */}
+                      <div className="flex flex-col items-center w-[42px] sm:w-[46px] shrink-0 pt-0.5">
+                        <span
+                          className={`text-sm font-bold tabular-nums leading-none ${
+                            isNext ? "text-primary" : "text-gray-700"
+                          }`}
+                        >
+                          {dayjs(appointment.start).format("HH:mm")}
+                        </span>
+                        <span className="mt-1 text-[11px] leading-none text-gray-400 tabular-nums">
+                          {dayjs(appointment.end).format("HH:mm")}
+                        </span>
+                      </div>
+
+                      <div className="hidden sm:block w-px self-stretch bg-gray-200 shrink-0" />
+
+                      {/* Cliente + metadatos */}
+                      <div className="flex flex-col flex-1 min-w-0 gap-1.5">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-sm font-semibold text-gray-800 truncate">
+                            {appointment.name}
+                          </span>
+                          {isNext && (
+                            <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide leading-none rounded text-primary bg-orange-100 shrink-0">
+                              Próximo
+                            </span>
+                          )}
+                          {appointment.price != null && appointment.price > 0 && (
+                            <span className="ml-auto text-xs font-semibold text-gray-700 tabular-nums shrink-0">
+                              {formatCurrency(appointment.price)}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-xs text-gray-500 truncate">
+                          {appointment.service}
+                        </span>
+                        {hasMeta && (
+                          <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                            {branchName && (
+                              <MetaChip Icon={LuMapPin}>{branchName}</MetaChip>
+                            )}
+                            {employeeName && (
+                              <MetaChip Icon={LuUser}>{employeeName}</MetaChip>
+                            )}
+                            {deposit && (
+                              <MetaChip
+                                Icon={deposit.Icon}
+                                className={deposit.className}
+                              >
+                                {deposit.label}
+                              </MetaChip>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      <IoMdMore
+                        size={20}
+                        color="#9ca3af"
+                        className="shrink-0 mt-0.5"
+                      />
+                    </div>
+                  );
+                })}
               </div>
             )}
 
@@ -556,8 +728,9 @@ const DashboardComponent: React.FC<Props> = ({
                       Estás al día
                     </h5>
                     <p className="text-sm text-gray-500 leading-relaxed">
-                      No tenés más turnos reservados para hoy. Revisá tu agenda o
-                      generá nuevos turnos disponibles para tus clientes.
+                      {isEmployee
+                        ? "No tenés más turnos asignados para hoy. Revisá tu agenda para ver los próximos días."
+                        : "No tenés más turnos reservados para hoy. Revisá tu agenda o generá nuevos turnos disponibles para tus clientes."}
                     </p>
                   </div>
                   <div className="flex flex-col w-full gap-2.5 mt-1 sm:flex-row sm:w-auto">

@@ -2,6 +2,9 @@ import DashboardComponent from "@/components/dashboard/DashboardComponent";
 import axiosReq from "@/config/axios";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import { IBusiness } from "@/interfaces/business.interface";
+import { IBranch } from "@/interfaces/branch.interface";
+import { IEmployee } from "@/interfaces/employee.interface";
+import { IService } from "@/interfaces/service.interface";
 import { cookies } from "next/headers";
 import { getTokenPayload } from "@/lib/getTokenPayload";
 
@@ -26,15 +29,28 @@ async function getBusinessData() {
       : await axiosReq.get(`/business/get/${ownerID?.value}`, authHeader);
     const business: IBusiness = businessReq.data;
 
-    const [appointmentsRes, statsRes] = await Promise.all([
-      axiosReq.get(`/appointment/get/today/${business._id}`, authHeader),
-      axiosReq.get(`/appointment/stats/${business._id}`, authHeader),
-    ]);
+    const [appointmentsRes, statsRes, employeesRes, branchesRes, servicesRes] =
+      await Promise.all([
+        axiosReq.get(`/appointment/get/today/${business._id}`, authHeader),
+        axiosReq.get(`/appointment/stats/${business._id}`, authHeader),
+        axiosReq
+          .get(`/employee/list/${business._id}`, authHeader)
+          .catch(() => null),
+        axiosReq
+          .get(`/branch/list/${business._id}`, authHeader)
+          .catch(() => null),
+        axiosReq
+          .get(`/business/service/get/${business._id}`, authHeader)
+          .catch(() => null),
+      ]);
 
     const appList: IAppointment[] = appointmentsRes.data;
     const stats = statsRes.data ?? null;
+    const employees: IEmployee[] = employeesRes?.data ?? [];
+    const branches: IBranch[] = branchesRes?.data ?? [];
+    const services: IService[] = servicesRes?.data ?? [];
 
-    return { business, appointments: appList, stats };
+    return { business, appointments: appList, stats, employees, branches, services };
   } catch (error: any) {
     return undefined;
   }
@@ -78,6 +94,7 @@ const DashboardPage: React.FC = async () => {
           businessData={data ? { ...data, subscription } : undefined}
           userData={user}
           isEmployee={isEmployee}
+          currentEmployeeID={isEmployee ? payload?.employeeID ?? null : null}
         />
       </div>
     </>

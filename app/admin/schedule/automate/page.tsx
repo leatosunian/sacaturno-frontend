@@ -17,6 +17,10 @@ export const metadata: Metadata = {
   description: "IT-related blog for devs",
 };
 
+// Los datos de agenda cambian con cada guardado y con el cron de automatización:
+// nunca deben servirse desde una render cacheada.
+export const dynamic = "force-dynamic";
+
 const getAppointments = async () => {
   const cookieStore = cookies();
   const token = cookieStore.get("sacaturno_token");
