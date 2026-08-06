@@ -35,6 +35,7 @@ import { IBranch } from "@/interfaces/branch.interface";
 import TimeRangeControls from "./TimeRangeControls";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useSidebar } from "@/components/ui/sidebar";
 import {
   Select,
@@ -110,13 +111,13 @@ interface TimeSlot {
 }
 
 const daysOfWeek = [
-  { dayName: "LUN", dayNumber: 1 },
-  { dayName: "MAR", dayNumber: 2 },
-  { dayName: "MIE", dayNumber: 3 },
-  { dayName: "JUE", dayNumber: 4 },
-  { dayName: "VIE", dayNumber: 5 },
-  { dayName: "SAB", dayNumber: 6 },
-  { dayName: "DOM", dayNumber: 0 },
+  { dayName: "LUN", fullName: "lunes", dayNumber: 1 },
+  { dayName: "MAR", fullName: "martes", dayNumber: 2 },
+  { dayName: "MIE", fullName: "miércoles", dayNumber: 3 },
+  { dayName: "JUE", fullName: "jueves", dayNumber: 4 },
+  { dayName: "VIE", fullName: "viernes", dayNumber: 5 },
+  { dayName: "SAB", fullName: "sábado", dayNumber: 6 },
+  { dayName: "DOM", fullName: "domingo", dayNumber: 0 },
 ];
 
 const parseAppointments = (
@@ -873,13 +874,13 @@ const AutomateSchedule: React.FC<Props> = ({
       >
 
         {/* Page header */}
-        <div className="flex items-center justify-between mt-4 xl:mt-2">
-          <div className="flex items-center gap-3">
-            <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800">Automatizar agenda</h1>
+        <div className="flex items-center justify-between gap-3 mt-4 xl:mt-2 min-w-0">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <h1 className="text-lg 2xl:text-xl font-semibold text-gray-800 whitespace-nowrap truncate">Automatizar agenda</h1>
             <span
               aria-live="polite"
               className={cn(
-                "flex items-center gap-1.5 text-xs text-gray-400 transition-opacity duration-200",
+                "hidden sm:flex items-center gap-1.5 text-xs text-gray-400 transition-opacity duration-200",
                 isRefreshing ? "opacity-100" : "opacity-0"
               )}
             >
@@ -890,7 +891,7 @@ const AutomateSchedule: React.FC<Props> = ({
 
           <button
             onClick={() => setTutorialModal(true)}
-            className="flex items-center gap-1.5 h-9 px-3 rounded-lg border border-orange-200 bg-orange-50 hover:bg-orange-100 text-primary text-xs font-semibold transition-colors duration-200"
+            className="flex items-center gap-1.5 h-9 px-3 rounded-lg border border-orange-200 bg-orange-50 hover:bg-orange-100 text-primary text-xs font-semibold transition-colors duration-200 shrink-0"
             title="Ver tutorial paso a paso"
           >
             <LuBookOpen size={14} />
@@ -1256,47 +1257,99 @@ const AutomateSchedule: React.FC<Props> = ({
             </div>
 
             {/* Day selector tabs */}
-            <div className="flex gap-1.5 flex-wrap">
+            <div className="grid grid-cols-7 gap-1 p-1 rounded-xl bg-gray-50 border border-gray-100">
               {daysOfWeek.map((day) => {
                 const count = appointmentCountByDay.get(day.dayName) ?? 0;
                 const isActive = selectedDay.dayName === day.dayName;
+                const isWeekend = day.dayNumber === 0 || day.dayNumber === 6;
                 return (
                   <button
                     key={day.dayName}
                     onClick={() => handleSelectDay(day)}
                     className={cn(
-                      "relative px-3.5 py-2 text-xs font-semibold rounded-lg border transition-all duration-200",
+                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 text-[11px] font-semibold rounded-lg transition-all duration-200",
                       isActive
-                        ? "bg-primary border-orange-600 text-white shadow-md"
-                        : "border-gray-200 text-gray-600 hover:border-orange-600 hover:text-orange-600 bg-white"
+                        ? "bg-primary text-white shadow-sm"
+                        : cn(
+                            "bg-transparent hover:bg-white hover:text-orange-600",
+                            isWeekend ? "text-gray-400" : "text-gray-500"
+                          )
                     )}
                   >
-                    {day.dayName}
-                    {count > 0 && (
-                      <span
-                        className={cn(
-                          "absolute -top-1.5 -right-1.5 flex items-center justify-center h-4 w-4 rounded-full text-[9px] font-bold",
-                          isActive ? "bg-white text-primary" : "bg-primary text-white"
-                        )}
-                      >
-                        {count > 9 ? "9+" : count}
-                      </span>
-                    )}
+                    <span className="tracking-wide">{day.dayName}</span>
+                    <span
+                      className={cn(
+                        "h-1 w-1 rounded-full transition-colors",
+                        count > 0
+                          ? isActive
+                            ? "bg-white"
+                            : "bg-primary/70"
+                          : "bg-transparent"
+                      )}
+                      aria-label={count > 0 ? `${count} turnos` : undefined}
+                    />
                   </button>
                 );
               })}
             </div>
 
             {/* Time controls */}
-            <div className="flex flex-col gap-2 border-t border-gray-50 pt-4">
-              <TimeRangeControls
-                dayStart={selectedDayStart}
-                dayEnd={selectedDayEnd}
-                appointmentDuration={selectedAppointmentDuration}
-                onDayStartChange={handleSelectDayStart}
-                onDayEndChange={handleSelectDayEnd}
-                onDurationChange={handleSelectAppointmentDuration}
-              />
+            <div className="flex flex-col gap-2 border-t border-gray-50 pt-2 -mt-2">
+              {/* Desktop — inline controls */}
+              <div className="hidden lg:block">
+                <TimeRangeControls
+                  dayStart={selectedDayStart}
+                  dayEnd={selectedDayEnd}
+                  appointmentDuration={selectedAppointmentDuration}
+                  onDayStartChange={handleSelectDayStart}
+                  onDayEndChange={handleSelectDayEnd}
+                  onDurationChange={handleSelectAppointmentDuration}
+                />
+              </div>
+
+              {/* Mobile/tablet — compact popover trigger */}
+              <div className="lg:hidden">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className="group w-full grid grid-cols-3 rounded-xl border border-gray-200 bg-white divide-x divide-gray-100 overflow-hidden [@media(hover:hover)]:hover:border-orange-300 active:border-orange-300 transition-colors duration-200 shadow-sm"
+                    >
+                      <div className="flex flex-col items-center justify-center py-2 gap-0.5 [@media(hover:hover)]:group-hover:bg-orange-50/40">
+                        <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">Desde</span>
+                        <span className="text-sm font-semibold text-gray-800 tabular-nums">
+                          {String(selectedDayStart).padStart(2, "0")}:00
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-center justify-center py-2 gap-0.5 [@media(hover:hover)]:group-hover:bg-orange-50/40">
+                        <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">Hasta</span>
+                        <span className="text-sm font-semibold text-gray-800 tabular-nums">
+                          {String(selectedDayEnd).padStart(2, "0")}:00
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-center justify-center py-2 gap-0.5 [@media(hover:hover)]:group-hover:bg-orange-50/40">
+                        <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">Intervalo</span>
+                        <span className="text-sm font-semibold text-gray-800 tabular-nums">
+                          {selectedAppointmentDuration} min
+                        </span>
+                      </div>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" className="w-64">
+                    <TimeRangeControls
+                      dayStart={selectedDayStart}
+                      dayEnd={selectedDayEnd}
+                      appointmentDuration={selectedAppointmentDuration}
+                      onDayStartChange={handleSelectDayStart}
+                      onDayEndChange={handleSelectDayEnd}
+                      onDurationChange={handleSelectAppointmentDuration}
+                      className="flex-col items-stretch"
+                      title="Rango horario"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
               <span className="text-xs text-gray-400 hidden sm:block">
                 Hacé clic en un horario para agregar un turno
               </span>
@@ -1308,7 +1361,7 @@ const AutomateSchedule: React.FC<Props> = ({
               {/* Day header */}
               <div className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
                 <span className="text-xs font-semibold capitalize text-primary">
-                  {selectedDay.dayName}
+                  {daysOfWeek.find((d) => d.dayName === selectedDay.dayName)?.fullName ?? selectedDay.dayName}
                 </span>
                 <span className="text-xs text-gray-400">
                   — {selectedDayStart}:00 a {selectedDayEnd}:00 hs
