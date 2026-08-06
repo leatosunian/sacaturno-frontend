@@ -144,11 +144,11 @@ const FormCreateBusiness: React.FC<Props> = ({ userEmail }) => {
       <form onSubmit={handleSubmit(createBusiness)} className="flex flex-col gap-6 sm:gap-4 w-full max-w-4xl">
         {/* Identidad */}
         <div className="flex flex-col gap-0 bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+          <div className="px-4 sm:px-6 py-4 border-b border-gray-100 flex items-center gap-2">
             <LuBuilding2 size={16} className="text-primary" />
             <h2 className="text-base font-semibold text-gray-800">Identidad</h2>
           </div>
-          <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-sm font-medium text-gray-700">Nombre de la empresa</label>
               <input
@@ -196,11 +196,11 @@ const FormCreateBusiness: React.FC<Props> = ({ userEmail }) => {
 
         {/* Contacto y link */}
         <div className="flex flex-col gap-0 bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+          <div className="px-4 sm:px-6 py-4 border-b border-gray-100 flex items-center gap-2">
             <LuMail size={16} className="text-primary" />
             <h2 className="text-base font-semibold text-gray-800">Contacto y link público</h2>
           </div>
-          <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-sm font-medium text-gray-700">Email de contacto</label>
               <input
@@ -232,7 +232,7 @@ const FormCreateBusiness: React.FC<Props> = ({ userEmail }) => {
             </div>
 
             <div className="md:col-span-2 mt-1">
-              <div className="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50/60 p-5 flex flex-col gap-4">
+              <div className="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50/60 p-4 sm:p-5 flex flex-col gap-4">
                 <div className="flex items-center gap-3">
                   <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-orange-600 text-white flex-shrink-0 shadow-sm">
                     <LuLink size={16} />
@@ -268,19 +268,22 @@ const FormCreateBusiness: React.FC<Props> = ({ userEmail }) => {
 
         {/* Política de cancelación */}
         <div className="flex flex-col gap-0 bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100">
+          <div className="px-4 sm:px-6 py-4 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-800">Política de cancelación</h2>
-            <p className="text-xs text-gray-500 mt-0.5">
+            <p className="text-sm text-gray-500 mt-0.5">
               Definí con cuánta anticipación un cliente puede cancelar su turno por su cuenta.
             </p>
           </div>
-          <div className="p-6 flex flex-col gap-4">
+          <div className="p-4 sm:p-6 flex flex-col gap-4">
             <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
               <FaCircleInfo size={13} className="text-blue-400 mt-0.5 shrink-0" />
-              <p className="text-xs text-blue-500 leading-relaxed">
+              <p className="text-sm text-blue-500 leading-relaxed">
                 Pasado ese plazo, el cliente ya no podrá cancelar online y deberá contactarte. Vos
-                siempre podés cancelar cualquier turno desde tu agenda. La seña, si la hubo, no se
-                reembolsa cuando cancela el cliente; sí se reembolsa cuando cancelás vos.
+                siempre podés cancelar cualquier turno desde tu agenda.{" "}
+                <strong className="font-semibold underline">
+                  La seña, si la hubo, no se reembolsa cuando cancela el cliente; sí se reembolsa
+                  cuando cancelás vos.
+                </strong>
               </p>
             </div>
 
@@ -391,7 +394,7 @@ const FormCreateBusiness: React.FC<Props> = ({ userEmail }) => {
         </div> */}
 
         {/* Submit */}
-        <div className="flex justify-end">
+        <div className="flex justify-end mb-10 mt-3 sm:mb-16">
           {loading ? (
             <div className="flex items-center justify-center w-32 h-9">
               <div className="loaderSmall" />
@@ -399,7 +402,7 @@ const FormCreateBusiness: React.FC<Props> = ({ userEmail }) => {
           ) : (
             <button
               type="submit"
-              className="flex items-center gap-2 bg-primary hover:bg-orange-500 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-all duration-300 ease-in-out cursor-pointer"
+              className="flex items-center w-full justify-center sm:w-fit text-center gap-2 bg-primary hover:bg-orange-500 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-all duration-300 ease-in-out cursor-pointer"
             >
               <LuPlus size={14} />
               Crear empresa

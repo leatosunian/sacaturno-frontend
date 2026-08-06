@@ -182,12 +182,12 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
             <div className="px-6 pb-6 pt-1">
               <button
                 onClick={() => setShowWelcome(false)}
-                className="group w-full flex items-center justify-center gap-2 h-11 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-500 text-white transition-colors duration-200"
+                className="group w-full flex items-center justify-center gap-2 h-11 rounded-lg text-sm font-semibold bg-primary [@media(hover:hover)]:hover:bg-orange-500 text-white transition-colors duration-200"
               >
                 Empezar
                 <LuArrowRight
                   size={16}
-                  className="translate-x-0 group-hover:translate-x-1 transition-transform duration-200"
+                  className="translate-x-0 [@media(hover:hover)]:group-hover:translate-x-1 transition-transform duration-200"
                 />
               </button>
             </div>
@@ -291,7 +291,7 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
                   "h-9 px-4 rounded-lg text-sm font-semibold border transition-colors duration-200",
                   isFirst && !isFirstLogin
                     ? "border-gray-100 text-gray-300 cursor-not-allowed"
-                    : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                    : "border-gray-200 text-gray-600 [@media(hover:hover)]:hover:border-gray-300 [@media(hover:hover)]:hover:bg-gray-50"
                 )}
               >
                 {isFirst && isFirstLogin ? "Volver" : "Anterior"}
@@ -300,24 +300,24 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
               {!isLast ? (
                 <button
                   onClick={() => setActiveStep((s) => Math.min(s + 1, steps.length - 1))}
-                  className="h-9 px-5 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-500 text-white transition-colors duration-200"
+                  className="h-9 px-5 rounded-lg text-sm font-semibold bg-primary [@media(hover:hover)]:hover:bg-orange-500 text-white transition-colors duration-200"
                 >
                   Siguiente
                 </button>
               ) : isFirstLogin ? (
                 <Link href="/admin/business/create" onClick={handleClose}>
-                  <button className="group flex items-center gap-2 h-9 px-5 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-500 text-white transition-colors duration-200">
+                  <button className="group flex items-center gap-2 h-9 px-5 rounded-lg text-sm font-semibold bg-primary [@media(hover:hover)]:hover:bg-orange-500 text-white transition-colors duration-200">
                     Crear mi empresa
                     <LuArrowRight
                       size={15}
-                      className="translate-x-0 group-hover:translate-x-1 transition-transform duration-200"
+                      className="translate-x-0 [@media(hover:hover)]:group-hover:translate-x-1 transition-transform duration-200"
                     />
                   </button>
                 </Link>
               ) : (
                 <button
                   onClick={handleClose}
-                  className="h-9 px-5 rounded-lg text-sm font-semibold bg-primary hover:bg-orange-500 text-white transition-colors duration-200"
+                  className="h-9 px-5 rounded-lg text-sm font-semibold bg-primary [@media(hover:hover)]:hover:bg-orange-500 text-white transition-colors duration-200"
                 >
                   ¡Entendido!
                 </button>
