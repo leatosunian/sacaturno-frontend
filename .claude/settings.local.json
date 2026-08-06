@@ -105,7 +105,9 @@
       "PowerShell(npx tsc --noEmit -p tsconfig.json 2>&1)",
       "PowerShell(git -C C:\\\\sacaturno status --short)",
       "PowerShell(git -C C:\\\\sacaturno log --oneline -3)",
-      "PowerShell(git -C C:\\\\sacaturno log --oneline -2 -- app/admin/dashboard/page.tsx)"
+      "PowerShell(git -C C:\\\\sacaturno log --oneline -2 -- app/admin/dashboard/page.tsx)",
+      "WebSearch",
+      "Bash(grep -iv \"^.*//\")"
     ],
     "additionalDirectories": [
       "c:\\sacaturno\\.claude\\skills"

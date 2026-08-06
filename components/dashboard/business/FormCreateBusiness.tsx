@@ -326,11 +326,14 @@ const FormCreateBusiness: React.FC<Props> = ({ userEmail }) => {
                 </span>
               ) : cancellationWindowHours !== undefined &&
                 !Number.isNaN(cancellationWindowHours) ? (
-                <span className="text-xs text-gray-400">
-                  {cancellationWindowHours === 0
-                    ? "Tus clientes podrán cancelar online en cualquier momento. En el mail de reserva se les avisa que la política de cancelación del negocio no permite el reembolso de la seña."
-                    : `Tus clientes podrán cancelar online hasta ${cancellationWindowHours} horas antes del turno. En el mail de reserva se les avisa que la política de cancelación del negocio no permite el reembolso de la seña.`}
-                </span>
+                <div className="mt-3 flex items-start gap-2 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                  <FaCircleInfo size={13} className="text-amber-500 mt-0.5 shrink-0" />
+                  <p className="text-xs text-amber-700 leading-relaxed">
+                    {cancellationWindowHours === 0
+                      ? "Tus clientes podrán cancelar online en cualquier momento. En el mail de reserva se les avisa que la política de cancelación del negocio no permite el reembolso de la seña."
+                      : `Tus clientes podrán cancelar online hasta ${cancellationWindowHours} horas antes del turno. En el mail de reserva se les avisa que la política de cancelación del negocio no permite el reembolso de la seña.`}
+                  </p>
+                </div>
               ) : null}
             </div>
           </div>
