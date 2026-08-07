@@ -8,12 +8,18 @@ import { PaidPlan, PLAN_DISPLAY_PRICES } from "./planLimits";
 // PricingSection (home) y PlanPickerCards (admin).
 let cache: Record<PaidPlan, number> | null = null;
 
+export interface UsePlanPricesResult {
+  prices: Record<PaidPlan, number>;
+  loading: boolean;
+}
+
 // Devuelve los precios vigentes del backend, con PLAN_DISPLAY_PRICES como
 // fallback (sin flash / layout shift, y funciona si el backend falla).
-export const usePlanPrices = (): Record<PaidPlan, number> => {
+export const usePlanPrices = (): UsePlanPricesResult => {
   const [prices, setPrices] = useState<Record<PaidPlan, number>>(
     cache ?? PLAN_DISPLAY_PRICES
   );
+  const [loading, setLoading] = useState<boolean>(cache === null);
 
   useEffect(() => {
     if (cache) return;
@@ -26,11 +32,14 @@ export const usePlanPrices = (): Record<PaidPlan, number> => {
         cache = merged;
         setPrices(merged);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        if (active) setLoading(false);
+      });
     return () => {
       active = false;
     };
   }, []);
 
-  return prices;
+  return { prices, loading };
 };

@@ -1329,7 +1329,7 @@ const CalendarTurnos: React.FC<Props> = ({
                         key={slot.index}
                         style={{ height: HOUR_HEIGHT }}
                         className={cn(
-                          "relative hover:bg-orange-50/40 transition-colors duration-150 cursor-pointer group",
+                          "relative [@media(hover:hover)]:hover:bg-orange-50/40 transition-colors duration-150 cursor-pointer group",
                           slot.isHourBoundary
                             ? "border-b border-gray-150"
                             : "border-b border-dashed border-gray-100"
@@ -1337,7 +1337,7 @@ const CalendarTurnos: React.FC<Props> = ({
                         onClick={(e) => handleSlotClick(day, slot, e)}
                       >
                         {/* Hover hint */}
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity pointer-events-none">
                           <span className="text-xs text-orange-400 font-medium">
                             + Nuevo turno
                           </span>

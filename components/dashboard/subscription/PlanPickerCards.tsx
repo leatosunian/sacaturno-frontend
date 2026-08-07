@@ -22,9 +22,77 @@ const getPlanIcon = (plan: PaidPlan, isPro: boolean) => {
 
 // Grilla de 3 tarjetas de plan reutilizada por PlanPickerModal (dialog propio) y por
 // componentes que ya viven dentro de un Dialog ajeno (ExpiredPlanModal, UpgradePlanModal).
+const PlanCardSkeleton: React.FC<{ isPro: boolean }> = ({ isPro }) => (
+  <div
+    className={`relative flex flex-col w-full rounded-2xl p-5 2xl:p-6 animate-pulse ${
+      isPro
+        ? "bg-primary/90 shadow-2xl shadow-orange-300/40"
+        : "bg-white border border-black/[0.09] shadow-md"
+    }`}
+    aria-hidden="true"
+  >
+    {isPro && (
+      <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-white/70 h-5 w-24 rounded-full shadow-md" />
+    )}
+
+    <div className="mb-4">
+      <div className="flex items-center gap-2 mb-3">
+        <span
+          className={`w-8 h-8 rounded-full flex-shrink-0 ${
+            isPro ? "bg-white/20" : "bg-orange-100"
+          }`}
+        />
+        <span
+          className={`h-6 2xl:h-7 w-24 rounded-md ${
+            isPro ? "bg-white/25" : "bg-gray-200"
+          }`}
+        />
+      </div>
+      <div className="flex items-end gap-1.5">
+        <span
+          className={`h-8 2xl:h-9 w-28 rounded-md ${
+            isPro ? "bg-white/25" : "bg-gray-200"
+          }`}
+        />
+        <span
+          className={`h-3 w-14 mb-1 rounded ${
+            isPro ? "bg-white/20" : "bg-gray-200"
+          }`}
+        />
+      </div>
+    </div>
+
+    <div className="flex flex-col gap-2 flex-1">
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="flex items-center gap-2">
+          <span
+            className={`flex-shrink-0 w-4 h-4 rounded-full ${
+              isPro ? "bg-white/25" : "bg-orange-100"
+            }`}
+          />
+          <span
+            className={`h-3 rounded ${
+              isPro ? "bg-white/20" : "bg-gray-200"
+            }`}
+            style={{ width: `${65 + ((i * 7) % 25)}%` }}
+          />
+        </div>
+      ))}
+    </div>
+
+    <div className="mt-6">
+      <div
+        className={`w-full h-11 rounded-xl ${
+          isPro ? "bg-white/60" : "bg-primary/60"
+        }`}
+      />
+    </div>
+  </div>
+);
+
 const PlanPickerCards: React.FC<Props> = ({ businessData }) => {
   const router = useRouter();
-  const prices = usePlanPrices();
+  const { prices, loading } = usePlanPrices();
   const [loadingPlan, setLoadingPlan] = useState<PaidPlan | null>(null);
 
   const handleSelectPlan = async (targetPlan: PaidPlan) => {
@@ -43,6 +111,16 @@ const PlanPickerCards: React.FC<Props> = ({ businessData }) => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-3 items-stretch gap-6 md:gap-4 2xl:gap-5 w-full pt-4">
+        {PAID_PLAN_CARDS.map((card) => (
+          <PlanCardSkeleton key={card.plan} isPro={card.plan === "SC_PRO"} />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 items-stretch gap-6 md:gap-4 2xl:gap-5 w-full pt-4">
       {PAID_PLAN_CARDS.map((card) => {
@@ -59,7 +137,7 @@ const PlanPickerCards: React.FC<Props> = ({ businessData }) => {
             }`}
           >
             {isPro && (
-              <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-white text-primary text-[10px] font-bold px-3 py-1 rounded-full shadow-md whitespace-nowrap tracking-widest">
+              <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-white text-primary text-[10px] font-bold px-3 py-1 rounded-full shadow-md whitespace-nowrap tracking-widest border border-orange-200">
                 MÁS ELEGIDO
               </span>
             )}

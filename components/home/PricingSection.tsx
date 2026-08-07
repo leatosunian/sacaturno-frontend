@@ -54,7 +54,7 @@ const getPlanIcon = (plan: PaidPlan, isPro: boolean) => {
 };
 
 const PricingSection = () => {
-  const prices = usePlanPrices();
+  const { prices } = usePlanPrices();
   return (
     <div
       id="pricing"

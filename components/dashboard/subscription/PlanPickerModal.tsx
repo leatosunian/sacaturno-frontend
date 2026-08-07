@@ -26,7 +26,7 @@ const PlanPickerModal: React.FC<Props> = ({
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl 2xl:max-w-5xl max-h-[90dvh] overflow-y-auto w-[calc(100%-2rem)] sm:w-full px-4 sm:px-8 2xl:px-8 2xl:py-8">
+      <DialogContent className="max-w-4xl 2xl:max-w-5xl max-h-[90dvh] overflow-y-auto w-[calc(100%-2rem)] sm:w-full px-4 sm:px-8 2xl:px-8 2xl:py-10 sm:py-8">
         <DialogHeader className="items-center text-center gap-2">
           <span className="inline-flex items-center rounded-full bg-orange-50 text-primary px-3 py-1 text-xs font-semibold tracking-wide w-fit">
             Planes
@@ -39,7 +39,7 @@ const PlanPickerModal: React.FC<Props> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="mt-2">
+        <div className="mt-1">
           <PlanPickerCards businessData={businessData} />
         </div>
       </DialogContent>
