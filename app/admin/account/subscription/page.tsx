@@ -3,6 +3,7 @@ import axiosReq from "@/config/axios";
 import { cookies } from "next/headers";
 import dayjs from "dayjs";
 import BillingSection from "@/components/dashboard/profile/BillingSection";
+import MercadoPagoResultModal from "@/components/payments/MercadoPagoResultModal";
 
 export const metadata: Metadata = {
   title: "Suscripción y facturación | SacaTurno",
@@ -101,11 +102,16 @@ export default async function SubscriptionPage() {
           paymentsData={payments}
         />
       ) : (
-        <div className="bg-white border border-gray-100 rounded-xl p-8 shadow-sm text-center">
-          <p className="text-sm text-gray-400">
-            No se encontró información de suscripción.
-          </p>
-        </div>
+        <>
+          {/* Sin datos de suscripción no se monta BillingSection, pero el
+              resultado del pago igual tiene que verse. */}
+          <MercadoPagoResultModal variant="subscription" />
+          <div className="bg-white border border-gray-100 rounded-xl p-8 shadow-sm text-center">
+            <p className="text-sm text-gray-400">
+              No se encontró información de suscripción.
+            </p>
+          </div>
+        </>
       )}
 
       <div className="w-full h-10" />

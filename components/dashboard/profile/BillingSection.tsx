@@ -11,6 +11,7 @@ import { LuCalendar, LuCalendarClock, LuCreditCard, LuInfo, LuSparkles } from "r
 import dayjs from "dayjs";
 import { isPaidPlan, PLAN_LABELS, SubscriptionType } from "@/lib/planLimits";
 import PlanPickerModal from "@/components/dashboard/subscription/PlanPickerModal";
+import MercadoPagoResultModal from "@/components/payments/MercadoPagoResultModal";
 
 interface Props {
   subscriptionData: ISubscriptionDisplay;
@@ -240,6 +241,8 @@ const BillingSection: React.FC<Props> = ({ subscriptionData, businessData, payme
       </div>
 
       <PlanPickerModal open={pickerOpen} onOpenChange={setPickerOpen} businessData={businessData} />
+
+      <MercadoPagoResultModal variant="subscription" onRetry={() => setPickerOpen(true)} />
     </div>
   );
 };

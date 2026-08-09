@@ -15,6 +15,8 @@ export interface IAppointment {
   depositStatus?: "none" | "pending" | "paid" | "failed";
   mpPaymentID?: string | null;
   mpPreferenceID?: string | null;
+  // Reserva temporal mientras otro cliente paga la seña en MP
+  depositHoldUntil?: string | Date | null;
   employeeID?: string | null;
   branchID?: string | null;
 }

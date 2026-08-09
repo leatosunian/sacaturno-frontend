@@ -6,6 +6,7 @@ import { Metadata } from "next";
 import ListBookAppointment from "@/components/home/bookAppointments/ListBookAppointment";
 import Footer from "@/components/home/Footer";
 import HeaderPublic from "@/components/home/HeaderPublic";
+import MercadoPagoResultModal from "@/components/payments/MercadoPagoResultModal";
 import { composeBranchAddress } from "@/lib/utils";
 
 interface propsComponent {
@@ -144,6 +145,8 @@ const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
         />
       )}
       <HeaderPublic />
+      {/* Resultado del pago de la seña al volver del Checkout Pro de MP */}
+      <MercadoPagoResultModal variant="deposit" />
       <div className="flex flex-col justify-center gap-10 md:flex-row">
         <div className="flex justify-center w-full h-full md:w-full">
           {/* <CalendarBookAppointment

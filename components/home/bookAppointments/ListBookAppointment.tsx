@@ -176,13 +176,27 @@ interface Props {
 
 // ── Component ────────────────────────────────────────────────
 export default function ListBookAppointment({
-  appointments,
+  appointments: rawAppointments,
   businessData,
   scheduleDays,
   employees,
   branches,
 }: Props) {
   const router = useRouter();
+
+  // Un turno con reserva temporal vigente (alguien lo está pagando en MP) se
+  // muestra igual que uno ocupado. Normalizarlo acá evita repetir la condición
+  // en cada filtro de disponibilidad de abajo.
+  const appointments = useMemo(() => {
+    const now = Date.now();
+    return rawAppointments.map((a) =>
+      a.status === "unbooked" &&
+      a.depositHoldUntil &&
+      new Date(a.depositHoldUntil).getTime() > now
+        ? { ...a, status: "booked" as const }
+        : a,
+    );
+  }, [rawAppointments]);
 
   const initialDateStr = useMemo(() => {
     const a = new Date(Date.now() + TZ_MS);
@@ -418,8 +432,15 @@ export default function ListBookAppointment({
       });
       setWizardStep("done");
       router.refresh();
-    } catch {
-      setBookingError("Error al reservar. Intentá de nuevo.");
+    } catch (error: any) {
+      if (error?.response?.status === 409) {
+        setBookingError(
+          "Ese horario se acaba de ocupar. Elegí otro y volvé a intentar.",
+        );
+        router.refresh();
+      } else {
+        setBookingError("Error al reservar. Intentá de nuevo.");
+      }
     } finally {
       setBookingSpinner(false);
     }
@@ -438,11 +459,20 @@ export default function ListBookAppointment({
       window.location.href = res.data.initPoint;
     } catch (error: any) {
       const msg = error?.response?.data?.msg;
-      setBookingError(
-        msg === "BUSINESS_NOT_LINKED"
-          ? "Este negocio aún no configuró el cobro de señas. Contactalo directamente."
-          : "No se pudo generar el pago. Intentá de nuevo.",
-      );
+      if (msg === "SLOT_TAKEN" || msg === "SLOT_HELD") {
+        setBookingError(
+          msg === "SLOT_TAKEN"
+            ? "Ese horario se acaba de reservar. Elegí otro y volvé a intentar."
+            : "Alguien está reservando ese horario en este momento. Probá con otro o volvé a intentar en unos minutos.",
+        );
+        router.refresh();
+      } else {
+        setBookingError(
+          msg === "BUSINESS_NOT_LINKED"
+            ? "Este negocio aún no configuró el cobro de señas. Contactalo directamente."
+            : "No se pudo generar el pago. Intentá de nuevo.",
+        );
+      }
       setBookingSpinner(false);
     }
   };
