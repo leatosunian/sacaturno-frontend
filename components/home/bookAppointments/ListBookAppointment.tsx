@@ -268,11 +268,22 @@ export default function ListBookAppointment({
     if (idx > 0) setWizardStep(activeSteps[idx - 1]);
   }, [activeSteps, wizardStep]);
 
-  // ── Employee selector filtered by branch ──
+  const selectedServiceID = useMemo(
+    () => services.find((s) => s.name === selectedService)?._id,
+    [services, selectedService],
+  );
+
+  // ── Employee selector filtered by branch + selected service ──
+  // Sin el filtro por servicio se ofrecía un profesional que no lo presta, y el
+  // paso siguiente quedaba sin fechas disponibles y sin explicación.
   const selectorEmployees = useMemo(() => {
-    if (!selectedBranch) return employees;
-    return employees.filter((e) => (e.branches ?? []).includes(selectedBranch));
-  }, [employees, selectedBranch]);
+    let list = employees;
+    if (selectedBranch)
+      list = list.filter((e) => (e.branches ?? []).includes(selectedBranch));
+    if (selectedServiceID)
+      list = list.filter((e) => (e.services ?? []).includes(selectedServiceID));
+    return list;
+  }, [employees, selectedBranch, selectedServiceID]);
 
   // ── Schedule for current day ──
   const daySchedule = useMemo(() => {
@@ -429,6 +440,9 @@ export default function ListBookAppointment({
         phone: formData.phone,
         name: formData.name,
         title: formData.name,
+        // Único momento en que se sabe si el cliente pidió a esa persona o si
+        // entró por "Cualquier especialista" y le tocó de casualidad.
+        employeeChosenByClient: selectedEmployee !== null,
       });
       setWizardStep("done");
       router.refresh();
@@ -455,6 +469,7 @@ export default function ListBookAppointment({
         clientName: formData.name,
         clientEmail: formData.email,
         clientPhone: formData.phone,
+        employeeChosenByClient: selectedEmployee !== null,
       });
       window.location.href = res.data.initPoint;
     } catch (error: any) {
@@ -535,6 +550,13 @@ export default function ListBookAppointment({
                 onClick={() => {
                   setSelectedService(svc.name);
                   setSelectedSlot(null);
+                  // Volver atrás y cambiar de servicio puede invalidar al
+                  // profesional ya elegido: se limpia para no dejarlo sin fechas.
+                  if (selectedEmployee) {
+                    const emp = employees.find((e) => e._id === selectedEmployee);
+                    if (emp && !(emp.services ?? []).includes(svc._id!))
+                      setSelectedEmployee(null);
+                  }
                   goNextStep();
                 }}
                 className={cn(

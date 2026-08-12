@@ -19,4 +19,8 @@ export interface IAppointment {
   depositHoldUntil?: string | Date | null;
   employeeID?: string | null;
   branchID?: string | null;
+  // true sólo si el cliente eligió explícitamente al profesional al reservar
+  employeeChosenByClient?: boolean;
+  // Sello de reasignación por el negocio: habilita cancelar con reembolso
+  reassignedAt?: string | Date | null;
 }

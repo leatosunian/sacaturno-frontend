@@ -1,6 +1,7 @@
 "use client";
 import { IBusiness } from "@/interfaces/business.interface";
 import { IService } from "@/interfaces/service.interface";
+import { IEmployee } from "@/interfaces/employee.interface";
 import { useEffect, useState } from "react";
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
@@ -21,11 +22,13 @@ const ServicesComponent = ({
   businessData,
   servicesData,
   subscriptionData,
+  employeesData = [],
   isEmployee = false,
 }: {
   businessData: IBusiness;
   servicesData: IService[];
   subscriptionData: any;
+  employeesData?: IEmployee[];
   isEmployee?: boolean;
 }) => {
   const [services, setServices] = useState<IService[]>();
@@ -51,6 +54,7 @@ const ServicesComponent = ({
     description: string;
     duration?: number;
     depositAmount?: number;
+    employeeIDs?: string[];
   }) => {
     const canAdd = subscriptionData.subscriptionType !== "SC_EXPIRED";
 
@@ -95,7 +99,7 @@ const ServicesComponent = ({
         };
         await axiosReq.post(
           "/business/service/create",
-          newServiceData,
+          { ...newServiceData, employeeIDs: formData.employeeIDs ?? [] },
           authHeader,
         );
         setAlert({
@@ -215,10 +219,11 @@ const ServicesComponent = ({
         open={createServiceModal}
         onOpenChange={() => setCreateServiceModal(false)}
       >
-        <DialogContent className="sm:w-[400px] w-[93vw]">
+        <DialogContent className="sm:w-[400px] w-[93vw] max-h-[85vh] overflow-y-auto">
           <CreateServiceModal
             mpLinked={businessData.mpLinked}
             isLoading={isCreating}
+            employees={employeesData}
             onCreateService={(formData) => addService(formData)}
           />
         </DialogContent>

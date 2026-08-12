@@ -6,8 +6,18 @@ import Link from "next/link";
 import { FaWhatsapp } from "react-icons/fa6";
 import { LuTag, LuBanknote, LuMapPin, LuUser } from "react-icons/lu";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { IEmployee } from "@/interfaces/employee.interface";
 import { IBranch } from "@/interfaces/branch.interface";
+import { IService } from "@/interfaces/service.interface";
 import { Clock, Check } from "lucide-react";
 
 interface eventType2 {
@@ -27,16 +37,31 @@ interface eventType2 {
   depositAmount?: number;
   employeeID?: string | null;
   branchID?: string | null;
+  employeeChosenByClient?: boolean;
 }
 
 interface props {
   appointment: eventType2 | undefined;
   onDelete: (id: string) => void;
   onCancel?: (id: string) => void;
+  onAssign?: (
+    id: string,
+    fields: {
+      employeeID?: string | null;
+      branchID?: string | null;
+      notifyClient?: boolean;
+    }
+  ) => Promise<boolean>;
   closeModalF: () => void;
   canDelete?: boolean;
   employees?: IEmployee[];
   branches?: IBranch[];
+  services?: IService[];
+  /** Dueño o empleado con manage_all: puede asignar a cualquiera. */
+  canAssignAny?: boolean;
+  /** Empleado con manage_own: sólo puede tomar o soltar el turno él mismo. */
+  currentEmployeeID?: string | null;
+  canClaim?: boolean;
 }
 
 const depositStatusConfig = {
@@ -73,17 +98,31 @@ const AppointmentModal: React.FC<props> = ({
   appointment,
   onDelete,
   onCancel,
+  onAssign,
   closeModalF,
   canDelete = true,
   employees,
   branches,
+  services,
+  canAssignAny = false,
+  currentEmployeeID,
+  canClaim = false,
 }) => {
   const [isBooked, setIsBooked] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const [draftEmployeeID, setDraftEmployeeID] = useState("");
+  const [draftBranchID, setDraftBranchID] = useState("");
+  const [assigning, setAssigning] = useState(false);
+  const [confirmReassign, setConfirmReassign] = useState(false);
+  const [notifyClient, setNotifyClient] = useState(true);
 
   useEffect(() => {
     setIsBooked(appointment?.status === "booked");
     setConfirmCancel(false);
+    setDraftEmployeeID(appointment?.employeeID ?? "");
+    setDraftBranchID(appointment?.branchID ?? "");
+    setAssigning(false);
+    setConfirmReassign(false);
   }, [appointment]);
 
   const handleDelete = () => {
@@ -116,6 +155,270 @@ const AppointmentModal: React.FC<props> = ({
   const assignedBranch = appointment?.branchID
     ? branches?.find((b) => b._id === appointment.branchID)
     : null;
+
+  // ── Asignación ──────────────────────────────────────────────────────────────
+  const activeEmployees = (employees ?? []).filter((e) => e.status === "active");
+  const activeBranches = branches ?? [];
+  const hasTeam = activeEmployees.length > 0 || activeBranches.length > 0;
+
+  const serviceID = services?.find((s) => s.name === appointment?.service)?._id;
+  // Elegibles: atienden en la sucursal elegida y prestan este servicio.
+  const eligibleEmployees = activeEmployees
+    .filter((e) => !draftBranchID || (e.branches ?? []).includes(draftBranchID))
+    .filter((e) => !serviceID || (e.services ?? []).includes(serviceID));
+
+  const employeeChanged = draftEmployeeID !== (appointment?.employeeID ?? "");
+  const branchChanged = draftBranchID !== (appointment?.branchID ?? "");
+  const assignDirty = employeeChanged || branchChanged;
+
+  // Sólo un turno reservado tiene cliente a quien avisarle.
+  const affectsClient = isBooked && assignDirty;
+  // Cambiar de sucursal le cambia el lugar al que tiene que ir: no es opcional
+  // avisarle. El profesional sí, y depende de si lo eligió.
+  const notifyForced = isBooked && branchChanged;
+  const clientPickedEmployee = !!appointment?.employeeChosenByClient;
+
+  const isMine = !!currentEmployeeID && appointment?.employeeID === currentEmployeeID;
+  const showClaim = canClaim && !canAssignAny && !!onAssign;
+
+  const runAssign = async (fields: {
+    employeeID?: string | null;
+    branchID?: string | null;
+    notifyClient?: boolean;
+  }) => {
+    if (!appointment?._id || !onAssign) return;
+    setAssigning(true);
+    const ok = await onAssign(appointment._id, fields);
+    setAssigning(false);
+    setConfirmReassign(false);
+    if (!ok) {
+      setDraftEmployeeID(appointment.employeeID ?? "");
+      setDraftBranchID(appointment.branchID ?? "");
+    }
+  };
+
+  const saveAssignment = () =>
+    runAssign({
+      employeeID: draftEmployeeID || null,
+      branchID: draftBranchID || null,
+      notifyClient: affectsClient && (notifyForced || notifyClient),
+    });
+
+  const startSave = () => {
+    if (affectsClient) {
+      setNotifyClient(notifyForced || clientPickedEmployee);
+      setConfirmReassign(true);
+      return;
+    }
+    saveAssignment();
+  };
+
+  // Función y no componente: definido acá adentro, un componente se remontaría
+  // en cada render y cerraría el desplegable abierto.
+  const renderAssignment = () => {
+    if (!onAssign || !hasTeam) return null;
+
+    if (showClaim) {
+      if (!appointment?.employeeID) {
+        return (
+          <div className="flex flex-col gap-2.5 p-4 rounded-xl border border-orange-200 bg-orange-50/60">
+            <div className="flex flex-col gap-0.5">
+              <span className="text-sm font-semibold text-gray-800">
+                Este turno no tiene profesional
+              </span>
+              <span className="text-xs text-gray-500">
+                Cualquiera del equipo puede atenderlo. Tomalo si lo vas a hacer vos.
+              </span>
+            </div>
+            <Button
+              disabled={assigning}
+              onClick={() => runAssign({ employeeID: currentEmployeeID })}
+              className="w-full h-10 text-white bg-primary hover:bg-orange-500 border-none rounded-lg disabled:opacity-60"
+            >
+              {assigning ? "Asignando..." : "Asignarme el turno"}
+            </Button>
+          </div>
+        );
+      }
+      if (isMine) {
+        return (
+          <div className="flex items-center justify-between gap-3 p-4 rounded-xl border border-gray-200 bg-gray-50">
+            <div className="flex items-center gap-2 min-w-0">
+              <LuUser className="text-primary shrink-0" size={15} />
+              <span className="text-sm font-medium text-gray-700">
+                Este turno es tuyo
+              </span>
+            </div>
+            <button
+              disabled={assigning}
+              onClick={() => runAssign({ employeeID: null })}
+              className="text-xs font-semibold text-gray-500 hover:text-red-600 transition-colors shrink-0 disabled:opacity-60"
+            >
+              Soltar turno
+            </button>
+          </div>
+        );
+      }
+      return null;
+    }
+
+    if (!canAssignAny) return null;
+
+    return (
+      <div className="flex flex-col gap-3 p-4 rounded-xl border border-gray-200 bg-gray-50">
+        <span className="text-xs font-bold uppercase tracking-wider text-orange-600">
+          Asignación
+        </span>
+
+        {activeBranches.length > 0 && (
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              Sucursal
+            </label>
+            <Select
+              value={draftBranchID || "none"}
+              onValueChange={(v) => {
+                setDraftBranchID(v === "none" ? "" : v);
+                setDraftEmployeeID("");
+              }}
+            >
+              <SelectTrigger className="w-full bg-white">
+                <SelectValue placeholder="Sin asignar" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Sucursales</SelectLabel>
+                  <SelectItem value="none">Sin asignar</SelectItem>
+                  {activeBranches.map((b) => (
+                    <SelectItem key={b._id} value={b._id!}>
+                      {b.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {activeEmployees.length > 0 && (
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              Profesional
+            </label>
+            <Select
+              value={draftEmployeeID || "none"}
+              onValueChange={(v) => setDraftEmployeeID(v === "none" ? "" : v)}
+            >
+              <SelectTrigger className="w-full bg-white">
+                <SelectValue placeholder="Cualquier profesional" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Profesionales</SelectLabel>
+                  <SelectItem value="none">Cualquier profesional</SelectItem>
+                  {eligibleEmployees.map((e) => (
+                    <SelectItem key={e._id} value={e._id!}>
+                      {e.name} {e.surname}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            {eligibleEmployees.length === 0 && (
+              <span className="text-[11px] text-orange-600 mt-0.5">
+                Ningún profesional coincide con la sucursal y el servicio de este turno.
+              </span>
+            )}
+          </div>
+        )}
+
+        {assignDirty && !confirmReassign && (
+          <Button
+            disabled={assigning}
+            onClick={startSave}
+            className="w-full h-9 text-xs text-white bg-primary hover:bg-orange-500 border-none rounded-lg disabled:opacity-60"
+          >
+            Guardar asignación
+          </Button>
+        )}
+
+        {confirmReassign && (
+          <div
+            className={`flex flex-col gap-3 rounded-xl border px-4 py-3.5 ${
+              notifyForced
+                ? "border-red-200 bg-red-50"
+                : "border-orange-200 bg-orange-50"
+            }`}
+          >
+            <div className="flex flex-col gap-1">
+              <span
+                className={`text-sm font-semibold ${
+                  notifyForced ? "text-red-700" : "text-orange-800"
+                }`}
+              >
+                {notifyForced
+                  ? "Le cambia el lugar de atención al cliente"
+                  : clientPickedEmployee
+                    ? "El cliente eligió a este profesional"
+                    : "Este turno ya está reservado"}
+              </span>
+              <p
+                className={`text-xs leading-relaxed ${
+                  notifyForced ? "text-red-600" : "text-orange-700"
+                }`}
+              >
+                {notifyForced
+                  ? "El día y la hora no cambian, pero el cliente va a tener que ir a otra dirección. Se le avisa siempre."
+                  : clientPickedEmployee
+                    ? `${appointment?.name} reservó pidiendo a esta persona en particular, así que conviene avisarle del cambio.`
+                    : `${appointment?.name} no eligió profesional al reservar, así que el cambio probablemente le sea indistinto.`}
+              </p>
+            </div>
+
+            <label
+              className={`flex items-start gap-2.5 text-xs ${
+                notifyForced ? "text-red-700" : "text-orange-800"
+              } ${notifyForced ? "" : "cursor-pointer"}`}
+            >
+              <input
+                type="checkbox"
+                checked={notifyForced || notifyClient}
+                disabled={notifyForced}
+                onChange={(e) => setNotifyClient(e.target.checked)}
+                className="mt-0.5 size-3.5 accent-orange-600 shrink-0 disabled:opacity-70"
+              />
+              <span>
+                Avisarle al cliente por email.
+                {(notifyForced || notifyClient) && (
+                  <span className="block mt-0.5 opacity-80">
+                    Si el cambio no le sirve va a poder cancelar
+                    {hasDeposit ? " y se le devuelve la seña" : " sin costo"}.
+                  </span>
+                )}
+              </span>
+            </label>
+
+            <div className="flex gap-2">
+              <Button
+                disabled={assigning}
+                onClick={() => setConfirmReassign(false)}
+                className="flex-1 h-9 text-xs bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-lg"
+              >
+                Volver
+              </Button>
+              <Button
+                disabled={assigning}
+                onClick={saveAssignment}
+                className="flex-1 h-9 text-xs text-white bg-primary hover:bg-orange-500 border-none rounded-lg disabled:opacity-60"
+              >
+                {assigning ? "Guardando..." : "Confirmar cambio"}
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // ── BOOKED ──────────────────────────────────────────────────────────────────
   if (isBooked) {
@@ -183,21 +486,29 @@ const AppointmentModal: React.FC<props> = ({
                 }
               />
             )}
-            {assignedBranch && (
+            {activeBranches.length > 0 && (
               <Field
                 label="Sucursal"
                 value={
-                  <span className="break-words">{assignedBranch.name}</span>
+                  assignedBranch ? (
+                    <span className="break-words">{assignedBranch.name}</span>
+                  ) : (
+                    <span className="italic text-gray-400">Sin asignar</span>
+                  )
                 }
               />
             )}
-            {assignedEmployee && (
+            {activeEmployees.length > 0 && (
               <Field
-                label="Empleado"
+                label="Profesional"
                 value={
-                  <span className="break-words">
-                    {assignedEmployee.name} {assignedEmployee.surname}
-                  </span>
+                  assignedEmployee ? (
+                    <span className="break-words">
+                      {assignedEmployee.name} {assignedEmployee.surname}
+                    </span>
+                  ) : (
+                    <span className="italic text-gray-400">Cualquiera del equipo</span>
+                  )
                 }
               />
             )}
@@ -219,6 +530,8 @@ const AppointmentModal: React.FC<props> = ({
             />
           </div>
         </div>
+
+        {renderAssignment()}
 
         {/* Deposit status — full width */}
         {depositCfg && (
@@ -385,8 +698,8 @@ const AppointmentModal: React.FC<props> = ({
           </div>
         )}
 
-        {/* Branch row (conditional) */}
-        {assignedBranch && (
+        {/* Branch row */}
+        {activeBranches.length > 0 && (
           <div className="flex items-center justify-between gap-3 px-4 py-3">
             <div className="flex items-center gap-2">
               <LuMapPin className="text-gray-400 shrink-0" size={15} />
@@ -394,27 +707,43 @@ const AppointmentModal: React.FC<props> = ({
                 Sucursal
               </span>
             </div>
-            <span className="text-sm font-semibold text-gray-700">
-              {assignedBranch.name}
+            <span
+              className={
+                assignedBranch
+                  ? "text-sm font-semibold text-gray-700"
+                  : "text-sm font-medium text-gray-400 italic"
+              }
+            >
+              {assignedBranch?.name ?? "Sin asignar"}
             </span>
           </div>
         )}
 
-        {/* Employee row (conditional) */}
-        {assignedEmployee && (
+        {/* Employee row */}
+        {activeEmployees.length > 0 && (
           <div className="flex items-center justify-between gap-3 px-4 py-3">
             <div className="flex items-center gap-2">
               <LuUser className="text-gray-400 shrink-0" size={15} />
               <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                Empleado
+                Profesional
               </span>
             </div>
-            <span className="text-sm font-semibold text-gray-700">
-              {assignedEmployee.name} {assignedEmployee.surname}
+            <span
+              className={
+                assignedEmployee
+                  ? "text-sm font-semibold text-gray-700"
+                  : "text-sm font-medium text-gray-400 italic"
+              }
+            >
+              {assignedEmployee
+                ? `${assignedEmployee.name} ${assignedEmployee.surname}`
+                : "Cualquiera del equipo"}
             </span>
           </div>
         )}
       </div>
+
+      {renderAssignment()}
 
       {canDelete && (
         <>

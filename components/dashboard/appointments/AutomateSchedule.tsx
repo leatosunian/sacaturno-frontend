@@ -18,12 +18,13 @@ import { IService } from "@/interfaces/service.interface";
 import NoServicesModal from "../services/NoServicesModal";
 import ISubscription from "@/interfaces/subscription.interface";
 import ExpiredPlanModal from "./ExpiredPlanModal";
-import { LuSave, LuUser, LuMapPin, LuZap, LuCalendarDays, LuTimer, LuCalendarCog, LuActivity, LuArrowRight } from "react-icons/lu";
+import { LuSave, LuUser, LuUsers, LuMapPin, LuZap, LuCalendarDays, LuTimer, LuCalendarCog, LuActivity, LuArrowRight } from "react-icons/lu";
 import TutorialAutomateModal from "./TutorialAutomateModal";
 import { FaArrowLeft, FaCircleInfo } from "react-icons/fa6";
 import { LuBookOpen } from "react-icons/lu";
 import CreateScheduleAppointmentModal from "./CreateScheduleAppointmentModal";
 import ScheduleAppointmentModal from "./ScheduleAppointmentModal";
+import BulkAssignModal from "./BulkAssignModal";
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
 import Alert from "@/components/Alert";
@@ -223,6 +224,7 @@ const AutomateSchedule: React.FC<Props> = ({
   const [createAppointmentModal, setCreateAppointmentModal] = useState(false);
   const [createAppointmentData, setCreateAppointmentData] = useState<IAppointmentSchedule>();
   const [tutorialModal, setTutorialModal] = useState(false);
+  const [bulkAssignModal, setBulkAssignModal] = useState(false);
   const [expiredModal, setExpiredModal] = useState(false);
   const [selectedDay, setSelectedDay] = useState<{ dayName: string; dayNumber: number }>({
     dayName: "LUN",
@@ -579,6 +581,15 @@ const AutomateSchedule: React.FC<Props> = ({
     [appointmentCountByDay]
   );
 
+  // El contador acompaña al botón como dato, no como alarma: un turno sin
+  // profesional es válido — lo toma cualquiera del equipo.
+  const canAssign =
+    (employees ?? []).some((e) => e.status === "active") || (branches ?? []).length > 0;
+  const unassignedCount = useMemo(
+    () => appointmentsSchedule.filter((a) => !a.employeeID).length,
+    [appointmentsSchedule]
+  );
+
   const getEventTop = (event: IAppointmentSchedule): number => {
     const eventMins = dayjs(event.start).hour() * 60 + dayjs(event.start).minute();
     return ((eventMins - selectedDayStart * 60) / selectedAppointmentDuration) * HOUR_HEIGHT;
@@ -757,8 +768,15 @@ const AutomateSchedule: React.FC<Props> = ({
               );
               refreshData();
             }}
+            onEditAppointment={(edited) => {
+              setAppointmentsSchedule((prev) =>
+                prev.map((a) => (a._id === edited._id ? edited : a))
+              );
+              refreshData();
+            }}
             appointment={eventData}
             closeModalF={() => setEventModal(false)}
+            servicesData={servicesData}
             employees={employees}
             branches={branches}
           />
@@ -856,6 +874,33 @@ const AutomateSchedule: React.FC<Props> = ({
               </button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={bulkAssignModal} onOpenChange={() => setBulkAssignModal(false)}>
+        <DialogContent className="sm:w-[560px] w-[93vw] max-h-[90dvh] overflow-y-auto">
+          <DialogTitle className="sr-only">Asignar profesional y sucursal</DialogTitle>
+          <BulkAssignModal
+            appointments={appointmentsSchedule}
+            employees={employees}
+            branches={branches}
+            onAssigned={({ ids, employeeID, branchID }) => {
+              const touched = new Set(ids);
+              setAppointmentsSchedule((prev) =>
+                prev.map((a) =>
+                  a._id && touched.has(a._id)
+                    ? {
+                        ...a,
+                        employeeID: employeeID ?? a.employeeID,
+                        branchID: branchID ?? a.branchID,
+                      }
+                    : a
+                )
+              );
+              refreshData();
+            }}
+            closeModalF={() => setBulkAssignModal(false)}
+          />
         </DialogContent>
       </Dialog>
 
@@ -1240,13 +1285,28 @@ const AutomateSchedule: React.FC<Props> = ({
           <div className="flex flex-col gap-4">
 
             {/* Header */}
-            <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between gap-3">
               <div className="flex flex-col gap-1">
                 <h2 className="text-base font-semibold text-gray-800">Horario de atención</h2>
                 <p className="text-sm text-gray-500">
                   Por cada día de la semana, configurá el horario y agregá los turnos en cada horario deseado.
                 </p>
               </div>
+              {canAssign && (
+                <button
+                  onClick={() => setBulkAssignModal(true)}
+                  className="flex items-center gap-1.5 h-9 px-3 rounded-lg border border-gray-200 text-gray-600 text-xs font-semibold hover:bg-gray-50 hover:border-orange-300 hover:text-orange-600 transition-colors duration-200 shrink-0"
+                  title="Asignar profesional o sucursal a varios turnos"
+                >
+                  <LuUsers size={14} />
+                  <span className="hidden sm:inline">Asignar en lote</span>
+                  {unassignedCount > 0 && (
+                    <span className="ml-0.5 px-1.5 py-0.5 rounded-full bg-orange-50 text-orange-600 text-[10px] font-bold tabular-nums">
+                      {unassignedCount}
+                    </span>
+                  )}
+                </button>
+              )}
               {/* <button
                 onClick={() => setHelpModal(true)}
                 className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-500 transition-colors duration-200 shrink-0 ml-4"

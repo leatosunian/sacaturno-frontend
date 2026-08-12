@@ -58,7 +58,6 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
     currentEmployeeID ?? "",
   );
   const [selectedBranchID, setSelectedBranchID] = useState<string>("");
-  const [showNoEmployeeConfirm, setShowNoEmployeeConfirm] = useState(false);
   const [alert, setAlert] = useState<AlertInterface>();
 
   useEffect(() => {
@@ -96,7 +95,8 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
   const showNoBranchEmployeesWarning =
     !currentEmployeeID && hasBranches && branchIsResolved && filteredEmployees.length === 0;
 
-  // Filter employees by the selected service (employees with no services are unrestricted)
+  // Filter employees by the selected service. El alta de empleado exige al menos un
+  // servicio, así que una lista vacía significa "no presta ninguno" y queda fuera.
   const selectedServiceID = services?.find((s) => s.name === selectedService?.name)?._id;
   const serviceFilteredEmployees = selectedServiceID
     ? filteredEmployees.filter((e) => (e.services ?? []).includes(selectedServiceID))
@@ -156,11 +156,8 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
       return;
     }
 
-    if (serviceFilteredEmployees.length > 0 && !selectedEmployeeID) {
-      setShowNoEmployeeConfirm(true);
-      return;
-    }
-
+    // Sin profesional asignado los turnos quedan en el pool: los toma cualquiera
+    // del equipo. Es una función, no un olvido, así que no se confirma.
     doSave();
   };
 
@@ -260,7 +257,11 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
           <div className="flex items-start gap-2 rounded-lg border border-orange-200 bg-orange-50 px-3 py-2.5">
             <span className="mt-0.5 text-orange-500 shrink-0">⚠</span>
             <p className="text-xs text-orange-700 leading-snug">
-              Esta sucursal no tiene empleados asignados. Podés asignar empleados desde el panel de <strong>Equipo</strong>.
+              {showBranchDropdown
+                ? "Esta sucursal no tiene empleados asignados."
+                : "Tu sucursal no tiene empleados asignados."}{" "}
+              Podés asignarlos desde el panel de <strong>Equipo</strong>. Mientras
+              tanto, los turnos quedan disponibles para cualquiera.
             </p>
           </div>
         )}
@@ -284,12 +285,12 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
               onValueChange={(v) => setSelectedEmployeeID(v === "none" ? "" : v)}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Sin asignar" />
+                <SelectValue placeholder="Cualquier profesional" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Empleados</SelectLabel>
-                  <SelectItem value="none">Sin asignar</SelectItem>
+                  <SelectItem value="none">Cualquier profesional</SelectItem>
                   {serviceFilteredEmployees.map((emp) => (
                     <SelectItem key={emp._id} value={emp._id!}>
                       {emp.name} {emp.surname}
@@ -377,39 +378,13 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
 
       {/* Footer fijo */}
       <div className="shrink-0 px-6 pt-4 pb-6 border-t border-gray-100">
-        {showNoEmployeeConfirm ? (
-          <div className="flex flex-col gap-3 w-full rounded-xl border border-orange-200 bg-orange-50 px-4 py-3">
-            <p className="text-sm text-orange-800 font-medium leading-snug">
-              No asignaste un empleado a los turnos. ¿Deseás continuar sin asignar?
-            </p>
-            <div className="flex gap-2 w-full">
-              <Button
-                className="flex-1 h-9 text-sm bg-primary text-white hover:bg-primary border-none"
-                onClick={() => {
-                  setShowNoEmployeeConfirm(false);
-                  doSave();
-                }}
-              >
-                Sí, continuar
-              </Button>
-              <Button
-                variant="outline"
-                className="flex-1 h-9 text-sm border-gray-300 text-gray-700 hover:bg-gray-100"
-                onClick={() => setShowNoEmployeeConfirm(false)}
-              >
-                No, volver
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <Button
-            onClick={handleSave}
-            disabled={showBranchDropdown && !selectedBranchID}
-            className="w-full text-white bg-primary border-none rounded-lg shadow-xl outline-none h-11 hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Crear turnos del día
-          </Button>
-        )}
+        <Button
+          onClick={handleSave}
+          disabled={showBranchDropdown && !selectedBranchID}
+          className="w-full text-white bg-primary border-none rounded-lg shadow-xl outline-none h-11 hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Crear turnos del día
+        </Button>
       </div>
 
       {alert?.error && (

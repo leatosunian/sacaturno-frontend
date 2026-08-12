@@ -4,6 +4,7 @@ import { IBusiness } from "@/interfaces/business.interface";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { IService } from "@/interfaces/service.interface";
+import { IEmployee } from "@/interfaces/employee.interface";
 import NoBusinessEmptyState from "@/components/dashboard/NoBusinessEmptyState";
 import dayjs from "dayjs";
 import ServicesComponent from "@/components/dashboard/services/ServicesComponent";
@@ -79,6 +80,24 @@ async function getServicesData() {
   }
 }
 
+// Solo para dueños: la asignación al crear un servicio es una decisión sobre el
+// equipo, y un empleado con manage_services no administra a sus compañeros.
+async function getEmployeesData(businessID: string) {
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("sacaturno_token");
+    const res = await axiosReq.get(`/employee/list/${businessID}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token?.value}`,
+      },
+    });
+    return (res.data ?? []) as IEmployee[];
+  } catch {
+    return [] as IEmployee[];
+  }
+}
+
 async function getSubscriptionData() {
   try {
     const cookieStore = cookies();
@@ -133,6 +152,10 @@ const ServicesPage: NextPage = async () => {
   const subscription = await getSubscriptionData();
   const payload = getTokenPayload();
   const isEmployee = payload?.role === "employee";
+  const employees =
+    !isEmployee && typeof data !== "string" && data?._id
+      ? await getEmployeesData(data._id)
+      : [];
 
   return (
     <>
@@ -148,6 +171,7 @@ const ServicesPage: NextPage = async () => {
             businessData={data}
             servicesData={services}
             subscriptionData={subscription}
+            employeesData={employees}
             isEmployee={isEmployee}
           />
 

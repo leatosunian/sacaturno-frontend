@@ -3,10 +3,11 @@ import { useState } from "react";
 import { IEmployee } from "@/interfaces/employee.interface";
 import { IBusiness } from "@/interfaces/business.interface";
 import { IService } from "@/interfaces/service.interface";
+import { IBranch } from "@/interfaces/branch.interface";
 import ISubscription from "@/interfaces/subscription.interface";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { LuUserPlus, LuUserX, LuUserCheck, LuMail, LuUser, LuMailCheck, LuCheck, LuPlus, LuLock } from "react-icons/lu";
+import { LuUserPlus, LuUserX, LuUserCheck, LuMail, LuUser, LuMailCheck, LuCheck, LuPlus, LuLock, LuBuilding2, LuTriangleAlert } from "react-icons/lu";
 import axiosReq from "@/config/axios";
 import { toast } from "sonner";
 import { getPlanLimits } from "@/lib/planLimits";
@@ -15,6 +16,7 @@ interface Props {
   businessData: IBusiness;
   initialEmployees: IEmployee[];
   initialServices: IService[];
+  initialBranches: IBranch[];
   subscriptionData?: ISubscription | { response_data: object };
 }
 
@@ -38,7 +40,40 @@ const StatusBadge = ({ status }: { status: IEmployee["status"] }) => {
   );
 };
 
-const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, initialServices, subscriptionData }) => {
+const ChipToggle = ({
+  label,
+  active,
+  disabled,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+}) => (
+  <button
+    type="button"
+    disabled={disabled}
+    onClick={onClick}
+    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all duration-200 ease-in-out ${
+      active
+        ? "bg-primary text-white border-primary"
+        : "bg-white text-gray-400 border-gray-200 hover:border-orange-300 hover:text-gray-600"
+    } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+  >
+    {active ? <LuCheck size={10} strokeWidth={3} /> : <LuPlus size={10} strokeWidth={2.5} />}
+    {label}
+  </button>
+);
+
+const ASSIGNMENT_ERRORS: Record<string, string> = {
+  SERVICE_REQUIRED: "Asigná al menos un servicio al empleado",
+  BRANCH_REQUIRED: "Asigná al menos una sucursal al empleado",
+  INVALID_SERVICE: "Alguno de los servicios seleccionados ya no existe",
+  INVALID_BRANCH: "Alguna de las sucursales seleccionadas ya no existe",
+};
+
+const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, initialServices, initialBranches, subscriptionData }) => {
   const [employees, setEmployees] = useState<IEmployee[]>(initialEmployees);
 
   const subscription =
@@ -54,16 +89,29 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
   const [loadingAdd, setLoadingAdd] = useState(false);
   const [loadingAction, setLoadingAction] = useState(false);
   const [loadingResend, setLoadingResend] = useState(false);
-  const [togglingService, setTogglingService] = useState<string | null>(null);
 
   // add form state
   const [newName, setNewName] = useState("");
   const [newSurname, setNewSurname] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newPermissions, setNewPermissions] = useState<string[]>([]);
+  const [newServices, setNewServices] = useState<string[]>([]);
+  const [newBranches, setNewBranches] = useState<string[]>([]);
 
   // edit form state
   const [editPermissions, setEditPermissions] = useState<string[]>([]);
+  const [editServices, setEditServices] = useState<string[]>([]);
+  const [editBranches, setEditBranches] = useState<string[]>([]);
+
+  // Con una sola sucursal no hay nada que elegir: se asigna sola, igual que el
+  // booking público, que recién muestra el selector de sucursal con 2 o más.
+  const requiresBranch = initialBranches.length > 0;
+  const showBranchPicker = initialBranches.length >= 2;
+  const requiresService = initialServices.length > 0;
+  const soleBranchID = initialBranches.length === 1 ? initialBranches[0]._id! : null;
+
+  const serviceNameByID = new Map(initialServices.map((s) => [s._id!, s.name]));
+  const branchNameByID = new Map(initialBranches.map((b) => [b._id!, b.name]));
 
   const PERMISSION_LABELS: { key: string; label: string; description?: string }[] = [
     { key: "manage_own_appointments", label: "Gestionar propios turnos", description: "Puede crear y eliminar sus propios turnos" },
@@ -83,22 +131,36 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
     };
   };
 
+  const notifyAssignmentError = (error: any, fallback: string) => {
+    const code = typeof error?.response?.data === "string" ? error.response.data : "";
+    toast.error(ASSIGNMENT_ERRORS[code] ?? fallback, { position: "top-center" });
+  };
+
+  const toggleIn = (setter: React.Dispatch<React.SetStateAction<string[]>>) => (id: string) =>
+    setter((prev) => (prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]));
+
+  const toggleNewPermission = toggleIn(setNewPermissions);
+  const toggleNewService = toggleIn(setNewServices);
+  const toggleNewBranch = toggleIn(setNewBranches);
+  const togglePermission = toggleIn(setEditPermissions);
+  const toggleEditService = toggleIn(setEditServices);
+  const toggleEditBranch = toggleIn(setEditBranches);
+
+  const resetAddForm = () => {
+    setNewName("");
+    setNewSurname("");
+    setNewEmail("");
+    setNewPermissions([]);
+    setNewServices([]);
+    setNewBranches([]);
+  };
+
   const openEdit = (emp: IEmployee) => {
     setEditingEmployee(emp);
     setEditPermissions(emp.permissions ?? []);
+    setEditServices(emp.services ?? []);
+    setEditBranches(emp.branches ?? []);
     setEditModal(true);
-  };
-
-  const togglePermission = (key: string) => {
-    setEditPermissions((prev) =>
-      prev.includes(key) ? prev.filter((p) => p !== key) : [...prev, key]
-    );
-  };
-
-  const toggleNewPermission = (key: string) => {
-    setNewPermissions((prev) =>
-      prev.includes(key) ? prev.filter((p) => p !== key) : [...prev, key]
-    );
   };
 
   const handleResendInvite = async () => {
@@ -120,7 +182,7 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
   };
 
   const handleAdd = async () => {
-    if (!newName.trim() || !newSurname.trim() || !newEmail.trim()) return;
+    if (!addFormValid) return;
     setLoadingAdd(true);
     try {
       const res = await axiosReq.post(
@@ -132,19 +194,20 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
           surname: newSurname.trim(),
           email: newEmail.trim(),
           permissions: newPermissions,
+          services: newServices,
+          branches: soleBranchID ? [soleBranchID] : newBranches,
         },
         getAuthHeader()
       );
       setEmployees((prev) => [...prev, res.data]);
-      setNewName("");
-      setNewSurname("");
-      setNewEmail("");
-      setNewPermissions([]);
+      resetAddForm();
       setAddModal(false);
       toast.success("Invitación enviada correctamente", { position: "top-center" });
     } catch (error: any) {
       if (error?.response?.status === 409) {
         toast.error("Ya existe un empleado con ese email", { position: "top-center" });
+      } else if (error?.response?.status === 422) {
+        notifyAssignmentError(error, "Revisá los servicios y sucursales asignados");
       } else if (error?.response?.status === 400) {
         toast.error("Se alcanzó el límite máximo de empleados permitidos", { position: "top-center" });
       } else {
@@ -156,7 +219,7 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
   };
 
   const handleEdit = async () => {
-    if (!editingEmployee) return;
+    if (!editingEmployee || !editFormValid) return;
     setLoadingAction(true);
     try {
       const res = await axiosReq.put(
@@ -164,49 +227,26 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
         {
           ownerID: businessData.ownerID,
           permissions: editPermissions,
+          services: editServices,
+          branches: editBranches,
         },
         getAuthHeader()
       );
+      // El PUT devuelve el documento crudo, sin el profileImage que arma el listado.
       setEmployees((prev) =>
-        prev.map((e) => (e._id === editingEmployee._id ? res.data : e))
+        prev.map((e) => (e._id === editingEmployee._id ? { ...res.data, profileImage: e.profileImage } : e))
       );
       setEditModal(false);
       setEditingEmployee(null);
       toast.success("Empleado actualizado", { position: "top-center" });
-    } catch {
-      toast.error("No se pudo actualizar el empleado", { position: "top-center" });
+    } catch (error: any) {
+      if (error?.response?.status === 422) {
+        notifyAssignmentError(error, "Revisá los servicios y sucursales asignados");
+      } else {
+        toast.error("No se pudo actualizar el empleado", { position: "top-center" });
+      }
     } finally {
       setLoadingAction(false);
-    }
-  };
-
-  const handleToggleService = async (emp: IEmployee, svcId: string) => {
-    const key = `${emp._id}:${svcId}`;
-    if (togglingService === key) return;
-
-    const current = emp.services ?? [];
-    const updated = current.includes(svcId)
-      ? current.filter((s) => s !== svcId)
-      : [...current, svcId];
-
-    setEmployees((prev) =>
-      prev.map((e) => (e._id === emp._id ? { ...e, services: updated } : e))
-    );
-    setTogglingService(key);
-
-    try {
-      await axiosReq.put(
-        `/employee/${emp._id}`,
-        { ownerID: businessData.ownerID, services: updated },
-        getAuthHeader()
-      );
-    } catch {
-      setEmployees((prev) =>
-        prev.map((e) => (e._id === emp._id ? { ...e, services: current } : e))
-      );
-      toast.error("No se pudo actualizar el servicio", { position: "top-center" });
-    } finally {
-      setTogglingService(null);
     }
   };
 
@@ -224,7 +264,7 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
         getAuthHeader()
       );
       setEmployees((prev) =>
-        prev.map((e) => (e._id === employee._id ? res.data : e))
+        prev.map((e) => (e._id === employee._id ? { ...res.data, profileImage: e.profileImage } : e))
       );
       setConfirmModal(false);
       setConfirmTarget(null);
@@ -243,12 +283,29 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
   const pendingCount = employees.filter((e) => e.status === "pending").length;
   const atLimit = employees.length >= maxEmployees;
 
-  const editPermissionsDirty = (() => {
-    const original = (editingEmployee?.permissions ?? []) as string[];
-    if (original.length !== editPermissions.length) return true;
-    const originalSet = new Set(original);
-    return editPermissions.some((p) => !originalSet.has(p));
-  })();
+  const addFormValid =
+    !!newName.trim() &&
+    !!newSurname.trim() &&
+    !!newEmail.trim() &&
+    (!requiresService || newServices.length > 0) &&
+    (!showBranchPicker || newBranches.length > 0);
+
+  const editEditable = editingEmployee?.status !== "inactive";
+
+  const sameSet = (a: string[], b: string[]) =>
+    a.length === b.length && a.every((v) => b.includes(v));
+
+  const editDirty =
+    !!editingEmployee &&
+    (!sameSet(editPermissions, editingEmployee.permissions ?? []) ||
+      !sameSet(editServices, editingEmployee.services ?? []) ||
+      !sameSet(editBranches, editingEmployee.branches ?? []));
+
+  const editFormValid =
+    editEditable &&
+    editDirty &&
+    (!requiresService || editServices.length > 0) &&
+    (!requiresBranch || editBranches.length > 0);
 
   if (maxEmployees === 0) {
     return (
@@ -328,7 +385,12 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {employees.map((emp) => (
+              {employees.map((emp) => {
+                const empServices = (emp.services ?? []).filter((id) => serviceNameByID.has(id));
+                const empBranches = (emp.branches ?? []).filter((id) => branchNameByID.has(id));
+                const missingBranch = requiresBranch && empBranches.length === 0;
+                const missingService = requiresService && empServices.length === 0;
+                return (
                 <div
                   key={emp._id}
                   className="border border-gray-100 rounded-lg overflow-hidden"
@@ -352,9 +414,19 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
                         )}
                       </div>
                       <div className="flex flex-col gap-0.5 min-w-0">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-sm font-semibold text-gray-800 truncate">{emp.name} {emp.surname}</span>
                           <StatusBadge status={emp.status} />
+                          {(missingBranch || missingService) && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-50 text-red-600 border border-red-200">
+                              <LuTriangleAlert size={10} />
+                              {missingBranch && missingService
+                                ? "Sin servicios ni sucursal"
+                                : missingBranch
+                                  ? "Sin sucursal"
+                                  : "Sin servicios"}
+                            </span>
+                          )}
                         </div>
                         <span className="text-xs text-gray-400 truncate">{emp.email}</span>
                       </div>
@@ -383,51 +455,61 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
                     </div>
                   </div>
 
-                  {/* Services row — only for active employees when there are services */}
-                  {emp.status === "active" && initialServices.length > 0 && (
-                    <div className="px-4 py-2.5 border-t border-gray-100 bg-gray-50/60 flex flex-col gap-2">
-                      <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Servicios asignados</span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {initialServices.map((svc) => {
-                        const assigned = (emp.services ?? []).includes(svc._id!);
-                        const key = `${emp._id}:${svc._id}`;
-                        const toggling = togglingService === key;
-                        return (
-                          <button
-                            key={svc._id}
-                            type="button"
-                            disabled={toggling}
-                            onClick={() => handleToggleService(emp, svc._id!)}
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all ${
-                              assigned
-                                ? "bg-primary text-white border-primary"
-                                : "bg-white text-gray-400 border-gray-200 hover:border-orange-300 hover:text-gray-600"
-                            } ${toggling ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-                          >
-                            {toggling ? (
-                              <span className="w-2.5 h-2.5 rounded-full border border-current border-t-transparent animate-spin" />
-                            ) : assigned ? (
-                              <LuCheck size={10} strokeWidth={3} />
+                  {/* Assignments summary — read-only, se edita desde el modal */}
+                  {(requiresService || requiresBranch) && (
+                    <div className="px-4 py-2.5 border-t border-gray-100 bg-gray-50/60 flex flex-col gap-2.5">
+                      {requiresService && (
+                        <div className="flex flex-col gap-1.5">
+                          <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Servicios</span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {empServices.length === 0 ? (
+                              <span className="text-[11px] text-gray-400">Sin servicios asignados</span>
                             ) : (
-                              <LuPlus size={10} strokeWidth={2.5} />
+                              empServices.map((id) => (
+                                <span
+                                  key={id}
+                                  className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-orange-50 text-primary border border-orange-200"
+                                >
+                                  {serviceNameByID.get(id)}
+                                </span>
+                              ))
                             )}
-                            {svc.name}
-                          </button>
-                        );
-                      })}
-                    </div>
+                          </div>
+                        </div>
+                      )}
+                      {requiresBranch && (
+                        <div className="flex flex-col gap-1.5">
+                          <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Sucursales</span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {empBranches.length === 0 ? (
+                              <span className="text-[11px] text-gray-400">Sin sucursales asignadas</span>
+                            ) : (
+                              empBranches.map((id) => (
+                                <span
+                                  key={id}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-white text-gray-600 border border-gray-200"
+                                >
+                                  <LuBuilding2 size={10} className="text-gray-400" />
+                                  {branchNameByID.get(id)}
+                                </span>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
       </div>
 
       {/* Add Employee Modal */}
-      <Dialog open={addModal} onOpenChange={(open) => { if (!open) { setAddModal(false); setNewName(""); setNewSurname(""); setNewEmail(""); setNewPermissions([]); } }}>
-        <DialogContent className="sm:w-[400px] w-[93vw]">
+      <Dialog open={addModal} onOpenChange={(open) => { if (!open) { setAddModal(false); resetAddForm(); } }}>
+        <DialogContent className="sm:w-[400px] w-[93vw] max-h-[85vh] overflow-y-auto">
           <div className="flex flex-col w-full gap-4">
             <div className="pb-4 border-b border-gray-100 flex flex-col gap-1">
               <h4 className="text-lg leading-none font-semibold text-gray-800">Nuevo empleado</h4>
@@ -476,6 +558,48 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
               </div>
             </div>
 
+            {requiresService && (
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-bold uppercase text-gray-700">
+                  Servicios que presta <span className="text-primary">*</span>
+                </label>
+                <div className="flex flex-wrap gap-1.5 rounded-lg border border-gray-100 bg-gray-50 p-3">
+                  {initialServices.map((svc) => (
+                    <ChipToggle
+                      key={svc._id}
+                      label={svc.name}
+                      active={newServices.includes(svc._id!)}
+                      onClick={() => toggleNewService(svc._id!)}
+                    />
+                  ))}
+                </div>
+                {newServices.length === 0 && (
+                  <span className="text-[10px] text-gray-400">Elegí al menos un servicio.</span>
+                )}
+              </div>
+            )}
+
+            {showBranchPicker && (
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-bold uppercase text-gray-700">
+                  Sucursales <span className="text-primary">*</span>
+                </label>
+                <div className="flex flex-wrap gap-1.5 rounded-lg border border-gray-100 bg-gray-50 p-3">
+                  {initialBranches.map((branch) => (
+                    <ChipToggle
+                      key={branch._id}
+                      label={branch.name}
+                      active={newBranches.includes(branch._id!)}
+                      onClick={() => toggleNewBranch(branch._id!)}
+                    />
+                  ))}
+                </div>
+                {newBranches.length === 0 && (
+                  <span className="text-[10px] text-gray-400">Elegí al menos una sucursal.</span>
+                )}
+              </div>
+            )}
+
             <div className="flex flex-col gap-2">
               <label className="text-xs font-bold uppercase text-gray-700">Permisos</label>
               <div className="flex flex-col gap-2.5 rounded-lg border border-gray-100 bg-gray-50 p-3">
@@ -497,9 +621,9 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
             </div>
 
             <Button
-              disabled={!newName.trim() || !newSurname.trim() || !newEmail.trim() || loadingAdd}
+              disabled={!addFormValid || loadingAdd}
               onClick={handleAdd}
-              className="w-full h-10 text-white bg-primary hover:bg-orange-500 border-none rounded-lg shadow-lg"
+              className="w-full h-10 text-white bg-primary hover:bg-orange-500 border-none rounded-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary"
             >
               {loadingAdd ? (
                 <span className="flex items-center gap-2">
@@ -514,33 +638,82 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
 
       {/* Edit Employee Modal */}
       <Dialog open={editModal} onOpenChange={(open) => { if (!open) { setEditModal(false); setEditingEmployee(null); } }}>
-        <DialogContent className="sm:w-[400px] w-[93vw]">
+        <DialogContent className="sm:w-[400px] w-[93vw] max-h-[85vh] overflow-y-auto">
           <div className="flex flex-col w-full gap-4">
             <div className="pb-4 border-b border-gray-100 flex flex-col gap-1">
               <h4 className="text-lg leading-none font-semibold text-gray-800">Editar empleado</h4>
+              {!editEditable && (
+                <p className="text-xs text-gray-400 mt-0.5">Reactivá al empleado para editar sus asignaciones y permisos.</p>
+              )}
             </div>
 
-            {editingEmployee?.status === "active" && (
+            {requiresService && (
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold uppercase text-gray-700">Permisos</label>
-                <div className="flex flex-col gap-2.5 rounded-lg border border-gray-100 bg-gray-50 p-3">
-                  {PERMISSION_LABELS.map(({ key, label, description }) => (
-                    <label key={key} className="flex items-start gap-2.5 cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={editPermissions.includes(key)}
-                        onChange={() => togglePermission(key)}
-                        className="accent-orange-600 w-4 h-4 rounded cursor-pointer mt-0.5 shrink-0"
-                      />
-                      <div className="flex flex-col gap-0">
-                        <span className="text-sm text-gray-700 leading-tight">{label}</span>
-                        {description && <span className="text-[10px] text-gray-400 leading-tight">{description}</span>}
-                      </div>
-                    </label>
+                <label className="text-xs font-bold uppercase text-gray-700">
+                  Servicios que presta <span className="text-primary">*</span>
+                </label>
+                <div className="flex flex-wrap gap-1.5 rounded-lg border border-gray-100 bg-gray-50 p-3">
+                  {initialServices.map((svc) => (
+                    <ChipToggle
+                      key={svc._id}
+                      label={svc.name}
+                      active={editServices.includes(svc._id!)}
+                      disabled={!editEditable}
+                      onClick={() => toggleEditService(svc._id!)}
+                    />
                   ))}
                 </div>
+                {editEditable && editServices.length === 0 && (
+                  <span className="text-[10px] text-red-500">Elegí al menos un servicio.</span>
+                )}
               </div>
             )}
+
+            {requiresBranch && (
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-bold uppercase text-gray-700">
+                  Sucursales <span className="text-primary">*</span>
+                </label>
+                <div className="flex flex-wrap gap-1.5 rounded-lg border border-gray-100 bg-gray-50 p-3">
+                  {initialBranches.map((branch) => (
+                    <ChipToggle
+                      key={branch._id}
+                      label={branch.name}
+                      active={editBranches.includes(branch._id!)}
+                      disabled={!editEditable}
+                      onClick={() => toggleEditBranch(branch._id!)}
+                    />
+                  ))}
+                </div>
+                {editEditable && editBranches.length === 0 && (
+                  <span className="text-[10px] text-red-500">Elegí al menos una sucursal.</span>
+                )}
+              </div>
+            )}
+
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold uppercase text-gray-700">Permisos</label>
+              <div className="flex flex-col gap-2.5 rounded-lg border border-gray-100 bg-gray-50 p-3">
+                {PERMISSION_LABELS.map(({ key, label, description }) => (
+                  <label
+                    key={key}
+                    className={`flex items-start gap-2.5 select-none ${editEditable ? "cursor-pointer" : "opacity-50 cursor-not-allowed"}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={editPermissions.includes(key)}
+                      disabled={!editEditable}
+                      onChange={() => togglePermission(key)}
+                      className="accent-orange-600 w-4 h-4 rounded cursor-pointer mt-0.5 shrink-0"
+                    />
+                    <div className="flex flex-col gap-0">
+                      <span className="text-sm text-gray-700 leading-tight">{label}</span>
+                      {description && <span className="text-[10px] text-gray-400 leading-tight">{description}</span>}
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
 
             {editingEmployee?.status === "pending" && (
               <button
@@ -554,7 +727,7 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
             )}
 
             <Button
-              disabled={loadingAction || editingEmployee?.status !== "active" || !editPermissionsDirty}
+              disabled={loadingAction || !editFormValid}
               onClick={handleEdit}
               className="w-full h-10 text-white bg-primary hover:bg-orange-500 border-none rounded-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary"
             >

@@ -135,7 +135,10 @@
       "Bash(curl -s -o /dev/null -w \"front 3000: %{http_code}\\\\n\" http://localhost:3000/peluquito)",
       "Bash(curl -s -o /dev/null -w \"front tunnel: %{http_code}\\\\n\" --max-time 12 https://repository-flu-domestic-bingo.trycloudflare.com/peluquito)",
       "Bash(curl -s -o /dev/null -w \"back tunnel: %{http_code}\\\\n\" --max-time 12 https://namely-reform-linking-martha.trycloudflare.com/api/business/sitemap)",
-      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\).on\\('end',\\(\\)=>{const a=JSON.parse\\(d\\).filter\\(x=>x.status==='unbooked'\\);console.log\\('SLOT_A='+a[a.length-1]._id\\);console.log\\('SLOT_B='+a[a.length-2]._id\\);console.log\\('\\(fechas:',a[a.length-1].start,'/',a[a.length-2].start,'\\)'\\)}\\)\")"
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\).on\\('end',\\(\\)=>{const a=JSON.parse\\(d\\).filter\\(x=>x.status==='unbooked'\\);console.log\\('SLOT_A='+a[a.length-1]._id\\);console.log\\('SLOT_B='+a[a.length-2]._id\\);console.log\\('\\(fechas:',a[a.length-1].start,'/',a[a.length-2].start,'\\)'\\)}\\)\")",
+      "PowerShell(cd C:\\\\sacaturno; try { Set-Content -Path .next\\\\_writetest.tmp -Value \"x\" -ErrorAction Stop; \"WRITE OK\"; Remove-Item .next\\\\_writetest.tmp -Force } catch { \"WRITE BLOCKED: $\\($_.Exception.Message\\)\" })",
+      "PowerShell(cd C:\\\\sacaturno; Get-Item .next\\\\trace -Force -ErrorAction SilentlyContinue | Select-Object Mode,Length,Name; Remove-Item .next\\\\trace -Force -ErrorAction SilentlyContinue; \"removed: $\\(-not \\(Test-Path .next\\\\trace\\)\\)\")",
+      "PowerShell(cd C:\\\\sacaturno; try { Remove-Item .next -Recurse -Force -ErrorAction Stop; \"REMOVED\" } catch { \"FAILED: $\\($_.Exception.Message\\)\" }; Test-Path .next)"
     ],
     "additionalDirectories": [
       "c:\\sacaturno\\.claude\\skills"

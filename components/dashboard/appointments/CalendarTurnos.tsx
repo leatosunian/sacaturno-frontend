@@ -89,6 +89,9 @@ const CancelledAppointments = dynamic(() => import("./CancelledAppointments"), {
 });
 
 const ALL_FILTER_VALUE = "__all__";
+// Un turno sin profesional es un estado válido (lo toma cualquiera del equipo),
+// pero el filtro por ID nunca lo alcanza: necesita su propia opción.
+const UNASSIGNED_FILTER_VALUE = "__unassigned__";
 
 dayjs.locale("es-mx");
 dayjs.extend(timezone);
@@ -177,6 +180,7 @@ interface CalendarEvent {
   depositAmount?: number;
   employeeID?: string | null;
   branchID?: string | null;
+  employeeChosenByClient?: boolean;
 }
 
 const getAuthHeader = () => {
@@ -223,17 +227,22 @@ const CalendarTurnos: React.FC<Props> = ({
   const showBranchFilter = activeBranches.length >= 2;
   const [selectedBranchFilter, setSelectedBranchFilter] = useState<string>("");
   const activeEmployees = (employees ?? []).filter((e) => e.status === "active");
-  const showEmployeeFilter = activeEmployees.length >= 2;
+  // Con un solo empleado el filtro igual sirve: separa lo suyo de lo que quedó
+  // en el pool. Sucursales no, porque con una sola todo cae ahí.
+  const showEmployeeFilter = activeEmployees.length >= 1;
   const [selectedEmployeeFilter, setSelectedEmployeeFilter] = useState<string>("");
-  const employeeFilterOptions = selectedBranchFilter
-    ? activeEmployees.filter((e) => (e.branches ?? []).includes(selectedBranchFilter))
-    : activeEmployees;
+  const employeeFilterOptions =
+    selectedBranchFilter && selectedBranchFilter !== UNASSIGNED_FILTER_VALUE
+      ? activeEmployees.filter((e) => (e.branches ?? []).includes(selectedBranchFilter))
+      : activeEmployees;
 
   const handleBranchFilterChange = (branchID: string) => {
     setSelectedBranchFilter(branchID);
     if (
       branchID &&
+      branchID !== UNASSIGNED_FILTER_VALUE &&
       selectedEmployeeFilter &&
+      selectedEmployeeFilter !== UNASSIGNED_FILTER_VALUE &&
       !activeEmployees.find(
         (e) => e._id === selectedEmployeeFilter && (e.branches ?? []).includes(branchID)
       )
@@ -320,8 +329,16 @@ const CalendarTurnos: React.FC<Props> = ({
 
   const parsedEvents = useMemo<CalendarEvent[]>(() => {
     const filtered = appointmentsData
-      .filter((a) => !selectedBranchFilter || (a as any).branchID === selectedBranchFilter)
-      .filter((a) => !selectedEmployeeFilter || (a as any).employeeID === selectedEmployeeFilter);
+      .filter((a) => {
+        if (!selectedBranchFilter) return true;
+        if (selectedBranchFilter === UNASSIGNED_FILTER_VALUE) return !(a as any).branchID;
+        return (a as any).branchID === selectedBranchFilter;
+      })
+      .filter((a) => {
+        if (!selectedEmployeeFilter) return true;
+        if (selectedEmployeeFilter === UNASSIGNED_FILTER_VALUE) return !(a as any).employeeID;
+        return (a as any).employeeID === selectedEmployeeFilter;
+      });
     return filtered.map((appt) => ({
       start: dayjs(appt.start).tz("America/Argentina/Buenos_Aires").toDate(),
       end: dayjs(appt.end).tz("America/Argentina/Buenos_Aires").toDate(),
@@ -339,6 +356,7 @@ const CalendarTurnos: React.FC<Props> = ({
       mpPaymentID: appt.mpPaymentID,
       employeeID: appt.employeeID,
       branchID: appt.branchID,
+      employeeChosenByClient: appt.employeeChosenByClient,
     }));
   }, [appointmentsData, selectedBranchFilter, selectedEmployeeFilter]);
 
@@ -520,6 +538,58 @@ const CalendarTurnos: React.FC<Props> = ({
         );
       }
       toast.error("No se pudo cancelar el turno", { id: toastId, position: "top-center" });
+    }
+  };
+
+  // Asignar/soltar profesional o sucursal de un turno ya creado. Devuelve si
+  // salió bien para que el modal pueda revertir su borrador si falló.
+  const handleAssignAppointment = async (
+    id: string,
+    fields: {
+      employeeID?: string | null;
+      branchID?: string | null;
+      notifyClient?: boolean;
+    }
+  ): Promise<boolean> => {
+    const toastId = toast.loading("Guardando asignación...", { position: "top-center" });
+    try {
+      const { data } = await axiosReq.put(
+        `/appointment/assign/${id}`,
+        fields,
+        getAuthHeader()
+      );
+      setAppointmentsData((prev) =>
+        prev.map((a) =>
+          a._id === id
+            ? { ...a, employeeID: data.employeeID ?? null, branchID: data.branchID ?? null }
+            : a
+        )
+      );
+      setEventData((prev) =>
+        prev && prev._id === id
+          ? { ...prev, employeeID: data.employeeID ?? null, branchID: data.branchID ?? null }
+          : prev
+      );
+      toast.success(
+        fields.notifyClient ? "Asignación actualizada y cliente avisado" : "Asignación actualizada",
+        { id: toastId, position: "top-center" }
+      );
+      router.refresh();
+      return true;
+    } catch (error: any) {
+      const status = error?.response?.status;
+      const msg =
+        status === 409 && error?.response?.data === "ALREADY_ASSIGNED"
+          ? "Otra persona tomó este turno"
+          : status === 409
+            ? "El profesional ya tiene un turno en ese horario"
+            : status === 403
+              ? "No tenés permiso para asignar este turno"
+              : status === 400
+                ? "El profesional no atiende en esa sucursal"
+                : "No se pudo guardar la asignación";
+      toast.error(msg, { id: toastId, position: "top-center" });
+      return false;
     }
   };
 
@@ -790,10 +860,15 @@ const CalendarTurnos: React.FC<Props> = ({
             appointment={eventData}
             onDelete={handleDeleteAppointment}
             onCancel={handleCancelAppointment}
+            onAssign={handleAssignAppointment}
             closeModalF={() => setEventModal(false)}
             canDelete={eventCanDelete}
             employees={employees}
             branches={branches}
+            services={services}
+            canAssignAny={canManageAll}
+            currentEmployeeID={currentEmployeeID}
+            canClaim={isEmployee && canManageOwn}
           />
         </DialogContent>
       </Dialog>
@@ -1025,6 +1100,12 @@ const CalendarTurnos: React.FC<Props> = ({
                     >
                       Todas
                     </SelectItem>
+                    <SelectItem
+                      value={UNASSIGNED_FILTER_VALUE}
+                      className="cursor-pointer text-xs text-gray-500 italic focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
+                    >
+                      Sin asignar
+                    </SelectItem>
                     {activeBranches.map((b) => (
                       <SelectItem
                         key={b._id}
@@ -1055,6 +1136,12 @@ const CalendarTurnos: React.FC<Props> = ({
                       className="cursor-pointer text-xs text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
                     >
                       Todos
+                    </SelectItem>
+                    <SelectItem
+                      value={UNASSIGNED_FILTER_VALUE}
+                      className="cursor-pointer text-xs text-gray-500 italic focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
+                    >
+                      Sin asignar
                     </SelectItem>
                     {employeeFilterOptions.map((e) => (
                       <SelectItem

@@ -59,7 +59,6 @@ const CreateAppointmentModal: React.FC<props> = ({
     currentEmployeeID ?? "",
   );
   const [selectedBranchID, setSelectedBranchID] = useState<string>("");
-  const [showNoEmployeeConfirm, setShowNoEmployeeConfirm] = useState(false);
   const isPast = dayjs(appointmentData?.start).isBefore(dayjs());
 
   // When the modal is reused (employee context changes), sync the selectedEmployeeID
@@ -102,8 +101,9 @@ const CreateAppointmentModal: React.FC<props> = ({
     branchIsResolved &&
     filteredEmployees.length === 0;
 
-  // Further filter by service: if an employee has services assigned, only show them when
-  // they can provide the currently selected service. Employees with empty services are unrestricted.
+  // Further filter by service: only employees that provide the selected service.
+  // El alta de empleado exige al menos un servicio, así que una lista vacía significa
+  // "no presta ninguno" y queda fuera del dropdown.
   const selectedServiceID = servicesData?.find(
     (s) => s.name === selectedService?.name,
   )?._id;
@@ -193,14 +193,10 @@ const CreateAppointmentModal: React.FC<props> = ({
     }
   };
 
+  // Dejar el turno sin profesional es una función, no un olvido: lo toma
+  // cualquiera del equipo. Por eso no se pide confirmación.
   const handleSave = () => {
     if (!appointmentData) return;
-
-    if (serviceFilteredEmployees.length > 0 && !selectedEmployeeID) {
-      setShowNoEmployeeConfirm(true);
-      return;
-    }
-
     doSave();
   };
 
@@ -355,8 +351,11 @@ const CreateAppointmentModal: React.FC<props> = ({
             <div className="flex items-start gap-2 rounded-lg border border-orange-200 bg-orange-50 px-3 py-2.5">
               <span className="mt-0.5 text-orange-500 shrink-0">⚠</span>
               <p className="text-xs text-orange-700 leading-snug">
-                Esta sucursal no tiene empleados asignados. Podés asignar
-                empleados desde el panel de <strong>Equipo</strong>.
+                {showBranchDropdown
+                  ? "Esta sucursal no tiene empleados asignados."
+                  : "Tu sucursal no tiene empleados asignados."}{" "}
+                Podés asignarlos desde el panel de <strong>Equipo</strong>. Mientras
+                tanto, el turno queda disponible para cualquiera.
               </p>
             </div>
           )}
@@ -383,12 +382,12 @@ const CreateAppointmentModal: React.FC<props> = ({
                 }
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Sin asignar" />
+                  <SelectValue placeholder="Cualquier profesional" />
                 </SelectTrigger>
                 <SelectContent className="w-full">
                   <SelectGroup>
                     <SelectLabel>Empleados</SelectLabel>
-                    <SelectItem value="none">Sin asignar</SelectItem>
+                    <SelectItem value="none">Cualquier profesional</SelectItem>
                     {serviceFilteredEmployees.map((emp) => (
                       <SelectItem key={emp._id} value={emp._id!}>
                         {emp.name} {emp.surname}
@@ -440,40 +439,13 @@ const CreateAppointmentModal: React.FC<props> = ({
           </>
         )}
       </div>
-      {showNoEmployeeConfirm && (
-        <div className="flex flex-col gap-3 w-full rounded-xl border border-orange-200 bg-orange-50 px-4 py-3">
-          <p className="text-sm text-orange-800 font-medium leading-snug">
-            No asignaste un empleado al turno. ¿Deseás continuar sin asignar?
-          </p>
-          <div className="flex gap-2 w-full">
-            <Button
-              className="flex-1 h-9 text-sm bg-primary text-white hover:bg-primary border-none"
-              onClick={() => {
-                setShowNoEmployeeConfirm(false);
-                doSave();
-              }}
-            >
-              Sí, continuar
-            </Button>
-            <Button
-              variant="outline"
-              className="flex-1 h-9 text-sm border-gray-300 text-gray-700 hover:bg-gray-100"
-              onClick={() => setShowNoEmployeeConfirm(false)}
-            >
-              No, volver
-            </Button>
-          </div>
-        </div>
-      )}
-      {!showNoEmployeeConfirm && (
-        <Button
-          className="w-full text-white bg-primary border-none rounded-lg shadow-xl outline-none h-11 hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={handleSave}
-          disabled={showBranchDropdown && !selectedBranchID}
-        >
-          Crear turno
-        </Button>
-      )}
+      <Button
+        className="w-full text-white bg-primary border-none rounded-lg shadow-xl outline-none h-11 hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
+        onClick={handleSave}
+        disabled={showBranchDropdown && !selectedBranchID}
+      >
+        Crear turno
+      </Button>
     </div>
   );
 };

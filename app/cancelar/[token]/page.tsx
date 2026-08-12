@@ -29,6 +29,9 @@ interface CancelInfo {
   businessPhone: number | null;
   cancellationWindowHours: number;
   depositAmount: number;
+  // El negocio cambió profesional/sucursal después de reservado: cancelar por eso
+  // no cae bajo la política habitual — se reembolsa la seña.
+  causedByBusiness?: boolean;
 }
 
 type Screen = "loading" | "ready" | "notfound" | "cancelled" | "window" | "error";
@@ -63,6 +66,7 @@ export default function CancelAppointmentPage() {
 
   const hasPaidDeposit =
     info?.appointment.depositStatus === "paid" && info?.depositAmount > 0;
+  const refundsDeposit = hasPaidDeposit && !!info?.causedByBusiness;
 
   const handleCancel = async () => {
     setSubmitting(true);
@@ -133,7 +137,11 @@ export default function CancelAppointmentPage() {
                       <p className="text-[14px] text-[#7a7a7a] leading-[1.55]">
                         Cancelaste tu turno correctamente. Te enviamos un email de
                         confirmación.
-                        {hasPaidDeposit && " Recordá que la seña no se reembolsa al cancelar."}
+                        {refundsDeposit
+                          ? " La seña se te devuelve por Mercado Pago en los próximos días."
+                          : hasPaidDeposit
+                            ? " Recordá que la seña no se reembolsa al cancelar."
+                            : ""}
                       </p>
                     </div>
                     <Link
@@ -227,7 +235,24 @@ export default function CancelAppointmentPage() {
                       </div>
                     </div>
 
-                    {hasPaidDeposit && (
+                    {info.causedByBusiness && (
+                      <div className="flex items-start w-full gap-3 p-3.5 text-left border rounded-[10px] bg-blue-50 border-blue-200">
+                        <CreditCard className="text-blue-500 shrink-0 mt-0.5" size={17} />
+                        <span className="text-[13px] text-blue-700 leading-[1.5]">
+                          {info.businessName} modificó tu turno después de que lo
+                          reservaste, así que podés cancelar sin costo
+                          {hasPaidDeposit && (
+                            <>
+                              {" "}y se te devuelve la seña de{" "}
+                              <b>$ {info.depositAmount.toLocaleString("es-AR")}</b>
+                            </>
+                          )}
+                          .
+                        </span>
+                      </div>
+                    )}
+
+                    {hasPaidDeposit && !info.causedByBusiness && (
                       <div className="flex items-start w-full gap-3 p-3.5 text-left border rounded-[10px] bg-orange-50 border-orange-200">
                         <CreditCard className="text-[#dd4924] shrink-0 mt-0.5" size={17} />
                         <span className="text-[13px] text-orange-700 leading-[1.5]">

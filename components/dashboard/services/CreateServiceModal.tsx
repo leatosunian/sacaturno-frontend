@@ -10,7 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { LuLoader } from "react-icons/lu";
+import { LuLoader, LuCheck, LuPlus } from "react-icons/lu";
+import { IEmployee } from "@/interfaces/employee.interface";
 
 interface formInputs {
   name: string;
@@ -23,7 +24,8 @@ interface formInputs {
 interface props {
   mpLinked?: boolean;
   isLoading?: boolean;
-  onCreateService: (formData: formInputs) => void;
+  employees?: IEmployee[];
+  onCreateService: (formData: formInputs & { employeeIDs: string[] }) => void;
 }
 
 const inputClass =
@@ -31,7 +33,7 @@ const inputClass =
 const labelClass = "text-xs font-medium text-gray-600";
 const errorClass = "text-xs text-red-500 mt-0.5";
 
-const CreateServiceModal: React.FC<props> = ({ mpLinked, isLoading, onCreateService }) => {
+const CreateServiceModal: React.FC<props> = ({ mpLinked, isLoading, employees = [], onCreateService }) => {
   const {
     register,
     handleSubmit,
@@ -41,6 +43,15 @@ const CreateServiceModal: React.FC<props> = ({ mpLinked, isLoading, onCreateServ
 
   const [priceDisplay, setPriceDisplay] = useState<string>("");
   const [depositDisplay, setDepositDisplay] = useState<string>("");
+  const [employeeIDs, setEmployeeIDs] = useState<string[]>([]);
+
+  // Los desactivados no toman turnos, así que no hay nada que asignarles.
+  const assignableEmployees = employees.filter((e) => e.status !== "inactive");
+
+  const toggleEmployee = (id: string) =>
+    setEmployeeIDs((prev) =>
+      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
+    );
 
   const handleSubmitClick = () => {
     (document.querySelector(".inputSubmitField") as HTMLElement)?.click();
@@ -54,7 +65,7 @@ const CreateServiceModal: React.FC<props> = ({ mpLinked, isLoading, onCreateServ
       </div>
 
       <form
-        onSubmit={handleSubmit((data) => onCreateService(data))}
+        onSubmit={handleSubmit((data) => onCreateService({ ...data, employeeIDs }))}
         className="flex flex-col w-full gap-4"
       >
         {/* Nombre */}
@@ -174,6 +185,42 @@ const CreateServiceModal: React.FC<props> = ({ mpLinked, isLoading, onCreateServ
             <span className={errorClass}>{errors.description.message}</span>
           )}
         </div>
+
+        {/* Empleados que prestan el servicio */}
+        {assignableEmployees.length > 0 && (
+          <div className="flex flex-col gap-1">
+            <label className={labelClass}>Quién lo presta</label>
+            <div className="flex flex-wrap gap-1.5 rounded-md border border-gray-200 bg-gray-50 p-3">
+              {assignableEmployees.map((emp) => {
+                const selected = employeeIDs.includes(emp._id!);
+                return (
+                  <button
+                    key={emp._id}
+                    type="button"
+                    onClick={() => toggleEmployee(emp._id!)}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all duration-200 ease-in-out cursor-pointer ${
+                      selected
+                        ? "bg-primary text-white border-primary"
+                        : "bg-white text-gray-400 border-gray-200 hover:border-orange-300 hover:text-gray-600"
+                    }`}
+                  >
+                    {selected ? (
+                      <LuCheck size={10} strokeWidth={3} />
+                    ) : (
+                      <LuPlus size={10} strokeWidth={2.5} />
+                    )}
+                    {emp.name} {emp.surname}
+                  </button>
+                );
+              })}
+            </div>
+            <span className="text-[10px] text-gray-400 mt-0.5">
+              {employeeIDs.length === 0
+                ? "Si no elegís a nadie, el servicio queda solo para vos."
+                : "Podés cambiarlo después desde Mi equipo."}
+            </span>
+          </div>
+        )}
 
         <button type="submit" className="inputSubmitField hidden" />
       </form>

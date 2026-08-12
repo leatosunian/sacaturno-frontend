@@ -11,11 +11,13 @@ import { toast } from "sonner";
 import axiosReq from "@/config/axios";
 import BranchFormFields from "./BranchFormFields";
 
+import { BranchAssignmentResult } from "./BranchAssignmentModal";
+
 interface Props {
   open: boolean;
   onClose: () => void;
   businessData: IBusiness;
-  onCreated: (branch: IBranch) => void;
+  onCreated: (branch: IBranch, assignment: BranchAssignmentResult) => void;
 }
 
 const EMPTY: BranchFormData = { name: "", street: "", number: "", city: "", province: "", phone: "", email: "" };
@@ -57,7 +59,22 @@ const CreateBranchModal: React.FC<Props> = ({ open, onClose, businessData, onCre
         },
         { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } }
       );
-      onCreated(res.data);
+      const {
+        branch,
+        isFirstBranch,
+        assignedSchedules,
+        assignedAppointments,
+        assignedEmployees,
+        totalSchedules,
+      } = res.data;
+      onCreated(branch, {
+        branchName: branch.name,
+        isFirstBranch: !!isFirstBranch,
+        assignedSchedules: assignedSchedules ?? 0,
+        assignedAppointments: assignedAppointments ?? 0,
+        assignedEmployees: assignedEmployees ?? 0,
+        totalSchedules: totalSchedules ?? 0,
+      });
       handleClose();
       toast.success("Sucursal creada correctamente", { position: "top-center" });
     } catch (error: any) {

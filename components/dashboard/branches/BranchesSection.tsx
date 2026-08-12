@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import BranchCard from "./BranchCard";
 import CreateBranchModal from "./CreateBranchModal";
 import EditBranchModal from "./EditBranchModal";
+import BranchAssignmentModal, { BranchAssignmentResult } from "./BranchAssignmentModal";
 import { getPlanLimits } from "@/lib/planLimits";
 
 interface Props {
@@ -30,6 +31,7 @@ const BranchesSection: React.FC<Props> = ({
   const [addModal, setAddModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [targetBranch, setTargetBranch] = useState<IBranch | null>(null);
+  const [assignmentResult, setAssignmentResult] = useState<BranchAssignmentResult | null>(null);
   const [loadingEmployee, setLoadingEmployee] = useState<{ empID: string; branchID: string } | null>(null);
 
   const subscription =
@@ -57,8 +59,14 @@ const BranchesSection: React.FC<Props> = ({
       setEmployees((prev) =>
         prev.map((e) => (e._id === empID ? { ...e, branches: res.data.branches } : e))
       );
-    } catch {
-      toast.error("No se pudo actualizar la asignación", { position: "top-center" });
+    } catch (error: any) {
+      if (error?.response?.data === "BRANCH_REQUIRED") {
+        toast.error("Cada empleado tiene que estar asignado al menos a una sucursal", {
+          position: "top-center",
+        });
+      } else {
+        toast.error("No se pudo actualizar la asignación", { position: "top-center" });
+      }
     } finally {
       setLoadingEmployee(null);
     }
@@ -151,7 +159,16 @@ const BranchesSection: React.FC<Props> = ({
         open={addModal}
         onClose={() => setAddModal(false)}
         businessData={businessData}
-        onCreated={(branch) => setBranches((prev) => [...prev, branch])}
+        onCreated={(branch, assignment) => {
+          setBranches((prev) => [...prev, branch]);
+          setAssignmentResult(assignment);
+        }}
+      />
+
+      <BranchAssignmentModal
+        open={!!assignmentResult}
+        onClose={() => setAssignmentResult(null)}
+        result={assignmentResult}
       />
 
       <EditBranchModal

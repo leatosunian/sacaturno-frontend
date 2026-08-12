@@ -3,6 +3,7 @@ import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
 import { IEmployee } from "@/interfaces/employee.interface";
 import { IService } from "@/interfaces/service.interface";
+import { IBranch } from "@/interfaces/branch.interface";
 import ISubscription from "@/interfaces/subscription.interface";
 import { cookies } from "next/headers";
 import Link from "next/link";
@@ -63,6 +64,20 @@ async function getServicesData(businessID: string, token: string) {
   }
 }
 
+async function getBranchesData(businessID: string, token: string) {
+  try {
+    const res = await axiosReq.get(`/branch/list/${businessID}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return (res.data ?? []) as IBranch[];
+  } catch {
+    return [] as IBranch[];
+  }
+}
+
 async function getSubscriptionData(businessID: string, token: string) {
   try {
     const res = await axiosReq.get(
@@ -89,9 +104,10 @@ const EmployeesPage: NextPage = async () => {
     return <NoBusinessEmptyState />;
   }
 
-  const [employees, services, subscription] = await Promise.all([
+  const [employees, services, branches, subscription] = await Promise.all([
     getEmployeesData(business._id!, token?.value ?? ""),
     getServicesData(business._id!, token?.value ?? ""),
+    getBranchesData(business._id!, token?.value ?? ""),
     getSubscriptionData(business._id!, token?.value ?? ""),
   ]);
 
@@ -105,6 +121,7 @@ const EmployeesPage: NextPage = async () => {
         businessData={business}
         initialEmployees={employees}
         initialServices={services}
+        initialBranches={branches}
         subscriptionData={subscription ?? undefined}
       />
 
