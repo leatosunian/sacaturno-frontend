@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import stylesHome from "@/app/css-modules/HomeWhite.module.css";
+import axios from "axios";
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
 import { registerSchema } from "@/app/schemas/registerSchema";
@@ -116,7 +117,10 @@ const FormRegistrate = ({
         setAlert({
           alertType: "ERROR_ALERT",
           error: true,
-          msg: "Error al crear cuenta",
+          msg:
+            axios.isAxiosError(error) && error.response?.status === 429
+              ? "Demasiadas cuentas creadas desde esta conexión. Probá de nuevo en una hora."
+              : "Error al crear cuenta",
         });
         hideAlert();
       }

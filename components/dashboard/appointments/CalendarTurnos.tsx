@@ -524,12 +524,21 @@ const CalendarTurnos: React.FC<Props> = ({
         { _id: id },
         getAuthHeader()
       );
-      toast.success(
-        data?.refunded
-          ? "Turno cancelado y seña reembolsada"
-          : "Turno cancelado correctamente",
-        { id: toastId, position: "top-center" }
-      );
+      // Un reembolso que falla no puede pasar como éxito: el negocio tiene que
+      // devolver la seña a mano desde Mercado Pago.
+      if (data?.hadDeposit && !data?.refunded) {
+        toast.warning(
+          "Turno cancelado, pero no se pudo reembolsar la seña. Revisala en tu cuenta de Mercado Pago.",
+          { id: toastId, position: "top-center", duration: 8000 }
+        );
+      } else {
+        toast.success(
+          data?.refunded
+            ? "Turno cancelado y seña reembolsada"
+            : "Turno cancelado correctamente",
+          { id: toastId, position: "top-center" }
+        );
+      }
       router.refresh();
     } catch {
       if (original) {

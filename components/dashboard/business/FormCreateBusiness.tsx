@@ -7,17 +7,10 @@ import { useRouter } from "next/navigation";
 import { createBusinessSchema } from "@/app/schemas/createBusinessSchema";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { LuBuilding2, LuLink, LuMail, LuPlus } from "react-icons/lu";
-import { FaCircleInfo } from "react-icons/fa6";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 import RubroPicker from "./RubroPicker";
+import CancellationPolicyCard from "./CancellationPolicyCard";
 
 interface Props {
   userEmail: string;
@@ -36,16 +29,6 @@ interface formInputs {
   slug: string;
   cancellationWindowHours: number;
 }
-
-const CANCELLATION_OPTIONS = [
-  { value: "0", label: "Sin restricción (siempre permitido)" },
-  { value: "2", label: "Hasta 2 horas antes" },
-  { value: "6", label: "Hasta 6 horas antes" },
-  { value: "12", label: "Hasta 12 horas antes" },
-  { value: "24", label: "Hasta 24 horas antes" },
-  { value: "48", label: "Hasta 48 horas antes" },
-  { value: "72", label: "Hasta 72 horas antes" },
-];
 
 const inputClass = (hasError: boolean) =>
   `h-9 w-full rounded-md border px-3 text-sm bg-[rgb(245,245,245)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${
@@ -80,6 +63,8 @@ const FormCreateBusiness: React.FC<Props> = ({ userEmail }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [isCreated, setIsCreated] = useState<boolean>(false);
   const router = useRouter();
+
+  const slugField = register("slug");
 
   useEffect(() => {
     setValue("dayStart", "8");
@@ -254,7 +239,14 @@ const FormCreateBusiness: React.FC<Props> = ({ userEmail }) => {
                     type="text"
                     maxLength={30}
                     placeholder="mi-empresa"
-                    {...register("slug")}
+                    {...slugField}
+                    onKeyDown={(e) => {
+                      if (e.key === " ") e.preventDefault();
+                    }}
+                    onChange={(e) => {
+                      e.target.value = e.target.value.replace(/\s+/g, "");
+                      slugField.onChange(e);
+                    }}
                     className="flex-1 h-full px-3 text-sm bg-white focus:outline-none text-gray-700 font-medium"
                   />
                 </div>
@@ -267,77 +259,13 @@ const FormCreateBusiness: React.FC<Props> = ({ userEmail }) => {
         </div>
 
         {/* Política de cancelación */}
-        <div className="flex flex-col gap-0 bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">
-          <div className="px-4 sm:px-6 py-4 border-b border-gray-100">
-            <h2 className="text-base font-semibold text-gray-800">Política de cancelación</h2>
-            <p className="text-sm text-gray-500 mt-0.5">
-              Definí con cuánta anticipación un cliente puede cancelar su turno por su cuenta.
-            </p>
-          </div>
-          <div className="p-4 sm:p-6 flex flex-col gap-4">
-            <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
-              <FaCircleInfo size={13} className="text-blue-400 mt-0.5 shrink-0" />
-              <p className="text-sm text-blue-500 leading-relaxed">
-                Pasado ese plazo, el cliente ya no podrá cancelar online y deberá contactarte. Vos
-                siempre podés cancelar cualquier turno desde tu agenda.{" "}
-                <strong className="font-semibold underline">
-                  La seña, si la hubo, no se reembolsa cuando cancela el cliente; sí se reembolsa
-                  cuando cancelás vos.
-                </strong>
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-1 w-full sm:max-w-sm">
-              <label className="text-sm font-medium text-gray-700">
-                Antelación mínima para cancelar
-              </label>
-              <Select
-                value={
-                  cancellationWindowHours !== undefined && !Number.isNaN(cancellationWindowHours)
-                    ? String(cancellationWindowHours)
-                    : undefined
-                }
-                onValueChange={(value) =>
-                  setValue("cancellationWindowHours", Number(value), { shouldValidate: true })
-                }
-              >
-                <SelectTrigger
-                  className={`h-9 w-full rounded-md border px-3 text-sm bg-[rgb(245,245,245)] text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600 ${
-                    errors.cancellationWindowHours ? "border-red-500" : "border-gray-200"
-                  }`}
-                >
-                  <SelectValue placeholder="Elegí una opción" />
-                </SelectTrigger>
-                <SelectContent className="max-h-72">
-                  {CANCELLATION_OPTIONS.map((opt) => (
-                    <SelectItem
-                      key={opt.value}
-                      value={opt.value}
-                      className="cursor-pointer text-sm text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
-                    >
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.cancellationWindowHours?.message ? (
-                <span className="text-xs text-red-500">
-                  {errors.cancellationWindowHours.message}
-                </span>
-              ) : cancellationWindowHours !== undefined &&
-                !Number.isNaN(cancellationWindowHours) ? (
-                <div className="mt-3 flex items-start gap-2 p-3 bg-amber-50 rounded-lg border border-amber-200">
-                  <FaCircleInfo size={13} className="text-amber-500 mt-0.5 shrink-0" />
-                  <p className="text-xs text-amber-700 leading-relaxed">
-                    {cancellationWindowHours === 0
-                      ? "Tus clientes podrán cancelar online en cualquier momento. En el mail de reserva se les avisa que la política de cancelación del negocio no permite el reembolso de la seña."
-                      : `Tus clientes podrán cancelar online hasta ${cancellationWindowHours} horas antes del turno. En el mail de reserva se les avisa que la política de cancelación del negocio no permite el reembolso de la seña.`}
-                  </p>
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </div>
+        <CancellationPolicyCard
+          value={cancellationWindowHours}
+          onChange={(hours) =>
+            setValue("cancellationWindowHours", hours, { shouldValidate: true })
+          }
+          error={errors.cancellationWindowHours?.message}
+        />
 
         {/* Configuración de turnos */}
         {/* <div className="flex flex-col gap-0 bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">

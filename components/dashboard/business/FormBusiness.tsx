@@ -8,20 +8,13 @@ import axiosReq from "@/config/axios";
 import { FieldValues, useForm } from "react-hook-form";
 import { businessSchema } from "@/app/schemas/businessSchema";
 import { LuSave, LuCamera, LuCopy, LuCheck, LuLink, LuExternalLink, LuBuilding2 } from "react-icons/lu";
-import { FaCircleInfo } from "react-icons/fa6";
 import Alert from "../../Alert";
 import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
 import { IService } from "@/interfaces/service.interface";
 import RubroPicker from "./RubroPicker";
 import { inferCategoryCode } from "@/lib/businessCategories";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import CancellationPolicyCard from "./CancellationPolicyCard";
 
 interface formInputs {
   name: string;
@@ -64,6 +57,8 @@ const FormCreateBusiness = ({
   const [alert, setAlert] = useState<AlertInterface>();
   const [loading, setLoading] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
+
+  const slugField = register("slug");
 
   const copyPublicLink = () => {
     const slug = businessData?.slug;
@@ -331,7 +326,14 @@ const FormCreateBusiness = ({
                     <input
                       type="text"
                       maxLength={30}
-                      {...register("slug")}
+                      {...slugField}
+                      onKeyDown={(e) => {
+                        if (e.key === " ") e.preventDefault();
+                      }}
+                      onChange={(e) => {
+                        e.target.value = e.target.value.replace(/\s+/g, "");
+                        slugField.onChange(e);
+                      }}
                       placeholder="mi-empresa"
                       className="min-w-0 flex-1 h-full px-3 text-xs 2xl:text-sm bg-white focus:outline-none text-gray-700 font-medium"
                     />
@@ -372,55 +374,17 @@ const FormCreateBusiness = ({
         </div>
 
         {/* Política de cancelación */}
-        <div className="flex flex-col gap-0 bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">
-          <div className="px-6 py-4 2xl:px-8 2xl:py-5 border-b border-gray-100">
-            <h2 className="text-sm 2xl:text-base font-semibold text-gray-800">Política de cancelación</h2>
-            <p className="text-xs text-gray-500 mt-0.5">Definí con cuánta anticipación un cliente puede cancelar su turno por su cuenta.</p>
-          </div>
-          <div className="p-6 2xl:p-8 flex flex-col gap-4 2xl:gap-5">
-            <div className="flex items-start gap-2 p-3 2xl:p-3.5 bg-blue-50 rounded-lg border border-blue-100">
-              <FaCircleInfo size={13} className="text-blue-400 mt-0.5 shrink-0" />
-              <p className="text-xs 2xl:text-sm text-blue-500 leading-relaxed">
-                Pasado ese plazo, el cliente ya no podrá cancelar online y deberá contactarte. Vos
-                siempre podés cancelar cualquier turno desde tu agenda. La seña, si la hubo, no se
-                reembolsa cuando cancela el cliente; sí se reembolsa cuando cancelás vos.
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-1 w-full sm:max-w-sm">
-              <label className="text-xs 2xl:text-sm font-medium text-gray-700">Antelación mínima para cancelar</label>
-              <Select
-                value={cancellationWindowHours !== undefined && cancellationWindowHours !== null ? String(cancellationWindowHours) : undefined}
-                onValueChange={(value) =>
-                  setValue("cancellationWindowHours", Number(value), { shouldDirty: true, shouldValidate: true })
-                }
-              >
-                <SelectTrigger className="h-8 2xl:h-10 w-full rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 text-xs 2xl:text-sm text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600">
-                  <SelectValue placeholder="Elegí una opción" />
-                </SelectTrigger>
-                <SelectContent className="max-h-72">
-                  {[
-                    { value: "0", label: "Sin restricción (siempre permitido)" },
-                    { value: "2", label: "Hasta 2 horas antes" },
-                    { value: "6", label: "Hasta 6 horas antes" },
-                    { value: "12", label: "Hasta 12 horas antes" },
-                    { value: "24", label: "Hasta 24 horas antes" },
-                    { value: "48", label: "Hasta 48 horas antes" },
-                    { value: "72", label: "Hasta 72 horas antes" },
-                  ].map((opt) => (
-                    <SelectItem
-                      key={opt.value}
-                      value={opt.value}
-                      className="cursor-pointer text-xs 2xl:text-sm text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
-                    >
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
+        <CancellationPolicyCard
+          dense
+          value={cancellationWindowHours}
+          onChange={(hours) =>
+            setValue("cancellationWindowHours", hours, {
+              shouldDirty: true,
+              shouldValidate: true,
+            })
+          }
+          error={errors.cancellationWindowHours?.message}
+        />
 
         {/* Save */}
         <div className="flex justify-end my-5">

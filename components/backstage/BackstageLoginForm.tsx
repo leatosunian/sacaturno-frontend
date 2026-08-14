@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import axiosReq from "@/config/axios";
 
 const BackstageLoginForm = () => {
@@ -28,7 +29,11 @@ const BackstageLoginForm = () => {
       router.push("/backstage");
       router.refresh();
     } catch (err) {
-      setError("Credenciales incorrectas");
+      setError(
+        axios.isAxiosError(err) && err.response?.status === 429
+          ? "Demasiados intentos. Esperá 15 minutos e intentá de nuevo."
+          : "Credenciales incorrectas"
+      );
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,6 @@
 import { formatDate } from "./format";
-import { PLAN_SHORT_LABELS, SubscriptionType } from "@/lib/planLimits";
 import { getCategoryLabel } from "@/lib/businessCategories";
+import BusinessPlanEditor from "./BusinessPlanEditor";
 
 interface BusinessRow {
   _id: string;
@@ -26,23 +26,6 @@ const StatusBadge = ({ active }: { active: boolean }) =>
   ) : (
     <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">Inactivo</span>
   );
-
-const PLAN_BADGE_STYLES: Record<string, string> = {
-  SC_FREE: "bg-gray-100 text-gray-700",
-  SC_BASIC: "bg-blue-100 text-blue-700",
-  SC_PRO: "bg-purple-100 text-purple-700",
-  SC_FULL: "bg-orange-100 text-orange-700",
-  SC_EXPIRED: "bg-red-100 text-red-700",
-};
-
-const PlanBadge = ({ type }: { type?: string }) => {
-  const key = (type && type in PLAN_SHORT_LABELS ? type : "SC_FREE") as SubscriptionType;
-  return (
-    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${PLAN_BADGE_STYLES[key]}`}>
-      {PLAN_SHORT_LABELS[key]}
-    </span>
-  );
-};
 
 const BusinessesTable = ({ businesses }: { businesses: BusinessRow[] }) => {
   return (
@@ -87,7 +70,14 @@ const BusinessesTable = ({ businesses }: { businesses: BusinessRow[] }) => {
                 </div>
               </td>
               <td className="px-4 py-3">
-                <PlanBadge type={b.subscription?.subscriptionType} />
+                <BusinessPlanEditor
+                  businessId={b._id}
+                  businessName={b.name}
+                  subscriptionType={b.subscription?.subscriptionType}
+                  expiracyDate={b.subscription?.expiracyDate}
+                  employeeCount={b.employeeCount}
+                  branchCount={b.branchCount}
+                />
               </td>
               <td className="px-4 py-3">
                 <StatusBadge active={b.isActive} />

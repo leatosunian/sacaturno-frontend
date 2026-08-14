@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import stylesHome from "@/app/css-modules/HomeWhite.module.css";
+import axios from "axios";
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
@@ -125,8 +126,13 @@ const FormLogin = ({ disabled = false, onLoadingChange }: FormLoginProps) => {
         setAlert({
           alertType: "ERROR_ALERT",
           error: true,
-          msg: "Error al iniciar sesión",
+          msg:
+            axios.isAxiosError(error) && error.response?.status === 429
+              ? "Demasiados intentos. Esperá 15 minutos e intentá de nuevo."
+              : "Error al iniciar sesión",
         });
+        hideAlert();
+        setLoading(false);
         return;
       }
     }

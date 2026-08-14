@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
-import { CircleCheck, CircleX, Loader2, CalendarClock, CreditCard } from "lucide-react";
+import { CircleCheck, CircleX, Loader2, CalendarClock, CreditCard, Clock } from "lucide-react";
 import axiosReq from "@/config/axios";
 import HeaderPublicBlack from "@/components/home/HeaderPublic";
 import Footer from "@/components/home/Footer";
@@ -32,6 +32,15 @@ interface CancelInfo {
   // El negocio cambió profesional/sucursal después de reservado: cancelar por eso
   // no cae bajo la política habitual — se reembolsa la seña.
   causedByBusiness?: boolean;
+  // Hasta cuándo se puede deshacer la reserva recién hecha (con devolución).
+  undoGraceEndsAt?: string;
+  undoGraceMinutes?: number;
+}
+
+// Lo que efectivamente pasó, según el backend. No se predice desde el cliente.
+interface CancelResult {
+  refundsDeposit: boolean;
+  refunded: boolean;
 }
 
 type Screen = "loading" | "ready" | "notfound" | "cancelled" | "window" | "error";
@@ -42,6 +51,8 @@ export default function CancelAppointmentPage() {
   const [info, setInfo] = useState<CancelInfo | null>(null);
   const [screen, setScreen] = useState<Screen>("loading");
   const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState<CancelResult | null>(null);
+  const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
     let active = true;
@@ -64,14 +75,35 @@ export default function CancelAppointmentPage() {
     };
   }, [token]);
 
+  // La pantalla puede quedar abierta hasta que venza la gracia: al vencer hay que
+  // dejar de prometer la devolución, así que forzamos un re-render en ese instante.
+  const graceEndsAt = info?.undoGraceEndsAt
+    ? new Date(info.undoGraceEndsAt).getTime()
+    : null;
+  useEffect(() => {
+    if (!graceEndsAt) return;
+    const ms = graceEndsAt - Date.now();
+    if (ms <= 0) return;
+    const timer = setTimeout(() => setNow(Date.now()), ms + 500);
+    return () => clearTimeout(timer);
+  }, [graceEndsAt]);
+
+  const withinUndoGrace = !!graceEndsAt && now < graceEndsAt;
   const hasPaidDeposit =
     info?.appointment.depositStatus === "paid" && info?.depositAmount > 0;
-  const refundsDeposit = hasPaidDeposit && !!info?.causedByBusiness;
+  // Seña configurada en el servicio pero nunca acreditada: no hay plata en juego.
+  const depositNotSettled = !!info && info.depositAmount > 0 && !hasPaidDeposit;
+  const refundsDeposit = !!info?.causedByBusiness || withinUndoGrace;
+  const depositLabel = info ? `$ ${info.depositAmount.toLocaleString("es-AR")}` : "";
 
   const handleCancel = async () => {
     setSubmitting(true);
     try {
-      await axiosReq.put("/appointment/book/cancel/token", { token });
+      const { data } = await axiosReq.put("/appointment/book/cancel/token", { token });
+      setResult({
+        refundsDeposit: !!data?.refundsDeposit,
+        refunded: !!data?.refunded,
+      });
       setScreen("cancelled");
     } catch (error: any) {
       const msg = error?.response?.data?.msg;
@@ -137,11 +169,12 @@ export default function CancelAppointmentPage() {
                       <p className="text-[14px] text-[#7a7a7a] leading-[1.55]">
                         Cancelaste tu turno correctamente. Te enviamos un email de
                         confirmación.
-                        {refundsDeposit
-                          ? " La seña se te devuelve por Mercado Pago en los próximos días."
-                          : hasPaidDeposit
-                            ? " Recordá que la seña no se reembolsa al cancelar."
-                            : ""}
+                        {hasPaidDeposit &&
+                          (result?.refundsDeposit
+                            ? result.refunded
+                              ? ` Se te devolvió la seña de ${depositLabel} por Mercado Pago. La acreditación puede demorar según tu medio de pago.`
+                              : ` El reembolso de tu seña de ${depositLabel} está en proceso. Si no lo ves acreditado, contactate con ${info?.businessName ?? "el negocio"}.`
+                            : ` Como la cancelación la hiciste vos, la seña de ${depositLabel} no se reembolsa.`)}
                       </p>
                     </div>
                     <Link
@@ -243,8 +276,7 @@ export default function CancelAppointmentPage() {
                           reservaste, así que podés cancelar sin costo
                           {hasPaidDeposit && (
                             <>
-                              {" "}y se te devuelve la seña de{" "}
-                              <b>$ {info.depositAmount.toLocaleString("es-AR")}</b>
+                              {" "}y se te devuelve la seña de <b>{depositLabel}</b>
                             </>
                           )}
                           .
@@ -252,13 +284,39 @@ export default function CancelAppointmentPage() {
                       </div>
                     )}
 
-                    {hasPaidDeposit && !info.causedByBusiness && (
+                    {!info.causedByBusiness && withinUndoGrace && (
+                      <div className="flex items-start w-full gap-3 p-3.5 text-left border rounded-[10px] bg-blue-50 border-blue-200">
+                        <Clock className="text-blue-500 shrink-0 mt-0.5" size={17} />
+                        <span className="text-[13px] text-blue-700 leading-[1.5]">
+                          Estás dentro de los {info.undoGraceMinutes ?? 15} minutos para
+                          deshacer una reserva recién hecha, así que podés cancelar sin
+                          costo
+                          {hasPaidDeposit && (
+                            <>
+                              {" "}y se te devuelve la seña de <b>{depositLabel}</b>
+                            </>
+                          )}
+                          .
+                        </span>
+                      </div>
+                    )}
+
+                    {!info.causedByBusiness && !withinUndoGrace && hasPaidDeposit && (
                       <div className="flex items-start w-full gap-3 p-3.5 text-left border rounded-[10px] bg-orange-50 border-orange-200">
                         <CreditCard className="text-[#dd4924] shrink-0 mt-0.5" size={17} />
                         <span className="text-[13px] text-orange-700 leading-[1.5]">
-                          Si cancelás, la seña de{" "}
-                          <b>$ {info.depositAmount.toLocaleString("es-AR")}</b> no se
-                          reembolsa.
+                          Si cancelás, la seña de <b>{depositLabel}</b> no se reembolsa:
+                          queda para el negocio.
+                        </span>
+                      </div>
+                    )}
+
+                    {depositNotSettled && (
+                      <div className="flex items-start w-full gap-3 p-3.5 text-left border rounded-[10px] bg-black/[0.025] border-black/[0.06]">
+                        <CreditCard className="text-[#9a9a9a] shrink-0 mt-0.5" size={17} />
+                        <span className="text-[13px] text-[#7a7a7a] leading-[1.5]">
+                          Este turno no tiene una seña acreditada, así que no hay nada que
+                          devolver.
                         </span>
                       </div>
                     )}

@@ -135,8 +135,15 @@ const AppointmentModal: React.FC<props> = ({
     onCancel(appointment._id);
   };
 
+  // Cancelar desde el panel siempre devuelve la seña, pero sólo si llegó a
+  // acreditarse: una seña pendiente o fallida no tiene plata que devolver.
   const willRefund =
     appointment?.depositStatus === "paid" &&
+    appointment?.depositAmount !== undefined &&
+    appointment.depositAmount > 0;
+
+  const depositNotSettled =
+    !willRefund &&
     appointment?.depositAmount !== undefined &&
     appointment.depositAmount > 0;
 
@@ -593,9 +600,19 @@ const AppointmentModal: React.FC<props> = ({
                   Se liberará este turno y se le avisará al cliente por email.
                   {willRefund && (
                     <>
-                      {" "}Se le <strong>reembolsará la seña de $
-                      {appointment!.depositAmount!.toLocaleString("es-AR")}</strong>{" "}
+                      {" "}Como la cancelación la hacés vos, se le{" "}
+                      <strong>
+                        reembolsará la seña de $
+                        {appointment!.depositAmount!.toLocaleString("es-AR")}
+                      </strong>{" "}
                       vía Mercado Pago.
+                    </>
+                  )}
+                  {depositNotSettled && (
+                    <>
+                      {" "}La seña de $
+                      {appointment!.depositAmount!.toLocaleString("es-AR")} nunca se
+                      acreditó, así que no hay nada que reembolsar.
                     </>
                   )}
                 </p>
