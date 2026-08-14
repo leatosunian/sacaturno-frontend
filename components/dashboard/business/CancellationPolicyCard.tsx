@@ -88,35 +88,37 @@ const CancellationPolicyCard: React.FC<Props> = ({
           dense ? "p-6 2xl:p-8 2xl:gap-6" : "p-4 sm:p-6"
         }`}
       >
-        <div className="flex flex-col gap-1 w-full sm:max-w-sm">
-          <label className={`${text} font-medium text-gray-700`}>
-            Antelación mínima para cancelar
-          </label>
-          <Select
-            value={hasValue ? String(value) : undefined}
-            onValueChange={(v) => onChange(Number(v))}
-          >
-            <SelectTrigger
-              className={`${
-                dense ? "h-8 2xl:h-10" : "h-9"
-              } ${text} w-full rounded-md border px-3 bg-[rgb(245,245,245)] text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600 ${
-                error ? "border-red-500" : "border-gray-200"
-              }`}
+        <div className="flex flex-col gap-1 w-full">
+          <div className="flex flex-col gap-1 w-full sm:max-w-sm">
+            <label className={`${text} font-medium text-gray-700`}>
+              Antelación mínima para cancelar
+            </label>
+            <Select
+              value={hasValue ? String(value) : undefined}
+              onValueChange={(v) => onChange(Number(v))}
             >
-              <SelectValue placeholder="Elegí una opción" />
-            </SelectTrigger>
-            <SelectContent className="max-h-72">
-              {CANCELLATION_OPTIONS.map((opt) => (
-                <SelectItem
-                  key={opt.value}
-                  value={opt.value}
-                  className={`cursor-pointer ${text} text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700`}
-                >
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+              <SelectTrigger
+                className={`${
+                  dense ? "h-8 2xl:h-10" : "h-9"
+                } ${text} w-full rounded-md border px-3 bg-[rgb(245,245,245)] text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600 ${
+                  error ? "border-red-500" : "border-gray-200"
+                }`}
+              >
+                <SelectValue placeholder="Elegí una opción" />
+              </SelectTrigger>
+              <SelectContent className="max-h-72">
+                {CANCELLATION_OPTIONS.map((opt) => (
+                  <SelectItem
+                    key={opt.value}
+                    value={opt.value}
+                    className={`cursor-pointer ${text} text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700`}
+                  >
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           {error ? (
             <span className="text-xs text-red-500">{error}</span>
