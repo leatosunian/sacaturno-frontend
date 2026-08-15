@@ -957,330 +957,7 @@ const AutomateSchedule: React.FC<Props> = ({
           </div>
         )}
 
-        {/* Card 1: Automatic schedule config */}
-        <Card className="p-0 overflow-hidden">
-          <div className="flex flex-col">
-
-            {/* Header */}
-            <div className="flex items-start gap-3 px-5 md:px-6 py-4 md:py-5 border-b border-gray-100">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-orange-50 text-primary shrink-0">
-                <LuCalendarCog size={20} />
-              </div>
-              <div className="flex flex-col gap-1">
-                <h2 className="text-base font-semibold text-gray-800">
-                  Frecuencia y cantidad de días
-                </h2>
-                <p className="text-sm text-gray-500">
-                  Activá la agenda automática para que los turnos se generen sin intervención manual.
-                </p>
-              </div>
-            </div>
-
-            {/* Body */}
-            <div className="flex flex-col gap-4 p-5 md:p-6">
-              <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                <FaCircleInfo size={13} className="text-blue-400 mt-0.5 shrink-0" />
-                <p className="text-sm text-blue-500 leading-relaxed">
-                  Ingresá la cantidad de días que querés crear turnos y cuántos días antes del último
-                  turno querés que se vuelvan a generar los turnos programados.
-                </p>
-              </div>
-
-              {/* Two columns: controls (left) + summary (right) */}
-              <div className="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] gap-4">
-
-                {/* Left — controls */}
-                <div className="flex flex-col gap-3">
-                  {/* Days to create + anticipation */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="flex flex-col gap-1.5 p-3.5 rounded-xl border border-gray-200 bg-gray-50">
-                      <label className="flex items-center gap-1.5 text-sm font-medium text-gray-600">
-                        <LuCalendarDays size={14} className="text-gray-400 shrink-0" />
-                        Días con turnos disponibles
-                      </label>
-                      <Select
-                        value={String(selectedDaysToCreate)}
-                        onValueChange={(value) => setSelectedDaysToCreate(Number(value))}
-                      >
-                        <SelectTrigger className="h-9 rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 text-sm text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus-visible:border-orange-600 data-[state=open]:border-orange-600">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-72">
-                          {[
-                            { value: "7", label: "Crear 7 días" },
-                            { value: "15", label: "Crear 15 días" },
-                            { value: "30", label: "Crear 30 días" },
-                          ].map((opt) => (
-                            <SelectItem
-                              key={opt.value}
-                              value={opt.value}
-                              className="cursor-pointer text-sm text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
-                            >
-                              {opt.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="flex flex-col gap-1.5 p-3.5 rounded-xl border border-gray-200 bg-gray-50">
-                      <label className="flex items-center gap-1.5 text-sm font-medium text-gray-600">
-                        <LuTimer size={14} className="text-gray-400 shrink-0" />
-                        ¿Con qué anticipación crear turnos?
-                      </label>
-                      <Select
-                        value={String(selectedAnticipation)}
-                        onValueChange={(value) => setSelectedAnticipation(Number(value))}
-                      >
-                        <SelectTrigger className="h-9 rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 text-sm text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus-visible:border-orange-600 data-[state=open]:border-orange-600">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-72">
-                          {Array.from({ length: 16 }, (_, i) => (
-                            <SelectItem
-                              key={i}
-                              value={String(i)}
-                              className="cursor-pointer text-sm text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
-                            >
-                              {i === 0 ? "0 días antes" : `${i} ${i === 1 ? "día" : "días"} antes`}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  {/* Master toggle */}
-                  <div
-                    className={cn(
-                      "flex items-center justify-between gap-3 p-4 rounded-xl border transition-colors duration-200",
-                      selectedAutomaticSchedule
-                        ? "bg-orange-50/60 border-orange-200"
-                        : "bg-gray-50 border-gray-200"
-                    )}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div
-                        className={cn(
-                          "flex items-center justify-center w-9 h-9 rounded-full shrink-0 transition-colors duration-200",
-                          selectedAutomaticSchedule
-                            ? "bg-primary text-white"
-                            : "bg-white text-gray-400 border border-gray-200"
-                        )}
-                      >
-                        <LuZap size={16} />
-                      </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-semibold text-gray-800">
-                          Crear turnos automáticamente
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {selectedAutomaticSchedule
-                            ? "La agenda se completa sola, sin que hagas nada."
-                            : "Vas a tener que generar los turnos de forma manual."}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2.5 shrink-0">
-                      <span
-                        className={cn(
-                          "text-xs font-semibold hidden sm:inline",
-                          selectedAutomaticSchedule ? "text-primary" : "text-gray-400"
-                        )}
-                      >
-                        {selectedAutomaticSchedule ? "Activado" : "Desactivado"}
-                      </span>
-                      <button
-                        type="button"
-                        role="switch"
-                        aria-checked={selectedAutomaticSchedule}
-                        aria-label="Crear turnos automáticamente"
-                        onClick={() => setSelectedAutomaticSchedule(!selectedAutomaticSchedule)}
-                        className={cn(
-                          "relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shrink-0",
-                          selectedAutomaticSchedule ? "bg-primary" : "bg-gray-300"
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            "inline-block h-5 w-5 rounded-full bg-white shadow transition-transform duration-200",
-                            selectedAutomaticSchedule ? "translate-x-5" : "translate-x-0.5"
-                          )}
-                        />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right — automation summary (live preview of pending config) */}
-                <div
-                  className={cn(
-                    "flex flex-col rounded-xl border p-4 transition-colors duration-200",
-                    previewAuto ? "bg-orange-50/50 border-orange-100" : "bg-gray-50 border-gray-200"
-                  )}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <LuActivity size={15} className={previewAuto ? "text-primary" : "text-gray-400"} />
-                    <span className="text-sm font-semibold text-gray-800">
-                      Resumen de tu automatización
-                    </span>
-                  </div>
-                  <span
-                    className={cn(
-                      "text-[11px] mt-0.5",
-                      hasUnsavedChanges ? "text-orange-500 font-medium" : "text-gray-400"
-                    )}
-                  >
-                    {hasUnsavedChanges ? "Vista previa · sin guardar" : "Según lo último guardado"}
-                  </span>
-
-                  <div
-                    className={cn(
-                      "flex flex-col mt-3 divide-y",
-                      previewAuto ? "divide-orange-100" : "divide-gray-200"
-                    )}
-                  >
-                    {/* Estado */}
-                    <div className="flex items-center justify-between gap-2 py-2.5 first:pt-0">
-                      <span className="text-xs text-gray-500 shrink-0">Estado</span>
-                      <div className="flex items-center gap-1.5">
-                        {autoChanged && (
-                          <>
-                            <span className="text-[11px] text-gray-400 line-through">
-                              {savedAuto ? "Activada" : "Desactivada"}
-                            </span>
-                            <LuArrowRight size={11} className="text-orange-400 shrink-0" />
-                          </>
-                        )}
-                        <span
-                          className={cn(
-                            "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border",
-                            previewAuto
-                              ? "bg-orange-50 border-orange-200 text-orange-700"
-                              : "bg-gray-100 border-gray-200 text-gray-500",
-                            autoChanged && "ring-1 ring-orange-200"
-                          )}
-                        >
-                          <span
-                            className={cn(
-                              "w-1.5 h-1.5 rounded-full",
-                              previewAuto ? "bg-primary" : "bg-gray-400"
-                            )}
-                          />
-                          {previewAuto ? "Activada" : "Desactivada"}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Agenda cargada hasta */}
-                    {previewAuto && businessData.scheduleEnd && (
-                      <div className="flex items-center justify-between py-2.5">
-                        <span className="text-xs text-gray-500">Agenda cargada hasta</span>
-                        <span className="text-xs font-semibold text-gray-800 tabular-nums">
-                          {scheduleEndLabel}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Próxima generación */}
-                    <div className="flex items-center justify-between gap-2 py-2.5">
-                      <span className="text-xs text-gray-500 shrink-0">Próxima generación</span>
-                      {!previewAuto ? (
-                        <span className="text-xs font-semibold text-gray-400">
-                          {autoChanged ? "Se pausará al guardar" : "Se genera al activar"}
-                        </span>
-                      ) : !businessData.scheduleEnd ? (
-                        <span className="text-xs font-semibold text-gray-400">
-                          {autoChanged ? "Se genera al guardar" : "—"}
-                        </span>
-                      ) : nextGenChanged ? (
-                        <span className="flex flex-wrap items-center justify-end gap-x-1.5 gap-y-0.5 pl-2">
-                          <span className="text-[11px] text-gray-400 line-through capitalize">
-                            {savedNextGenLabel}
-                          </span>
-                          <LuArrowRight size={11} className="text-orange-400 shrink-0" />
-                          <span className="text-xs font-semibold text-orange-600 capitalize">
-                            {previewNextGenLabel}
-                          </span>
-                        </span>
-                      ) : (
-                        <span className="text-xs font-semibold text-gray-800 capitalize">
-                          {previewNextGenLabel}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Turnos por semana */}
-                    <div className="flex items-center justify-between py-2.5">
-                      <span className="text-xs text-gray-500">Turnos por semana</span>
-                      <span className="text-xs font-semibold text-gray-800 tabular-nums">
-                        {weeklyAppointmentsTotal}
-                      </span>
-                    </div>
-
-                    {/* Ventana */}
-                    <div className="flex items-center justify-between gap-2 py-2.5 last:pb-0">
-                      <span className="text-xs text-gray-500 shrink-0">Ventana</span>
-                      {windowChanged ? (
-                        <span className="flex flex-wrap items-center justify-end gap-x-1.5 gap-y-0.5 pl-2">
-                          <span className="text-[11px] text-gray-400 line-through">
-                            {savedWindowLabel}
-                          </span>
-                          <LuArrowRight size={11} className="text-orange-400 shrink-0" />
-                          <span className="text-xs font-semibold text-orange-600">
-                            {previewWindowLabel}
-                          </span>
-                        </span>
-                      ) : (
-                        <span className="text-xs font-semibold text-gray-800">
-                          {previewWindowLabel}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-            {/* Footer — save action, revealed only when there are unsaved changes
-                (desktop expands downward; mobile uses the fixed bottom bar) */}
-            <div
-              aria-hidden={!hasUnsavedChanges}
-              className={cn(
-                "hidden md:grid transition-all duration-300 ease-out",
-                hasUnsavedChanges
-                  ? "grid-rows-[1fr] opacity-100"
-                  : "grid-rows-[0fr] opacity-0 pointer-events-none"
-              )}
-            >
-              <div className="overflow-hidden">
-                <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
-                  <span className="text-xs text-orange-500 font-medium mr-auto">
-                    Tenés cambios sin guardar
-                  </span>
-                  {!loadingButton ? (
-                    <button
-                      onClick={() => saveChanges()}
-                      disabled={!hasUnsavedChanges}
-                      className="flex items-center gap-1.5 h-9 bg-primary hover:bg-orange-500 text-white text-xs font-semibold px-4 rounded-lg transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-primary"
-                    >
-                      <LuSave size={14} />
-                      Guardar cambios
-                    </button>
-                  ) : (
-                    <div className="flex items-center justify-center w-32 h-9">
-                      <div className="loaderSmall" />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* ── Card 2: Day schedule ── */}
+        {/* ── Card 1: Day schedule ── */}
         <Card className="p-5 md:p-6">
           <div className="flex flex-col gap-4">
 
@@ -1327,7 +1004,7 @@ const AutomateSchedule: React.FC<Props> = ({
                     key={day.dayName}
                     onClick={() => handleSelectDay(day)}
                     className={cn(
-                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 text-[11px] font-semibold rounded-lg transition-all duration-200",
+                      "relative flex items-center justify-center py-2 text-[11px] font-semibold rounded-lg transition-all duration-200",
                       isActive
                         ? "bg-primary text-white shadow-sm"
                         : cn(
@@ -1339,7 +1016,7 @@ const AutomateSchedule: React.FC<Props> = ({
                     <span className="tracking-wide">{day.dayName}</span>
                     <span
                       className={cn(
-                        "h-1 w-1 rounded-full transition-colors",
+                        "absolute bottom-0.5 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full transition-colors",
                         count > 0
                           ? isActive
                             ? "bg-white"
@@ -1582,6 +1259,329 @@ const AutomateSchedule: React.FC<Props> = ({
                 <span className="text-xs text-gray-400">
                   Clic en franja vacía para agregar turno
                 </span>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* ── Card 2: Automatic schedule config ── */}
+        <Card className="p-0 overflow-hidden">
+          <div className="flex flex-col">
+
+            {/* Header */}
+            <div className="flex items-start gap-3 px-5 md:px-6 py-4 md:py-5 border-b border-gray-100">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-orange-50 text-primary shrink-0">
+                <LuCalendarCog size={20} />
+              </div>
+              <div className="flex flex-col gap-1">
+                <h2 className="text-base font-semibold text-gray-800">
+                  Frecuencia y cantidad de días
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Activá la agenda automática para que los turnos se generen sin intervención manual.
+                </p>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="flex flex-col gap-4 p-5 md:p-6">
+              <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                <FaCircleInfo size={13} className="text-blue-400 mt-0.5 shrink-0" />
+                <p className="text-sm text-blue-500 leading-relaxed">
+                  Ingresá la cantidad de días que querés crear turnos y cuántos días antes del último
+                  turno querés que se vuelvan a generar los turnos programados.
+                </p>
+              </div>
+
+              {/* Two columns: controls (left) + summary (right) */}
+              <div className="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] gap-4">
+
+                {/* Left — controls */}
+                <div className="flex flex-col gap-3">
+                  {/* Days to create + anticipation */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1.5 p-3.5 rounded-xl border border-gray-200 bg-gray-50">
+                      <label className="flex items-center gap-1.5 text-sm font-medium text-gray-600">
+                        <LuCalendarDays size={14} className="text-gray-400 shrink-0" />
+                        Días con turnos disponibles
+                      </label>
+                      <Select
+                        value={String(selectedDaysToCreate)}
+                        onValueChange={(value) => setSelectedDaysToCreate(Number(value))}
+                      >
+                        <SelectTrigger className="h-9 rounded-md border border-gray-200 bg-gray-100 px-3 text-sm text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus-visible:border-orange-600 data-[state=open]:border-orange-600">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-72">
+                          {[
+                            { value: "7", label: "Crear 7 días" },
+                            { value: "15", label: "Crear 15 días" },
+                            { value: "30", label: "Crear 30 días" },
+                          ].map((opt) => (
+                            <SelectItem
+                              key={opt.value}
+                              value={opt.value}
+                              className="cursor-pointer text-sm text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
+                            >
+                              {opt.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5 p-3.5 rounded-xl border border-gray-200 bg-gray-50">
+                      <label className="flex items-center gap-1.5 text-sm font-medium text-gray-600">
+                        <LuTimer size={14} className="text-gray-400 shrink-0" />
+                        ¿Con qué anticipación crear turnos?
+                      </label>
+                      <Select
+                        value={String(selectedAnticipation)}
+                        onValueChange={(value) => setSelectedAnticipation(Number(value))}
+                      >
+                        <SelectTrigger className="h-9 rounded-md border border-gray-200 bg-gray-100 px-3 text-sm text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus-visible:border-orange-600 data-[state=open]:border-orange-600">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-72">
+                          {Array.from({ length: 16 }, (_, i) => (
+                            <SelectItem
+                              key={i}
+                              value={String(i)}
+                              className="cursor-pointer text-sm text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700"
+                            >
+                              {i === 0 ? "0 días antes" : `${i} ${i === 1 ? "día" : "días"} antes`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Master toggle */}
+                  <div
+                    className={cn(
+                      "flex items-center justify-between gap-3 p-4 rounded-xl border transition-colors duration-200",
+                      selectedAutomaticSchedule
+                        ? "bg-orange-50/60 border-orange-200"
+                        : "bg-gray-50 border-gray-200"
+                    )}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className={cn(
+                          "flex items-center justify-center w-9 h-9 rounded-full shrink-0 transition-colors duration-200",
+                          selectedAutomaticSchedule
+                            ? "bg-primary text-white"
+                            : "bg-white text-gray-400 border border-gray-200"
+                        )}
+                      >
+                        <LuZap size={16} />
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-semibold text-gray-800">
+                          Crear turnos automáticamente
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {selectedAutomaticSchedule
+                            ? "La agenda se completa sola, sin que hagas nada."
+                            : "Vas a tener que generar los turnos de forma manual."}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 shrink-0">
+                      <span
+                        className={cn(
+                          "text-xs font-semibold hidden sm:inline",
+                          selectedAutomaticSchedule ? "text-primary" : "text-gray-400"
+                        )}
+                      >
+                        {selectedAutomaticSchedule ? "Activado" : "Desactivado"}
+                      </span>
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={selectedAutomaticSchedule}
+                        aria-label="Crear turnos automáticamente"
+                        onClick={() => setSelectedAutomaticSchedule(!selectedAutomaticSchedule)}
+                        className={cn(
+                          "relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shrink-0",
+                          selectedAutomaticSchedule ? "bg-primary" : "bg-gray-300"
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "inline-block h-5 w-5 rounded-full bg-white shadow transition-transform duration-200",
+                            selectedAutomaticSchedule ? "translate-x-5" : "translate-x-0.5"
+                          )}
+                        />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right — automation summary (live preview of pending config) */}
+                <div
+                  className={cn(
+                    "flex flex-col rounded-xl border p-4 transition-colors duration-200",
+                    previewAuto ? "bg-orange-50/50 border-orange-100" : "bg-gray-50 border-gray-200"
+                  )}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <LuActivity size={15} className={previewAuto ? "text-primary" : "text-gray-400"} />
+                    <span className="text-sm font-semibold text-gray-800">
+                      Resumen de tu automatización
+                    </span>
+                  </div>
+                  <span
+                    className={cn(
+                      "text-[11px] mt-0.5",
+                      hasUnsavedChanges ? "text-orange-500 font-medium" : "text-gray-400"
+                    )}
+                  >
+                    {hasUnsavedChanges ? "Vista previa · sin guardar" : "Según lo último guardado"}
+                  </span>
+
+                  <div
+                    className={cn(
+                      "flex flex-col mt-3 divide-y",
+                      previewAuto ? "divide-orange-100" : "divide-gray-200"
+                    )}
+                  >
+                    {/* Estado */}
+                    <div className="flex items-center justify-between gap-2 py-2.5 first:pt-0">
+                      <span className="text-xs text-gray-500 shrink-0">Estado</span>
+                      <div className="flex items-center gap-1.5">
+                        {autoChanged && (
+                          <>
+                            <span className="text-[11px] text-gray-400 line-through">
+                              {savedAuto ? "Activada" : "Desactivada"}
+                            </span>
+                            <LuArrowRight size={11} className="text-orange-400 shrink-0" />
+                          </>
+                        )}
+                        <span
+                          className={cn(
+                            "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border",
+                            previewAuto
+                              ? "bg-orange-50 border-orange-200 text-orange-700"
+                              : "bg-gray-100 border-gray-200 text-gray-500",
+                            autoChanged && "ring-1 ring-orange-200"
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              "w-1.5 h-1.5 rounded-full",
+                              previewAuto ? "bg-primary" : "bg-gray-400"
+                            )}
+                          />
+                          {previewAuto ? "Activada" : "Desactivada"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Agenda cargada hasta */}
+                    {previewAuto && businessData.scheduleEnd && (
+                      <div className="flex items-center justify-between py-2.5">
+                        <span className="text-xs text-gray-500">Agenda cargada hasta</span>
+                        <span className="text-xs font-semibold text-gray-800 tabular-nums">
+                          {scheduleEndLabel}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Próxima generación */}
+                    <div className="flex items-center justify-between gap-2 py-2.5">
+                      <span className="text-xs text-gray-500 shrink-0">Próxima generación</span>
+                      {!previewAuto ? (
+                        <span className="text-xs font-semibold text-gray-400">
+                          {autoChanged ? "Se pausará al guardar" : "Se genera al activar"}
+                        </span>
+                      ) : !businessData.scheduleEnd ? (
+                        <span className="text-xs font-semibold text-gray-400">
+                          {autoChanged ? "Se genera al guardar" : "—"}
+                        </span>
+                      ) : nextGenChanged ? (
+                        <span className="flex flex-wrap items-center justify-end gap-x-1.5 gap-y-0.5 pl-2">
+                          <span className="text-[11px] text-gray-400 line-through capitalize">
+                            {savedNextGenLabel}
+                          </span>
+                          <LuArrowRight size={11} className="text-orange-400 shrink-0" />
+                          <span className="text-xs font-semibold text-orange-600 capitalize">
+                            {previewNextGenLabel}
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="text-xs font-semibold text-gray-800 capitalize">
+                          {previewNextGenLabel}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Turnos por semana */}
+                    <div className="flex items-center justify-between py-2.5">
+                      <span className="text-xs text-gray-500">Turnos por semana</span>
+                      <span className="text-xs font-semibold text-gray-800 tabular-nums">
+                        {weeklyAppointmentsTotal}
+                      </span>
+                    </div>
+
+                    {/* Ventana */}
+                    <div className="flex items-center justify-between gap-2 py-2.5 last:pb-0">
+                      <span className="text-xs text-gray-500 shrink-0">Ventana</span>
+                      {windowChanged ? (
+                        <span className="flex flex-wrap items-center justify-end gap-x-1.5 gap-y-0.5 pl-2">
+                          <span className="text-[11px] text-gray-400 line-through">
+                            {savedWindowLabel}
+                          </span>
+                          <LuArrowRight size={11} className="text-orange-400 shrink-0" />
+                          <span className="text-xs font-semibold text-orange-600">
+                            {previewWindowLabel}
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="text-xs font-semibold text-gray-800">
+                          {previewWindowLabel}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Footer — save action, revealed only when there are unsaved changes
+                (desktop expands downward; mobile uses the fixed bottom bar) */}
+            <div
+              aria-hidden={!hasUnsavedChanges}
+              className={cn(
+                "hidden md:grid transition-all duration-300 ease-out",
+                hasUnsavedChanges
+                  ? "grid-rows-[1fr] opacity-100"
+                  : "grid-rows-[0fr] opacity-0 pointer-events-none"
+              )}
+            >
+              <div className="overflow-hidden">
+                <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+                  <span className="text-xs text-orange-500 font-medium mr-auto">
+                    Tenés cambios sin guardar
+                  </span>
+                  {!loadingButton ? (
+                    <button
+                      onClick={() => saveChanges()}
+                      disabled={!hasUnsavedChanges}
+                      className="flex items-center gap-1.5 h-9 bg-primary hover:bg-orange-500 text-white text-xs font-semibold px-4 rounded-lg transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-primary"
+                    >
+                      <LuSave size={14} />
+                      Guardar cambios
+                    </button>
+                  ) : (
+                    <div className="flex items-center justify-center w-32 h-9">
+                      <div className="loaderSmall" />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

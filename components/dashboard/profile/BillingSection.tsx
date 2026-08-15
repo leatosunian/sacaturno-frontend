@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import styles from "@/app/css-modules/FormMiPerfil.module.css";
 import { IBusiness } from "@/interfaces/business.interface";
 import { IPlanPayment } from "@/interfaces/planPayment.interface";
 import ISubscriptionDisplay from "@/interfaces/subscriptionDisplay.interface";
@@ -189,7 +188,7 @@ const BillingSection: React.FC<Props> = ({ subscriptionData, businessData, payme
                 <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Estado</span>
               </div>
 
-              <div className={`${styles.paymentsCont} flex flex-col max-h-80 overflow-y-auto`}>
+              <div className="flex flex-col max-h-80 overflow-y-auto">
                 {paymentsData.map((payment) => (
                   <div
                     key={payment._id}

@@ -108,7 +108,7 @@ const EditBranchModal: React.FC<Props> = ({ open, onClose, branch, businessData,
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent className="sm:w-[440px] w-[93vw]">
+      <DialogContent className="sm:w-[440px] w-[93vw] max-h-[85vh] overflow-y-auto">
         <div className="flex flex-col w-full gap-4">
           <div className="pb-4 border-b border-gray-100 flex flex-col gap-1">
             <h4 className="text-lg leading-none font-semibold text-gray-800">Editar sucursal</h4>

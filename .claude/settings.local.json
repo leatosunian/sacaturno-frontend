@@ -149,7 +149,12 @@
       "Bash(rm -f \"/c/Users/Gaming/AppData/Local/Temp/claude/C--sacaturno/6b1d0125-829c-4995-b5d8-70f7f800a28d/scratchpad/rehashProbe.ts\" && npx ts-node src/tests/rehashProbe.ts)",
       "Bash(curl -s http://localhost:3000/preview-cancellation-tmp --max-time 90 -o \"/c/Users/Gaming/AppData/Local/Temp/claude/C--sacaturno/60dc42af-39a1-420b-835f-1ad0b6e233b7/scratchpad/p2.html\" -w \"HTTP %{http_code}\\\\n\")",
       "Bash(git -C /c/sacaturno diff --stat)",
-      "Bash(grep -n \"^#\\\\{1,3\\\\} \" /c/sacaturno/DESIGN.md)"
+      "Bash(grep -n \"^#\\\\{1,3\\\\} \" /c/sacaturno/DESIGN.md)",
+      "PowerShell(npx next lint --file components/dashboard/appointments/CalendarTurnos.tsx 2>&1)",
+      "Bash(npm audit *)",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\).on\\('end',\\(\\)=>{try{const j=JSON.parse\\(d\\);console.log\\('FRONT:',JSON.stringify\\(j.metadata.vulnerabilities\\)\\);const v=j.vulnerabilities||{};Object.entries\\(v\\).filter\\(\\([k,x]\\)=>['critical','high'].includes\\(x.severity\\)\\).forEach\\(\\([k,x]\\)=>console.log\\(' -',k,x.severity,\\(x.via||[]\\).map\\(z=>typeof z==='string'?z:z.title\\).join\\('; '\\)\\)\\)}catch\\(e\\){console.log\\('no audit data'\\)}}\\)\")",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\).on\\('end',\\(\\)=>{try{const j=JSON.parse\\(d\\);console.log\\('SERVER:',JSON.stringify\\(j.metadata.vulnerabilities\\)\\);const v=j.vulnerabilities||{};Object.entries\\(v\\).filter\\(\\([k,x]\\)=>['critical','high'].includes\\(x.severity\\)\\).forEach\\(\\([k,x]\\)=>console.log\\(' -',k,x.severity\\)\\)}catch\\(e\\){console.log\\('sin datos'\\)}}\\)\")",
+      "Bash(grep -nE 'appointment|\\\\.\\(start|end|status|service|price|employeeID|branchID|name|email|phone|title|cancelToken|depositStatus|description\\)\\\\b' components/home/bookAppointments/ListBookAppointment.tsx)"
     ],
     "additionalDirectories": [
       "c:\\sacaturno\\.claude\\skills"

@@ -51,40 +51,60 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-/* ::-webkit-scrollbar {
-  margin-left: 4px;
-  width: 10px;
-  transition: .3s all ease-in-out;
+/* SCROLLBARS — globales para toda la app.
+   Pulgar de 3px con puntas redondeadas: los 3px de borde transparente + el
+   background-clip lo mantienen despegado del borde, así nunca se monta sobre
+   las esquinas redondeadas del contenedor (modales, cards, dropdowns). */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
 }
 
 ::-webkit-scrollbar-track {
-  background: linear-gradient(to bottom, rgb(62, 107, 126), rgb(0, 30, 35), rgb(0, 30, 35), rgb(0, 30, 35)); 
-  transition: .3s all ease-in-out;
+  background: transparent;
+}
+
+::-webkit-scrollbar-track:vertical {
+  margin: 6px 0;
+}
+
+::-webkit-scrollbar-track:horizontal {
+  margin: 0 6px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #f1563060;
-  height: 20px;
+  background-color: rgba(221, 73, 36, 0.35);
+  border: 3px solid transparent;
+  background-clip: padding-box;
   border-radius: 100vw;
-  transition: .3s all ease-in-out;
-  -webkit-transition: .3s all ease-in-out;
-  -moz-transition: .3s all ease-in-out;
-  -ms-transition: .3s all ease-in-out;
-  -o-transition: .3s all ease-in-out;
-  -webkit-border-radius: 100vw;
-  -moz-border-radius: 100vw;
-  -ms-border-radius: 100vw;
-  -o-border-radius: 100vw;
+  transition: background-color 0.2s ease-in-out;
 }
 
-::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
   background-color: #dd4924;
-  transition: .3s all ease-in-out;
-  -webkit-transition: .3s all ease-in-out;
-  -moz-transition: .3s all ease-in-out;
-  -ms-transition: .3s all ease-in-out;
-  -o-transition: .3s all ease-in-out;
-} */
+}
+
+/* Windows dibuja las flechitas de los extremos si no se anulan */
+::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Firefox ignora ::-webkit-scrollbar y usa las propiedades estándar. El
+   @supports aísla el bloque: Chrome soporta el selector webkit y lo saltea,
+   si no descartaría todo lo de arriba al ver scrollbar-width. */
+@supports (scrollbar-width: thin) and (not selector(::-webkit-scrollbar)) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(221, 73, 36, 0.35) transparent;
+  }
+}
 
 .orangeHover {
   color: white;

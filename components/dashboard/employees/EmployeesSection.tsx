@@ -103,10 +103,9 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
   const [editServices, setEditServices] = useState<string[]>([]);
   const [editBranches, setEditBranches] = useState<string[]>([]);
 
-  // Con una sola sucursal no hay nada que elegir: se asigna sola, igual que el
-  // booking público, que recién muestra el selector de sucursal con 2 o más.
+  // El alta muestra siempre las sucursales del negocio para que la asignación
+  // quede a la vista desde el minuto cero; con una sola viene tildada de entrada.
   const requiresBranch = initialBranches.length > 0;
-  const showBranchPicker = initialBranches.length >= 2;
   const requiresService = initialServices.length > 0;
   const soleBranchID = initialBranches.length === 1 ? initialBranches[0]._id! : null;
 
@@ -152,8 +151,21 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
     setNewEmail("");
     setNewPermissions([]);
     setNewServices([]);
-    setNewBranches([]);
+    setNewBranches(soleBranchID ? [soleBranchID] : []);
   };
+
+  const openAddModal = () => {
+    resetAddForm();
+    setAddModal(true);
+  };
+
+  const allBranchesSelected =
+    initialBranches.length > 0 && newBranches.length === initialBranches.length;
+
+  const toggleAllNewBranches = () =>
+    setNewBranches(
+      allBranchesSelected ? [] : initialBranches.map((b) => b._id!).filter(Boolean)
+    );
 
   const openEdit = (emp: IEmployee) => {
     setEditingEmployee(emp);
@@ -195,7 +207,7 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
           email: newEmail.trim(),
           permissions: newPermissions,
           services: newServices,
-          branches: soleBranchID ? [soleBranchID] : newBranches,
+          branches: newBranches,
         },
         getAuthHeader()
       );
@@ -288,7 +300,7 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
     !!newSurname.trim() &&
     !!newEmail.trim() &&
     (!requiresService || newServices.length > 0) &&
-    (!showBranchPicker || newBranches.length > 0);
+    (!requiresBranch || newBranches.length > 0);
 
   const editEditable = editingEmployee?.status !== "inactive";
 
@@ -352,7 +364,7 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
           {!atLimit && (
             <button
               type="button"
-              onClick={() => setAddModal(true)}
+              onClick={openAddModal}
               className="flex items-center gap-1.5 bg-primary hover:bg-orange-500 text-white text-[11px] 2xl:text-xs font-semibold px-3 2xl:px-4 py-1.5 2xl:py-2 rounded-lg transition-all duration-300 ease-in-out cursor-pointer"
             >
               <LuUserPlus size={14} />
@@ -376,7 +388,7 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
               </div>
               <button
                 type="button"
-                onClick={() => setAddModal(true)}
+                onClick={openAddModal}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary hover:bg-orange-500 text-white text-xs font-semibold transition-colors"
               >
                 <LuUserPlus size={13} />
@@ -579,11 +591,24 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
               </div>
             )}
 
-            {showBranchPicker && (
+            {requiresBranch && (
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold uppercase text-gray-700">
-                  Sucursales <span className="text-primary">*</span>
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold uppercase text-gray-700">
+                    <span className="flex items-center gap-1.5">
+                      <LuBuilding2 size={11} /> Sucursales donde atiende <span className="text-primary">*</span>
+                    </span>
+                  </label>
+                  {initialBranches.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={toggleAllNewBranches}
+                      className="text-[11px] font-semibold text-primary hover:underline cursor-pointer"
+                    >
+                      {allBranchesSelected ? "Ninguna" : "Todas"}
+                    </button>
+                  )}
+                </div>
                 <div className="flex flex-wrap gap-1.5 rounded-lg border border-gray-100 bg-gray-50 p-3">
                   {initialBranches.map((branch) => (
                     <ChipToggle
@@ -594,9 +619,11 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
                     />
                   ))}
                 </div>
-                {newBranches.length === 0 && (
-                  <span className="text-[10px] text-gray-400">Elegí al menos una sucursal.</span>
-                )}
+                <span className="text-[10px] text-gray-400">
+                  {newBranches.length === 0
+                    ? "Elegí al menos una sucursal."
+                    : "Queda preasignado a estas sucursales apenas acepte la invitación."}
+                </span>
               </div>
             )}
 

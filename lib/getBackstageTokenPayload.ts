@@ -7,10 +7,15 @@ export interface BackstageTokenPayload {
 }
 
 export function getBackstageTokenPayload(): BackstageTokenPayload | null {
+  const secret = process.env.SUPERADMIN_JWT_SECRET;
+  if (!secret) {
+    console.error("SUPERADMIN_JWT_SECRET no configurado en el frontend");
+    return null;
+  }
   const token = cookies().get("sacaturno_hq_token")?.value;
   if (!token) return null;
   try {
-    return verify(token, process.env.SUPERADMIN_JWT_SECRET || "B") as BackstageTokenPayload;
+    return verify(token, secret) as BackstageTokenPayload;
   } catch {
     return null;
   }

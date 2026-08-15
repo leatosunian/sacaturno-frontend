@@ -159,8 +159,18 @@ const BranchesSection: React.FC<Props> = ({
         open={addModal}
         onClose={() => setAddModal(false)}
         businessData={businessData}
+        activeEmployees={activeEmployees}
+        isFirstBranch={branches.length === 0}
         onCreated={(branch, assignment) => {
           setBranches((prev) => [...prev, branch]);
+          setEmployees((prev) =>
+            prev.map((e) =>
+              assignment.assignedEmployeeIDs.includes(e._id!) &&
+              !(e.branches ?? []).includes(branch._id!)
+                ? { ...e, branches: [...(e.branches ?? []), branch._id!] }
+                : e
+            )
+          );
           setAssignmentResult(assignment);
         }}
       />

@@ -295,7 +295,7 @@ const DashboardComponent: React.FC<Props> = ({
         open={appointmentInfoModal}
         onOpenChange={() => setAppointmentInfoModal(false)}
       >
-        <DialogContent className="md:w-[510px] w-[93vw]">
+        <DialogContent className="w-[93vw] md:w-[560px] lg:w-[800px] p-0 overflow-hidden">
           <AppointmentModal
             appointment={selectedAppointment}
             closeModalF={() => setAppointmentInfoModal(false)}

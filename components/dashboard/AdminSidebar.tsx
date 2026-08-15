@@ -60,6 +60,12 @@ interface AdminSidebarProps {
   subscriptionType?: string;
 }
 
+const groupClass = "py-1 2xl:py-2";
+const groupLabelClass =
+  "text-white/40 text-[11px] 2xl:text-[12px] mt-0.5 2xl:mt-1 font-semibold px-2 mb-0.5 2xl:mb-1 h-auto";
+const menuClass = "gap-0.5 2xl:gap-1";
+const separatorClass = "bg-white/[0.06] mx-2";
+
 function NavItem({
   href,
   icon: Icon,
@@ -131,14 +137,14 @@ export default function AdminSidebar({
         </Link>
       </SidebarHeader>
 
-      <SidebarContent className="px-2 py-2 gap-0">
+      <SidebarContent className="px-2 py-1 2xl:py-2 gap-0">
         {/* Agenda */}
-        <SidebarGroup className="py-2">
-          <SidebarGroupLabel className="text-white/40 text-[11px] 2xl:text-[12px] mt-1 font-semibold px-2 mb-1 h-auto">
+        <SidebarGroup className={groupClass}>
+          <SidebarGroupLabel className={groupLabelClass}>
             Agenda
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className={menuClass}>
               <NavItem
                 href="/admin/schedule"
                 icon={HiOutlineCalendar}
@@ -158,17 +164,17 @@ export default function AdminSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator className="bg-white/[0.06] mx-2 my-1" />
+        <SidebarSeparator className={separatorClass} />
 
         {/* Mi empresa */}
         {!isEmployee && (
           <>
-            <SidebarGroup className="py-2">
-              <SidebarGroupLabel className="text-white/40 text-[11px] 2xl:text-[12px] mt-1 font-semibold px-2 mb-1 h-auto">
+            <SidebarGroup className={groupClass}>
+              <SidebarGroupLabel className={groupLabelClass}>
                 Mi empresa
               </SidebarGroupLabel>
               <SidebarGroupContent>
-                <SidebarMenu>
+                <SidebarMenu className={menuClass}>
                   <NavItem
                     href="/admin/business"
                     icon={HiOutlineBuildingOffice2}
@@ -187,19 +193,19 @@ export default function AdminSidebar({
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
-            <SidebarSeparator className="bg-white/[0.06] mx-2" />
+            <SidebarSeparator className={separatorClass} />
           </>
         )}
 
         {/* Servicios */}
         {(!isEmployee || can("manage_services")) && (
           <>
-            <SidebarGroup className="py-2">
-              <SidebarGroupLabel className="text-white/40 text-[11px] 2xl:text-[12px] mt-1 font-semibold px-2 mb-1 h-auto">
+            <SidebarGroup className={groupClass}>
+              <SidebarGroupLabel className={groupLabelClass}>
                 Servicios
               </SidebarGroupLabel>
               <SidebarGroupContent>
-                <SidebarMenu>
+                <SidebarMenu className={menuClass}>
                   <NavItem
                     href="/admin/services"
                     icon={HiOutlineWrenchScrewdriver}
@@ -209,38 +215,38 @@ export default function AdminSidebar({
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
-            <SidebarSeparator className="bg-white/[0.06] mx-2" />
+            <SidebarSeparator className={separatorClass} />
           </>
         )}
 
         {/* Mi equipo */}
         {!isEmployee && planLimits.maxEmployees > 0 && (
           <>
-            <SidebarGroup className="py-2">
-              <SidebarGroupLabel className="text-white/40 text-[11px] 2xl:text-[12px] mt-1 font-semibold px-2 mb-1 h-auto">
+            <SidebarGroup className={groupClass}>
+              <SidebarGroupLabel className={groupLabelClass}>
                 Mi equipo
               </SidebarGroupLabel>
               <SidebarGroupContent>
-                <SidebarMenu>
+                <SidebarMenu className={menuClass}>
                   <NavItem href="/admin/team/employees" icon={HiOutlineUsers}>
                     Empleados
                   </NavItem>
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
-            <SidebarSeparator className="bg-white/[0.06] mx-2" />
+            <SidebarSeparator className={separatorClass} />
           </>
         )}
 
         {/* Métricas */}
         {(!isEmployee || can("view_stats")) && (
           <>
-            <SidebarGroup className="py-2">
-              <SidebarGroupLabel className="text-white/40 text-[11px] 2xl:text-[12px] mt-1 font-semibold px-2 mb-1 h-auto">
+            <SidebarGroup className={groupClass}>
+              <SidebarGroupLabel className={groupLabelClass}>
                 Métricas
               </SidebarGroupLabel>
               <SidebarGroupContent>
-                <SidebarMenu>
+                <SidebarMenu className={menuClass}>
                   <NavItem
                     href="/admin/analytics"
                     icon={HiOutlinePresentationChartLine}
@@ -250,18 +256,18 @@ export default function AdminSidebar({
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
-            <SidebarSeparator className="bg-white/[0.06] mx-2" />
+            <SidebarSeparator className={separatorClass} />
           </>
         )}
 
         {!isEmployee && planLimits.depositsEnabled && (
           <>
-            <SidebarGroup className="py-2">
-              <SidebarGroupLabel className="text-white/40 text-[11px] 2xl:text-[12px] mt-1 font-semibold px-2 mb-1 h-auto">
+            <SidebarGroup className={groupClass}>
+              <SidebarGroupLabel className={groupLabelClass}>
                 Integraciones
               </SidebarGroupLabel>
               <SidebarGroupContent>
-                <SidebarMenu>
+                <SidebarMenu className={menuClass}>
                   <NavItem
                     href="/admin/account/mercadopago"
                     icon={SiMercadopago}
@@ -271,13 +277,13 @@ export default function AdminSidebar({
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
-            <SidebarSeparator className="bg-white/[0.06] mx-2" />
+            <SidebarSeparator className={separatorClass} />
           </>
         )}
       </SidebarContent>
 
       {/* Footer — user account dropdown */}
-      <SidebarFooter className="p-2 gap-1.5">
+      <SidebarFooter className="p-1.5 2xl:p-2 gap-1 2xl:gap-1.5">
         {!isEmployee && subscriptionPlan && (() => {
           const isExpired = subscriptionType === "SC_EXPIRED";
           const PlanIcon = isExpired
@@ -294,22 +300,25 @@ export default function AdminSidebar({
             return (
               <Link
                 href="/admin/account/subscription"
-                className="group flex items-center justify-between px-3 py-2.5 rounded-lg bg-red-500/15 border border-red-500/30 hover:bg-red-500/20 hover:border-red-500/45 transition-colors"
+                className="group flex items-center justify-between px-2.5 py-1.5 2xl:px-3 2xl:py-2.5 rounded-lg bg-red-500/15 border border-red-500/30 hover:bg-red-500/20 hover:border-red-500/45 transition-colors"
               >
-                <div className="flex items-center gap-2.5">
-                  <PlanIcon size={16} className="text-red-400 shrink-0" />
+                <div className="flex items-center gap-2 2xl:gap-2.5">
+                  <PlanIcon
+                    size={16}
+                    className="text-red-400 shrink-0 h-3.5 w-3.5 2xl:h-4 2xl:w-4"
+                  />
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-[9px] font-semibold uppercase tracking-widest text-red-400/60">
+                    <span className="text-[8px] 2xl:text-[9px] font-semibold uppercase tracking-widest text-red-400/60">
                       Tu plan
                     </span>
-                    <span className="text-[12px] font-semibold text-red-400">
+                    <span className="text-[11px] 2xl:text-[12px] font-semibold text-red-400">
                       {subscriptionPlan}
                     </span>
                   </div>
                 </div>
                 <HiOutlineChevronRight
                   size={14}
-                  className="text-red-400/50 group-hover:text-red-400 group-hover:translate-x-0.5 transition-all shrink-0"
+                  className="text-red-400/50 group-hover:text-red-400 group-hover:translate-x-0.5 transition-all shrink-0 h-3 w-3 2xl:h-3.5 2xl:w-3.5"
                 />
               </Link>
             );
@@ -318,22 +327,25 @@ export default function AdminSidebar({
           return (
             <Link
               href="/admin/account/subscription"
-              className="group flex items-center justify-between px-3 py-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/15 hover:border-emerald-500/30 transition-colors"
+              className="group flex items-center justify-between px-2.5 py-1.5 2xl:px-3 2xl:py-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/15 hover:border-emerald-500/30 transition-colors"
             >
-              <div className="flex items-center gap-2.5">
-                <PlanIcon size={16} className="text-emerald-400 shrink-0" />
+              <div className="flex items-center gap-2 2xl:gap-2.5">
+                <PlanIcon
+                  size={16}
+                  className="text-emerald-400 shrink-0 h-3.5 w-3.5 2xl:h-4 2xl:w-4"
+                />
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-[9px] font-semibold uppercase tracking-widest text-white/30">
+                  <span className="text-[8px] 2xl:text-[9px] font-semibold uppercase tracking-widest text-white/30">
                     Tu plan
                   </span>
-                  <span className="text-[12px] font-semibold text-emerald-400">
+                  <span className="text-[11px] 2xl:text-[12px] font-semibold text-emerald-400">
                     {subscriptionPlan}
                   </span>
                 </div>
               </div>
               <HiOutlineChevronRight
                 size={14}
-                className="text-emerald-400/40 group-hover:text-emerald-400/90 group-hover:translate-x-0.5 transition-all shrink-0"
+                className="text-emerald-400/40 group-hover:text-emerald-400/90 group-hover:translate-x-0.5 transition-all shrink-0 h-3 w-3 2xl:h-3.5 2xl:w-3.5"
               />
             </Link>
           );

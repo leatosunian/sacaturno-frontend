@@ -409,6 +409,14 @@ export default function ListBookAppointment({
   const displayBranchObj = selectedBranchObj ?? slotBranchObj;
   const showBranchInSlots = !selectedBranch && branches.length >= 2;
 
+  // Elegir "Cualquier especialista" no significa que no se sepa quién atiende:
+  // el turno ya trae su empleado, y decirlo es más útil que dejar el dato en blanco.
+  const slotEmployeeObj = useMemo(
+    () => selectedSlot?.employeeID ? employees.find((e) => e._id === selectedSlot.employeeID) : undefined,
+    [employees, selectedSlot],
+  );
+  const displayEmployeeObj = selectedEmployeeObj ?? slotEmployeeObj;
+
   // Con sucursales cargadas, ellas son la fuente de verdad para la dirección:
   // con una sola sucursal se muestra su dirección puntual; con 2+ es ambiguo y se oculta.
   const singleLocationAddress = useMemo(() => {
@@ -416,6 +424,15 @@ export default function ListBookAppointment({
     if (branches.length === 1) return composeBranchAddress(branches[0]) || null;
     return null;
   }, [branches, businessData.address]);
+
+  // ── Resumen: dónde y con quién ──
+  const summaryPlaceName = displayBranchObj?.name ?? businessData.name ?? "";
+  const summaryAddress = displayBranchObj
+    ? composeBranchAddress(displayBranchObj)
+    : singleLocationAddress ?? "";
+  const summaryMapsUrl = summaryAddress
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(summaryAddress)}`
+    : null;
 
   // ── Step subtitles (selected value per completed step) ──
   const stepSubtitles = useMemo<Partial<Record<ActiveStep, string>>>(() => ({
@@ -518,21 +535,65 @@ export default function ListBookAppointment({
   };
 
   const stepLabel = `Paso ${stepIndex + 1} de ${activeSteps.length}`;
+  const canGoBack = stepIndex > 0;
+
+  // ── Step chrome (scrollable body + pinned footer) ─────────────
+  const StepShell = ({
+    children,
+    footer,
+  }: {
+    children: React.ReactNode;
+    footer?: React.ReactNode;
+  }) => (
+    <div className="flex flex-col h-full min-h-0">
+      <div className="flex-1 md:min-h-0 md:overflow-y-auto flex flex-col gap-4 2xl:gap-5">
+        {children}
+      </div>
+      {(canGoBack || footer) && (
+        <div className="shrink-0 flex items-center gap-3 mt-4 2xl:mt-5 pt-4 border-t border-orange-100">
+          {canGoBack && (
+            <button
+              onClick={goPrevStep}
+              className="flex shrink-0 items-center gap-1.5 h-11 2xl:h-12 px-4 rounded-xl text-xs 2xl:text-sm font-bold text-orange-600 bg-orange-50 border border-orange-200 hover:bg-orange-100 hover:border-orange-300 transition-all"
+            >
+              <ArrowLeft className="size-3.5" /> Volver
+            </button>
+          )}
+          {footer}
+        </div>
+      )}
+    </div>
+  );
+
+  const StepHeading = ({
+    title,
+    subtitle,
+  }: {
+    title: React.ReactNode;
+    subtitle?: React.ReactNode;
+  }) => (
+    <div className="shrink-0">
+      <span className="hidden md:inline text-[10px] 2xl:text-xs uppercase tracking-widest text-orange-600 font-bold">
+        {stepLabel}
+      </span>
+      <h2 className="text-lg md:text-xl 2xl:text-3xl font-extrabold tracking-tight mt-0.5 2xl:mt-1">
+        {title}
+      </h2>
+      {subtitle && (
+        <p className="text-xs 2xl:text-sm text-muted-foreground mt-0.5 2xl:mt-1">
+          {subtitle}
+        </p>
+      )}
+    </div>
+  );
 
   // SERVICE STEP
   const ServiceStep = () => (
-    <div className="flex flex-col gap-5">
-      <div>
-        <span className="hidden md:inline text-xs uppercase tracking-widest text-orange-600 font-bold">
-          {stepLabel}
-        </span>
-        <h2 className="text-xl md:text-2xl 2xl:text-3xl font-extrabold tracking-tight mt-1">
-          Seleccioná un servicio
-        </h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          ¿Qué querés reservar hoy?
-        </p>
-      </div>
+    <StepShell>
+      <StepHeading
+        title="Seleccioná un servicio"
+        subtitle="¿Qué querés reservar hoy?"
+      />
       {loadingServices ? (
         <div className="flex flex-col gap-3">
           <div className="h-16 rounded-2xl bg-muted animate-pulse" />
@@ -560,14 +621,14 @@ export default function ListBookAppointment({
                   goNextStep();
                 }}
                 className={cn(
-                  "group relative text-left rounded-xl border transition-all overflow-hidden p-3.5 2xl:p-4",
+                  "group relative text-left rounded-xl border transition-all overflow-hidden p-3 2xl:p-4",
                   sel
                     ? "border-orange-500 bg-orange-50 shadow-md ring-2 ring-orange-100"
                     : "border-orange-100 bg-white hover:border-orange-300 hover:bg-orange-50/30 hover:shadow-md",
                 )}
               >
-                <div className="flex flex-col gap-2">
-                  <h3 className="font-extrabold text-[15px] 2xl:text-base leading-tight text-neutral-900 tracking-tight">
+                <div className="flex flex-col gap-1.5 2xl:gap-2">
+                  <h3 className="font-extrabold text-sm 2xl:text-base leading-tight text-neutral-900 tracking-tight">
                     {svc.name}
                   </h3>
 
@@ -575,7 +636,7 @@ export default function ListBookAppointment({
 
                   <div className="flex items-center justify-between gap-3 flex-wrap">
                     {svc.price ? (
-                      <span className="text-base 2xl:text-lg font-extrabold text-neutral-900 tracking-tight leading-none">
+                      <span className="text-[15px] 2xl:text-lg font-extrabold text-neutral-900 tracking-tight leading-none">
                         ${svc.price.toLocaleString("es-AR")}
                       </span>
                     ) : (
@@ -608,57 +669,16 @@ export default function ListBookAppointment({
           })}
         </div>
       )}
-    </div>
+    </StepShell>
   );
 
   // BRANCH STEP
   const BranchStep = () => (
-    <div className="flex flex-col gap-5">
-      <div>
-        <button
-          onClick={goPrevStep}
-          className="flex w-fit items-center gap-1.5 text-xs font-semibold text-orange-600 bg-orange-50 border border-orange-200 hover:bg-orange-100 hover:border-orange-300 px-3 py-1.5 rounded-lg transition-all mb-4"
-        >
-          <ArrowLeft className="size-3.5" /> Volver
-        </button>
-        <span className="hidden md:inline text-xs uppercase tracking-widest text-orange-600 font-bold">
-          {stepLabel}
-        </span>
-        <h2 className="text-xl md:text-2xl 2xl:text-3xl font-extrabold tracking-tight mt-1">
-          ¿Dónde querés atenderte?
-        </h2>
-      </div>
-
-      {/* Any branch hero card */}
-      <button
-        onClick={() => {
-          setSelectedBranch(null);
-          setSelectedSlot(null);
-          goNextStep();
-        }}
-        className={cn(
-          "text-left p-4 2xl:p-5 rounded-2xl border-2 border-dashed transition-all flex items-center gap-4 relative overflow-hidden",
-          selectedBranch === null
-            ? "border-orange-500 bg-gradient-to-r from-orange-100/70 to-orange-50 shadow-md"
-            : "border-orange-300 bg-gradient-to-r from-orange-50/60 to-white hover:from-orange-100/60 hover:border-orange-400 hover:shadow-md",
-        )}
-      >
-        <div className="size-12 2xl:size-14 rounded-xl bg-white border-2 border-orange-400 flex items-center justify-center shrink-0 shadow-sm">
-          <Zap className="size-5 2xl:size-6 text-orange-600" fill="currentColor" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="font-extrabold text-sm 2xl:text-base leading-tight">
-            Cualquier sucursal
-          </div>
-          <div className="text-[11px] 2xl:text-xs text-muted-foreground mt-1 leading-snug">
-            Mostrá todos los turnos disponibles
-          </div>
-        </div>
-        <ChevronRight className="size-4 text-orange-500 shrink-0" />
-      </button>
+    <StepShell>
+      <StepHeading title="¿Dónde querés atenderte?" />
 
       {/* Divider */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 shrink-0">
         <div className="h-px flex-1 bg-orange-100" />
         <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
           nuestras sucursales
@@ -667,6 +687,38 @@ export default function ListBookAppointment({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {/* Any branch card — same grid cell as a real branch */}
+        <button
+          onClick={() => {
+            setSelectedBranch(null);
+            setSelectedSlot(null);
+            goNextStep();
+          }}
+          className={cn(
+            "text-left p-3.5 2xl:p-5 rounded-2xl border-2 border-dashed transition-all",
+            selectedBranch === null
+              ? "border-orange-500 bg-gradient-to-r from-orange-100/70 to-orange-50 shadow-md"
+              : "border-orange-300 bg-gradient-to-r from-orange-50/60 to-white hover:from-orange-100/60 hover:border-orange-400 hover:shadow-md",
+          )}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="size-9 2xl:size-10 rounded-lg bg-white border-2 border-orange-400 flex items-center justify-center shrink-0 shadow-sm">
+                <Zap className="size-4 text-orange-600" fill="currentColor" />
+              </div>
+              <div className="min-w-0">
+                <div className="font-extrabold text-sm 2xl:text-base leading-tight">
+                  Cualquier sucursal
+                </div>
+                <div className="text-[11px] 2xl:text-xs text-muted-foreground leading-snug">
+                  Mostrá todos los turnos disponibles
+                </div>
+              </div>
+            </div>
+            <ChevronRight className="size-4 text-orange-500 shrink-0" />
+          </div>
+        </button>
+
         {branches.map((b) => {
           const sel = selectedBranch === b._id;
           return (
@@ -678,21 +730,23 @@ export default function ListBookAppointment({
                 goNextStep();
               }}
               className={cn(
-                "text-left p-4 2xl:p-5 rounded-2xl border transition-all",
+                "text-left p-3.5 2xl:p-5 rounded-2xl border-2 transition-all",
                 sel
                   ? "border-orange-500 bg-orange-50 shadow-md ring-2 ring-orange-100"
                   : "border-orange-100 hover:border-orange-300 hover:shadow-md hover:bg-orange-50/30",
               )}
             >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-3">
-                  <div className="size-10 rounded-lg bg-orange-100 flex items-center justify-center shrink-0">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="size-9 2xl:size-10 rounded-lg bg-orange-100 flex items-center justify-center shrink-0">
                     <MapPin className="size-4 text-orange-700" />
                   </div>
-                  <div>
-                    <div className="font-bold">{b.name}</div>
+                  <div className="min-w-0">
+                    <div className="font-bold text-sm 2xl:text-base leading-tight">
+                      {b.name}
+                    </div>
                     {b.street && b.number && (
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-[11px] 2xl:text-xs text-muted-foreground leading-snug">
                         {b.street} {b.number}
                       </div>
                     )}
@@ -704,26 +758,13 @@ export default function ListBookAppointment({
           );
         })}
       </div>
-    </div>
+    </StepShell>
   );
 
   // EMPLOYEE STEP
   const EmployeeStep = () => (
-    <div className="flex flex-col gap-5">
-      <div>
-        <button
-          onClick={goPrevStep}
-          className="flex w-fit items-center gap-1.5 text-xs font-semibold text-orange-600 bg-orange-50 border border-orange-200 hover:bg-orange-100 hover:border-orange-300 px-3 py-1.5 rounded-lg transition-all mb-4"
-        >
-          <ArrowLeft className="size-3.5" /> Volver
-        </button>
-        <span className="hidden md:inline text-xs uppercase tracking-widest text-orange-600 font-bold">
-          {stepLabel}
-        </span>
-        <h2 className="text-xl md:text-2xl 2xl:text-3xl font-extrabold tracking-tight mt-1">
-          ¿Con quién querés atenderte?
-        </h2>
-      </div>
+    <StepShell>
+      <StepHeading title="¿Con quién querés atenderte?" />
 
       {/* distinctive dashed hero card */}
       <button
@@ -733,23 +774,23 @@ export default function ListBookAppointment({
           goNextStep();
         }}
         className={cn(
-          "text-left p-4 2xl:p-5 rounded-2xl border-2 border-dashed transition-all flex items-center gap-4 relative overflow-hidden",
+          "shrink-0 text-left p-3.5 2xl:p-5 rounded-2xl border-2 border-dashed transition-all flex items-center gap-4 relative overflow-hidden",
           selectedEmployee === null
             ? "border-orange-500 bg-gradient-to-r from-orange-100/70 to-orange-50 shadow-md"
             : "border-orange-300 bg-gradient-to-r from-orange-50/60 to-white hover:from-orange-100/60 hover:border-orange-400 hover:shadow-md",
         )}
       >
-        <div className="size-12 2xl:size-14 rounded-xl bg-white border-2 border-orange-400 flex items-center justify-center shrink-0 shadow-sm">
+        <div className="size-10 2xl:size-14 rounded-xl bg-white border-2 border-orange-400 flex items-center justify-center shrink-0 shadow-sm">
           <Zap
-            className="size-5 2xl:size-6 text-orange-600"
+            className="size-4 2xl:size-6 text-orange-600"
             fill="currentColor"
           />
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-extrabold text-sm 2xl:text-base leading-tight">
-            Cualquier especialista 
+            Cualquier especialista
           </div>
-          <div className="text-[11px] 2xl:text-xs text-muted-foreground mt-1 leading-snug">
+          <div className="text-[11px] 2xl:text-xs text-muted-foreground mt-0.5 2xl:mt-1 leading-snug">
             O reservá con el primero disponible
           </div>
         </div>
@@ -757,7 +798,7 @@ export default function ListBookAppointment({
       </button>
 
       {/* Divider */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 shrink-0">
         <div className="h-px flex-1 bg-orange-100" />
         <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
           nuestro equipo
@@ -778,7 +819,7 @@ export default function ListBookAppointment({
                 goNextStep();
               }}
               className={cn(
-                "flex flex-col items-center gap-2 p-3 2xl:p-4 rounded-2xl border-2 transition-all",
+                "flex flex-col items-center gap-1.5 2xl:gap-2 p-2.5 2xl:p-4 rounded-2xl border-2 transition-all",
                 sel
                   ? "border-orange-500 bg-orange-50 shadow-md ring-2 ring-orange-100"
                   : "border-orange-100 bg-white hover:border-orange-300 hover:bg-orange-50/30 hover:shadow-md",
@@ -790,14 +831,14 @@ export default function ListBookAppointment({
                   src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${e.profileImage}`}
                   alt={e.name}
                   className={cn(
-                    "size-14 2xl:size-16 rounded-xl object-cover shrink-0 transition-all",
+                    "size-12 2xl:size-16 rounded-xl object-cover shrink-0 transition-all",
                     sel ? "ring-2 ring-orange-500 shadow-md" : "",
                   )}
                 />
               ) : (
                 <div
                   className={cn(
-                    "size-14 2xl:size-16 rounded-xl flex items-center justify-center text-lg 2xl:text-xl font-black shrink-0 transition-all",
+                    "size-12 2xl:size-16 rounded-xl flex items-center justify-center text-base 2xl:text-xl font-black shrink-0 transition-all",
                     sel
                       ? "bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-md"
                       : "bg-gradient-to-br from-orange-100 to-orange-200 text-orange-700",
@@ -806,45 +847,49 @@ export default function ListBookAppointment({
                   {e.name?.[0]?.toUpperCase()}
                 </div>
               )}
-              <span className="font-bold text-xs 2xl:text-sm text-center leading-tight">
+              <span className="font-bold text-[11px] 2xl:text-sm text-center leading-tight">
                 {e.name} {e.surname}
               </span>
             </button>
           );
         })}
       </div>
-    </div>
+    </StepShell>
   );
 
   // DATE STEP
   const DateStep = () => (
-    <div className="flex flex-col gap-5">
-      <div>
-        {activeSteps.indexOf("date") > 0 && (
-          <button
-            onClick={goPrevStep}
-            className="flex w-fit items-center gap-1.5 text-xs font-semibold text-orange-600 bg-orange-50 border border-orange-200 hover:bg-orange-100 hover:border-orange-300 px-3 py-1.5 rounded-lg transition-all mb-4"
-          >
-            <ArrowLeft className="size-3.5" /> Volver
-          </button>
-        )}
-        <span className="hidden md:inline text-xs uppercase tracking-widest text-primary font-bold">
-          {stepLabel}
-        </span>
-        <h2 className="text-xl md:text-2xl 2xl:text-3xl font-extrabold tracking-tight mt-1">
-          Fecha y hora
-        </h2>
-        {selectedServiceObj && (
-          <p className="text-sm text-muted-foreground mt-1">
-            Para <b>{selectedServiceObj.name}</b>
-            {displayDuration > 0 && <> · {displayDuration} min</>}
-          </p>
-        )}
-      </div>
+    <StepShell
+      footer={
+        <button
+          disabled={!selectedSlot}
+          onClick={goNextStep}
+          className={cn(
+            "flex-1 h-11 2xl:h-12 rounded-xl text-xs 2xl:text-sm font-bold uppercase tracking-wider transition-all shadow-md",
+            selectedSlot
+              ? "bg-primary text-primary-foreground hover:opacity-90 hover:shadow-lg"
+              : "bg-muted text-muted-foreground cursor-not-allowed shadow-none",
+          )}
+        >
+          Continuar
+        </button>
+      }
+    >
+      <StepHeading
+        title="Fecha y hora"
+        subtitle={
+          selectedServiceObj ? (
+            <>
+              Para <b>{selectedServiceObj.name}</b>
+              {displayDuration > 0 && <> · {displayDuration} min</>}
+            </>
+          ) : undefined
+        }
+      />
 
       {/* Date pills */}
-      <div>
-        <span className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-2 block">
+      <div className="shrink-0">
+        <span className="text-[11px] 2xl:text-xs uppercase tracking-wider font-bold text-muted-foreground mb-2 block">
           Elegí un día
         </span>
         {availableDatesArray.length === 0 ? (
@@ -865,7 +910,7 @@ export default function ListBookAppointment({
                     setSelectedSlot(null);
                   }}
                   className={cn(
-                    "shrink-0 w-16 py-3 rounded-2xl border flex flex-col items-center justify-center transition-all",
+                    "shrink-0 w-14 py-2.5 2xl:w-16 2xl:py-3 rounded-2xl border flex flex-col items-center justify-center transition-all",
                     sel
                       ? "border-primary bg-primary text-primary-foreground shadow-lg"
                       : "border-primary/15 bg-white hover:border-primary/40 hover:bg-primary/5",
@@ -879,7 +924,7 @@ export default function ListBookAppointment({
                   >
                     {DAY_ABBR[d.getUTCDay()]}
                   </span>
-                  <span className="text-lg font-black leading-tight mt-1">
+                  <span className="text-base 2xl:text-lg font-black leading-tight mt-0.5 2xl:mt-1">
                     {d.getUTCDate()}
                   </span>
                   <span
@@ -900,7 +945,7 @@ export default function ListBookAppointment({
       {/* Time slots */}
       {availableDateStrSet.has(currentDateStr) && (
         <div>
-          <span className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-2 block">
+          <span className="text-[11px] 2xl:text-xs uppercase tracking-wider font-bold text-muted-foreground mb-2 block">
             Elegí un horario
           </span>
           {dayAppointments.length === 0 ? (
@@ -926,7 +971,7 @@ export default function ListBookAppointment({
                     onClick={() => !booked && setSelectedSlot(apt)}
                     disabled={booked}
                     className={cn(
-                      "rounded-lg border text-sm font-bold transition-all flex flex-col items-center justify-center gap-0.5 py-2 px-1 min-w-0",
+                      "rounded-lg border text-xs 2xl:text-sm font-bold transition-all flex flex-col items-center justify-center gap-0.5 py-1.5 2xl:py-2 px-1 min-w-0",
                       booked
                         ? "border-border bg-muted/50 text-muted-foreground/40 cursor-not-allowed"
                         : sel
@@ -951,59 +996,52 @@ export default function ListBookAppointment({
         </div>
       )}
 
-      <button
-        disabled={!selectedSlot}
-        onClick={goNextStep}
-        className={cn(
-          "h-12 rounded-xl text-sm font-bold uppercase tracking-wider transition-all shadow-md",
-          selectedSlot
-            ? "bg-primary text-primary-foreground hover:opacity-90 hover:shadow-lg"
-            : "bg-muted text-muted-foreground cursor-not-allowed shadow-none",
-        )}
-      >
-        Continuar
-      </button>
-    </div>
+    </StepShell>
   );
 
   // CONFIRM STEP
   const ConfirmStep = () => (
-    <div className="flex flex-col gap-5">
-      <div>
+    <StepShell
+      footer={
         <button
-          onClick={goPrevStep}
-          className="flex w-fit items-center gap-1.5 text-xs font-semibold text-orange-600 bg-orange-50 border border-orange-200 hover:bg-orange-100 hover:border-orange-300 px-3 py-1.5 rounded-lg transition-all mb-4"
+          onClick={handleSubmit(onSubmit)}
+          disabled={bookingSpinner}
+          className="flex-1 h-11 2xl:h-12 rounded-xl text-xs 2xl:text-sm font-bold uppercase tracking-wider bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-60 transition-all"
         >
-          <ArrowLeft className="size-3.5" /> Volver
+          {bookingSpinner ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : requiresDeposit ? (
+            <>
+              <ExternalLink className="size-4" /> Abonar y confirmar
+            </>
+          ) : (
+            "Confirmar reserva"
+          )}
         </button>
-        <span className="hidden md:inline text-xs uppercase tracking-widest text-orange-600 font-bold">
-          {stepLabel}
-        </span>
-        <h2 className="text-xl md:text-2xl 2xl:text-3xl font-black tracking-tight mt-1">
-          Casi listo
-        </h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Completá tus datos para confirmar la reserva.
-        </p>
-      </div>
+      }
+    >
+      <StepHeading
+        title="Casi listo"
+        subtitle="Completá tus datos para confirmar la reserva."
+      />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 2xl:gap-4 shrink-0">
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <label className="text-[11px] 2xl:text-xs font-bold uppercase tracking-wider text-muted-foreground">
             Nombre y apellido
           </label>
           <input
             {...register("name")}
             placeholder="Juan Pérez"
             maxLength={35}
-            className="h-11 px-3 rounded-lg border border-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
+            className="h-10 2xl:h-11 px-3 rounded-lg border border-border bg-white text-[13px] 2xl:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
           />
           {errors.name?.message && (
             <span className="text-xs text-red-500">{errors.name.message}</span>
           )}
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <label className="text-[11px] 2xl:text-xs font-bold uppercase tracking-wider text-muted-foreground">
             Teléfono
           </label>
           <input
@@ -1011,15 +1049,15 @@ export default function ListBookAppointment({
             type="number"
             placeholder="11 1234 5678"
             onKeyDown={(e) => ["+", "-", "e", "E", "."].includes(e.key) && e.preventDefault()}
-            className="h-11 px-3 rounded-lg border border-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
+            className="h-10 2xl:h-11 px-3 rounded-lg border border-border bg-white text-[13px] 2xl:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
           />
           {errors.phone?.message && (
             <span className="text-xs text-red-500">{errors.phone.message}</span>
           )}
         </div>
       </div>
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+      <div className="flex flex-col gap-1 shrink-0">
+        <label className="text-[11px] 2xl:text-xs font-bold uppercase tracking-wider text-muted-foreground">
           Email
         </label>
         <input
@@ -1027,7 +1065,7 @@ export default function ListBookAppointment({
           type="email"
           placeholder="juan@email.com"
           maxLength={100}
-          className="h-11 px-3 rounded-lg border border-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
+          className="h-10 2xl:h-11 px-3 rounded-lg border border-border bg-white text-[13px] 2xl:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
         />
         {errors.email?.message && (
           <span className="text-xs text-red-500">{errors.email.message}</span>
@@ -1036,57 +1074,103 @@ export default function ListBookAppointment({
 
       {/* Summary */}
       {selectedSlot && (
-        <div className="rounded-2xl bg-primary/5 border border-primary/20 overflow-hidden">
+        <div className="rounded-2xl bg-primary/5 border border-primary/20 overflow-hidden shrink-0">
           {/* Fecha/hora header */}
-          <div className="flex items-center gap-3 bg-primary px-4 py-3">
+          <div className="flex items-center gap-3 bg-primary px-4 py-2.5 2xl:py-3">
             <CalendarDays className="size-4 text-primary-foreground shrink-0" />
             <div>
-              <p className="text-lg font-bold text-primary-foreground capitalize">{modalDateStr}</p>
-              <p className="text-sm text-primary-foreground/80">{selectedSlot.timeLabel} — {selectedSlot.endTimeLabel} hs</p>
+              <p className="text-base 2xl:text-lg font-bold text-primary-foreground capitalize">{modalDateStr}</p>
+              <p className="text-[13px] 2xl:text-sm text-primary-foreground/80">{selectedSlot.timeLabel} — {selectedSlot.endTimeLabel} hs</p>
             </div>
           </div>
 
-          <div className="px-4 py-3.5 flex flex-col gap-3 bg-white">
+          <div className="px-4 py-3 2xl:py-3.5 flex flex-col bg-white divide-y divide-primary/15">
             {/* Servicio + precio inline */}
             {selectedServiceObj && (
-              <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start justify-between gap-3 pb-2.5 2xl:pb-3">
                 <div className="flex items-start gap-2 min-w-0">
                   <Tag className="size-3.5 text-primary shrink-0 mt-0.5" />
                   <div className="min-w-0">
                     <span className="text-[10px] uppercase tracking-widest font-bold text-primary leading-none">Servicio</span>
-                    <p className="font-extrabold text-base text-neutral-900 leading-tight">{selectedServiceObj.name}</p>
+                    <p className="font-extrabold text-sm 2xl:text-base text-neutral-900 leading-tight">{selectedServiceObj.name}</p>
                   </div>
                 </div>
                 <div className="text-right shrink-0">
                   <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Precio</span>
-                  <p className="text-2xl font-black text-primary leading-none mt-0.5">${selectedSlot.price.toLocaleString("es-AR")}</p>
+                  <p className="text-xl 2xl:text-2xl font-black text-primary leading-none mt-0.5">${selectedSlot.price.toLocaleString("es-AR")}</p>
                 </div>
               </div>
             )}
 
-            {/* Sucursal + Empleado como chips */}
-            {(displayBranchObj || selectedEmployeeObj) && (
-              <div className="flex flex-wrap gap-2">
-                {displayBranchObj && (
-                  <span className="inline-flex items-center gap-1.5 bg-white border border-primary/20 px-2.5 py-1 rounded-full text-xs font-semibold text-neutral-700">
-                    <MapPin className="size-3 text-primary shrink-0" />
-                    {displayBranchObj.street && displayBranchObj.number
-                      ? `${displayBranchObj.street} ${displayBranchObj.number}`
-                      : displayBranchObj.name}
-                  </span>
+            {/* Dónde: nombre de sucursal + dirección completa + acceso al mapa */}
+            {(summaryPlaceName || summaryAddress) && (
+              <div className="flex items-center gap-2.5 py-2.5 2xl:py-3">
+                <div className="size-8 2xl:size-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <MapPin className="size-4 text-primary" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] 2xl:text-sm font-bold text-neutral-900 leading-tight truncate">
+                    {summaryPlaceName}
+                  </p>
+                  {summaryAddress && (
+                    <p className="text-[11px] 2xl:text-xs text-muted-foreground leading-snug">
+                      {summaryAddress}
+                    </p>
+                  )}
+                </div>
+                {summaryMapsUrl && (
+                  <a
+                    href={summaryMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0 whitespace-nowrap text-[11px] 2xl:text-xs font-bold text-primary border border-primary/25 hover:bg-primary/5 hover:border-primary/40 px-2.5 py-1.5 rounded-full transition-all"
+                  >
+                    Cómo llegar
+                  </a>
                 )}
-                {selectedEmployeeObj && (
-                  <span className="inline-flex items-center gap-1.5 bg-white border border-primary/20 px-2.5 py-1 rounded-full text-xs font-semibold text-neutral-700">
-                    <User className="size-3 text-primary shrink-0" />
-                    {selectedEmployeeObj.name} {selectedEmployeeObj.surname}
-                  </span>
+              </div>
+            )}
+
+            {/* Con quién: sólo si hay a quién nombrar o si el cliente pudo elegir */}
+            {(displayEmployeeObj || employees.length >= 2) && (
+              <div className="flex items-center gap-2.5 py-2.5 2xl:py-3">
+                {displayEmployeeObj?.profileImage &&
+                displayEmployeeObj.profileImage !== "user.png" ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${displayEmployeeObj.profileImage}`}
+                    alt={displayEmployeeObj.name}
+                    className="size-8 2xl:size-9 rounded-lg object-cover shrink-0"
+                  />
+                ) : (
+                  <div className="size-8 2xl:size-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    {displayEmployeeObj ? (
+                      <span className="text-xs 2xl:text-sm font-black text-primary">
+                        {displayEmployeeObj.name?.[0]?.toUpperCase()}
+                      </span>
+                    ) : (
+                      <User className="size-4 text-primary" />
+                    )}
+                  </div>
                 )}
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] 2xl:text-sm font-bold text-neutral-900 leading-tight truncate">
+                    {displayEmployeeObj
+                      ? `${displayEmployeeObj.name} ${displayEmployeeObj.surname ?? ""}`.trim()
+                      : "Sin preferencia"}
+                  </p>
+                  <p className="text-[11px] 2xl:text-xs text-muted-foreground leading-snug truncate">
+                    {displayEmployeeObj
+                      ? "Te atiende"
+                      : "Te asignamos al primero disponible"}
+                  </p>
+                </div>
               </div>
             )}
 
             {/* Seña: solo cuando el turno la requiere */}
             {requiresDeposit && (
-              <div className="border-t border-primary/20 pt-3">
+              <div className="pt-2.5 2xl:pt-3">
                 <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Seña · Mercado Pago</span>
                 <p className="text-sm font-bold text-primary">${selectedServiceObj!.depositAmount!.toLocaleString("es-AR")}</p>
               </div>
@@ -1096,34 +1180,18 @@ export default function ListBookAppointment({
       )}
 
       {bookingError && (
-        <p className="text-sm text-red-500 font-semibold">{bookingError}</p>
+        <p className="text-sm text-red-500 font-semibold shrink-0">{bookingError}</p>
       )}
-
-      <button
-        onClick={handleSubmit(onSubmit)}
-        disabled={bookingSpinner}
-        className="h-12 rounded-xl text-sm font-bold uppercase tracking-wider bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-60 transition-all"
-      >
-        {bookingSpinner ? (
-          <Loader2 className="size-4 animate-spin" />
-        ) : requiresDeposit ? (
-          <>
-            <ExternalLink className="size-4" /> Abonar y confirmar
-          </>
-        ) : (
-          "Confirmar reserva"
-        )}
-      </button>
-    </div>
+    </StepShell>
   );
 
   // ── Business header strip (integrated inside unified container) ─
   const BusinessHeaderStrip = () => (
-    <div className="relative bg-primary/5 border-b border-primary/10 overflow-hidden">
-      <div className="relative flex items-center gap-4 md:gap-5 px-5 py-4 md:px-8 md:py-5 2xl:px-10 2xl:py-6">
+    <div className="relative bg-primary/5 border-b border-primary/10 overflow-hidden shrink-0">
+      <div className="relative flex items-center gap-4 2xl:gap-5 px-5 py-4 md:px-6 md:py-4 2xl:px-10 2xl:py-6">
         {/* Avatar */}
-        <div className="size-12 md:size-14 2xl:size-16 rounded-2xl bg-primary flex items-center justify-center shrink-0 select-none shadow-md">
-          <span className="text-xl md:text-2xl 2xl:text-3xl font-black text-primary-foreground">
+        <div className="size-11 md:size-12 2xl:size-16 rounded-2xl bg-primary flex items-center justify-center shrink-0 select-none shadow-md">
+          <span className="text-lg md:text-xl 2xl:text-3xl font-black text-primary-foreground">
             {businessData.name?.[0]?.toUpperCase() ?? ""}
           </span>
         </div>
@@ -1131,17 +1199,17 @@ export default function ListBookAppointment({
         {/* Info block */}
         <div className="flex flex-col gap-0.5 min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2.5">
-            <h1 className="text-lg md:text-2xl 2xl:text-3xl font-bold text-neutral-900 tracking-tight leading-none truncate">
+            <h1 className="text-lg md:text-xl 2xl:text-3xl font-bold text-neutral-900 tracking-tight leading-none truncate">
               {businessData.name}
             </h1>
             {businessData.businessType && (
-              <span className="shrink-0 text-xs bg-primary/10 text-primary border border-primary/20 px-2.5 py-1 rounded-full font-semibold">
+              <span className="shrink-0 text-[11px] 2xl:text-xs bg-primary/10 text-primary border border-primary/20 px-2.5 py-1 rounded-full font-semibold">
                 {businessData.businessType}
               </span>
             )}
           </div>
           {(singleLocationAddress || businessData.phone) && (
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-0.5 mt-1.5 text-[13px] text-neutral-500">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-0.5 mt-1 2xl:mt-1.5 text-xs 2xl:text-[13px] text-neutral-500">
               {singleLocationAddress && (
                 <span className="flex items-center gap-1.5">
                   <MapPin className="size-3.5 text-primary/60 shrink-0" />
@@ -1159,9 +1227,9 @@ export default function ListBookAppointment({
         </div>
 
         {/* Desktop CTA */}
-        <div className="hidden md:flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-2xl shadow-md shrink-0">
-          <CalendarDays className="size-4.5" strokeWidth={2.5} />
-          <span className="font-bold text-sm tracking-wide">Reservar turno</span>
+        <div className="hidden md:flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 2xl:px-5 2xl:py-2.5 rounded-2xl shadow-md shrink-0">
+          <CalendarDays className="size-4 2xl:size-4.5" strokeWidth={2.5} />
+          <span className="font-bold text-[13px] 2xl:text-sm tracking-wide">Reservar turno</span>
         </div>
       </div>
     </div>
@@ -1238,34 +1306,37 @@ export default function ListBookAppointment({
 
   // ── Main wizard layout ───────────────────────────────────────
   return (
-    <div className="flex flex-col w-full min-h-screen" style={{ background: "radial-gradient(ellipse 65% 55% at 12% 88%, rgba(255, 180, 110, 0.42) 0%, transparent 100%), radial-gradient(ellipse 55% 50% at 88% 12%, rgba(255, 140, 90, 0.32) 0%, transparent 100%), radial-gradient(ellipse 45% 40% at 65% 78%, rgba(255, 210, 160, 0.24) 0%, transparent 100%), #fff8f3" }}>
-      <main className="flex flex-col flex-1 w-full max-w-7xl pt-[84px] pb-4 mx-auto px-4 md:px-8 md:pb-6">
-        <div className="rounded-3xl bg-white overflow-hidden shadow-2xl border border-orange-100/70">
+    <div className="flex flex-col w-full min-h-screen md:h-screen md:min-h-0 md:overflow-hidden" style={{ background: "radial-gradient(ellipse 65% 55% at 12% 88%, rgba(255, 180, 110, 0.42) 0%, transparent 100%), radial-gradient(ellipse 55% 50% at 88% 12%, rgba(255, 140, 90, 0.32) 0%, transparent 100%), radial-gradient(ellipse 45% 40% at 65% 78%, rgba(255, 210, 160, 0.24) 0%, transparent 100%), #fff8f3" }}>
+      <main className="flex flex-col flex-1 md:min-h-0 w-full max-w-7xl pt-[84px] pb-4 mx-auto px-4 md:px-8 md:pb-6">
+        {/* La tarjeta se mide por su contenido y sólo usa el alto disponible como
+            techo: así no estira medio viewport vacío en pantallas grandes, pero
+            sigue clampeando (y scrolleando por dentro) cuando el paso es largo. */}
+        <div className="rounded-3xl bg-white overflow-hidden shadow-2xl border border-orange-100/70 flex flex-col md:min-h-0 md:max-h-full">
           <BusinessHeaderStrip />
 
-          <div className="md:flex md:flex-row  xs:min-h-[500px]">
+          <div className="md:flex md:flex-row md:flex-1 md:min-h-0">
             {/* ── Desktop sidebar (warm orange gradient) ── */}
-            <aside className="hidden md:flex md:flex-col md:w-64 2xl:w-80 md:shrink-0 relative overflow-hidden bg-primary text-white p-6 2xl:p-10">
+            <aside className="hidden md:flex md:flex-col md:w-60 2xl:w-80 md:shrink-0 relative overflow-hidden bg-primary text-white p-5 2xl:p-10">
               {/* Decorative overlays for depth */}
               <div className="absolute -top-20 -right-20 size-52 rounded-full bg-white/10 pointer-events-none" />
               <div className="absolute -bottom-24 -left-16 size-60 rounded-full bg-white/5 pointer-events-none" />
               <div className="absolute top-1/3 -right-8 size-16 rounded-full bg-white/5 pointer-events-none" />
 
-              <div className="relative flex flex-col flex-1">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="size-12 rounded-2xl bg-white/20 backdrop-blur border border-white/30 flex items-center justify-center shrink-0 shadow-lg">
-                    <CalendarDays className="size-5 text-white" strokeWidth={2.5} />
+              <div className="relative flex flex-col flex-1 min-h-0 overflow-y-auto scrollbar-hide">
+                <div className="flex items-center gap-3 mb-4 2xl:mb-6 shrink-0">
+                  <div className="size-10 2xl:size-12 rounded-2xl bg-white/20 backdrop-blur border border-white/30 flex items-center justify-center shrink-0 shadow-lg">
+                    <CalendarDays className="size-4 2xl:size-5 text-white" strokeWidth={2.5} />
                   </div>
                   <div className="min-w-0">
-                    <h2 className="text-base font-bold truncate">
+                    <h2 className="text-sm 2xl:text-base font-bold truncate">
                       Nueva reserva
                     </h2>
                     {/* <p className="text-xs text-white/75">Tarda menos de un minuto</p> */}
                   </div>
                 </div>
 
-                <div className="border-t border-white/20 pt-6 flex-1">
-                  <span className="text-[10px] uppercase font-bold tracking-widest text-white/60 mb-3 block">
+                <div className="border-t border-white/20 pt-4 2xl:pt-6 flex-1">
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-white/60 mb-2 2xl:mb-3 block">
                     Tu reserva
                   </span>
                   <div className="flex flex-col gap-1.5">
@@ -1278,7 +1349,7 @@ export default function ListBookAppointment({
                           onClick={() => isDone && setWizardStep(step)}
                           disabled={!isDone && !isCurr}
                           className={cn(
-                            "flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all",
+                            "flex items-center gap-3 px-3 py-2 2xl:py-2.5 rounded-xl text-left transition-all",
                             isCurr
                               ? "bg-white shadow-xl shadow-black/10"
                               : isDone
@@ -1286,18 +1357,18 @@ export default function ListBookAppointment({
                                 : "opacity-75 cursor-default",
                           )}
                         >
-                          <div className="size-6 shrink-0 flex items-center justify-center">
+                          <div className="size-5 2xl:size-6 shrink-0 flex items-center justify-center">
                             {isDone ? (
-                              <div className="size-6 rounded-full bg-emerald-500 flex items-center justify-center shadow-md shadow-emerald-500/50">
+                              <div className="size-5 2xl:size-6 rounded-full bg-emerald-500 flex items-center justify-center shadow-md shadow-emerald-500/50">
                                 <Check
-                                  className="size-3.5 text-white"
+                                  className="size-3 2xl:size-3.5 text-white"
                                   strokeWidth={3}
                                 />
                               </div>
                             ) : (
                               <div
                                 className={cn(
-                                  "size-6 rounded-full flex items-center justify-center text-xs font-bold",
+                                  "size-5 2xl:size-6 rounded-full flex items-center justify-center text-[11px] 2xl:text-xs font-bold",
                                   isCurr
                                     ? "bg-primary text-primary-foreground shadow-md"
                                     : "bg-white/15 text-white/70 border border-white/25",
@@ -1310,7 +1381,7 @@ export default function ListBookAppointment({
                           <div className="flex flex-col min-w-0">
                             <span
                               className={cn(
-                                "text-sm font-bold",
+                                "text-[13px] 2xl:text-sm font-bold",
                                 isCurr
                                   ? "text-primary"
                                   : isDone
@@ -1321,7 +1392,7 @@ export default function ListBookAppointment({
                               {STEP_LABELS[step]}
                             </span>
                             {isDone && stepSubtitles[step] && (
-                              <span className="text-xs font-medium capitalize-first-letter truncate text-white/60">
+                              <span className="text-[11px] 2xl:text-xs font-medium capitalize-first-letter truncate text-white/60">
                                 {stepSubtitles[step]}
                               </span>
                             )}
@@ -1333,8 +1404,8 @@ export default function ListBookAppointment({
                 </div>
 
                 {(businessData.phone || singleLocationAddress) && (
-                  <div className="mt-6 p-4 rounded-2xl bg-white/10 backdrop-blur border border-white/20">
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-white/70 block mb-2">
+                  <div className="mt-4 2xl:mt-6 p-3.5 2xl:p-4 rounded-2xl bg-white/10 backdrop-blur border border-white/20 shrink-0">
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-white/70 block mb-1.5 2xl:mb-2">
                       ¿Necesitás ayuda?
                     </span>
                     {businessData.phone && (
@@ -1353,7 +1424,7 @@ export default function ListBookAppointment({
             </aside>
 
             {/* ── Mobile top strip (warm orange gradient) ── */}
-            <div className="md:hidden relative overflow-hidden bg-gradient-to-r from-orange-500 via-orange-600 to-orange-600 text-white px-4 pt-4 pb-3.5">
+            <div className="md:hidden relative overflow-hidden bg-gradient-to-r from-orange-500 via-orange-600 to-orange-600 text-white px-5 pt-4 pb-3.5 shrink-0">
               <div className="absolute -top-8 -right-4 size-24 rounded-full bg-white/10 pointer-events-none" />
               <div className="relative flex items-center mb-2.5">
                 <p className="text-base text-white/85">
@@ -1385,7 +1456,7 @@ export default function ListBookAppointment({
             </div>
 
             {/* ── Step content ── */}
-            <section className="flex-1 min-w-0 p-5 md:p-6 2xl:p-10 bg-gradient-to-b from-white to-orange-50/20">
+            <section className="flex flex-col flex-1 min-w-0 md:min-h-0 p-5 md:p-6 2xl:p-10 bg-gradient-to-b from-white to-orange-50/20">
               {renderStepContent()}
             </section>
           </div>

@@ -10,10 +10,15 @@ export interface TokenPayload {
 }
 
 export function getTokenPayload(): TokenPayload | null {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    console.error("JWT_SECRET no configurado en el frontend");
+    return null;
+  }
   const token = cookies().get("sacaturno_token")?.value;
   if (!token) return null;
   try {
-    return verify(token, process.env.JWT_SECRET || "A") as TokenPayload;
+    return verify(token, secret) as TokenPayload;
   } catch {
     return null;
   }

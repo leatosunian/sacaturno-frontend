@@ -2,7 +2,7 @@
 import dayjs from "dayjs";
 import "dayjs/locale/es-mx";
 import { IAppointment } from "@/interfaces/appointment.interface";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import dynamic from "next/dynamic";
 import { IBusiness } from "@/interfaces/business.interface";
 import utc from "dayjs/plugin/utc";
@@ -13,7 +13,7 @@ import { IService } from "@/interfaces/service.interface";
 import NoServicesModal from "../services/NoServicesModal";
 import ISubscription from "@/interfaces/subscription.interface";
 import ExpiredPlanModal from "./ExpiredPlanModal";
-import { LuCalendar, LuCalendarPlus, LuCalendarCheck, LuCalendarX, LuChevronLeft, LuChevronRight, LuClock, LuUser, LuMapPin } from "react-icons/lu";
+import { LuCalendar, LuCalendarPlus, LuCalendarCheck, LuCalendarX, LuChevronLeft, LuChevronRight, LuClock, LuUser, LuMapPin, LuRefreshCw } from "react-icons/lu";
 import { IoInformationCircle } from "react-icons/io5";
 import { IoMdMore, IoIosAlert } from "react-icons/io";
 import { MdEditCalendar } from "react-icons/md";
@@ -287,13 +287,46 @@ const CalendarTurnos: React.FC<Props> = ({
   const touchInScrollableGrid = useRef(false);
   const initialGridScrollLeft = useRef(0);
   const router = useRouter();
+  const [isRefreshing, startRefresh] = useTransition();
+  const [newAppointmentIds, setNewAppointmentIds] = useState<Set<string>>(new Set());
+  // IDs reservados del render anterior: null en el primero (nada es "nuevo").
+  // Se compara sobre los reservados y no sobre todos porque un turno que se
+  // reserva conserva su _id: pasa de unbooked a booked sin ser un documento nuevo.
+  const knownBookedIdsRef = useRef<Set<string> | null>(null);
 
   useEffect(() => {
     setAppointmentsData(appointments);
     setBusiness(businessData);
     setServices(servicesData);
     setBookingsEnabled(businessData.bookingsEnabled ?? true);
+
+    const bookedIds = new Set(
+      appointments
+        .filter((a) => a.status === "booked")
+        .map((a) => a._id)
+        .filter((id): id is string => !!id)
+    );
+    const known = knownBookedIdsRef.current;
+    knownBookedIdsRef.current = bookedIds;
+    if (known) {
+      const fresh = appointments
+        .filter((a) => a.status === "booked" && !!a._id && !known.has(a._id))
+        .map((a) => a._id as string);
+      if (fresh.length > 0) setNewAppointmentIds(new Set(fresh));
+    }
   }, [appointments, businessData, servicesData]);
+
+  // El resaltado de "nuevo" es temporal: se apaga solo a los 6 segundos
+  useEffect(() => {
+    if (newAppointmentIds.size === 0) return;
+    const timer = setTimeout(() => setNewAppointmentIds(new Set()), 6000);
+    return () => clearTimeout(timer);
+  }, [newAppointmentIds]);
+
+  const handleRefresh = () => {
+    if (isRefreshing) return;
+    startRefresh(() => router.refresh());
+  };
 
   useEffect(() => {
     if (servicesData.length === 0) {
@@ -863,7 +896,7 @@ const CalendarTurnos: React.FC<Props> = ({
       </Dialog>
 
       <Dialog open={eventModal} onOpenChange={() => setEventModal(false)}>
-        <DialogContent className="md:w-[510px] w-[93vw] ">
+        <DialogContent className="w-[93vw] md:w-[560px] lg:w-[800px] p-0 overflow-hidden">
           <DialogTitle className="sr-only">Detalle del turno</DialogTitle>
           <AppointmentModal
             appointment={eventData}
@@ -1099,7 +1132,7 @@ const CalendarTurnos: React.FC<Props> = ({
                   value={selectedBranchFilter ? selectedBranchFilter : ALL_FILTER_VALUE}
                   onValueChange={(value) => handleBranchFilterChange(value === ALL_FILTER_VALUE ? "" : value)}
                 >
-                  <SelectTrigger className="h-8 flex-1 min-w-0 lg:flex-none lg:w-auto rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-2.5 text-xs font-medium text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus-visible:border-orange-600 data-[state=open]:border-orange-600">
+                  <SelectTrigger className="h-8 flex-1 min-w-0 lg:flex-none lg:w-auto rounded-md border border-gray-200 bg-gray-100 px-2.5 text-xs font-medium text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus-visible:border-orange-600 data-[state=open]:border-orange-600">
                     <SelectValue placeholder="Todas" />
                   </SelectTrigger>
                   <SelectContent className="max-h-72">
@@ -1136,7 +1169,7 @@ const CalendarTurnos: React.FC<Props> = ({
                   value={selectedEmployeeFilter ? selectedEmployeeFilter : ALL_FILTER_VALUE}
                   onValueChange={(value) => setSelectedEmployeeFilter(value === ALL_FILTER_VALUE ? "" : value)}
                 >
-                  <SelectTrigger className="h-8 flex-1 min-w-0 lg:flex-none lg:w-auto rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-2.5 text-xs font-medium text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus-visible:border-orange-600 data-[state=open]:border-orange-600">
+                  <SelectTrigger className="h-8 flex-1 min-w-0 lg:flex-none lg:w-auto rounded-md border border-gray-200 bg-gray-100 px-2.5 text-xs font-medium text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus-visible:border-orange-600 data-[state=open]:border-orange-600">
                     <SelectValue placeholder="Todos" />
                   </SelectTrigger>
                   <SelectContent className="max-h-72">
@@ -1213,6 +1246,31 @@ const CalendarTurnos: React.FC<Props> = ({
                   </Tooltip>
                 </TooltipProvider>
               )}
+
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={handleRefresh}
+                      disabled={isRefreshing}
+                      aria-label="Actualizar turnos"
+                      className="h-9 w-9 2xl:w-auto 2xl:px-3.5 flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white text-gray-500 hover:border-orange-300 hover:bg-orange-50 hover:text-primary transition-all duration-200 shrink-0 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:border-gray-200 disabled:hover:bg-white disabled:hover:text-gray-500"
+                    >
+                      <LuRefreshCw
+                        size={15}
+                        className={cn("shrink-0", isRefreshing && "animate-spin")}
+                      />
+                      <span className="hidden 2xl:inline text-xs font-semibold">
+                        {isRefreshing ? "Actualizando…" : "Actualizar"}
+                      </span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-[220px] text-center">
+                    Actualizar turnos sin recargar la página
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
 
             {/* CENTER: date navigation */}
@@ -1297,6 +1355,15 @@ const CalendarTurnos: React.FC<Props> = ({
                   />
                 </PopoverContent>
               </Popover>
+              <button
+                type="button"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                aria-label="Actualizar turnos"
+                className="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 [@media(hover:hover)]:hover:border-orange-300 [@media(hover:hover)]:hover:bg-orange-50 [@media(hover:hover)]:hover:text-primary active:border-orange-300 active:bg-orange-50 active:text-primary transition-all duration-200 shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <LuRefreshCw size={15} className={isRefreshing ? "animate-spin" : ""} />
+              </button>
             </div>
 
             <div className="-mx-2.5 h-px bg-gray-100" />
@@ -1333,7 +1400,17 @@ const CalendarTurnos: React.FC<Props> = ({
           className="relative bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
+          aria-busy={isRefreshing}
         >
+          {isRefreshing && (
+            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 bg-white/75 animate-in fade-in duration-150">
+              <div className="loaderSmall" />
+              <span className="text-xs font-medium text-gray-500">
+                Actualizando turnos…
+              </span>
+            </div>
+          )}
+
           <div
             className={cn(
               "absolute inset-0 z-20 flex items-center justify-center md:hidden pointer-events-none transition-opacity duration-300",
@@ -1490,6 +1567,7 @@ const CalendarTurnos: React.FC<Props> = ({
                             const empName = getEmployeeName(event.employeeID);
                             const branchName = getBranchName(event.branchID);
                             const hasExtra = !!(empName || branchName);
+                            const isNew = !!(event._id && newAppointmentIds.has(event._id));
 
                             return (
                               <div
@@ -1498,7 +1576,9 @@ const CalendarTurnos: React.FC<Props> = ({
                                   "rounded-md overflow-hidden cursor-pointer transition-opacity duration-150 hover:opacity-80 select-none",
                                   isBooked
                                     ? "bg-orange-50 border-l-[3px] border-orange-400"
-                                    : "bg-primary border-l-[3px] border-orange-800"
+                                    : "bg-primary border-l-[3px] border-orange-800",
+                                  isNew &&
+                                    "relative bg-orange-100 ring-2 ring-primary ring-offset-1 ring-offset-white shadow-md animate-in fade-in zoom-in-95 duration-300"
                                 )}
                                 style={{
                                   marginTop: offsetTop,
@@ -1509,7 +1589,18 @@ const CalendarTurnos: React.FC<Props> = ({
                                 }}
                                 onClick={(e) => handleSelectEvent(event, e)}
                               >
-                                <div className="px-1.5 pt-1 pb-1 h-full flex flex-col min-h-0">
+                                {isNew && (
+                                  <span
+                                    aria-label="Turno nuevo"
+                                    className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary animate-pulse"
+                                  />
+                                )}
+                                <div
+                                  className={cn(
+                                    "px-1.5 pt-1 pb-1 h-full flex flex-col min-h-0",
+                                    isNew && "pr-3.5"
+                                  )}
+                                >
                                   <span
                                     className={cn(
                                       "text-xs font-semibold leading-tight whitespace-nowrap shrink-0",

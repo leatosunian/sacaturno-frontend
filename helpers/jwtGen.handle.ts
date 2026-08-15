@@ -1,5 +1,8 @@
 import { sign, verify } from "jsonwebtoken";
-const jwt_secret = process.env.JWT_SECRET || "A";
+const jwt_secret = process.env.JWT_SECRET;
+if (!jwt_secret) {
+  throw new Error("JWT_SECRET no está configurado");
+}
 
 const jwtGen = (userId: string) => {
   const jwt = sign({ userId }, jwt_secret, {

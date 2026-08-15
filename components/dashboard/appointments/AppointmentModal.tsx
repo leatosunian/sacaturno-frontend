@@ -1,10 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import styles from "@/app/css-modules/AppointmentModal.module.css";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { FaWhatsapp } from "react-icons/fa6";
-import { LuTag, LuBanknote, LuMapPin, LuUser } from "react-icons/lu";
+import { LuMapPin, LuUser, LuTrash2 } from "react-icons/lu";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -18,7 +17,7 @@ import {
 import { IEmployee } from "@/interfaces/employee.interface";
 import { IBranch } from "@/interfaces/branch.interface";
 import { IService } from "@/interfaces/service.interface";
-import { Clock, Check } from "lucide-react";
+import { Clock, Check, Calendar } from "lucide-react";
 
 interface eventType2 {
   start: Date;
@@ -67,27 +66,36 @@ interface props {
 const depositStatusConfig = {
   paid: {
     bg: "bg-green-50",
-    border: "border-green-200",
-    text: "text-green-700",
-    label: "✓ Seña pagada vía Mercado Pago",
+    border: "border-green-100",
+    label: "text-green-700",
+    value: "text-green-800",
+    text: "Seña pagada",
   },
   pending: {
     bg: "bg-yellow-50",
-    border: "border-yellow-200",
-    text: "text-yellow-700",
-    label: "⏳ Pendiente de confirmación",
+    border: "border-yellow-100",
+    label: "text-yellow-700",
+    value: "text-yellow-800",
+    text: "Seña pendiente",
   },
   failed: {
     bg: "bg-red-50",
-    border: "border-red-200",
-    text: "text-red-700",
-    label: "✗ Pago fallido",
+    border: "border-red-100",
+    label: "text-red-700",
+    value: "text-red-800",
+    text: "Pago fallido",
   },
 };
 
+const RailLabel = ({ children }: { children: React.ReactNode }) => (
+  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+    {children}
+  </span>
+);
+
 const Field = ({ label, value }: { label: string; value: React.ReactNode }) => (
-  <div className="flex flex-col gap-0.5">
-    <span className="text-xs font-bold uppercase tracking-wide text-gray-400">
+  <div className="flex flex-col gap-0.5 min-w-0">
+    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
       {label}
     </span>
     <span className="text-sm font-medium text-gray-800">{value}</span>
@@ -187,6 +195,7 @@ const AppointmentModal: React.FC<props> = ({
 
   const isMine = !!currentEmployeeID && appointment?.employeeID === currentEmployeeID;
   const showClaim = canClaim && !canAssignAny && !!onAssign;
+  const canEditAssignment = !!onAssign && hasTeam && canAssignAny;
 
   const runAssign = async (fields: {
     employeeID?: string | null;
@@ -220,10 +229,98 @@ const AppointmentModal: React.FC<props> = ({
     saveAssignment();
   };
 
+  // Los paneles de confirmación reemplazan el cuerpo en vez de empujarlo hacia
+  // abajo: en horizontal el alto es el recurso escaso.
+  const confirming = confirmReassign || confirmCancel;
+
   // Función y no componente: definido acá adentro, un componente se remontaría
   // en cada render y cerraría el desplegable abierto.
-  const renderAssignment = () => {
-    if (!onAssign || !hasTeam) return null;
+  // `narrow`: el bloque va en la mitad de la columna derecha (turno reservado),
+  // así que los selects se apilan en vez de ir a la par.
+  const renderAssignment = (narrow = false) => {
+    if (!hasTeam) return null;
+
+    if (canEditAssignment) {
+      return (
+        <div className="flex flex-col gap-3 min-w-0">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-orange-600">
+            Asignación
+          </span>
+          <div
+            className={`grid grid-cols-1 sm:grid-cols-2 gap-3 ${
+              narrow ? "lg:grid-cols-1" : ""
+            }`}
+          >
+            {activeBranches.length > 0 && (
+              <div className="flex flex-col gap-1 min-w-0">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                  Sucursal
+                </label>
+                <Select
+                  value={draftBranchID || "none"}
+                  onValueChange={(v) => {
+                    setDraftBranchID(v === "none" ? "" : v);
+                    setDraftEmployeeID("");
+                  }}
+                >
+                  <SelectTrigger className="w-full h-9 text-xs bg-white">
+                    <SelectValue placeholder="Sin asignar" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Sucursales</SelectLabel>
+                      <SelectItem value="none">Sin asignar</SelectItem>
+                      {activeBranches.map((b) => (
+                        <SelectItem key={b._id} value={b._id!}>
+                          {b.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {activeEmployees.length > 0 && (
+              <div className="flex flex-col gap-1 min-w-0">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                  Profesional
+                </label>
+                <Select
+                  value={draftEmployeeID || "none"}
+                  onValueChange={(v) => setDraftEmployeeID(v === "none" ? "" : v)}
+                >
+                  <SelectTrigger className="w-full h-9 text-xs bg-white">
+                    <SelectValue placeholder="Cualquier profesional" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Profesionales</SelectLabel>
+                      <SelectItem value="none">Cualquier profesional</SelectItem>
+                      {eligibleEmployees.map((e) => (
+                        <SelectItem key={e._id} value={e._id!}>
+                          {e.name} {e.surname}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+
+          {activeEmployees.length > 0 && eligibleEmployees.length === 0 ? (
+            <span className="text-[11px] text-orange-600">
+              Ningún profesional coincide con la sucursal y el servicio de este turno.
+            </span>
+          ) : (
+            <span className="text-[11px] text-gray-400">
+              Los cambios se guardan al confirmar.
+            </span>
+          )}
+        </div>
+      );
+    }
 
     if (showClaim) {
       if (!appointment?.employeeID) {
@@ -240,7 +337,7 @@ const AppointmentModal: React.FC<props> = ({
             <Button
               disabled={assigning}
               onClick={() => runAssign({ employeeID: currentEmployeeID })}
-              className="w-full h-10 text-white bg-primary hover:bg-orange-500 border-none rounded-lg disabled:opacity-60"
+              className="w-full h-9 text-xs text-white bg-primary hover:bg-orange-500 border-none rounded-lg disabled:opacity-60"
             >
               {assigning ? "Asignando..." : "Asignarme el turno"}
             </Button>
@@ -266,264 +363,146 @@ const AppointmentModal: React.FC<props> = ({
           </div>
         );
       }
-      return null;
     }
 
-    if (!canAssignAny) return null;
-
+    // Sin permiso para reasignar: los datos van igual, sólo que de lectura.
     return (
-      <div className="flex flex-col gap-3 p-4 rounded-xl border border-gray-200 bg-gray-50">
-        <span className="text-xs font-bold uppercase tracking-wider text-orange-600">
+      <div className="flex flex-col gap-3 min-w-0">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-orange-600">
           Asignación
         </span>
-
         {activeBranches.length > 0 && (
-          <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-              Sucursal
-            </label>
-            <Select
-              value={draftBranchID || "none"}
-              onValueChange={(v) => {
-                setDraftBranchID(v === "none" ? "" : v);
-                setDraftEmployeeID("");
-              }}
-            >
-              <SelectTrigger className="w-full bg-white">
-                <SelectValue placeholder="Sin asignar" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Sucursales</SelectLabel>
-                  <SelectItem value="none">Sin asignar</SelectItem>
-                  {activeBranches.map((b) => (
-                    <SelectItem key={b._id} value={b._id!}>
-                      {b.name}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
-        {activeEmployees.length > 0 && (
-          <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-              Profesional
-            </label>
-            <Select
-              value={draftEmployeeID || "none"}
-              onValueChange={(v) => setDraftEmployeeID(v === "none" ? "" : v)}
-            >
-              <SelectTrigger className="w-full bg-white">
-                <SelectValue placeholder="Cualquier profesional" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Profesionales</SelectLabel>
-                  <SelectItem value="none">Cualquier profesional</SelectItem>
-                  {eligibleEmployees.map((e) => (
-                    <SelectItem key={e._id} value={e._id!}>
-                      {e.name} {e.surname}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            {eligibleEmployees.length === 0 && (
-              <span className="text-[11px] text-orange-600 mt-0.5">
-                Ningún profesional coincide con la sucursal y el servicio de este turno.
-              </span>
-            )}
-          </div>
-        )}
-
-        {assignDirty && !confirmReassign && (
-          <Button
-            disabled={assigning}
-            onClick={startSave}
-            className="w-full h-9 text-xs text-white bg-primary hover:bg-orange-500 border-none rounded-lg disabled:opacity-60"
-          >
-            Guardar asignación
-          </Button>
-        )}
-
-        {confirmReassign && (
-          <div
-            className={`flex flex-col gap-3 rounded-xl border px-4 py-3.5 ${
-              notifyForced
-                ? "border-red-200 bg-red-50"
-                : "border-orange-200 bg-orange-50"
-            }`}
-          >
-            <div className="flex flex-col gap-1">
-              <span
-                className={`text-sm font-semibold ${
-                  notifyForced ? "text-red-700" : "text-orange-800"
-                }`}
-              >
-                {notifyForced
-                  ? "Le cambia el lugar de atención al cliente"
-                  : clientPickedEmployee
-                    ? "El cliente eligió a este profesional"
-                    : "Este turno ya está reservado"}
-              </span>
-              <p
-                className={`text-xs leading-relaxed ${
-                  notifyForced ? "text-red-600" : "text-orange-700"
-                }`}
-              >
-                {notifyForced
-                  ? "El día y la hora no cambian, pero el cliente va a tener que ir a otra dirección. Se le avisa siempre."
-                  : clientPickedEmployee
-                    ? `${appointment?.name} reservó pidiendo a esta persona en particular, así que conviene avisarle del cambio.`
-                    : `${appointment?.name} no eligió profesional al reservar, así que el cambio probablemente le sea indistinto.`}
-              </p>
-            </div>
-
-            <label
-              className={`flex items-start gap-2.5 text-xs ${
-                notifyForced ? "text-red-700" : "text-orange-800"
-              } ${notifyForced ? "" : "cursor-pointer"}`}
-            >
-              <input
-                type="checkbox"
-                checked={notifyForced || notifyClient}
-                disabled={notifyForced}
-                onChange={(e) => setNotifyClient(e.target.checked)}
-                className="mt-0.5 size-3.5 accent-orange-600 shrink-0 disabled:opacity-70"
-              />
-              <span>
-                Avisarle al cliente por email.
-                {(notifyForced || notifyClient) && (
-                  <span className="block mt-0.5 opacity-80">
-                    Si el cambio no le sirve va a poder cancelar
-                    {hasDeposit ? " y se le devuelve la seña" : " sin costo"}.
-                  </span>
+          <Field
+            label="Sucursal"
+            value={
+              <span className="flex items-center gap-1.5">
+                <LuMapPin className="text-gray-400 shrink-0" size={14} />
+                {assignedBranch ? (
+                  <span className="break-words">{assignedBranch.name}</span>
+                ) : (
+                  <span className="italic text-gray-400">Sin asignar</span>
                 )}
               </span>
-            </label>
-
-            <div className="flex gap-2">
-              <Button
-                disabled={assigning}
-                onClick={() => setConfirmReassign(false)}
-                className="flex-1 h-9 text-xs bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-lg"
-              >
-                Volver
-              </Button>
-              <Button
-                disabled={assigning}
-                onClick={saveAssignment}
-                className="flex-1 h-9 text-xs text-white bg-primary hover:bg-orange-500 border-none rounded-lg disabled:opacity-60"
-              >
-                {assigning ? "Guardando..." : "Confirmar cambio"}
-              </Button>
-            </div>
-          </div>
+            }
+          />
+        )}
+        {activeEmployees.length > 0 && (
+          <Field
+            label="Profesional"
+            value={
+              <span className="flex items-center gap-1.5">
+                <LuUser className="text-gray-400 shrink-0" size={14} />
+                {assignedEmployee ? (
+                  <span className="break-words">
+                    {assignedEmployee.name} {assignedEmployee.surname}
+                  </span>
+                ) : (
+                  <span className="italic text-gray-400">Cualquiera del equipo</span>
+                )}
+              </span>
+            }
+          />
         )}
       </div>
     );
   };
 
-  // ── BOOKED ──────────────────────────────────────────────────────────────────
-  if (isBooked) {
-    return (
-      <div className="flex flex-col w-full gap-4 pb-1">
-        {/* Title */}
-        <div className="pb-4 border-b border-gray-100 flex flex-col gap-1.5">
-          <div className="flex items-center gap-2.5">
-            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-green-500 shadow-sm shrink-0">
-              <Check size={14} className="text-white" strokeWidth={3} />
-            </div>
-            <h4 className="text-lg leading-none font-semibold text-gray-800">Turno reservado</h4>
+  const renderBody = () => {
+    if (confirmReassign) {
+      return (
+        <div
+          className={`flex flex-col gap-3 rounded-xl border px-4 py-3.5 ${
+            notifyForced
+              ? "border-red-200 bg-red-50"
+              : "border-orange-200 bg-orange-50"
+          }`}
+        >
+          <div className="flex flex-col gap-1">
+            <span
+              className={`text-sm font-semibold ${
+                notifyForced ? "text-red-700" : "text-orange-800"
+              }`}
+            >
+              {notifyForced
+                ? "Le cambia el lugar de atención al cliente"
+                : clientPickedEmployee
+                  ? "El cliente eligió a este profesional"
+                  : "Este turno ya está reservado"}
+            </span>
+            <p
+              className={`text-xs leading-relaxed ${
+                notifyForced ? "text-red-600" : "text-orange-700"
+              }`}
+            >
+              {notifyForced
+                ? "El día y la hora no cambian, pero el cliente va a tener que ir a otra dirección. Se le avisa siempre."
+                : clientPickedEmployee
+                  ? `${appointment?.name} reservó pidiendo a esta persona en particular, así que conviene avisarle del cambio.`
+                  : `${appointment?.name} no eligió profesional al reservar, así que el cambio probablemente le sea indistinto.`}
+            </p>
           </div>
-          {/* <p className="text-xs text-gray-400 mt-0.5">Información de la reserva</p> */}
-        </div>
 
-        {/* Date/time — full width */}
-        <div className="flex items-center border-l-[3px] bg-orange-50/70 border-l-orange-400 w-full gap-4 py-3 px-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-          <div className="flex flex-col items-center justify-center w-12 h-12 bg-primary rounded-lg shrink-0">
-            <span className="text-xl font-black text-white leading-none">
-              {dayjs(appointment?.start).format("DD")}
-            </span>
-            <span className="text-[10px] font-bold text-orange-200 uppercase leading-none mt-0.5">
-              {dayjs(appointment?.start).format("MMM")}
-            </span>
-          </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-[15px] leading-none font-semibold text-gray-800 capitalize">
-              {dayjs(appointment?.start).format("dddd DD [de] MMMM")}
-            </span>
-            <div className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-              <span className="text-[12.5px] mt-[1.5px] leading-none font-medium text-gray-500">
-                {dayjs(appointment?.start).format("HH:mm [hs]")} —{" "}
-                {dayjs(appointment?.end).format("HH:mm [hs]")}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Two-column grid (single column on mobile) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {/* Left: appointment details */}
-          <div className="flex flex-col gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100 min-w-0 overflow-hidden">
-            <span className="text-xs font-bold uppercase tracking-wider text-orange-600">
-              Turno
-            </span>
-            <Field
-              label="Servicio"
-              value={
-                <span className="break-words">{appointment?.service}</span>
-              }
+          <label
+            className={`flex items-start gap-2.5 text-xs ${
+              notifyForced ? "text-red-700" : "text-orange-800"
+            } ${notifyForced ? "" : "cursor-pointer"}`}
+          >
+            <input
+              type="checkbox"
+              checked={notifyForced || notifyClient}
+              disabled={notifyForced}
+              onChange={(e) => setNotifyClient(e.target.checked)}
+              className="mt-0.5 size-3.5 accent-orange-600 shrink-0 disabled:opacity-70"
             />
-            <Field
-              label="Precio"
-              value={`$ ${appointment?.price?.toLocaleString("es-AR")}`}
-            />
-            {hasDeposit && (
-              <Field
-                label="Seña"
-                value={
-                  <span className="text-orange-600">
-                    $ {appointment!.depositAmount!.toLocaleString("es-AR")}
-                  </span>
-                }
-              />
-            )}
-            {activeBranches.length > 0 && (
-              <Field
-                label="Sucursal"
-                value={
-                  assignedBranch ? (
-                    <span className="break-words">{assignedBranch.name}</span>
-                  ) : (
-                    <span className="italic text-gray-400">Sin asignar</span>
-                  )
-                }
-              />
-            )}
-            {activeEmployees.length > 0 && (
-              <Field
-                label="Profesional"
-                value={
-                  assignedEmployee ? (
-                    <span className="break-words">
-                      {assignedEmployee.name} {assignedEmployee.surname}
-                    </span>
-                  ) : (
-                    <span className="italic text-gray-400">Cualquiera del equipo</span>
-                  )
-                }
-              />
-            )}
-          </div>
+            <span>
+              Avisarle al cliente por email.
+              {(notifyForced || notifyClient) && (
+                <span className="block mt-0.5 opacity-80">
+                  Si el cambio no le sirve va a poder cancelar
+                  {hasDeposit ? " y se le devuelve la seña" : " sin costo"}.
+                </span>
+              )}
+            </span>
+          </label>
+        </div>
+      );
+    }
 
-          {/* Right: client details */}
-          <div className="flex flex-col gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100 min-w-0 overflow-hidden">
-            <span className="text-xs font-bold uppercase tracking-wider text-orange-600">
+    if (confirmCancel) {
+      return (
+        <div className="flex flex-col gap-2 rounded-xl border border-red-100 bg-red-50 px-4 py-3.5">
+          <span className="text-sm font-semibold text-red-700">
+            Cancelar este turno
+          </span>
+          <p className="text-[13px] leading-relaxed text-red-600">
+            Se liberará este turno y se le avisará al cliente por email.
+            {willRefund && (
+              <>
+                {" "}Como la cancelación la hacés vos, se le{" "}
+                <strong>
+                  reembolsará la seña de $
+                  {appointment!.depositAmount!.toLocaleString("es-AR")}
+                </strong>{" "}
+                vía Mercado Pago.
+              </>
+            )}
+            {depositNotSettled && (
+              <>
+                {" "}La seña de $
+                {appointment!.depositAmount!.toLocaleString("es-AR")} nunca se
+                acreditó, así que no hay nada que reembolsar.
+              </>
+            )}
+          </p>
+        </div>
+      );
+    }
+
+    if (isBooked) {
+      return (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-5">
+          <div className="flex flex-col gap-3 min-w-0">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-orange-600">
               Cliente
             </span>
             <Field
@@ -536,249 +515,233 @@ const AppointmentModal: React.FC<props> = ({
               value={<span className="break-all">{appointment?.email}</span>}
             />
           </div>
+          {renderAssignment(true)}
         </div>
+      );
+    }
 
-        {renderAssignment()}
-
-        {/* Deposit status — full width */}
-        {depositCfg && (
-          <div
-            className={`flex flex-col gap-1 py-2 px-3 rounded-xl border ${depositCfg.bg} ${depositCfg.border}`}
-          >
-            {/* <span className="text-xs font-bold uppercase tracking-wide text-gray-500">Estado de la seña</span> */}
-            <span
-              className={`text-xs md:text-sm font-semibold ${depositCfg.text}`}
-            >
-              {depositCfg.label}
-            </span>
-            {appointment?.depositStatus === "paid" &&
-              appointment.mpPaymentID && (
-                <div className="flex flex-row md:items-end justify-between gap-0.5 mt-1 pt-2 border-t border-green-200">
-                  <span className="text-[11px] font-bold uppercase  text-gray-400">
-                    ID de pago{" "}
-                  </span>
-                  <span className="text-xs md:text-xs tracking-wider font-semibold text-gray-400">
-                    {appointment.mpPaymentID}
-                  </span>
-                </div>
-              )}
-          </div>
-        )}
-
-        {/* WhatsApp CTA */}
-        <div
-          className="my-1"
-          style={{
-            width: "100%",
-            height: "1px",
-            backgroundColor: "rgb(178 178 178 / 40%)",
-          }}
-        />
-        <Link
-          target="_blank"
-          href={`https://wa.me/54${appointment?.phone}`}
-          className="w-full"
-        >
-          <Button className="w-full text-white bg-primary border-none rounded-lg h-11 hover:bg-orange-500">
-            <FaWhatsapp color="white" /> Contactar cliente por WhatsApp
-          </Button>
-        </Link>
-
-        {/* Cancelar turno */}
-        {onCancel && canDelete && (
-          <>
-            {!confirmCancel ? (
-              <Button
-                onClick={() => setConfirmCancel(true)}
-                className="w-full bg-white text-red-600 border border-red-200 rounded-lg h-11 hover:bg-red-50"
-              >
-                Cancelar turno
-              </Button>
-            ) : (
-              <div className="flex flex-col gap-3 rounded-xl border border-red-100 bg-red-50 px-4 py-3.5">
-                <p className="text-[13px] leading-relaxed text-red-600 text-center font-medium">
-                  Se liberará este turno y se le avisará al cliente por email.
-                  {willRefund && (
-                    <>
-                      {" "}Como la cancelación la hacés vos, se le{" "}
-                      <strong>
-                        reembolsará la seña de $
-                        {appointment!.depositAmount!.toLocaleString("es-AR")}
-                      </strong>{" "}
-                      vía Mercado Pago.
-                    </>
-                  )}
-                  {depositNotSettled && (
-                    <>
-                      {" "}La seña de $
-                      {appointment!.depositAmount!.toLocaleString("es-AR")} nunca se
-                      acreditó, así que no hay nada que reembolsar.
-                    </>
-                  )}
-                </p>
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => setConfirmCancel(false)}
-                    className="flex-1 h-9 text-xs bg-gray-100 text-gray-700 hover:bg-gray-200 border-none rounded-lg"
-                  >
-                    Volver
-                  </Button>
-                  <Button
-                    onClick={handleCancel}
-                    className="flex-1 h-9 text-xs text-white bg-red-600 hover:bg-red-700 border-none rounded-lg"
-                  >
-                    Confirmar cancelación
-                  </Button>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+    return (
+      renderAssignment() ?? (
+        <p className="text-sm text-gray-400">
+          Este turno queda disponible para que lo reserve un cliente.
+        </p>
+      )
     );
-  }
+  };
 
-  // ── UNBOOKED ─────────────────────────────────────────────────────────────────
+  const renderFooter = () => {
+    if (confirmReassign) {
+      return (
+        <>
+          <Button
+            disabled={assigning}
+            onClick={() => setConfirmReassign(false)}
+            className="h-9 px-4 text-xs bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-lg"
+          >
+            Volver
+          </Button>
+          <Button
+            disabled={assigning}
+            onClick={saveAssignment}
+            className="h-9 px-4 text-xs text-white bg-primary hover:bg-orange-500 border-none rounded-lg disabled:opacity-60"
+          >
+            {assigning ? "Guardando..." : "Confirmar cambio"}
+          </Button>
+        </>
+      );
+    }
+
+    if (confirmCancel) {
+      return (
+        <>
+          <Button
+            onClick={() => setConfirmCancel(false)}
+            className="h-9 px-4 text-xs bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-lg"
+          >
+            Volver
+          </Button>
+          <Button
+            onClick={handleCancel}
+            className="h-9 px-4 text-xs text-white bg-red-600 hover:bg-red-700 border-none rounded-lg"
+          >
+            Confirmar cancelación
+          </Button>
+        </>
+      );
+    }
+
+    return (
+      <>
+        {isBooked ? (
+          <Link
+            target="_blank"
+            href={`https://wa.me/54${appointment?.phone}`}
+            className="shrink-0"
+          >
+            <Button className="h-9 px-4 text-xs bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-lg">
+              <FaWhatsapp size={14} /> WhatsApp
+            </Button>
+          </Link>
+        ) : (
+          <Button
+            onClick={closeModalF}
+            className="h-9 px-4 text-xs bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-lg"
+          >
+            Cerrar
+          </Button>
+        )}
+        {canEditAssignment && assignDirty && (
+          <Button
+            disabled={assigning}
+            onClick={startSave}
+            className="h-9 px-4 text-xs text-white bg-primary hover:bg-orange-500 border-none rounded-lg disabled:opacity-60"
+          >
+            Guardar asignación
+          </Button>
+        )}
+      </>
+    );
+  };
+
+  const destructiveAction = () => {
+    if (confirming) return null;
+    if (isBooked) {
+      if (!onCancel || !canDelete) return null;
+      return (
+        <Button
+          onClick={() => setConfirmCancel(true)}
+          className="h-9 px-4 text-xs bg-white text-red-600 hover:bg-red-50 border border-red-200 rounded-lg"
+        >
+          Cancelar turno
+        </Button>
+      );
+    }
+    if (!canDelete) return null;
+    return (
+      <Button
+        onClick={handleDelete}
+        className="h-9 px-4 text-xs bg-white text-red-600 hover:bg-red-50 border border-red-200 rounded-lg"
+      >
+        <LuTrash2 size={14} /> Eliminar turno
+      </Button>
+    );
+  };
+
   return (
-    <div className="flex flex-col w-full gap-4 pb-1">
-      <div className="pb-4 border-b border-gray-100 flex flex-col gap-1">
-        <h4 className="text-lg leading-none font-semibold text-gray-800">Turno disponible</h4>
-        <p className="text-xs text-gray-400 mt-0.5">Este turno aún no fue reservado</p>
-      </div>
-
-        {/* fecha + horario */}
-        <div className="flex items-center border-l-[3px] bg-orange-50/70 border-l-orange-400 w-full gap-4 py-3 px-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-          <div className="flex flex-col items-center justify-center w-12 h-12 bg-primary rounded-lg shrink-0">
-            <span className="text-xl font-black text-white leading-none">
+    <div className="flex flex-col lg:grid lg:grid-cols-[auto_minmax(0,1fr)] w-full max-h-[85dvh] overflow-hidden">
+      {/* Resumen: lo que no se edita desde acá. El riel se mide por su contenido
+          (la fecha larga es la que manda) en vez de tener un ancho fijo, así no
+          sobra aire con fechas cortas ni se corta "miércoles 30 de septiembre". */}
+      <aside className="shrink-0 min-h-0 lg:min-w-[250px] lg:max-w-[340px] lg:overflow-y-auto flex flex-col gap-4 px-6 py-5 bg-orange-50/60 border-b lg:border-b-0 lg:border-r border-orange-100">
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col items-center justify-center w-11 h-11 bg-primary rounded-lg shrink-0">
+            <span className="text-lg font-black text-white leading-none">
               {dayjs(appointment?.start).format("DD")}
             </span>
-            <span className="text-[10px] font-bold text-orange-200 uppercase leading-none mt-0.5">
+            <span className="text-[9px] font-bold text-orange-200 uppercase leading-none mt-0.5">
               {dayjs(appointment?.start).format("MMM")}
             </span>
           </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-[15px] leading-none font-semibold text-gray-800 capitalize">
+          <div className="flex flex-col gap-1 min-w-0">
+            <span className="text-[15px] leading-tight font-semibold text-gray-800 capitalize whitespace-nowrap">
               {dayjs(appointment?.start).format("dddd DD [de] MMMM")}
             </span>
-            <div className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-              <span className="text-[12.5px] mt-[1.5px] leading-none font-medium text-gray-500">
-                {dayjs(appointment?.start).format("HH:mm [hs]")} —{" "}
+            <div className="flex items-center gap-1.5 whitespace-nowrap">
+              <Clock className="w-4 h-4 text-gray-400 shrink-0" />
+              <span className="text-sm leading-none font-medium text-gray-500">
+                {dayjs(appointment?.start).format("HH:mm")} —{" "}
                 {dayjs(appointment?.end).format("HH:mm [hs]")}
               </span>
             </div>
           </div>
         </div>
 
-      {/* Details card */}
-      <div className="flex flex-col rounded-xl border border-gray-200 overflow-hidden bg-white shadow-sm divide-y divide-gray-100">
-        {/* Service — hero row */}
-        <div className="flex items-center gap-3 px-4 py-3.5 bg-gray-50">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-50 shrink-0">
-            <LuTag className="text-orange-600" size={15} />
-          </div>
-          <div className="flex flex-col gap-0.5 min-w-0">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-              Servicio
-            </span>
-            <span className="text-sm font-semibold text-gray-800 leading-tight">
+        <div className="h-px mt-1 bg-orange-100" />
+
+        <div className="grid grid-cols-2 lg:grid-cols-1 gap-3.5">
+          <div className="flex flex-col gap-1 min-w-0">
+            <RailLabel>Servicio</RailLabel>
+            <span className="text-[13px] font-semibold text-gray-800 leading-snug break-words">
               {appointment?.service}
             </span>
           </div>
-        </div>
-
-        {/* Price row */}
-        <div className="flex items-center justify-between gap-3 px-4 py-3">
-          <div className="flex items-center gap-2">
-            <LuBanknote className="text-gray-400 shrink-0" size={15} />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-              Precio
+          <div className="flex flex-col gap-0.5">
+            <RailLabel>Precio</RailLabel>
+            <span className="text-lg font-bold text-gray-800 leading-none">
+              $ {appointment?.price?.toLocaleString("es-AR")}
             </span>
           </div>
-          <span className="text-sm font-bold text-gray-800">
-            $ {appointment?.price?.toLocaleString("es-AR")}
-          </span>
-        </div>
-
-        {/* Deposit row (conditional) */}
-        {hasDeposit && (
-          <div className="flex items-center justify-between gap-3 px-4 py-3">
-            <div className="flex items-center gap-2">
-              <LuBanknote className="text-orange-400 shrink-0" size={15} />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+          {hasDeposit && !depositCfg && (
+            <div className="flex flex-col gap-1">
+              <RailLabel>Seña</RailLabel>
+              <span className="text-[13px] font-semibold text-orange-600">
+                $ {appointment!.depositAmount!.toLocaleString("es-AR")}
+              </span>
+            </div>
+          )}
+          {hasDeposit && depositCfg && (
+            <div
+              className={`flex flex-col gap-0.5 rounded-lg border px-2.5 py-2 ${depositCfg.bg} ${depositCfg.border}`}
+            >
+              <span
+                className={`text-[10px] font-bold uppercase tracking-widest ${depositCfg.label}`}
+              >
                 Seña
               </span>
-            </div>
-            <span className="text-sm font-semibold text-orange-600">
-              $ {appointment!.depositAmount!.toLocaleString("es-AR")}
-            </span>
-          </div>
-        )}
-
-        {/* Branch row */}
-        {activeBranches.length > 0 && (
-          <div className="flex items-center justify-between gap-3 px-4 py-3">
-            <div className="flex items-center gap-2">
-              <LuMapPin className="text-gray-400 shrink-0" size={15} />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                Sucursal
+              <span className={`text-xs font-semibold ${depositCfg.value}`}>
+                $ {appointment!.depositAmount!.toLocaleString("es-AR")} —{" "}
+                {depositCfg.text}
               </span>
+              {appointment?.depositStatus === "paid" && appointment.mpPaymentID && (
+                <span className="text-[10px] tracking-wide text-gray-400 mt-0.5 break-all">
+                  ID {appointment.mpPaymentID}
+                </span>
+              )}
             </div>
-            <span
-              className={
-                assignedBranch
-                  ? "text-sm font-semibold text-gray-700"
-                  : "text-sm font-medium text-gray-400 italic"
-              }
-            >
-              {assignedBranch?.name ?? "Sin asignar"}
-            </span>
+          )}
+        </div>
+
+        {!isBooked && (
+          <div className="hidden lg:flex mt-auto items-center gap-1.5 w-fit rounded-full bg-gray-100 px-2.5 py-1">
+            <Calendar className="w-3 h-3 text-gray-500 shrink-0" />
+            <span className="text-[11px] font-medium text-gray-600">Sin reservar</span>
           </div>
         )}
+      </aside>
 
-        {/* Employee row */}
-        {activeEmployees.length > 0 && (
-          <div className="flex items-center justify-between gap-3 px-4 py-3">
-            <div className="flex items-center gap-2">
-              <LuUser className="text-gray-400 shrink-0" size={15} />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                Profesional
-              </span>
+      {/* Contenido y acciones */}
+      <section className="flex flex-col min-h-0 flex-1">
+        <div className="shrink-0 flex flex-col gap-0.5 px-6 py-6 pr-14 border-b border-gray-100">
+          {isBooked ? (
+            <div className="flex items-center gap-2.5">
+              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500 shrink-0">
+                <Check size={13} className="text-white" strokeWidth={3} />
+              </div>
+              <h4 className="text-lg leading-none font-semibold text-gray-800">
+                Turno reservado
+              </h4>
             </div>
-            <span
-              className={
-                assignedEmployee
-                  ? "text-sm font-semibold text-gray-700"
-                  : "text-sm font-medium text-gray-400 italic"
-              }
-            >
-              {assignedEmployee
-                ? `${assignedEmployee.name} ${assignedEmployee.surname}`
-                : "Cualquiera del equipo"}
-            </span>
-          </div>
-        )}
-      </div>
+          ) : (
+            <>
+              <h4 className="text-lg leading-none font-semibold text-gray-800">
+                Turno disponible
+              </h4>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Este turno aún no fue reservado
+              </p>
+            </>
+          )}
+        </div>
 
-      {renderAssignment()}
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5">
+          {renderBody()}
+        </div>
 
-      {canDelete && (
-        <>
-          <div
-            style={{
-              width: "100%",
-              height: "1px",
-              backgroundColor: "rgb(178 178 178 / 40%)",
-            }}
-          />
-          <Button
-            onClick={handleDelete}
-            className="w-full text-white bg-red-600 border-none rounded-lg h-11 hover:bg-red-700"
-          >
-            Eliminar turno
-          </Button>
-        </>
-      )}
+        <div className="shrink-0 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-2 px-6 py-4 border-t border-gray-100">
+          {destructiveAction() ?? <span className="hidden sm:block" />}
+          <div className="flex items-center justify-end gap-2">{renderFooter()}</div>
+        </div>
+      </section>
     </div>
   );
 };

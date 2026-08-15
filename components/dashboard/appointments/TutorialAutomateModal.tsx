@@ -11,30 +11,6 @@ interface Props {
 const steps = [
   {
     number: 1,
-    icon: <LuToggleRight size={22} className="text-orange-500" />,
-    title: "Activá la agenda automática",
-    description:
-      'Activá la opción "Crear turnos automáticamente". Cuando la agenda automática está activada, se pone naranja.',
-    tip: "Si el interruptor está gris, la agenda automática está desactivada.",
-  },
-  {
-    number: 2,
-    icon: <LuCalendarDays size={22} className="text-orange-500" />,
-    title: "Elegí cuántos días de agenda crear",
-    description:
-      'En "Días con turnos disponibles" elegí si querés crear 7, 15 o 30 días de turnos. Esa es la cantidad de días con turnos que se van a crear según la plantilla de agenda que vas a configurar debajo en "Horario de atención".',
-    tip: "Podés crear 7 días para comenzar a probar esta funcionalidad.",
-  },
-  {
-    number: 3,
-    icon: <FaRepeat size={18} className="text-orange-500" />,
-    title: "Elegí con cuánta anticipación renovar los turnos",
-    description:
-      'En "¿Con qué anticipación crear turnos?" elegí cuántos días antes del último turno querés que se vuelva a generar la plantilla de turnos automáticos.',
-    tip: "Por ejemplo: si creás 7 días y elegís 3 días de anticipación, el día 4 se crearán 7 días más automáticamente.",
-  },
-  {
-    number: 4,
     icon: <LuClock size={22} className="text-orange-500" />,
     title: "Configurá tu horario de atención",
     description:
@@ -42,12 +18,36 @@ const steps = [
     tip: "Podés configurar horarios distintos para cada día y ubicar los turnos para el servicio/sucursal/empleado que desees.",
   },
   {
-    number: 5,
+    number: 2,
     icon: <LuMousePointerClick size={22} className="text-orange-500" />,
     title: "Agregá los turnos en el calendario",
     description:
       "Hacé clic en cualquier fila del calendario para agregar un turno en ese horario. Podés asignar el turno a una sucursal y a un empleado de la misma.",
     tip: 'Por ejemplo: si agregas un turno el dia lunes a las 18:00 hs, todos los lunes a las 18:00 hs se creará un turno para el mismo servicio, sucursal y/o empleado.',
+  },
+  {
+    number: 3,
+    icon: <LuCalendarDays size={22} className="text-orange-500" />,
+    title: "Elegí cuántos días de agenda crear",
+    description:
+      'Más abajo, en "Frecuencia y cantidad de días", elegí en "Días con turnos disponibles" si querés crear 7, 15 o 30 días de turnos. Esa es la cantidad de días con turnos que se van a crear según la plantilla de agenda que configuraste arriba en "Horario de atención".',
+    tip: "Podés crear 7 días para comenzar a probar esta funcionalidad.",
+  },
+  {
+    number: 4,
+    icon: <FaRepeat size={18} className="text-orange-500" />,
+    title: "Elegí con cuánta anticipación renovar los turnos",
+    description:
+      'En "¿Con qué anticipación crear turnos?" elegí cuántos días antes del último turno querés que se vuelva a generar la plantilla de turnos automáticos.',
+    tip: "Por ejemplo: si creás 7 días y elegís 3 días de anticipación, el día 4 se crearán 7 días más automáticamente.",
+  },
+  {
+    number: 5,
+    icon: <LuToggleRight size={22} className="text-orange-500" />,
+    title: "Activá la agenda automática",
+    description:
+      'En la misma sección, activá la opción "Crear turnos automáticamente". Cuando la agenda automática está activada, se pone naranja.',
+    tip: "Si el interruptor está gris, la agenda automática está desactivada.",
   },
   {
     number: 6,

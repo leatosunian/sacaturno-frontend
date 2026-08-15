@@ -40,7 +40,7 @@ const EmployeeGuideDialog: React.FC<Props> = ({ open, onClose }) => {
         </div>
 
         {/* Body (scrollable) */}
-        <div className="flex-1 min-h-0 overflow-y-auto scroll-fade px-6 lg:px-10 py-5">
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 lg:px-10 py-5">
           <div className="flex flex-col gap-3">
             <div className="w-full flex flex-col gap-2 p-4 rounded-xl bg-gray-50 border border-gray-100 text-left">
               <div className="flex items-center gap-3">
@@ -113,39 +113,6 @@ const EmployeeGuideDialog: React.FC<Props> = ({ open, onClose }) => {
           </button>
         </div>
 
-        <style jsx>{`
-          .scroll-fade {
-            scrollbar-width: thin;
-            scrollbar-color: rgba(234, 88, 12, 0.35) transparent;
-          }
-          .scroll-fade::-webkit-scrollbar {
-            width: 8px;
-          }
-          .scroll-fade::-webkit-scrollbar-track {
-            background: transparent;
-            margin: 8px 0;
-          }
-          .scroll-fade::-webkit-scrollbar-thumb {
-            background: linear-gradient(
-              180deg,
-              rgba(251, 146, 60, 0.45),
-              rgba(234, 88, 12, 0.55)
-            );
-            border-radius: 9999px;
-            border: 2px solid transparent;
-            background-clip: padding-box;
-            transition: background 0.2s ease;
-          }
-          .scroll-fade::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(
-              180deg,
-              rgba(251, 146, 60, 0.7),
-              rgba(234, 88, 12, 0.85)
-            );
-            background-clip: padding-box;
-            border: 2px solid transparent;
-          }
-        `}</style>
       </DialogContent>
     </Dialog>
   );

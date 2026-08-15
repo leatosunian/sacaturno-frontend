@@ -17,6 +17,7 @@ export interface BranchAssignmentResult {
   assignedSchedules: number;
   assignedAppointments: number;
   assignedEmployees: number;
+  assignedEmployeeIDs: string[];
   totalSchedules: number;
 }
 
@@ -120,6 +121,19 @@ const BranchAssignmentModal: React.FC<Props> = ({ open, onClose, result }) => {
             </>
           ) : (
             <>
+              {assignedEmployees > 0 && (
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 bg-white">
+                  <LuUsers className="text-gray-400 shrink-0" size={16} />
+                  <span className="text-sm text-gray-600 flex-1">
+                    {plural(assignedEmployees, "Empleado asignado", "Empleados asignados")} a esta
+                    sucursal
+                  </span>
+                  <span className="text-sm font-bold text-gray-800 tabular-nums">
+                    {assignedEmployees}
+                  </span>
+                </div>
+              )}
+
               <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
                 <span className="text-blue-400 mt-0.5 shrink-0 text-sm">ℹ</span>
                 <p className="text-xs text-blue-600 leading-relaxed">
