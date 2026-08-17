@@ -123,6 +123,7 @@ const AppointmentModal: React.FC<props> = ({
   const [assigning, setAssigning] = useState(false);
   const [confirmReassign, setConfirmReassign] = useState(false);
   const [notifyClient, setNotifyClient] = useState(true);
+  const [editingAssignment, setEditingAssignment] = useState(false);
 
   useEffect(() => {
     setIsBooked(appointment?.status === "booked");
@@ -131,6 +132,7 @@ const AppointmentModal: React.FC<props> = ({
     setDraftBranchID(appointment?.branchID ?? "");
     setAssigning(false);
     setConfirmReassign(false);
+    setEditingAssignment(false);
   }, [appointment]);
 
   const handleDelete = () => {
@@ -207,10 +209,18 @@ const AppointmentModal: React.FC<props> = ({
     const ok = await onAssign(appointment._id, fields);
     setAssigning(false);
     setConfirmReassign(false);
-    if (!ok) {
+    if (ok) {
+      setEditingAssignment(false);
+    } else {
       setDraftEmployeeID(appointment.employeeID ?? "");
       setDraftBranchID(appointment.branchID ?? "");
     }
+  };
+
+  const cancelAssignmentEdit = () => {
+    setDraftEmployeeID(appointment?.employeeID ?? "");
+    setDraftBranchID(appointment?.branchID ?? "");
+    setEditingAssignment(false);
   };
 
   const saveAssignment = () =>
@@ -233,6 +243,23 @@ const AppointmentModal: React.FC<props> = ({
   // abajo: en horizontal el alto es el recurso escaso.
   const confirming = confirmReassign || confirmCancel;
 
+  const assignmentHeader = (action?: { label: string; onClick: () => void }) => (
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-[11px] font-bold uppercase tracking-wider text-orange-600">
+        Asignación
+      </span>
+      {action && (
+        <button
+          type="button"
+          onClick={action.onClick}
+          className="shrink-0 text-[11px] font-semibold text-orange-600 hover:underline transition-all duration-200 ease-in-out cursor-pointer"
+        >
+          {action.label}
+        </button>
+      )}
+    </div>
+  );
+
   // Función y no componente: definido acá adentro, un componente se remontaría
   // en cada render y cerraría el desplegable abierto.
   // `narrow`: el bloque va en la mitad de la columna derecha (turno reservado),
@@ -240,12 +267,16 @@ const AppointmentModal: React.FC<props> = ({
   const renderAssignment = (narrow = false) => {
     if (!hasTeam) return null;
 
-    if (canEditAssignment) {
+    // En un turno reservado la asignación ya es un hecho: se lee como dato y los
+    // selectores aparecen sólo si el dueño entra a cambiarla a propósito.
+    if (canEditAssignment && (!isBooked || editingAssignment)) {
       return (
         <div className="flex flex-col gap-3 min-w-0">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-orange-600">
-            Asignación
-          </span>
+          {assignmentHeader(
+            isBooked
+              ? { label: "Descartar", onClick: cancelAssignmentEdit }
+              : undefined
+          )}
           <div
             className={`grid grid-cols-1 sm:grid-cols-2 gap-3 ${
               narrow ? "lg:grid-cols-1" : ""
@@ -365,12 +396,14 @@ const AppointmentModal: React.FC<props> = ({
       }
     }
 
-    // Sin permiso para reasignar: los datos van igual, sólo que de lectura.
+    // Lectura: turno reservado, o alguien sin permiso para reasignar.
     return (
       <div className="flex flex-col gap-3 min-w-0">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-orange-600">
-          Asignación
-        </span>
+        {assignmentHeader(
+          canEditAssignment
+            ? { label: "Cambiar", onClick: () => setEditingAssignment(true) }
+            : undefined
+        )}
         {activeBranches.length > 0 && (
           <Field
             label="Sucursal"

@@ -55,7 +55,7 @@ const CreateBusiness = async () => {
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold text-gray-800">Crear empresa</h1>
       </div>
-      <FormCreateBusiness userEmail={userData?.email ?? ""} />
+      <FormCreateBusiness userEmail={userData?.email ?? ""} userPhone={userData?.phone ?? null} />
       {/* <div className="w-full h-10" /> */}
     </div>
   );

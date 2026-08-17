@@ -33,7 +33,7 @@ interface props {
   }) => void;
 }
 
-const inputClass = "h-9 w-full rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 text-sm transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none focus:bg-gray-100 placeholder:text-gray-400";
+const inputClass = "h-9 w-full rounded-md border border-gray-200 bg-gray-50 px-3 text-sm transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none focus:bg-gray-100 placeholder:text-gray-400";
 const labelClass = "text-xs font-medium text-gray-600";
 const errorClass = "text-xs text-red-500 mt-0.5";
 
@@ -107,7 +107,7 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
         <div className={`grid gap-4 ${mpLinked ? "grid-cols-2" : "grid-cols-1"}`}>
           <div className="flex flex-col gap-1">
             <label className={labelClass}>Precio</label>
-            <div className="flex items-center h-9 rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 transition-all duration-200 ease-in-out hover:border-orange-600 focus-within:border-orange-600 focus-within:bg-gray-100">
+            <div className="flex items-center h-9 rounded-md border border-gray-200 bg-gray-50 px-3 transition-all duration-200 ease-in-out hover:border-orange-600 focus-within:border-orange-600 focus-within:bg-gray-100">
               <span className="text-sm text-gray-400 mr-1.5">$</span>
               <input
                 type="text"
@@ -128,7 +128,7 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
           {mpLinked && (
             <div className="flex flex-col gap-1">
               <label className={labelClass}>Seña</label>
-              <div className="flex items-center h-9 rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 transition-all duration-200 ease-in-out hover:border-orange-600 focus-within:border-orange-600 focus-within:bg-gray-100">
+              <div className="flex items-center h-9 rounded-md border border-gray-200 bg-gray-50 px-3 transition-all duration-200 ease-in-out hover:border-orange-600 focus-within:border-orange-600 focus-within:bg-gray-100">
                 <span className="text-sm text-gray-400 mr-1.5">$</span>
                 <input
                   type="text"
@@ -157,7 +157,7 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
             defaultValue={String(serviceData?.duration ?? 30)}
             onValueChange={(val) => setValue("duration", Number(val), { shouldDirty: true })}
           >
-            <SelectTrigger className="h-9 text-sm border-gray-200 bg-[rgb(245,245,245)] hover:border-orange-600 focus:ring-0 focus:border-orange-600 transition-all duration-200">
+            <SelectTrigger className="h-9 text-sm border-gray-200 bg-gray-50 hover:border-orange-600 focus:ring-0 focus:border-orange-600 transition-all duration-200">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -182,7 +182,7 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
         <div className="flex flex-col gap-1">
           <label className={labelClass}>Descripción</label>
           <textarea
-            className="w-full rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 py-2 text-sm transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none focus:bg-gray-100 resize-none overflow-hidden placeholder:text-gray-400"
+            className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none focus:bg-gray-100 resize-none overflow-hidden placeholder:text-gray-400"
             rows={2}
             maxLength={140}
             placeholder="Describí el servicio brevemente"

@@ -16,11 +16,19 @@ import RubroPicker from "./RubroPicker";
 import { inferCategoryCode } from "@/lib/businessCategories";
 import CancellationPolicyCard from "./CancellationPolicyCard";
 
+const addressFieldCls = (hasError: boolean) =>
+  `h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-gray-50 transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${
+    hasError ? "border-red-500" : "border-gray-200"
+  }`;
+
 interface formInputs {
   name: string;
   businessCategory: string;
   businessType: string;
-  address: string;
+  street: string;
+  number: string;
+  city: string;
+  province: string;
   phone: string;
   email: string;
   slug: string;
@@ -73,7 +81,10 @@ const FormCreateBusiness = ({
     if (!businessData) return;
     reset({
       name: businessData.name,
-      address: businessData.address,
+      street: businessData.street ?? "",
+      number: businessData.number ?? "",
+      city: businessData.city ?? "",
+      province: businessData.province ?? "",
       businessCategory: businessData.businessCategory || inferCategoryCode(businessData.businessType) || "",
       businessType: businessData.businessType,
       phone: businessData.phone?.toString() ?? "",
@@ -149,7 +160,10 @@ const FormCreateBusiness = ({
       if (updatedUser.data.msg === "BUSINESS_EDITED") {
         reset({
           name: data.name,
-          address: data.address,
+          street: data.street,
+          number: data.number,
+          city: data.city,
+          province: data.province,
           businessCategory: data.businessCategory,
           businessType: data.businessType,
           phone: data.phone,
@@ -220,7 +234,7 @@ const FormCreateBusiness = ({
                   maxLength={30}
                   {...register("name")}
                   placeholder="Nombre de la empresa"
-                  className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(245,245,245)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.name ? "border-red-500" : "border-gray-200"}`}
+                  className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-gray-50 transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.name ? "border-red-500" : "border-gray-200"}`}
                 />
                 {errors.name?.message && (
                   <span className="text-xs 2xl:text-sm text-red-500">{errors.name.message}</span>
@@ -251,18 +265,64 @@ const FormCreateBusiness = ({
                     Mis sucursales
                   </Link>
                 ) : (
-                  <>
-                    <input
-                      type="text"
-                      maxLength={40}
-                      {...register("address")}
-                      placeholder="Calle, número, ciudad"
-                      className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(245,245,245)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.address ? "border-red-500" : "border-gray-200"}`}
-                    />
-                    {errors.address?.message && (
-                      <span className="text-xs 2xl:text-sm text-red-500">{errors.address.message}</span>
-                    )}
-                  </>
+                  <div className="flex flex-col gap-3 mt-1">
+                    <div className="flex gap-3">
+                      <div className="flex flex-col gap-1 flex-1">
+                        <span className="text-xs text-gray-500">Calle</span>
+                        <input
+                          type="text"
+                          maxLength={70}
+                          {...register("street")}
+                          placeholder="Av. Corrientes"
+                          className={addressFieldCls(!!errors.street)}
+                        />
+                        {errors.street?.message && (
+                          <span className="text-xs text-red-500">{errors.street.message}</span>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-1 w-24">
+                        <span className="text-xs text-gray-500">Altura</span>
+                        <input
+                          type="text"
+                          maxLength={5}
+                          {...register("number")}
+                          placeholder="1234"
+                          className={addressFieldCls(!!errors.number)}
+                        />
+                        {errors.number?.message && (
+                          <span className="text-xs text-red-500 leading-tight">{errors.number.message}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="flex flex-col gap-1 flex-1">
+                        <span className="text-xs text-gray-500">Ciudad</span>
+                        <input
+                          type="text"
+                          maxLength={50}
+                          {...register("city")}
+                          placeholder="Buenos Aires"
+                          className={addressFieldCls(!!errors.city)}
+                        />
+                        {errors.city?.message && (
+                          <span className="text-xs text-red-500">{errors.city.message}</span>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-1 flex-1">
+                        <span className="text-xs text-gray-500">Provincia</span>
+                        <input
+                          type="text"
+                          maxLength={50}
+                          {...register("province")}
+                          placeholder="CABA"
+                          className={addressFieldCls(!!errors.province)}
+                        />
+                        {errors.province?.message && (
+                          <span className="text-xs text-red-500">{errors.province.message}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
@@ -282,7 +342,7 @@ const FormCreateBusiness = ({
                 maxLength={40}
                 {...register("email")}
                 placeholder="contacto@empresa.com"
-                className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(245,245,245)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.email ? "border-red-500" : "border-gray-200"}`}
+                className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-gray-50 transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.email ? "border-red-500" : "border-gray-200"}`}
               />
               {errors.email?.message && (
                 <span className="text-xs 2xl:text-sm text-red-500">{errors.email.message}</span>
@@ -295,7 +355,7 @@ const FormCreateBusiness = ({
                 type="number"
                 {...register("phone")}
                 placeholder="Ej: 2234567890"
-                className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-[rgb(245,245,245)] transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.phone ? "border-red-500" : "border-gray-200"}`}
+                className={`h-8 2xl:h-10 w-full rounded-md border px-3 text-xs 2xl:text-sm bg-gray-50 transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none ${errors.phone ? "border-red-500" : "border-gray-200"}`}
               />
               {errors.phone?.message && (
                 <span className="text-xs 2xl:text-sm text-red-500">{errors.phone.message}</span>

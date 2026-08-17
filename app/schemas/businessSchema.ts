@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { optionalAddressFields, refineAddressGroup } from './addressFields'
 
 export const businessSchema = z.object({
     name: z.string().trim().min(3, {
@@ -17,9 +18,7 @@ export const businessSchema = z.object({
         message: 'La especialidad debe tener menos de 35 caractéres'
     }),
 
-    address: z.string().trim().max(50, {
-        message: 'El domicilio debe tener menos de 50 caractéres'
-    }).optional(),
+    ...optionalAddressFields,
 
     email: z.string().trim().email({
         message: 'Ingresá un correo válido'
@@ -36,4 +35,4 @@ export const businessSchema = z.object({
     }).refine(s => !s.includes(' '), 'El link no debe contener espacios'),
 
     cancellationWindowHours: z.coerce.number().optional(),
-})
+}).superRefine(refineAddressGroup)

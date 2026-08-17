@@ -19,7 +19,7 @@ import {
   User,
   Tag,
 } from "lucide-react";
-import { cn, composeBranchAddress } from "@/lib/utils";
+import { cn, composeBranchAddress, resolveContactPhone } from "@/lib/utils";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import { IBusiness } from "@/interfaces/business.interface";
 import { IDaySchedule } from "@/interfaces/daySchedule.interface";
@@ -420,10 +420,21 @@ export default function ListBookAppointment({
   // Con sucursales cargadas, ellas son la fuente de verdad para la dirección:
   // con una sola sucursal se muestra su dirección puntual; con 2+ es ambiguo y se oculta.
   const singleLocationAddress = useMemo(() => {
-    if (branches.length === 0) return businessData.address || null;
+    if (branches.length === 0) return composeBranchAddress(businessData) || null;
     if (branches.length === 1) return composeBranchAddress(branches[0]) || null;
     return null;
-  }, [branches, businessData.address]);
+  }, [branches, businessData]);
+
+  // El teléfono de contacto sale de la sucursal en juego (la elegida o la única
+  // que hay) y cae al del negocio mientras esa sucursal no tenga uno propio.
+  const contactPhone = useMemo(
+    () =>
+      resolveContactPhone(
+        businessData.phone,
+        displayBranchObj ?? (branches.length === 1 ? branches[0] : null),
+      ),
+    [businessData.phone, displayBranchObj, branches],
+  );
 
   // ── Resumen: dónde y con quién ──
   const summaryPlaceName = displayBranchObj?.name ?? businessData.name ?? "";
@@ -573,10 +584,12 @@ export default function ListBookAppointment({
     subtitle?: React.ReactNode;
   }) => (
     <div className="shrink-0">
-      <span className="hidden md:inline text-[10px] 2xl:text-xs uppercase tracking-widest text-orange-600 font-bold">
+      {/* block + leading-none: como inline, el line box del contenedor sumaba
+          ~7px de half-leading arriba y el paso no arrancaba a la altura del padding. */}
+      <span className="hidden md:block leading-none text-[10px] 2xl:text-xs uppercase tracking-widest text-orange-600 font-bold">
         {stepLabel}
       </span>
-      <h2 className="text-lg md:text-xl 2xl:text-3xl font-extrabold tracking-tight mt-0.5 2xl:mt-1">
+      <h2 className="text-lg md:text-xl 2xl:text-3xl font-extrabold tracking-tight mt-1.5 2xl:mt-2">
         {title}
       </h2>
       {subtitle && (
@@ -999,6 +1012,129 @@ export default function ListBookAppointment({
     </StepShell>
   );
 
+  // Resumen de la reserva: el mismo bloque se usa en el paso de confirmación y
+  // en la pantalla final, para que el cliente vea siempre los mismos datos.
+  const BookingSummary = ({
+    className,
+    style,
+  }: {
+    className?: string;
+    style?: React.CSSProperties;
+  }) => {
+    if (!selectedSlot) return null;
+    return (
+      <div
+        className={cn(
+          "rounded-2xl bg-primary/5 border border-primary/20 overflow-hidden",
+          className,
+        )}
+        style={style}
+      >
+        {/* Fecha/hora header */}
+        <div className="flex items-center gap-3 bg-primary px-4 py-2.5 2xl:py-3">
+          <CalendarDays className="size-4 text-primary-foreground shrink-0" />
+          <div>
+            <p className="text-base 2xl:text-lg font-bold text-primary-foreground capitalize">{modalDateStr}</p>
+            <p className="text-[13px] 2xl:text-sm text-primary-foreground/80">{selectedSlot.timeLabel} — {selectedSlot.endTimeLabel} hs</p>
+          </div>
+        </div>
+
+        <div className="px-4 py-3 2xl:py-3.5 flex flex-col bg-white divide-y divide-primary/15">
+          {/* Servicio + precio inline */}
+          {selectedServiceObj && (
+            <div className="flex items-start justify-between gap-3 pb-2.5 2xl:pb-3">
+              <div className="flex items-start gap-2 min-w-0">
+                <Tag className="size-3.5 text-primary shrink-0 mt-0.5" />
+                <div className="min-w-0">
+                  <span className="text-[10px] uppercase tracking-widest font-bold text-primary leading-none">Servicio</span>
+                  <p className="font-extrabold text-sm 2xl:text-base text-neutral-900 leading-tight">{selectedServiceObj.name}</p>
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Precio</span>
+                <p className="text-xl 2xl:text-2xl font-black text-primary leading-none mt-0.5">${selectedSlot.price.toLocaleString("es-AR")}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Dónde: nombre de sucursal + dirección completa + acceso al mapa */}
+          {(summaryPlaceName || summaryAddress) && (
+            <div className="flex items-center gap-2.5 py-2.5 2xl:py-3">
+              <div className="size-8 2xl:size-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                <MapPin className="size-4 text-primary" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[13px] 2xl:text-sm font-bold text-neutral-900 leading-tight truncate">
+                  {summaryPlaceName}
+                </p>
+                {summaryAddress && (
+                  <p className="text-[11px] 2xl:text-xs text-muted-foreground leading-snug">
+                    {summaryAddress}
+                  </p>
+                )}
+              </div>
+              {summaryMapsUrl && (
+                <a
+                  href={summaryMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="shrink-0 whitespace-nowrap text-[11px] 2xl:text-xs font-bold text-primary border border-primary/25 hover:bg-primary/5 hover:border-primary/40 px-2.5 py-1.5 rounded-full transition-all"
+                >
+                  Cómo llegar
+                </a>
+              )}
+            </div>
+          )}
+
+          {/* Con quién: sólo si hay a quién nombrar o si el cliente pudo elegir */}
+          {(displayEmployeeObj || employees.length >= 2) && (
+            <div className="flex items-center gap-2.5 py-2.5 2xl:py-3">
+              {displayEmployeeObj?.profileImage &&
+              displayEmployeeObj.profileImage !== "user.png" ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${displayEmployeeObj.profileImage}`}
+                  alt={displayEmployeeObj.name}
+                  className="size-8 2xl:size-9 rounded-lg object-cover shrink-0"
+                />
+              ) : (
+                <div className="size-8 2xl:size-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  {displayEmployeeObj ? (
+                    <span className="text-xs 2xl:text-sm font-black text-primary">
+                      {displayEmployeeObj.name?.[0]?.toUpperCase()}
+                    </span>
+                  ) : (
+                    <User className="size-4 text-primary" />
+                  )}
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="text-[13px] 2xl:text-sm font-bold text-neutral-900 leading-tight truncate">
+                  {displayEmployeeObj
+                    ? `${displayEmployeeObj.name} ${displayEmployeeObj.surname ?? ""}`.trim()
+                    : "Sin preferencia"}
+                </p>
+                <p className="text-[11px] 2xl:text-xs text-muted-foreground leading-snug truncate">
+                  {displayEmployeeObj
+                    ? "Te atiende"
+                    : "Te asignamos al primero disponible"}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Seña: solo cuando el turno la requiere */}
+          {requiresDeposit && (
+            <div className="pt-2.5 2xl:pt-3">
+              <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Seña · Mercado Pago</span>
+              <p className="text-sm font-bold text-primary">${selectedServiceObj!.depositAmount!.toLocaleString("es-AR")}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   // CONFIRM STEP
   const ConfirmStep = () => (
     <StepShell
@@ -1073,111 +1209,7 @@ export default function ListBookAppointment({
       </div>
 
       {/* Summary */}
-      {selectedSlot && (
-        <div className="rounded-2xl bg-primary/5 border border-primary/20 overflow-hidden shrink-0">
-          {/* Fecha/hora header */}
-          <div className="flex items-center gap-3 bg-primary px-4 py-2.5 2xl:py-3">
-            <CalendarDays className="size-4 text-primary-foreground shrink-0" />
-            <div>
-              <p className="text-base 2xl:text-lg font-bold text-primary-foreground capitalize">{modalDateStr}</p>
-              <p className="text-[13px] 2xl:text-sm text-primary-foreground/80">{selectedSlot.timeLabel} — {selectedSlot.endTimeLabel} hs</p>
-            </div>
-          </div>
-
-          <div className="px-4 py-3 2xl:py-3.5 flex flex-col bg-white divide-y divide-primary/15">
-            {/* Servicio + precio inline */}
-            {selectedServiceObj && (
-              <div className="flex items-start justify-between gap-3 pb-2.5 2xl:pb-3">
-                <div className="flex items-start gap-2 min-w-0">
-                  <Tag className="size-3.5 text-primary shrink-0 mt-0.5" />
-                  <div className="min-w-0">
-                    <span className="text-[10px] uppercase tracking-widest font-bold text-primary leading-none">Servicio</span>
-                    <p className="font-extrabold text-sm 2xl:text-base text-neutral-900 leading-tight">{selectedServiceObj.name}</p>
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Precio</span>
-                  <p className="text-xl 2xl:text-2xl font-black text-primary leading-none mt-0.5">${selectedSlot.price.toLocaleString("es-AR")}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Dónde: nombre de sucursal + dirección completa + acceso al mapa */}
-            {(summaryPlaceName || summaryAddress) && (
-              <div className="flex items-center gap-2.5 py-2.5 2xl:py-3">
-                <div className="size-8 2xl:size-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <MapPin className="size-4 text-primary" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] 2xl:text-sm font-bold text-neutral-900 leading-tight truncate">
-                    {summaryPlaceName}
-                  </p>
-                  {summaryAddress && (
-                    <p className="text-[11px] 2xl:text-xs text-muted-foreground leading-snug">
-                      {summaryAddress}
-                    </p>
-                  )}
-                </div>
-                {summaryMapsUrl && (
-                  <a
-                    href={summaryMapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="shrink-0 whitespace-nowrap text-[11px] 2xl:text-xs font-bold text-primary border border-primary/25 hover:bg-primary/5 hover:border-primary/40 px-2.5 py-1.5 rounded-full transition-all"
-                  >
-                    Cómo llegar
-                  </a>
-                )}
-              </div>
-            )}
-
-            {/* Con quién: sólo si hay a quién nombrar o si el cliente pudo elegir */}
-            {(displayEmployeeObj || employees.length >= 2) && (
-              <div className="flex items-center gap-2.5 py-2.5 2xl:py-3">
-                {displayEmployeeObj?.profileImage &&
-                displayEmployeeObj.profileImage !== "user.png" ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${displayEmployeeObj.profileImage}`}
-                    alt={displayEmployeeObj.name}
-                    className="size-8 2xl:size-9 rounded-lg object-cover shrink-0"
-                  />
-                ) : (
-                  <div className="size-8 2xl:size-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    {displayEmployeeObj ? (
-                      <span className="text-xs 2xl:text-sm font-black text-primary">
-                        {displayEmployeeObj.name?.[0]?.toUpperCase()}
-                      </span>
-                    ) : (
-                      <User className="size-4 text-primary" />
-                    )}
-                  </div>
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] 2xl:text-sm font-bold text-neutral-900 leading-tight truncate">
-                    {displayEmployeeObj
-                      ? `${displayEmployeeObj.name} ${displayEmployeeObj.surname ?? ""}`.trim()
-                      : "Sin preferencia"}
-                  </p>
-                  <p className="text-[11px] 2xl:text-xs text-muted-foreground leading-snug truncate">
-                    {displayEmployeeObj
-                      ? "Te atiende"
-                      : "Te asignamos al primero disponible"}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Seña: solo cuando el turno la requiere */}
-            {requiresDeposit && (
-              <div className="pt-2.5 2xl:pt-3">
-                <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Seña · Mercado Pago</span>
-                <p className="text-sm font-bold text-primary">${selectedServiceObj!.depositAmount!.toLocaleString("es-AR")}</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <BookingSummary className="shrink-0" />
 
       {bookingError && (
         <p className="text-sm text-red-500 font-semibold shrink-0">{bookingError}</p>
@@ -1208,7 +1240,7 @@ export default function ListBookAppointment({
               </span>
             )}
           </div>
-          {(singleLocationAddress || businessData.phone) && (
+          {(singleLocationAddress || contactPhone) && (
             <div className="flex flex-wrap items-center gap-x-4 gap-y-0.5 mt-1 2xl:mt-1.5 text-xs 2xl:text-[13px] text-neutral-500">
               {singleLocationAddress && (
                 <span className="flex items-center gap-1.5">
@@ -1216,10 +1248,10 @@ export default function ListBookAppointment({
                   <span className="truncate">{singleLocationAddress}</span>
                 </span>
               )}
-              {businessData.phone && (
+              {contactPhone && (
                 <span className="flex items-center gap-1.5">
                   <Phone className="size-3.5 text-primary/60 shrink-0" />
-                  {businessData.phone}
+                  {contactPhone}
                 </span>
               )}
             </div>
@@ -1270,9 +1302,14 @@ export default function ListBookAppointment({
                 </p>
               </div>
 
-              <div
-                className="booking-rise w-full max-w-md mt-2 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3 text-left"
+              <BookingSummary
+                className="booking-rise w-full max-w-md mt-2 text-left"
                 style={{ "--rise-delay": "0.68s" } as React.CSSProperties}
+              />
+
+              <div
+                className="booking-rise w-full max-w-md flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3 text-left"
+                style={{ "--rise-delay": "0.8s" } as React.CSSProperties}
               >
                 <div className="mt-0.5 shrink-0 size-8 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center">
                   <Clock className="size-4 text-amber-700" strokeWidth={2.5} />
@@ -1293,7 +1330,7 @@ export default function ListBookAppointment({
                   setSelectedSlot(null);
                 }}
                 className="booking-rise mt-2 w-full xs:w-fit h-11 px-6 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-bold shadow-md hover:shadow-lg transition-all"
-                style={{ "--rise-delay": "0.8s" } as React.CSSProperties}
+                style={{ "--rise-delay": "0.92s" } as React.CSSProperties}
               >
                 Reservar otro turno
               </button>
@@ -1403,14 +1440,14 @@ export default function ListBookAppointment({
                   </div>
                 </div>
 
-                {(businessData.phone || singleLocationAddress) && (
+                {(contactPhone || singleLocationAddress) && (
                   <div className="mt-4 2xl:mt-6 p-3.5 2xl:p-4 rounded-2xl bg-white/10 backdrop-blur border border-white/20 shrink-0">
                     <span className="text-[10px] uppercase font-bold tracking-widest text-white/70 block mb-1.5 2xl:mb-2">
                       ¿Necesitás ayuda?
                     </span>
-                    {businessData.phone && (
+                    {contactPhone && (
                       <div className="flex items-center gap-2 text-xs text-white">
-                        <Phone className="size-3" /> {businessData.phone}
+                        <Phone className="size-3" /> {contactPhone}
                       </div>
                     )}
                     {singleLocationAddress && (

@@ -755,7 +755,7 @@ const AnalyticsComponent: React.FC<Props> = ({ businessId }) => {
                   value={filterService ? filterService : ALL_SERVICES_VALUE}
                   onValueChange={(value) => setFilterService(value === ALL_SERVICES_VALUE ? "" : value)}
                 >
-                  <SelectTrigger className="h-auto w-full sm:w-auto rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 py-2 text-xs text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600">
+                  <SelectTrigger className="h-auto w-full sm:w-auto rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600">
                     <SelectValue placeholder="Todos los servicios" />
                   </SelectTrigger>
                   <SelectContent className="max-h-72">

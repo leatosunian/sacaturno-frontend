@@ -49,7 +49,7 @@
 }
 
 .formInput input {
-  background-color: rgb(235, 235, 235);
+  background-color: rgb(249, 250, 251);
   height: 30px;
   width: 100%;
   border: 1px solid rgba(95, 95, 95, 0.267);
@@ -63,7 +63,7 @@
 }
 
 .formInput select {
-  background-color: rgb(235, 235, 235);
+  background-color: rgb(249, 250, 251);
   height: 25px;
   border: 1px solid rgba(95, 95, 95, 0.267);
   border-radius: 7px;

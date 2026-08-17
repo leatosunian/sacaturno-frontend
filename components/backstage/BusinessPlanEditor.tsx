@@ -112,7 +112,7 @@ const BusinessPlanEditor = ({
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-gray-700">Plan</label>
               <Select value={plan} onValueChange={(v) => setPlan(v as SubscriptionType)}>
-                <SelectTrigger className="h-8 border-gray-200 bg-[rgb(235,235,235)] text-xs">
+                <SelectTrigger className="h-8 border-gray-200 bg-gray-50 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -131,7 +131,7 @@ const BusinessPlanEditor = ({
                 type="date"
                 value={expiracy}
                 onChange={(e) => setExpiracy(e.target.value)}
-                className="h-8 w-full rounded-md border border-gray-200 bg-[rgb(235,235,235)] px-3 text-xs transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:bg-gray-100 focus:outline-none"
+                className="h-8 w-full rounded-md border border-gray-200 bg-gray-50 px-3 text-xs transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:bg-gray-100 focus:outline-none"
               />
             </div>
 

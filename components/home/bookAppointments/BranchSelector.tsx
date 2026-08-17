@@ -10,6 +10,7 @@ export interface IPublicBranch {
   number?: string
   city?: string
   province?: string
+  phone?: number | null
 }
 
 interface Props {

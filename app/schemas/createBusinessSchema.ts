@@ -1,4 +1,5 @@
 import {z} from 'zod'
+import { optionalAddressFields, refineAddressGroup } from './addressFields'
 
 export const createBusinessSchema = z.object({
     name: z.string().trim().min(3, {
@@ -17,9 +18,11 @@ export const createBusinessSchema = z.object({
         message: 'La especialidad debe tener menos de 35 caractéres'
     }),
 
-    address: z.string().trim().optional(),
+    ...optionalAddressFields,
 
-    phone: z.coerce.number({ required_error: 'El teléfono es obligatorio', invalid_type_error: 'Ingresá un número válido' }).min(10000000, 'Ingresá un número de al menos 8 dígitos'),
+    // Obligatorio siempre: si el usuario entró con Google nunca cargó un teléfono,
+    // así que este es el único momento en que el negocio queda con uno de contacto.
+    phone: z.coerce.number({ required_error: 'El teléfono es obligatorio', invalid_type_error: 'Ingresá un número válido' }).min(10000000, 'Ingresá un teléfono de al menos 8 dígitos'),
 
     email: z.string().trim().email({
         message: 'Ingresá un correo válido'
@@ -42,4 +45,4 @@ export const createBusinessSchema = z.object({
 
     dayEnd: z.string()
 
-})
+}).superRefine(refineAddressGroup)

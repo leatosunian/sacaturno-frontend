@@ -6,7 +6,7 @@ import { LuBuilding2, LuMapPin, LuPhone, LuMail } from "react-icons/lu";
 const labelCls = "text-xs font-bold uppercase text-gray-700";
 
 const fieldCls = (hasError: boolean) =>
-  `h-9 w-full rounded-md border px-3 text-sm bg-[rgb(245,245,245)] focus:outline-none transition-colors ${
+  `h-9 w-full rounded-md border px-3 text-sm bg-gray-50 focus:outline-none transition-colors ${
     hasError ? "border-red-500 focus:border-red-500" : "border-gray-200 focus:border-orange-600"
   }`;
 
@@ -15,7 +15,11 @@ interface Props {
   errors: FieldErrors<BranchFormData>;
 }
 
-const BranchFormFields: React.FC<Props> = ({ register, errors }) => (
+const BranchFormFields: React.FC<Props> = ({ register, errors }) => {
+  const streetField = register("street");
+  const numberField = register("number");
+
+  return (
   <div className="flex flex-col gap-4">
     <div className="flex flex-col gap-1">
       <label className={labelCls}>
@@ -37,7 +41,11 @@ const BranchFormFields: React.FC<Props> = ({ register, errors }) => (
         </label>
         <input
           type="text"
-          {...register("street")}
+          {...streetField}
+          onChange={(e) => {
+            e.target.value = e.target.value.replace(/\d/g, "");
+            streetField.onChange(e);
+          }}
           placeholder="Av. Corrientes"
           maxLength={70}
           className={fieldCls(!!errors.street)}
@@ -48,7 +56,12 @@ const BranchFormFields: React.FC<Props> = ({ register, errors }) => (
         <label className={labelCls}>Altura *</label>
         <input
           type="text"
-          {...register("number")}
+          inputMode="numeric"
+          {...numberField}
+          onChange={(e) => {
+            e.target.value = e.target.value.replace(/\D/g, "");
+            numberField.onChange(e);
+          }}
           placeholder="1234"
           maxLength={5}
           className={fieldCls(!!errors.number)}
@@ -83,7 +96,7 @@ const BranchFormFields: React.FC<Props> = ({ register, errors }) => (
     <div className="flex gap-3">
       <div className="flex flex-col gap-1 flex-1">
         <label className={labelCls}>
-          <span className="flex items-center gap-1.5"><LuPhone size={11} /> Teléfono *</span>
+          <span className="flex items-center gap-1.5"><LuPhone size={11} /> Teléfono</span>
         </label>
         <input
           type="tel"
@@ -92,7 +105,11 @@ const BranchFormFields: React.FC<Props> = ({ register, errors }) => (
           maxLength={15}
           className={fieldCls(!!errors.phone)}
         />
-        {errors.phone?.message && <span className="text-xs text-red-500">{errors.phone.message}</span>}
+        {errors.phone?.message ? (
+          <span className="text-xs text-red-500">{errors.phone.message}</span>
+        ) : (
+          <span className="text-xs text-gray-400">Si lo dejás vacío se usa el del negocio.</span>
+        )}
       </div>
       <div className="flex flex-col gap-1 flex-1">
         <label className={labelCls}>
@@ -109,6 +126,7 @@ const BranchFormFields: React.FC<Props> = ({ register, errors }) => (
       </div>
     </div>
   </div>
-);
+  );
+};
 
 export default BranchFormFields;

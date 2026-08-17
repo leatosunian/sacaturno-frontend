@@ -89,7 +89,7 @@ const CreateBranchModal: React.FC<Props> = ({
           number: data.number.trim(),
           city: data.city?.trim() || undefined,
           province: data.province?.trim() || undefined,
-          phone: Number(data.phone),
+          phone: data.phone?.trim() ? Number(data.phone) : null,
           email: data.email?.trim() || undefined,
           employeeIDs: selectedEmployees,
         },

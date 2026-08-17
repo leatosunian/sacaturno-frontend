@@ -15,7 +15,7 @@ SacaTurno has two distinct UI contexts. Always identify which one you're buildin
 | **Buttons** | Animated color-swap on hover | Simple solid or outline |
 | **Typography** | Large headlines (text-4xl–6xl) | Compact labels (text-xs–sm) |
 | **Animations** | Framer Motion staggered reveals | Minimal, state-based only |
-| **Input BG** | Transparent / semi-transparent | `rgb(235, 235, 235)` gray |
+| **Input BG** | Transparent / semi-transparent | `bg-gray-50` (`#f9fafb`) |
 | **Spacing** | Generous (px-32, py-24) | Tight (p-4–6, gap-2–4) |
 
 ---
@@ -298,7 +298,7 @@ import { Button } from "@/components/ui/button"
 <div className="flex flex-col gap-1">
   <label className="text-xs font-medium text-gray-700">Nombre</label>
   <input
-    className="h-8 w-full rounded-md border border-gray-200 bg-[rgb(235,235,235)] px-3 text-xs
+    className="h-8 w-full rounded-md border border-gray-200 bg-gray-50 px-3 text-xs
                transition-all duration-200 ease-in-out
                hover:border-orange-600 focus:border-orange-600 focus:outline-none focus:bg-gray-100"
     placeholder="Ingresá el nombre"
@@ -312,7 +312,7 @@ import { Button } from "@/components/ui/button"
   <label className="text-xs font-medium text-gray-700">Email</label>
   <input
     {...register("email")}
-    className={`h-8 w-full rounded-md border px-3 text-xs bg-[rgb(235,235,235)]
+    className={`h-8 w-full rounded-md border px-3 text-xs bg-gray-50
                transition-all duration-200 ease-in-out
                hover:border-orange-600 focus:border-orange-600 focus:outline-none
                ${errors.email ? "border-red-500" : "border-gray-200"}`}
@@ -345,7 +345,7 @@ import { Button } from "@/components/ui/button"
 ```tsx
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 <Select>
-  <SelectTrigger className="h-8 text-xs border-gray-200 bg-[rgb(235,235,235)]">
+  <SelectTrigger className="h-8 text-xs border-gray-200 bg-gray-50">
     <SelectValue placeholder="Seleccioná" />
   </SelectTrigger>
   <SelectContent>

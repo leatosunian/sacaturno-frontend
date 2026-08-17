@@ -100,7 +100,7 @@ const CancellationPolicyCard: React.FC<Props> = ({
               <SelectTrigger
                 className={`${
                   dense ? "h-8 2xl:h-10" : "h-9"
-                } ${text} w-full rounded-md border px-3 bg-[rgb(245,245,245)] text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600 ${
+                } ${text} w-full rounded-md border px-3 bg-gray-50 text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600 ${
                   error ? "border-red-500" : "border-gray-200"
                 }`}
               >

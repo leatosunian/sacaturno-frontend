@@ -43,7 +43,7 @@ const EditBranchModal: React.FC<Props> = ({ open, onClose, branch, businessData,
         number: branch.number,
         city: branch.city ?? "",
         province: branch.province ?? "",
-        phone: String(branch.phone),
+        phone: branch.phone ? String(branch.phone) : "",
         email: branch.email ?? "",
       });
     }
@@ -68,7 +68,7 @@ const EditBranchModal: React.FC<Props> = ({ open, onClose, branch, businessData,
           number: data.number.trim(),
           city: data.city?.trim() || undefined,
           province: data.province?.trim() || undefined,
-          phone: Number(data.phone),
+          phone: data.phone?.trim() ? Number(data.phone) : null,
           email: data.email?.trim() || undefined,
         },
         { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } }

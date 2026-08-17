@@ -118,9 +118,9 @@ const CancelledAppointments: React.FC<Props> = ({ businessID }) => {
   }, [data, query, refundFilter, byFilter]);
 
   const inputClass =
-    "h-9 w-full rounded-md border border-gray-200 bg-[rgb(245,245,245)] pl-8 pr-3 text-xs text-gray-800 transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none";
+    "h-9 w-full rounded-md border border-gray-200 bg-gray-50 pl-8 pr-3 text-xs text-gray-800 transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none";
   const selectClass =
-    "h-9 w-full rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-2.5 text-xs font-medium text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 data-[state=open]:border-orange-600";
+    "h-9 w-full rounded-md border border-gray-200 bg-gray-50 px-2.5 text-xs font-medium text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 data-[state=open]:border-orange-600";
   const selectItemClass =
     "cursor-pointer text-xs text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700";
 

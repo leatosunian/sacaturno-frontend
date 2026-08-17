@@ -29,7 +29,7 @@ const BusinessCategoryFilter = () => {
 
   return (
     <Select value={current || ALL_VALUE} onValueChange={handleChange}>
-      <SelectTrigger className="h-9 w-full sm:w-auto rounded-md border border-gray-200 bg-[rgb(245,245,245)] px-3 text-xs text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600">
+      <SelectTrigger className="h-9 w-full sm:w-auto rounded-md border border-gray-200 bg-gray-50 px-3 text-xs text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600">
         <SelectValue placeholder="Todos los rubros" />
       </SelectTrigger>
       <SelectContent className="max-h-72">

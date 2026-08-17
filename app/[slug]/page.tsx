@@ -7,7 +7,7 @@ import ListBookAppointment from "@/components/home/bookAppointments/ListBookAppo
 import Footer from "@/components/home/Footer";
 import HeaderPublic from "@/components/home/HeaderPublic";
 import MercadoPagoResultModal from "@/components/payments/MercadoPagoResultModal";
-import { composeBranchAddress } from "@/lib/utils";
+import { composeBranchAddress, resolveContactPhone } from "@/lib/utils";
 
 interface propsComponent {
   params: {
@@ -23,8 +23,8 @@ interface AddressBranch {
 
 // Con sucursales cargadas, ellas son la fuente de verdad para la dirección:
 // con una sola sucursal se usa su dirección puntual; con 2+ es ambiguo y se omite.
-function resolveSingleLocationAddress(address: string | undefined, branches: AddressBranch[]): string | null {
-  if (branches.length === 0) return address || null;
+function resolveSingleLocationAddress(business: AddressBranch, branches: AddressBranch[]): string | null {
+  if (branches.length === 0) return composeBranchAddress(business) || null;
   if (branches.length === 1) return composeBranchAddress(branches[0]) || null;
   return null;
 }
@@ -46,7 +46,7 @@ export async function generateMetadata({
   const branches = businessData._id
     ? await axiosReq.get(`/branch/public/list/${businessData._id}`).then((r) => r.data ?? []).catch(() => [])
     : [];
-  const displayAddress = resolveSingleLocationAddress(businessData.address, branches);
+  const displayAddress = resolveSingleLocationAddress(businessData, branches);
 
   const title = `${businessData.name}`;
   const description = `Reservá un turno en ${businessData.name}${businessData.businessType ? ` — ${businessData.businessType}` : ""}${displayAddress ? `. Ubicados en ${displayAddress}` : ""}. Reservá online fácil y rápido con SacaTurno.`;
@@ -99,7 +99,11 @@ const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
   const bookingsEnabled = data.businessData.bookingsEnabled !== false;
 
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:4000/api";
-  const jsonLdAddress = resolveSingleLocationAddress(data.businessData.address, data.branches);
+  const jsonLdAddress = resolveSingleLocationAddress(data.businessData, data.branches);
+  const contactPhone = resolveContactPhone(
+    data.businessData.phone,
+    data.branches.length === 1 ? data.branches[0] : null
+  );
 
   const jsonLd = data.businessData.name
     ? {
@@ -118,8 +122,8 @@ const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
             addressCountry: "AR",
           },
         }),
-        ...(data.businessData.phone && {
-          telephone: String(data.businessData.phone),
+        ...(contactPhone && {
+          telephone: String(contactPhone),
         }),
         ...(data.businessData.email && { email: data.businessData.email }),
         ...(data.businessData.image &&
@@ -172,9 +176,9 @@ const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
               <h2 className="text-lg md:text-xl font-semibold text-gray-800">
                 <span className="capitalize">{data.businessData.name}</span> no está aceptando reservas online por ahora
               </h2>
-              {data.businessData.phone ? (
+              {contactPhone ? (
                 <p className="text-sm md:text-base text-gray-600">
-                  Podés contactarlos al <b>{data.businessData.phone}</b> para coordinar un turno.
+                  Podés contactarlos al <b>{contactPhone}</b> para coordinar un turno.
                 </p>
               ) : (
                 <p className="text-sm md:text-base text-gray-600">
