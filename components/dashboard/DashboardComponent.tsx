@@ -458,7 +458,7 @@ const DashboardComponent: React.FC<Props> = ({
                 <Link href="/admin/analytics">
                   <div
                     style={cardShadow}
-                    className="flex flex-col gap-3 p-4 bg-white rounded-xl hover:shadow-md transition-shadow duration-200 cursor-pointer"
+                    className="flex flex-col gap-3 p-4 bg-white rounded-xl md:hover:shadow-md transition-shadow duration-200 cursor-pointer"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
@@ -520,7 +520,7 @@ const DashboardComponent: React.FC<Props> = ({
               <Link href="/admin/schedule">
                 <div
                   style={{ backgroundColor: "#dd4924" }}
-                  className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
+                  className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer md:hover:opacity-90 transition-opacity"
                 >
                   <span className="text-sm font-semibold text-white">
                     Turnos
@@ -532,7 +532,7 @@ const DashboardComponent: React.FC<Props> = ({
                 <Link href="/admin/schedule/automate">
                   <div
                     style={{ backgroundColor: "#dd4924" }}
-                    className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
+                    className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer md:hover:opacity-90 transition-opacity"
                   >
                     <span className="text-sm font-semibold text-white">
                       Automatizar agenda
@@ -545,7 +545,7 @@ const DashboardComponent: React.FC<Props> = ({
                 <Link href="/admin/business">
                   <div
                     style={{ backgroundColor: "#dd4924" }}
-                    className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
+                    className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer md:hover:opacity-90 transition-opacity"
                   >
                     <span className="text-sm font-semibold text-white">
                       Mi empresa
@@ -558,7 +558,7 @@ const DashboardComponent: React.FC<Props> = ({
                 <Link href="/admin/services">
                   <div
                     style={{ backgroundColor: "#dd4924" }}
-                    className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
+                    className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer md:hover:opacity-90 transition-opacity"
                   >
                     <span className="text-sm font-semibold text-white">
                       Mis servicios
@@ -571,7 +571,7 @@ const DashboardComponent: React.FC<Props> = ({
                 <Link href="/admin/analytics" className="hidden md:block">
                   <div
                     style={{ backgroundColor: "#dd4924" }}
-                    className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer hover:opacity-90 transition-opacity"
+                    className="flex items-center justify-between p-4 rounded-xl h-14 md:h-20 cursor-pointer md:hover:opacity-90 transition-opacity"
                   >
                     <span className="text-sm font-semibold text-white">
                       Estadísticas
@@ -604,13 +604,13 @@ const DashboardComponent: React.FC<Props> = ({
                     disabled={isRefreshing}
                     aria-label="Actualizar turnos"
                     title="Actualizar turnos"
-                    className="flex items-center justify-center gap-1.5 h-8 min-w-8 px-2.5 text-gray-500 border border-gray-200 rounded-md transition-all duration-200 ease-in-out hover:text-primary hover:border-orange-300 hover:bg-orange-50 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="flex items-center justify-center gap-1.5 h-8 min-w-8 px-2.5 text-gray-500 border border-gray-200 rounded-md transition-all duration-200 ease-in-out md:hover:text-primary md:hover:border-orange-300 md:hover:bg-orange-50 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     <LuRefreshCw
                       size={13}
                       className={isRefreshing ? "animate-spin" : ""}
                     />
-                    <span className="hidden text-xs font-medium sm:inline">
+                    <span className="text-xs font-medium whitespace-nowrap">
                       {isRefreshing ? "Actualizando…" : "Actualizar"}
                     </span>
                   </button>
@@ -618,7 +618,7 @@ const DashboardComponent: React.FC<Props> = ({
                 {!loading && todayCount > 0 && (
                   <Link
                     href="/admin/schedule"
-                    className="text-xs font-medium text-primary hover:underline whitespace-nowrap"
+                    className="text-xs font-medium text-primary md:hover:underline whitespace-nowrap"
                   >
                     Ver agenda →
                   </Link>
@@ -711,7 +711,7 @@ const DashboardComponent: React.FC<Props> = ({
                       transition={{ duration: 0.35, ease: "easeOut" }}
                       role="button"
                       tabIndex={0}
-                      className={`flex items-start gap-3 px-4 py-3 border-l-[3px] cursor-pointer transition-colors duration-200 hover:bg-gray-50 focus:outline-none focus-visible:bg-gray-50 ${
+                      className={`flex items-start gap-3 px-4 py-3 border-l-[3px] cursor-pointer transition-colors duration-200 md:hover:bg-gray-50 focus:outline-none focus-visible:bg-gray-50 ${
                         isNew
                           ? "border-l-primary bg-orange-50"
                           : isNext
@@ -827,7 +827,7 @@ const DashboardComponent: React.FC<Props> = ({
                   </div>
                   <div className="flex flex-col w-full gap-2.5 mt-1 sm:flex-row sm:w-auto">
                     <Link href="/admin/schedule" className="w-full sm:w-auto">
-                      <button className="flex items-center justify-center w-full gap-2 px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-200 rounded-lg shadow-sm bg-primary hover:bg-orange-500">
+                      <button className="flex items-center justify-center w-full gap-2 px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-200 rounded-lg shadow-sm bg-primary md:hover:bg-orange-500">
                         <LuCalendarDays size={16} />
                         Ver agenda
                       </button>
@@ -837,7 +837,7 @@ const DashboardComponent: React.FC<Props> = ({
                         href="/admin/schedule/automate"
                         className="w-full sm:w-auto"
                       >
-                        <button className="flex items-center justify-center w-full gap-2 px-6 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 border border-gray-200 rounded-lg hover:border-orange-300 hover:bg-orange-50 hover:text-primary">
+                        <button className="flex items-center justify-center w-full gap-2 px-6 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 border border-gray-200 rounded-lg md:hover:border-orange-300 md:hover:bg-orange-50 md:hover:text-primary">
                           <TbCalendarCog size={16} />
                           Automatizar agenda
                         </button>

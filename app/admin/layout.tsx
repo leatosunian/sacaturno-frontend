@@ -5,6 +5,7 @@ import AdminHeader from "@/components/dashboard/AdminHeader";
 import AdminSidebar from "@/components/dashboard/AdminSidebar";
 import AdminBreadcrumbs from "@/components/dashboard/AdminBreadcrumbs";
 import { getTokenPayload } from "@/lib/getTokenPayload";
+import { resolveImageUrl } from "@/lib/images";
 import { PermissionsProvider } from "@/components/dashboard/PermissionsProvider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import AdminRouteChangeLoader from "@/components/ui/AdminRouteChangeLoader";
@@ -60,10 +61,7 @@ export default async function Layout({
           .filter(Boolean)
           .join(" ");
         userEmail = response_data.email ?? "";
-        const pic = response_data.profileImage;
-        if (pic && pic !== "user.png") {
-          userAvatar = `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${pic}`;
-        }
+        userAvatar = resolveImageUrl(response_data.profileImage) ?? userAvatar;
       }
     } catch {}
   }

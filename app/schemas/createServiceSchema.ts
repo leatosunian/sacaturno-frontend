@@ -1,27 +1,37 @@
 import { z } from "zod";
 
-export const createServiceSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, { message: "Ingresá el nombre del servicio" })
-    .max(35, { message: "El nombre debe tener menos de 35 caractéres" }),
+export const createServiceSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(1, { message: "Ingresá el nombre del servicio" })
+      .max(35, { message: "El nombre debe tener menos de 35 caractéres" }),
 
-  price: z.coerce.number().gte(15, "Ingresá el precio del servicio"),
+    price: z.coerce.number().gte(15, "Ingresá el precio del servicio"),
 
-  description: z.string().trim().max(140, {
-    message: "La descripción debe tener menos de 140 caracteres",
-  }),
+    description: z.string().trim().max(140, {
+      message: "La descripción debe tener menos de 140 caracteres",
+    }),
 
-  duration: z.coerce
-    .number()
-    .int("La duración debe ser un número entero")
-    .positive("La duración debe ser mayor a 0")
-    .optional(),
+    duration: z.coerce
+      .number()
+      .int("La duración debe ser un número entero")
+      .positive("La duración debe ser mayor a 0")
+      .optional(),
 
-  depositAmount: z.coerce
-    .number()
-    .min(0, "El monto de seña no puede ser negativo")
-    .optional()
-    .default(0),
-});
+    depositAmount: z.coerce
+      .number()
+      .min(0, "El monto de seña no puede ser negativo")
+      .optional()
+      .default(0),
+  })
+  .superRefine((data, ctx) => {
+    if ((data.depositAmount ?? 0) > data.price) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["depositAmount"],
+        message: "La seña no puede superar el precio del servicio",
+      });
+    }
+  });

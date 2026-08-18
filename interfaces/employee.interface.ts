@@ -18,4 +18,7 @@ export interface IEmployee {
   branches?: string[];
   services?: string[];
   profileImage?: string;
+  // Registro sintético del dueño (ver server/src/services/employeeServices.ts):
+  // se lista junto a los empleados pero no se invita ni se elimina.
+  isOwner?: boolean;
 }

@@ -6,6 +6,7 @@ import { ChangeEventHandler, useState } from "react";
 import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
 import AlertInterface from "@/interfaces/alert.interface";
+import { resolveAvatarUrl } from "@/lib/images";
 import Alert from "@/components/Alert";
 import { GrTableAdd } from "react-icons/gr";
 import { useRouter } from "next/navigation";
@@ -16,10 +17,6 @@ const SearchBusiness: React.FC = () => {
   const [searchResults, setSearchResults] = useState<IBusiness[]>([]);
   const [alert, setAlert] = useState<AlertInterface>();
   const router = useRouter();
-
-  const myLoader = ({ src }: { src: string }) => {
-    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${src}`;
-  };
 
   const hideAlert = () => {
     setTimeout(() => {
@@ -118,11 +115,11 @@ const SearchBusiness: React.FC = () => {
                 className="flex items-center w-full gap-4 px-5 text-white h-14 backdrop-blur py-9 rounded-xl"
               >
                 <Image
-                  loader={myLoader}
                   width={64}
                   height={64}
-                  className="w-12 h-12 rounded-full"
-                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${business.image}`} alt=""
+                  className="w-12 h-12 rounded-full object-cover"
+                  src={resolveAvatarUrl(business.image)}
+                  alt={`Logo de ${business.name}`}
                 />
                 <div className="flex flex-col w-fit h-fit">
                   <span className="text-sm font-semibold text-black">

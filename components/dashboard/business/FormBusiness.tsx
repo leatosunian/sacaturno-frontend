@@ -10,6 +10,7 @@ import { businessSchema } from "@/app/schemas/businessSchema";
 import { LuSave, LuCamera, LuCopy, LuCheck, LuLink, LuExternalLink, LuBuilding2 } from "react-icons/lu";
 import Alert from "../../Alert";
 import AlertInterface from "@/interfaces/alert.interface";
+import { resolveAvatarUrl } from "@/lib/images";
 import { useRouter } from "next/navigation";
 import { IService } from "@/interfaces/service.interface";
 import RubroPicker from "./RubroPicker";
@@ -183,10 +184,6 @@ const FormCreateBusiness = ({
     }
   };
 
-  const myLoader = () => {
-    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${businessData?.image}`;
-  };
-
   return (
     <>
       <form onSubmit={handleSubmit(saveChanges)} className="flex flex-col gap-6 sm:gap-4 w-full max-w-4xl">
@@ -204,11 +201,10 @@ const FormCreateBusiness = ({
                 title="Cambiar logo de empresa"
               >
                 <Image
-                  loader={myLoader}
                   width={96}
                   height={96}
                   className="w-20 h-20 2xl:w-24 2xl:h-24 rounded-full object-cover"
-                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${businessData?.image}`}
+                  src={resolveAvatarUrl(businessData?.image)}
                   alt="Logo empresa"
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out">

@@ -4,6 +4,7 @@ import { ChangeEventHandler, useState } from "react";
 import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
 import AlertInterface from "@/interfaces/alert.interface";
+import { resolveAvatarUrl } from "@/lib/images";
 import { GrTableAdd } from "react-icons/gr";
 import { useRouter } from "next/navigation";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
@@ -21,10 +22,6 @@ const SearchBusiness: React.FC = () => {
   const [loadingCalBtn, setLoadingCalBtn] = useState<string | null>(null);
 
   const router = useRouter();
-
-  const myLoader = ({ src }: { src: string }) => {
-    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${src}`;
-  };
 
   const hideAlert = () => {
     setTimeout(() => {
@@ -138,11 +135,10 @@ const SearchBusiness: React.FC = () => {
                       className="flex items-center gap-3 px-3 py-3 rounded-[10px] border border-black/[0.07] bg-black/[0.02] hover:border-[#dd4924] transition-all duration-200 ease-in-out"
                     >
                       <Image
-                        loader={myLoader}
                         width={44}
                         height={44}
                         className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                        src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${business.image}`}
+                        src={resolveAvatarUrl(business.image)}
                         alt={`Logo de ${business.name}`}
                       />
                       <div className="flex flex-col flex-1 min-w-0">

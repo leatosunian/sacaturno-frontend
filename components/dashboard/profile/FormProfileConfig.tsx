@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { userSchema } from "@/app/schemas/userSchema";
 import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
+import { resolveAvatarUrl } from "@/lib/images";
 import Alert from "@/components/Alert";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -111,10 +112,6 @@ const FormProfileConfig: React.FC<Props> = ({ profileData }: Props) => {
     setLoading(false);
   };
 
-  const myLoader = ({ src }: { src: string }) => {
-    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${profile?.profileImage}`;
-  };
-
   const updateProfileImage = async (image: File) => {
     try {
       const token = localStorage.getItem("sacaturno_token");
@@ -150,11 +147,10 @@ const FormProfileConfig: React.FC<Props> = ({ profileData }: Props) => {
               title="Cambiar foto de perfil"
             >
               <Image
-                loader={myLoader}
                 width={96}
                 height={96}
                 className="w-20 h-20 2xl:w-24 2xl:h-24 rounded-full object-cover"
-                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${profile?.profileImage}`}
+                src={resolveAvatarUrl(profile?.profileImage)}
                 alt="Foto de perfil"
               />
               <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out">

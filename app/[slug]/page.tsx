@@ -8,6 +8,7 @@ import Footer from "@/components/home/Footer";
 import HeaderPublic from "@/components/home/HeaderPublic";
 import MercadoPagoResultModal from "@/components/payments/MercadoPagoResultModal";
 import { composeBranchAddress, resolveContactPhone } from "@/lib/utils";
+import { resolveImageUrl } from "@/lib/images";
 
 interface propsComponent {
   params: {
@@ -98,7 +99,6 @@ const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
   const data = await getAppointments(params.slug);
   const bookingsEnabled = data.businessData.bookingsEnabled !== false;
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:4000/api";
   const jsonLdAddress = resolveSingleLocationAddress(data.businessData, data.branches);
   const contactPhone = resolveContactPhone(
     data.businessData.phone,
@@ -126,10 +126,9 @@ const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
           telephone: String(contactPhone),
         }),
         ...(data.businessData.email && { email: data.businessData.email }),
-        ...(data.businessData.image &&
-          data.businessData.image !== "user.png" && {
-            image: `${backendUrl}/user/getprofilepic/${data.businessData.image}`,
-          }),
+        ...(resolveImageUrl(data.businessData.image) && {
+          image: resolveImageUrl(data.businessData.image)!,
+        }),
         ...(bookingsEnabled && {
           makesOffer: {
             "@type": "Offer",

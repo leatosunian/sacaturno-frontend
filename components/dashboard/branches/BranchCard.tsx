@@ -70,7 +70,7 @@ const BranchCard: React.FC<Props> = ({
                     className="accent-orange-600 w-4 h-4 rounded cursor-pointer shrink-0"
                   />
                   <span className="text-sm text-gray-700 leading-tight">
-                    {emp.name} {emp.surname}
+                    {emp.isOwner ? "Vos" : `${emp.name} ${emp.surname}`}
                   </span>
                   {isLoading && (
                     <span className="w-3 h-3 rounded-full border border-orange-600 border-t-transparent animate-spin" />

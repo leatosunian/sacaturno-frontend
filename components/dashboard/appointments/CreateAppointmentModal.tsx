@@ -118,6 +118,14 @@ const CreateAppointmentModal: React.FC<props> = ({
     serviceFilteredEmployees.length === 0 &&
     !!selectedServiceID;
 
+  // Con dos o más profesionales elegibles hay una decisión real que tomar y el
+  // turno no se crea sin ella. Con uno solo se autoasigna sin preguntar.
+  const assignmentRequired =
+    showEmployeeDropdown && !showNoServiceEmployeesWarning && serviceFilteredEmployees.length >= 2;
+  const soleEligible =
+    serviceFilteredEmployees.length === 1 ? serviceFilteredEmployees[0] : null;
+  const employeeMissing = assignmentRequired && !selectedEmployeeID;
+
   useEffect(() => {
     if (servicesData?.[0]) {
       const first = servicesData[0];
@@ -154,7 +162,8 @@ const CreateAppointmentModal: React.FC<props> = ({
   const doSave = () => {
     if (!appointmentData) return;
 
-    const employeeID = selectedEmployeeID || null;
+    // Sin dropdown (o con un solo elegible) la asignación se resuelve sola.
+    const employeeID = selectedEmployeeID || soleEligible?._id || null;
     const branchID = effectiveBranchID || null;
 
     if (tabMode === "booked") {
@@ -373,29 +382,40 @@ const CreateAppointmentModal: React.FC<props> = ({
           {showEmployeeDropdown && !showNoServiceEmployeesWarning && (
             <div className="flex flex-col w-full gap-1 h-fit">
               <label className="text-xs font-bold uppercase">
-                Empleado asignado
+                Profesional asignado{" "}
+                {assignmentRequired && <span className="text-primary">*</span>}
               </label>
-              <Select
-                value={selectedEmployeeID || "none"}
-                onValueChange={(v) =>
-                  setSelectedEmployeeID(v === "none" ? "" : v)
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Cualquier profesional" />
-                </SelectTrigger>
-                <SelectContent className="w-full">
-                  <SelectGroup>
-                    <SelectLabel>Empleados</SelectLabel>
-                    <SelectItem value="none">Cualquier profesional</SelectItem>
-                    {serviceFilteredEmployees.map((emp) => (
-                      <SelectItem key={emp._id} value={emp._id!}>
-                        {emp.name} {emp.surname}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              {assignmentRequired ? (
+                <Select
+                  value={selectedEmployeeID || undefined}
+                  onValueChange={setSelectedEmployeeID}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Elegí un profesional" />
+                  </SelectTrigger>
+                  <SelectContent className="w-full">
+                    <SelectGroup>
+                      <SelectLabel>Profesionales</SelectLabel>
+                      {serviceFilteredEmployees.map((emp) => (
+                        <SelectItem key={emp._id} value={emp._id!}>
+                          {emp.name} {emp.surname}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="flex items-center h-9 px-3 rounded-md border border-gray-200 bg-gray-50 text-xs text-gray-600 truncate">
+                  {soleEligible
+                    ? `${soleEligible.name} ${soleEligible.surname}`.trim()
+                    : "Sin profesional disponible"}
+                </div>
+              )}
+              {employeeMissing && (
+                <span className="text-[10px] text-orange-600">
+                  Elegí quién atiende este turno.
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -442,7 +462,7 @@ const CreateAppointmentModal: React.FC<props> = ({
       <Button
         className="w-full text-white bg-primary border-none rounded-lg shadow-xl outline-none h-11 hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
         onClick={handleSave}
-        disabled={showBranchDropdown && !selectedBranchID}
+        disabled={(showBranchDropdown && !selectedBranchID) || employeeMissing}
       >
         Crear turno
       </Button>

@@ -10,6 +10,8 @@ export interface IPublicEmployee {
   branches: string[]
   services: string[]
   profileImage?: string
+  /** El dueño publicado como prestador: se lista igual que el resto del equipo. */
+  isOwner?: boolean
 }
 
 interface Props {

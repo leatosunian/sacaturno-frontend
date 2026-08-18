@@ -20,6 +20,7 @@ import {
   Tag,
 } from "lucide-react";
 import { cn, composeBranchAddress, resolveContactPhone } from "@/lib/utils";
+import { resolveImageUrl } from "@/lib/images";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import { IBusiness } from "@/interfaces/business.interface";
 import { IDaySchedule } from "@/interfaces/daySchedule.interface";
@@ -218,6 +219,11 @@ export default function ListBookAppointment({
   const [wizardStep, setWizardStep] = useState<WizardStep>("service");
   const [bookingSpinner, setBookingSpinner] = useState(false);
   const [bookingError, setBookingError] = useState("");
+  const [logoFailed, setLogoFailed] = useState(false);
+
+  // Sin imagen propia se prefiere la inicial de marca al avatar genérico, que
+  // para un negocio queda peor que la letra.
+  const businessLogoUrl = logoFailed ? null : resolveImageUrl(businessData.image);
 
   // ── Form ──
   const {
@@ -415,7 +421,12 @@ export default function ListBookAppointment({
     () => selectedSlot?.employeeID ? employees.find((e) => e._id === selectedSlot.employeeID) : undefined,
     [employees, selectedSlot],
   );
-  const displayEmployeeObj = selectedEmployeeObj ?? slotEmployeeObj;
+
+  // Con un solo prestador no hay nada que elegir —el paso sería un click vacío—
+  // pero sí a quién nombrar: se muestra como dato en el encabezado y en el
+  // resumen, y cubre también los turnos viejos que quedaron sin asignar.
+  const soleProvider = employees.length === 1 ? employees[0] : undefined;
+  const displayEmployeeObj = selectedEmployeeObj ?? slotEmployeeObj ?? soleProvider;
 
   // Con sucursales cargadas, ellas son la fuente de verdad para la dirección:
   // con una sola sucursal se muestra su dirección puntual; con 2+ es ambiguo y se oculta.
@@ -779,37 +790,6 @@ export default function ListBookAppointment({
     <StepShell>
       <StepHeading title="¿Con quién querés atenderte?" />
 
-      {/* distinctive dashed hero card */}
-      <button
-        onClick={() => {
-          setSelectedEmployee(null);
-          setSelectedSlot(null);
-          goNextStep();
-        }}
-        className={cn(
-          "shrink-0 text-left p-3.5 2xl:p-5 rounded-2xl border-2 border-dashed transition-all flex items-center gap-4 relative overflow-hidden",
-          selectedEmployee === null
-            ? "border-orange-500 bg-gradient-to-r from-orange-100/70 to-orange-50 shadow-md"
-            : "border-orange-300 bg-gradient-to-r from-orange-50/60 to-white hover:from-orange-100/60 hover:border-orange-400 hover:shadow-md",
-        )}
-      >
-        <div className="size-10 2xl:size-14 rounded-xl bg-white border-2 border-orange-400 flex items-center justify-center shrink-0 shadow-sm">
-          <Zap
-            className="size-4 2xl:size-6 text-orange-600"
-            fill="currentColor"
-          />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="font-extrabold text-sm 2xl:text-base leading-tight">
-            Cualquier especialista
-          </div>
-          <div className="text-[11px] 2xl:text-xs text-muted-foreground mt-0.5 2xl:mt-1 leading-snug">
-            O reservá con el primero disponible
-          </div>
-        </div>
-        <ChevronRight className="size-4 text-orange-500 shrink-0" />
-      </button>
-
       {/* Divider */}
       <div className="flex items-center gap-3 shrink-0">
         <div className="h-px flex-1 bg-orange-100" />
@@ -819,8 +799,35 @@ export default function ListBookAppointment({
         <div className="h-px flex-1 bg-orange-100" />
       </div>
 
-      {/* Vertical avatar grid (rounded-square badges, distinct from the ref) */}
-      <div className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-3">
+      {/* Grilla de avatares. Las columnas se acotan por ancho en vez de fijar la
+          cantidad: con pocos prestadores, 3 columnas estiraban cada card al
+          doble de su alto. */}
+      <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(120px,1fr))] 2xl:grid-cols-[repeat(auto-fill,minmax(190px,1fr))]">
+        {/* Any specialist — una celda más de la grilla, como en el paso de sucursal */}
+        <button
+          onClick={() => {
+            setSelectedEmployee(null);
+            setSelectedSlot(null);
+            goNextStep();
+          }}
+          className={cn(
+            "flex flex-col items-center justify-center gap-1.5 2xl:gap-2 p-2.5 2xl:p-4 min-h-[120px] 2xl:min-h-[152px] rounded-2xl border-2 border-dashed transition-all",
+            selectedEmployee === null
+              ? "border-orange-500 bg-gradient-to-b from-orange-100/70 to-orange-50 shadow-md"
+              : "border-orange-300 bg-gradient-to-b from-orange-50/60 to-white hover:from-orange-100/60 hover:border-orange-400 hover:shadow-md",
+          )}
+        >
+          <div className="size-14 2xl:size-16 rounded-xl bg-white border-2 border-orange-400 flex items-center justify-center shrink-0 shadow-sm">
+            <Zap
+              className="size-5 2xl:size-6 text-orange-600"
+              fill="currentColor"
+            />
+          </div>
+          <span className="font-extrabold text-[11px] 2xl:text-sm text-center leading-tight">
+            Cualquier especialista
+          </span>
+        </button>
+
         {selectorEmployees.map((e) => {
           const sel = selectedEmployee === e._id;
           return (
@@ -832,26 +839,26 @@ export default function ListBookAppointment({
                 goNextStep();
               }}
               className={cn(
-                "flex flex-col items-center gap-1.5 2xl:gap-2 p-2.5 2xl:p-4 rounded-2xl border-2 transition-all",
+                "flex flex-col items-center justify-center gap-1.5 2xl:gap-2 p-2.5 2xl:p-4 min-h-[120px] 2xl:min-h-[152px] rounded-2xl border-2 transition-all",
                 sel
                   ? "border-orange-500 bg-orange-50 shadow-md ring-2 ring-orange-100"
                   : "border-orange-100 bg-white hover:border-orange-300 hover:bg-orange-50/30 hover:shadow-md",
               )}
             >
-              {e.profileImage && e.profileImage !== "user.png" ? (
+              {resolveImageUrl(e.profileImage) ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${e.profileImage}`}
+                  src={resolveImageUrl(e.profileImage)!}
                   alt={e.name}
                   className={cn(
-                    "size-12 2xl:size-16 rounded-xl object-cover shrink-0 transition-all",
+                    "size-14 2xl:size-16 rounded-xl object-cover shrink-0 transition-all",
                     sel ? "ring-2 ring-orange-500 shadow-md" : "",
                   )}
                 />
               ) : (
                 <div
                   className={cn(
-                    "size-12 2xl:size-16 rounded-xl flex items-center justify-center text-base 2xl:text-xl font-black shrink-0 transition-all",
+                    "size-14 2xl:size-16 rounded-xl flex items-center justify-center text-base 2xl:text-xl font-black shrink-0 transition-all",
                     sel
                       ? "bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-md"
                       : "bg-gradient-to-br from-orange-100 to-orange-200 text-orange-700",
@@ -1089,12 +1096,11 @@ export default function ListBookAppointment({
           {/* Con quién: sólo si hay a quién nombrar o si el cliente pudo elegir */}
           {(displayEmployeeObj || employees.length >= 2) && (
             <div className="flex items-center gap-2.5 py-2.5 2xl:py-3">
-              {displayEmployeeObj?.profileImage &&
-              displayEmployeeObj.profileImage !== "user.png" ? (
+              {resolveImageUrl(displayEmployeeObj?.profileImage) ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getprofilepic/${displayEmployeeObj.profileImage}`}
-                  alt={displayEmployeeObj.name}
+                  src={resolveImageUrl(displayEmployeeObj!.profileImage)!}
+                  alt={displayEmployeeObj!.name}
                   className="size-8 2xl:size-9 rounded-lg object-cover shrink-0"
                 />
               ) : (
@@ -1221,12 +1227,22 @@ export default function ListBookAppointment({
   const BusinessHeaderStrip = () => (
     <div className="relative bg-primary/5 border-b border-primary/10 overflow-hidden shrink-0">
       <div className="relative flex items-center gap-4 2xl:gap-5 px-5 py-4 md:px-6 md:py-4 2xl:px-10 2xl:py-6">
-        {/* Avatar */}
-        <div className="size-11 md:size-12 2xl:size-16 rounded-2xl bg-primary flex items-center justify-center shrink-0 select-none shadow-md">
-          <span className="text-lg md:text-xl 2xl:text-3xl font-black text-primary-foreground">
-            {businessData.name?.[0]?.toUpperCase() ?? ""}
-          </span>
-        </div>
+        {/* Avatar: foto del negocio, con la inicial de marca como fallback */}
+        {businessLogoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={businessLogoUrl}
+            alt={businessData.name ? `Logo de ${businessData.name}` : "Logo del negocio"}
+            onError={() => setLogoFailed(true)}
+            className="size-11 md:size-12 2xl:size-16 rounded-2xl object-cover shrink-0 select-none shadow-md bg-primary/10"
+          />
+        ) : (
+          <div className="size-11 md:size-12 2xl:size-16 rounded-2xl bg-primary flex items-center justify-center shrink-0 select-none shadow-md">
+            <span className="text-lg md:text-xl 2xl:text-3xl font-black text-primary-foreground">
+              {businessData.name?.[0]?.toUpperCase() ?? ""}
+            </span>
+          </div>
+        )}
 
         {/* Info block */}
         <div className="flex flex-col gap-0.5 min-w-0 flex-1">
@@ -1240,8 +1256,28 @@ export default function ListBookAppointment({
               </span>
             )}
           </div>
-          {(singleLocationAddress || contactPhone) && (
+          {(singleLocationAddress || contactPhone || soleProvider) && (
             <div className="flex flex-wrap items-center gap-x-4 gap-y-0.5 mt-1 2xl:mt-1.5 text-xs 2xl:text-[13px] text-neutral-500">
+              {soleProvider && (
+                <span className="flex items-center gap-1.5 min-w-0">
+                  {resolveImageUrl(soleProvider.profileImage) ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={resolveImageUrl(soleProvider.profileImage)!}
+                      alt={soleProvider.name}
+                      className="size-4 2xl:size-5 rounded-full object-cover shrink-0"
+                    />
+                  ) : (
+                    <User className="size-3.5 text-primary/60 shrink-0" />
+                  )}
+                  <span className="truncate">
+                    Te atiende{" "}
+                    <b className="font-semibold text-neutral-700">
+                      {`${soleProvider.name} ${soleProvider.surname ?? ""}`.trim()}
+                    </b>
+                  </span>
+                </span>
+              )}
               {singleLocationAddress && (
                 <span className="flex items-center gap-1.5">
                   <MapPin className="size-3.5 text-primary/60 shrink-0" />
@@ -1344,7 +1380,7 @@ export default function ListBookAppointment({
   // ── Main wizard layout ───────────────────────────────────────
   return (
     <div className="flex flex-col w-full min-h-screen md:h-screen md:min-h-0 md:overflow-hidden" style={{ background: "radial-gradient(ellipse 65% 55% at 12% 88%, rgba(255, 180, 110, 0.42) 0%, transparent 100%), radial-gradient(ellipse 55% 50% at 88% 12%, rgba(255, 140, 90, 0.32) 0%, transparent 100%), radial-gradient(ellipse 45% 40% at 65% 78%, rgba(255, 210, 160, 0.24) 0%, transparent 100%), #fff8f3" }}>
-      <main className="flex flex-col flex-1 md:min-h-0 w-full max-w-7xl pt-[84px] pb-4 mx-auto px-4 md:px-8 md:pb-6">
+      <main className="flex flex-col flex-1 md:min-h-0 w-full max-w-[1200px] 2xl:max-w-7xl pt-[84px] pb-4 mx-auto px-8 md:pb-6">
         {/* La tarjeta se mide por su contenido y sólo usa el alto disponible como
             techo: así no estira medio viewport vacío en pantallas grandes, pero
             sigue clampeando (y scrolleando por dentro) cuando el paso es largo. */}

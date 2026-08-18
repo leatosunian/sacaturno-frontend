@@ -84,6 +84,14 @@ const CreateScheduleAppointmentModal: React.FC<props> = ({
     serviceFilteredEmployees.length === 0 &&
     !!selectedServiceID;
 
+  // Con dos o más elegibles la plantilla no se crea sin elegir profesional; con
+  // uno solo se autoasigna sin preguntar.
+  const assignmentRequired =
+    showEmployeeDropdown && !showNoServiceEmployeesWarning && serviceFilteredEmployees.length >= 2;
+  const soleEligible =
+    serviceFilteredEmployees.length === 1 ? serviceFilteredEmployees[0] : null;
+  const employeeMissing = assignmentRequired && !selectedEmployeeID;
+
   dayjs.extend(updateLocale);
 
   const DAYS_ES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
@@ -151,7 +159,7 @@ const CreateScheduleAppointmentModal: React.FC<props> = ({
       start: appointmentData?.start!,
       service: selectedService?.name!,
       dayNumber: appointmentData?.dayNumber!,
-      employeeID: selectedEmployeeID || null,
+      employeeID: selectedEmployeeID || soleEligible?._id || null,
       branchID: effectiveBranchID || null,
     };
     try {
@@ -308,41 +316,47 @@ const CreateScheduleAppointmentModal: React.FC<props> = ({
         {showEmployeeDropdown && !showNoServiceEmployeesWarning && (
           <div className="flex flex-col w-full gap-1 h-fit">
             <label className="text-xs font-bold uppercase">
-              Empleado asignado
+              Profesional asignado{" "}
+              {assignmentRequired && <span className="text-primary">*</span>}
             </label>
-            <Select
-              value={selectedEmployeeID || "none"}
-              onValueChange={(v) =>
-                setSelectedEmployeeID(v === "none" ? "" : v)
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Cualquier profesional" />
-              </SelectTrigger>
-              <SelectContent className="w-full">
-                <SelectGroup>
-                  <SelectLabel>Empleados</SelectLabel>
-                  <SelectItem value="none">Cualquier profesional</SelectItem>
-                  {serviceFilteredEmployees.map((emp) => (
-                    <SelectItem key={emp._id} value={emp._id!}>
-                      {emp.name} {emp.surname}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            {assignmentRequired ? (
+              <Select
+                value={selectedEmployeeID || undefined}
+                onValueChange={setSelectedEmployeeID}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Elegí un profesional" />
+                </SelectTrigger>
+                <SelectContent className="w-full">
+                  <SelectGroup>
+                    <SelectLabel>Profesionales</SelectLabel>
+                    {serviceFilteredEmployees.map((emp) => (
+                      <SelectItem key={emp._id} value={emp._id!}>
+                        {emp.name} {emp.surname}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="flex items-center h-9 px-3 rounded-md border border-gray-200 bg-gray-50 text-xs text-gray-600 truncate">
+                {soleEligible
+                  ? `${soleEligible.name} ${soleEligible.surname}`.trim()
+                  : "Sin profesional disponible"}
+              </div>
+            )}
+            {employeeMissing && (
+              <span className="text-[10px] text-orange-600">
+                Elegí quién atiende este turno.
+              </span>
+            )}
           </div>
         )}
 
-        {showEmployeeDropdown && !showNoServiceEmployeesWarning && !selectedEmployeeID && (
-          <p className="text-xs text-gray-500 leading-snug -mt-2">
-            Sin profesional asignado, el turno lo puede atender cualquiera del equipo.
-          </p>
-        )}
         <Button
           className="w-full text-white bg-primary border-none rounded-lg shadow-xl outline-none h-11 hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={saveAppointment}
-          disabled={showBranchDropdown && !selectedBranchID}
+          disabled={(showBranchDropdown && !selectedBranchID) || employeeMissing}
         >
           Crear turno
         </Button>

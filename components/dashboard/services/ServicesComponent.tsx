@@ -7,11 +7,10 @@ import axiosReq from "@/config/axios";
 import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
 import UpgradePlanModal from "./UpgradePlanModal";
-import { LuSearchX, LuChevronRight } from "react-icons/lu";
+import { LuSearchX, LuChevronRight, LuClock, LuUsers, LuPencil, LuTriangleAlert } from "react-icons/lu";
 import { TbPlaylistAdd } from "react-icons/tb";
 import Link from "next/link";
 import CreateServiceModal from "./CreateServiceModal";
-import { IoMdMore } from "react-icons/io";
 import EditServiceModal from "./EditServiceModal";
 import Alert from "@/components/Alert";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -97,11 +96,19 @@ const ServicesComponent = ({
           duration: formData.duration,
           depositAmount: formData.depositAmount ?? 0,
         };
-        await axiosReq.post(
+        const res = await axiosReq.post(
           "/business/service/create",
           { ...newServiceData, employeeIDs: formData.employeeIDs ?? [] },
           authHeader,
         );
+        // Con el registro real ya se puede reemplazar la card provisoria: queda
+        // clickeable al instante en vez de esperar a que vuelva el refresh.
+        const created: IService | undefined = res.data?.service;
+        if (created?._id) {
+          setServices((prev) =>
+            prev?.map((s) => (s._id === tempID ? created : s)),
+          );
+        }
         setAlert({
           msg: "Servicio añadido correctamente",
           error: true,
@@ -112,10 +119,13 @@ const ServicesComponent = ({
       } catch (error: any) {
         setServices((prev) => prev?.filter((s) => s._id !== tempID));
         const isLimitReached = error?.response?.data?.msg === "SERVICE_LIMIT_REACHED";
+        const depositTooHigh = error?.response?.data?.msg === "DEPOSIT_EXCEEDS_PRICE";
         setAlert({
           msg: isLimitReached
             ? "Alcanzaste el límite máximo de servicios permitidos"
-            : "Error al crear servicio",
+            : depositTooHigh
+              ? "La seña no puede superar el precio del servicio"
+              : "Error al crear servicio",
           error: true,
           alertType: "ERROR_ALERT",
         });
@@ -127,7 +137,10 @@ const ServicesComponent = ({
 
   const deleteService = async (serviceID: string | undefined) => {
     setEditServiceModal(false);
-    setLoading(true);
+    // Se saca de la lista en el acto y se repone si el borrado falla: el spinner
+    // dejaba la card vieja a la vista hasta que volviera el refresh del servidor.
+    const previous = services;
+    setServices((prev) => prev?.filter((s) => s._id !== serviceID));
     try {
       const token = localStorage.getItem("sacaturno_token");
       const authHeader = {
@@ -147,14 +160,13 @@ const ServicesComponent = ({
       });
       hideAlert();
       router.refresh();
-      setLoading(false);
     } catch (error) {
+      setServices(previous);
       setAlert({
         msg: "Error al eliminar servicio",
         error: true,
         alertType: "ERROR_ALERT",
       });
-      setLoading(false);
     }
   };
 
@@ -167,7 +179,21 @@ const ServicesComponent = ({
     depositAmount?: number | undefined;
   }) => {
     setEditServiceModal(false);
-    setLoading(true);
+    // Los valores nuevos se pintan en el acto. Antes esto mostraba un spinner y
+    // volvía con los datos viejos hasta que llegaba el refresh del servidor.
+    const previous = services;
+    // Los campos del form son opcionales; sólo se pisan los que vinieron.
+    const patch: Partial<IService> = {
+      ...(formData.name !== undefined && { name: formData.name }),
+      ...(formData.description !== undefined && { description: formData.description }),
+      ...(formData.price !== undefined && { price: formData.price }),
+      ...(formData.duration !== undefined && { duration: formData.duration }),
+      depositAmount: formData.depositAmount ?? 0,
+    };
+    setServices((prev) =>
+      prev?.map((s) => (s._id === formData.id ? { ...s, ...patch } : s)),
+    );
+
     try {
       const token = localStorage.getItem("sacaturno_token");
       const authHeader = {
@@ -176,22 +202,31 @@ const ServicesComponent = ({
           Authorization: `Bearer ${token}`,
         },
       };
-      await axiosReq.put(
+      const res = await axiosReq.put(
         `/business/service/edit`,
         { ...formData, depositAmount: formData.depositAmount ?? 0 },
         authHeader,
       );
+      // El backend puede normalizar valores, así que su versión pisa a la optimista.
+      const edited: IService | undefined = res.data?.editedService;
+      if (edited?._id) {
+        setServices((prev) =>
+          prev?.map((s) => (s._id === edited._id ? edited : s)),
+        );
+      }
       setAlert({ msg: "Servicio editado", error: true, alertType: "OK_ALERT" });
       hideAlert();
       router.refresh();
-      setLoading(false);
-    } catch (error) {
+    } catch (error: any) {
+      setServices(previous);
       setAlert({
-        msg: "Error al editar servicio",
+        msg:
+          error?.response?.data?.msg === "DEPOSIT_EXCEEDS_PRICE"
+            ? "La seña no puede superar el precio del servicio"
+            : "Error al editar servicio",
         error: true,
         alertType: "ERROR_ALERT",
       });
-      setLoading(false);
     }
   };
 
@@ -207,6 +242,26 @@ const ServicesComponent = ({
     setLoading(false);
   }, [servicesData]);
 
+  // Prestadores del negocio. Los inactivos no toman turnos, y el dueño sin
+  // publicar queda inactive, así que salen los dos por la misma condición.
+  const assignableEmployees = employeesData.filter((e) => e.status !== "inactive");
+
+  const providersOf = (serviceID?: string) =>
+    serviceID ? assignableEmployees.filter((e) => (e.services ?? []).includes(serviceID)) : [];
+
+  const providerLabel = (list: IEmployee[]) => {
+    const first = list[0].isOwner ? "Vos" : list[0].name;
+    return list.length === 1 ? first : `${first} y ${list.length - 1} más`;
+  };
+
+  const durationLabel = (minutes?: number) => {
+    if (!minutes) return null;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours === 0) return `${mins} min`;
+    return mins > 0 ? `${hours}h ${mins}min` : `${hours} hora${hours > 1 ? "s" : ""}`;
+  };
+
   const isExpired = subscriptionData.subscriptionType === "SC_EXPIRED";
   const depositsEnabled = getPlanLimits(subscriptionData.subscriptionType).depositsEnabled;
 
@@ -219,7 +274,9 @@ const ServicesComponent = ({
         open={createServiceModal}
         onOpenChange={() => setCreateServiceModal(false)}
       >
-        <DialogContent className="sm:w-[400px] w-[93vw] max-h-[85vh] overflow-y-auto">
+        {/* p-0 + overflow-hidden: el padding y el scroll los maneja el modal,
+            que fija header y botón y scrollea sólo el cuerpo. */}
+        <DialogContent className="w-[93vw] sm:w-[560px] max-w-[93vw] max-h-[85vh] p-0 gap-0 overflow-hidden flex flex-col">
           <CreateServiceModal
             mpLinked={businessData.mpLinked}
             isLoading={isCreating}
@@ -242,7 +299,7 @@ const ServicesComponent = ({
         open={editServiceModal}
         onOpenChange={() => setEditServiceModal(false)}
       >
-        <DialogContent className="sm:w-[470px] w-[93vw]">
+        <DialogContent className="w-[93vw] sm:w-[560px] max-w-[93vw] max-h-[85vh] p-0 gap-0 overflow-hidden flex flex-col">
           <EditServiceModal
             mpLinked={businessData.mpLinked}
             serviceData={serviceToEdit}
@@ -348,53 +405,80 @@ const ServicesComponent = ({
                   </p>
                 </div>
               )}
-              <div className="flex flex-col gap-2">
-                {services?.map((service) => (
-                  <div
-                    key={service._id}
-                    onClick={() => !service._id?.startsWith("temp_") && setEditService(service)}
-                    className={`flex items-center justify-between py-3.5 gap-4 group border border-gray-100 hover:border-white hover:bg-orange-50 rounded-lg pl-4 pr-3 -mx-2 transition-all ${service._id?.startsWith("temp_") ? "opacity-60" : "cursor-pointer"}`}
-                  >
-                    <div className="flex flex-col gap-1 min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm 2xl:text-base font-semibold text-gray-800">
+              {/* Grilla de dos columnas. Las cards de una misma fila se estiran
+                  a la altura de la más alta: la descripción crece con flex-1 y
+                  deja los chips siempre pegados abajo, alineados entre sí. */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {services?.map((service) => {
+                  const isTemp = !!service._id?.startsWith("temp_");
+                  const providers = isTemp ? [] : providersOf(service._id);
+                  const duration = durationLabel(service.duration);
+                  const hasDeposit = !!service.depositAmount && service.depositAmount > 0;
+
+                  return (
+                    <div
+                      key={service._id}
+                      onClick={() => !isTemp && setEditService(service)}
+                      className={`flex flex-col h-full gap-2 p-4 rounded-xl border border-gray-100 transition-all duration-200 ease-in-out ${
+                        isTemp
+                          ? "opacity-60"
+                          : "cursor-pointer group hover:border-orange-200 hover:bg-orange-50/50 hover:shadow-sm"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <span className="text-sm 2xl:text-base font-semibold text-gray-800 min-w-0 break-words">
                           {service.name}
                         </span>
-                        {service.depositAmount && service.depositAmount > 0 ? (
-                          <span className="text-xs font-semibold text-orange-600 bg-orange-50 border border-orange-200 px-2.5 py-0.5 rounded-full">
-                            Seña: $
-                            {service.depositAmount.toLocaleString("es-AR")}
-                          </span>
-                        ) : null}
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm 2xl:text-base font-semibold text-gray-700">
+                        <span className="text-base 2xl:text-lg font-bold text-gray-800 shrink-0 leading-tight">
                           $ {service.price?.toLocaleString("es-AR")}
                         </span>
-                        {service.duration ? (
-                          <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                            {service.duration} min
-                          </span>
-                        ) : null}
                       </div>
-                      {service.description && service.description !== "" ? (
-                        <p className="text-xs 2xl:text-sm text-gray-400 leading-4">
-                          {service.description}
-                        </p>
-                      ) : (
-                        <p className="text-xs 2xl:text-sm text-gray-300 italic">
-                          Sin descripción.
-                        </p>
-                      )}
+
+                      {/* flex-1 aunque esté vacía: es lo que empuja los chips al
+                          piso y empareja las cards sin descripción con el resto. */}
+                      <p className="text-xs 2xl:text-sm text-gray-500 leading-relaxed flex-1">
+                        {service.description}
+                      </p>
+
+                      <div className="flex items-end justify-between gap-2">
+                        <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                          {duration && (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                              <LuClock size={11} />
+                              {duration}
+                            </span>
+                          )}
+                          {hasDeposit && (
+                            <span className="inline-flex items-center text-[11px] font-semibold text-orange-600 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-full">
+                              Seña ${service.depositAmount!.toLocaleString("es-AR")}
+                            </span>
+                          )}
+                          {/* Sin prestadores cargados no hay nada que asignar:
+                              el aviso sería ruido, no una tarea pendiente. */}
+                          {!isTemp && assignableEmployees.length > 0 && (
+                            providers.length > 0 ? (
+                              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                                <LuUsers size={11} />
+                                {providerLabel(providers)}
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                                <LuTriangleAlert size={11} />
+                                Sin prestador
+                              </span>
+                            )
+                          )}
+                        </div>
+                        {!isTemp && (
+                          <LuPencil
+                            size={14}
+                            className="shrink-0 text-gray-300 group-hover:text-orange-600 transition-colors duration-200"
+                          />
+                        )}
+                      </div>
                     </div>
-                    {!service._id?.startsWith("temp_") && (
-                      <IoMdMore
-                        size={20}
-                        className="flex-shrink-0 text-gray-300 group-hover:text-orange-600 transition-colors duration-200"
-                      />
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </>
           )}

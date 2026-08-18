@@ -184,6 +184,19 @@ const AppointmentModal: React.FC<props> = ({
     .filter((e) => !draftBranchID || (e.branches ?? []).includes(draftBranchID))
     .filter((e) => !serviceID || (e.services ?? []).includes(serviceID));
 
+  // Con dos o más profesionales elegibles hay una decisión real que tomar y el
+  // turno no se guarda sin ella. Con uno solo no hay nada que elegir: se
+  // autoasigna y el selector queda como dato.
+  const assignmentRequired = eligibleEmployees.length >= 2;
+  const soleEligible = eligibleEmployees.length === 1 ? eligibleEmployees[0] : null;
+  const soleEligibleID = soleEligible?._id ?? "";
+  const resolvedEmployeeID = assignmentRequired
+    ? draftEmployeeID
+    : draftEmployeeID || soleEligibleID;
+  const employeeMissing = assignmentRequired && !draftEmployeeID;
+
+  // Compara el borrador, no el valor resuelto: si no, la autoasignación del
+  // único profesional dejaría "sucio" el turno apenas se abre el modal.
   const employeeChanged = draftEmployeeID !== (appointment?.employeeID ?? "");
   const branchChanged = draftBranchID !== (appointment?.branchID ?? "");
   const assignDirty = employeeChanged || branchChanged;
@@ -225,12 +238,13 @@ const AppointmentModal: React.FC<props> = ({
 
   const saveAssignment = () =>
     runAssign({
-      employeeID: draftEmployeeID || null,
+      employeeID: resolvedEmployeeID || null,
       branchID: draftBranchID || null,
       notifyClient: affectsClient && (notifyForced || notifyClient),
     });
 
   const startSave = () => {
+    if (employeeMissing) return;
     if (affectsClient) {
       setNotifyClient(notifyForced || clientPickedEmployee);
       setConfirmReassign(true);
@@ -315,27 +329,43 @@ const AppointmentModal: React.FC<props> = ({
             {activeEmployees.length > 0 && (
               <div className="flex flex-col gap-1 min-w-0">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                  Profesional
+                  Profesional {assignmentRequired && <span className="text-primary">*</span>}
                 </label>
-                <Select
-                  value={draftEmployeeID || "none"}
-                  onValueChange={(v) => setDraftEmployeeID(v === "none" ? "" : v)}
-                >
-                  <SelectTrigger className="w-full h-9 text-xs bg-white">
-                    <SelectValue placeholder="Cualquier profesional" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Profesionales</SelectLabel>
-                      <SelectItem value="none">Cualquier profesional</SelectItem>
-                      {eligibleEmployees.map((e) => (
-                        <SelectItem key={e._id} value={e._id!}>
-                          {e.name} {e.surname}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                {assignmentRequired ? (
+                  <Select
+                    value={draftEmployeeID || undefined}
+                    onValueChange={setDraftEmployeeID}
+                  >
+                    <SelectTrigger
+                      className={`w-full h-9 text-xs bg-white ${
+                        employeeMissing ? "border-orange-400" : ""
+                      }`}
+                    >
+                      <SelectValue placeholder="Elegí un profesional" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Profesionales</SelectLabel>
+                        {eligibleEmployees.map((e) => (
+                          <SelectItem key={e._id} value={e._id!}>
+                            {e.name} {e.surname}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="flex items-center h-9 px-3 rounded-md border border-gray-200 bg-gray-50 text-xs text-gray-600 truncate">
+                    {soleEligible
+                      ? `${soleEligible.name} ${soleEligible.surname}`.trim()
+                      : "Sin profesional disponible"}
+                  </div>
+                )}
+                {employeeMissing && (
+                  <span className="text-[10px] text-orange-600">
+                    Elegí quién atiende este turno.
+                  </span>
+                )}
               </div>
             )}
           </div>
@@ -625,7 +655,7 @@ const AppointmentModal: React.FC<props> = ({
         )}
         {canEditAssignment && assignDirty && (
           <Button
-            disabled={assigning}
+            disabled={assigning || employeeMissing}
             onClick={startSave}
             className="h-9 px-4 text-xs text-white bg-primary hover:bg-orange-500 border-none rounded-lg disabled:opacity-60"
           >

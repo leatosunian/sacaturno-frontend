@@ -41,12 +41,20 @@ const CreateBranchModal: React.FC<Props> = ({
   // del efecto es la lista de IDs serializada: si no, cada render pisaría lo tildado.
   const employeeIDsKey = activeEmployees.map((e) => e._id).filter(Boolean).join(",");
 
+  // El dueño publicado como prestador arranca tildado: una sucursal que no
+  // marque lo dejaría fuera del filtro público de esa sucursal sin aviso.
+  const ownerID = activeEmployees.find((e) => e.isOwner)?._id ?? "";
+
   // Con la primera sucursal el negocio entero se muda ahí, así que arranca con
   // todos tildados. De la segunda en adelante la asignación es una decisión.
   useEffect(() => {
     if (!open) return;
-    setSelectedEmployees(isFirstBranch ? employeeIDsKey.split(",").filter(Boolean) : []);
-  }, [open, isFirstBranch, employeeIDsKey]);
+    setSelectedEmployees(
+      isFirstBranch
+        ? employeeIDsKey.split(",").filter(Boolean)
+        : [ownerID].filter(Boolean)
+    );
+  }, [open, isFirstBranch, employeeIDsKey, ownerID]);
 
   const {
     register,
@@ -166,7 +174,7 @@ const CreateBranchModal: React.FC<Props> = ({
                       className="accent-orange-600 w-4 h-4 rounded cursor-pointer shrink-0"
                     />
                     <span className="text-sm text-gray-700 leading-tight">
-                      {emp.name} {emp.surname}
+                      {emp.isOwner ? "Vos" : `${emp.name} ${emp.surname}`}
                     </span>
                   </label>
                 ))}
