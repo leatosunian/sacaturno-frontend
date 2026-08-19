@@ -15,9 +15,13 @@ import {
   Loader2,
   CircleCheck,
   ChevronRight,
+  ChevronLeft,
   ArrowLeft,
   User,
   Tag,
+  Sun,
+  Sunset,
+  Moon,
 } from "lucide-react";
 import { cn, composeBranchAddress, resolveContactPhone } from "@/lib/utils";
 import { resolveImageUrl } from "@/lib/images";
@@ -69,21 +73,6 @@ const DAY_NAMES = [
   "Viernes",
   "Sábado",
 ];
-const DAY_ABBR = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SAB"];
-const MONTH_ABBR = [
-  "ENE",
-  "FEB",
-  "MAR",
-  "ABR",
-  "MAY",
-  "JUN",
-  "JUL",
-  "AGO",
-  "SEP",
-  "OCT",
-  "NOV",
-  "DIC",
-];
 const MONTH_NAMES = [
   "enero",
   "febrero",
@@ -108,6 +97,141 @@ const SCHEDULE_DAY_KEYS: Record<number, string> = {
   5: "VIE",
   6: "SAB",
 };
+
+// ── Calendario de fechas ─────────────────────────────────────
+// El mes se identifica por su prefijo "YYYY-MM", que es directamente
+// comparable con las dateStr y evita arrastrar objetos Date por el estado.
+function monthOf(dateStr: string): string {
+  return dateStr.slice(0, 7);
+}
+function addMonths(ym: string, n: number): string {
+  const [y, m] = ym.split("-").map(Number);
+  const d = new Date(Date.UTC(y, m - 1 + n, 1, 12));
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+// Grilla del mes arrancando en lunes, con los huecos del arranque en null.
+function monthCells(ym: string): (string | null)[] {
+  const [y, m] = ym.split("-").map(Number);
+  const lead = (new Date(Date.UTC(y, m - 1, 1, 12)).getUTCDay() + 6) % 7;
+  const total = new Date(Date.UTC(y, m, 0, 12)).getUTCDate();
+  return [
+    ...Array<null>(lead).fill(null),
+    ...Array.from(
+      { length: total },
+      (_, i) => `${y}-${String(m).padStart(2, "0")}-${String(i + 1).padStart(2, "0")}`,
+    ),
+  ];
+}
+
+const WEEKDAY_INITIALS = ["L", "M", "M", "J", "V", "S", "D"];
+
+function MonthCalendar({
+  month,
+  onMonthChange,
+  canGoPrev,
+  canGoNext,
+  availableDates,
+  selected,
+  todayStr,
+  onSelect,
+}: {
+  month: string;
+  onMonthChange: (ym: string) => void;
+  canGoPrev: boolean;
+  canGoNext: boolean;
+  availableDates: Set<string>;
+  selected: string;
+  todayStr: string;
+  onSelect: (dateStr: string) => void;
+}) {
+  const [y, m] = month.split("-").map(Number);
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <button
+          type="button"
+          disabled={!canGoPrev}
+          onClick={() => onMonthChange(addMonths(month, -1))}
+          aria-label="Mes anterior"
+          className={cn(
+            "size-9 rounded-xl flex items-center justify-center border transition-all",
+            canGoPrev
+              ? "border-orange-200 text-orange-600 hover:bg-orange-50"
+              : "border-transparent text-neutral-200 cursor-not-allowed",
+          )}
+        >
+          <ChevronLeft className="size-4" />
+        </button>
+        <span className="text-sm 2xl:text-base font-extrabold tracking-tight first-letter:uppercase">
+          {MONTH_NAMES[m - 1]}{" "}
+          <span className="text-muted-foreground font-bold">{y}</span>
+        </span>
+        <button
+          type="button"
+          disabled={!canGoNext}
+          onClick={() => onMonthChange(addMonths(month, 1))}
+          aria-label="Mes siguiente"
+          className={cn(
+            "size-9 rounded-xl flex items-center justify-center border transition-all",
+            canGoNext
+              ? "border-orange-200 text-orange-600 hover:bg-orange-50"
+              : "border-transparent text-neutral-200 cursor-not-allowed",
+          )}
+        >
+          <ChevronRight className="size-4" />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-7 gap-1 mb-1">
+        {WEEKDAY_INITIALS.map((w, i) => (
+          <span
+            key={i}
+            className="text-[10px] font-bold text-muted-foreground text-center py-1"
+          >
+            {w}
+          </span>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-1">
+        {monthCells(month).map((dateStr, i) => {
+          if (!dateStr) return <span key={`gap-${i}`} />;
+          const free = availableDates.has(dateStr);
+          const sel = selected === dateStr;
+          const isToday = dateStr === todayStr;
+          return (
+            <button
+              type="button"
+              key={dateStr}
+              disabled={!free}
+              onClick={() => onSelect(dateStr)}
+              className={cn(
+                "aspect-square flex items-center justify-center rounded-xl text-sm 2xl:text-base font-bold transition-all",
+                sel
+                  ? "bg-primary text-primary-foreground shadow-md"
+                  : free
+                    ? "bg-orange-50 text-neutral-900 hover:bg-orange-100"
+                    : "text-neutral-300 cursor-not-allowed",
+                isToday && !sel && "ring-2 ring-orange-400 ring-offset-1",
+              )}
+            >
+              {Number(dateStr.slice(8))}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// Los horarios se agrupan por franja: una grilla plana de 15+ turnos es
+// ilegible, y "a la tarde" es como el cliente ya piensa el día.
+const TIME_BUCKETS = [
+  { id: "manana", label: "Mañana", Icon: Sun, until: 12 },
+  { id: "tarde", label: "Tarde", Icon: Sunset, until: 18 },
+  { id: "noche", label: "Noche", Icon: Moon, until: 24 },
+] as const;
 
 // ── Service type ─────────────────────────────────────────────
 interface IService {
@@ -211,6 +335,7 @@ export default function ListBookAppointment({
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
   const [currentDateStr, setCurrentDateStr] = useState(initialDateStr);
+  const [calendarMonth, setCalendarMonth] = useState(() => monthOf(initialDateStr));
   const [selectedSlot, setSelectedSlot] = useState<FormattedAppointment | null>(
     null,
   );
@@ -324,6 +449,35 @@ export default function ListBookAppointment({
     () => Array.from(availableDateStrSet).sort().slice(0, 30),
     [availableDateStrSet],
   );
+
+  // El calendario no deja salir del rango con turnos: desde el mes de hoy
+  // hasta el de la última fecha publicada.
+  const monthRange = useMemo(() => {
+    const last = availableDatesArray[availableDatesArray.length - 1];
+    return {
+      min: monthOf(initialDateStr),
+      max: monthOf(last ?? initialDateStr),
+    };
+  }, [availableDatesArray, initialDateStr]);
+
+  // Si el día apuntado se quedó sin turnos —al entrar al paso, o porque
+  // cambió un filtro— saltar al siguiente con disponibilidad en vez de
+  // mostrar la columna de horarios vacía.
+  useEffect(() => {
+    if (availableDatesArray.length === 0) return;
+    if (availableDateStrSet.has(currentDateStr)) return;
+    const next =
+      availableDatesArray.find((d) => d >= currentDateStr) ??
+      availableDatesArray[0];
+    setCurrentDateStr(next);
+    setSelectedSlot(null);
+  }, [availableDatesArray, availableDateStrSet, currentDateStr]);
+
+  // Seguir al día elegido cuando el salto vino de afuera del calendario
+  // (por ejemplo el snap de arriba, que puede caer en otro mes).
+  useEffect(() => {
+    setCalendarMonth(monthOf(currentDateStr));
+  }, [currentDateStr]);
 
   // ── Derived selection objects ──
   const selectedServiceObj = useMemo(
@@ -878,6 +1032,40 @@ export default function ListBookAppointment({
   );
 
   // DATE STEP
+  const tomorrowStr = useMemo(() => addDaysStr(initialDateStr, 1), [initialDateStr]);
+
+  const currentDateLabel = useMemo(() => {
+    const d = dateForDateStr(currentDateStr);
+    return `${DAY_NAMES[d.getUTCDay()]} ${d.getUTCDate()} de ${MONTH_NAMES[d.getUTCMonth()]}`;
+  }, [currentDateStr]);
+
+  const currentDateRelLabel =
+    currentDateStr === initialDateStr
+      ? "Hoy"
+      : currentDateStr === tomorrowStr
+        ? "Mañana"
+        : null;
+
+  const groupedDaySlots = useMemo(
+    () =>
+      TIME_BUCKETS.map((bucket, i) => {
+        const from = i === 0 ? 0 : TIME_BUCKETS[i - 1].until;
+        return {
+          ...bucket,
+          items: dayAppointments.filter((a) => {
+            const h = Number(a.timeLabel.slice(0, 2));
+            return h >= from && h < bucket.until;
+          }),
+        };
+      }).filter((g) => g.items.length > 0),
+    [dayAppointments],
+  );
+
+  const pickDate = (dateStr: string) => {
+    setCurrentDateStr(dateStr);
+    setSelectedSlot(null);
+  };
+
   const DateStep = () => (
     <StepShell
       footer={
@@ -907,112 +1095,115 @@ export default function ListBookAppointment({
         }
       />
 
-      {/* Date pills */}
-      <div className="shrink-0">
-        <span className="text-[11px] 2xl:text-xs uppercase tracking-wider font-bold text-muted-foreground mb-2 block">
-          Elegí un día
-        </span>
-        {availableDatesArray.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-6 text-center">
-            No hay fechas disponibles
-            {selectedService ? ` para "${selectedService}"` : ""}.
-          </p>
-        ) : (
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-            {availableDatesArray.map((dateStr) => {
-              const sel = currentDateStr === dateStr;
-              const d = dateForDateStr(dateStr);
-              return (
-                <button
-                  key={dateStr}
-                  onClick={() => {
-                    setCurrentDateStr(dateStr);
-                    setSelectedSlot(null);
-                  }}
-                  className={cn(
-                    "shrink-0 w-14 py-2.5 2xl:w-16 2xl:py-3 rounded-2xl border flex flex-col items-center justify-center transition-all",
-                    sel
-                      ? "border-primary bg-primary text-primary-foreground shadow-lg"
-                      : "border-primary/15 bg-white hover:border-primary/40 hover:bg-primary/5",
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "text-[10px] font-bold uppercase leading-none",
-                      sel ? "text-primary-foreground/80" : "text-muted-foreground",
-                    )}
-                  >
-                    {DAY_ABBR[d.getUTCDay()]}
-                  </span>
-                  <span className="text-base 2xl:text-lg font-black leading-tight mt-0.5 2xl:mt-1">
-                    {d.getUTCDate()}
-                  </span>
-                  <span
-                    className={cn(
-                      "text-[10px] font-semibold mt-0.5",
-                      sel ? "text-primary-foreground/80" : "text-muted-foreground",
-                    )}
-                  >
-                    {MONTH_ABBR[d.getUTCMonth()]}
-                  </span>
-                </button>
-              );
-            })}
+      {availableDatesArray.length === 0 ? (
+        <p className="text-sm text-muted-foreground py-6 text-center">
+          No hay fechas disponibles
+          {selectedService ? ` para "${selectedService}"` : ""}.
+        </p>
+      ) : (
+        <div className="md:grid md:grid-cols-[260px_1fr] 2xl:md:grid-cols-[320px_1fr] md:gap-6 2xl:md:gap-8 flex flex-col gap-5">
+          {/* Calendario */}
+          <div className="shrink-0">
+            <span className="text-[11px] 2xl:text-xs uppercase tracking-wider font-bold text-primary mb-2 block">
+              Elegí un día
+            </span>
+            <MonthCalendar
+              month={calendarMonth}
+              onMonthChange={setCalendarMonth}
+              canGoPrev={calendarMonth > monthRange.min}
+              canGoNext={calendarMonth < monthRange.max}
+              availableDates={availableDateStrSet}
+              selected={currentDateStr}
+              todayStr={initialDateStr}
+              onSelect={pickDate}
+            />
           </div>
-        )}
-      </div>
 
-      {/* Time slots */}
-      {availableDateStrSet.has(currentDateStr) && (
-        <div>
-          <span className="text-[11px] 2xl:text-xs uppercase tracking-wider font-bold text-muted-foreground mb-2 block">
-            Elegí un horario
-          </span>
-          {dayAppointments.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No hay horarios disponibles para este día.
-            </p>
-          ) : (
-            <div className={cn(
-              "grid gap-2",
-              showBranchInSlots
-                ? "grid-cols-3 md:grid-cols-4 2xl:grid-cols-5"
-                : "grid-cols-4 md:grid-cols-6 2xl:grid-cols-8",
-            )}>
-              {dayAppointments.map((apt) => {
-                const sel = selectedSlot?._id === apt._id;
-                const booked = apt.status === "booked";
-                const aptBranch = showBranchInSlots && apt.branchID
-                  ? branches.find((b) => b._id === apt.branchID)
-                  : null;
-                return (
-                  <button
-                    key={apt._id}
-                    onClick={() => !booked && setSelectedSlot(apt)}
-                    disabled={booked}
-                    className={cn(
-                      "rounded-lg border text-xs 2xl:text-sm font-bold transition-all flex flex-col items-center justify-center gap-0.5 py-1.5 2xl:py-2 px-1 min-w-0",
-                      booked
-                        ? "border-border bg-muted/50 text-muted-foreground/40 cursor-not-allowed"
-                        : sel
-                          ? "border-primary bg-primary text-primary-foreground shadow-md"
-                          : "border-primary/15 bg-white hover:border-primary/40 hover:bg-primary/5",
-                    )}
-                  >
-                    <span className="truncate w-full text-center">{apt.timeLabel}</span>
-                    {aptBranch && (
-                      <span className={cn(
-                        "text-[9px] font-semibold leading-tight truncate w-full text-center",
-                        sel ? "text-primary-foreground/75" : "text-muted-foreground",
-                      )}>
-                        {aptBranch.name}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+          {/* Horarios del día elegido */}
+          <div className="md:border-l md:border-orange-100 md:pl-6 2xl:md:pl-8 min-w-0">
+            <span className="text-[11px] 2xl:text-xs uppercase tracking-wider font-bold text-primary mb-2 block">
+              Elegí un horario
+            </span>
+            <div className="flex items-center gap-2 -mt-1 mb-3">
+              {currentDateRelLabel && (
+                <span className="shrink-0 text-[10px] font-black uppercase tracking-wider text-primary-foreground bg-primary rounded-full px-2 py-0.5">
+                  {currentDateRelLabel}
+                </span>
+              )}
+              <p className="text-base 2xl:text-lg font-extrabold first-letter:uppercase text-neutral-900 leading-tight">
+                {currentDateLabel}
+              </p>
             </div>
-          )}
+            {dayAppointments.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No hay horarios disponibles para este día.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {groupedDaySlots.map(({ id, label, Icon, items }) => (
+                  <div key={id}>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Icon className="size-3.5 text-orange-500" />
+                      <span className="text-[11px] uppercase tracking-wider font-bold text-neutral-700">
+                        {label}
+                      </span>
+                      <span className="text-[11px] font-semibold text-muted-foreground">
+                        · {items.length}
+                      </span>
+                    </div>
+                    <div
+                      className={cn(
+                        "grid gap-2",
+                        showBranchInSlots
+                          ? "grid-cols-3 2xl:grid-cols-4"
+                          : "grid-cols-3 md:grid-cols-4 2xl:grid-cols-6",
+                      )}
+                    >
+                      {items.map((apt) => {
+                        const sel = selectedSlot?._id === apt._id;
+                        const booked = apt.status === "booked";
+                        const aptBranch =
+                          showBranchInSlots && apt.branchID
+                            ? branches.find((b) => b._id === apt.branchID)
+                            : null;
+                        return (
+                          <button
+                            key={apt._id}
+                            onClick={() => !booked && setSelectedSlot(apt)}
+                            disabled={booked}
+                            className={cn(
+                              "rounded-xl border text-xs 2xl:text-sm font-bold transition-all flex flex-col items-center justify-center gap-0.5 py-2.5 2xl:py-3 px-1 min-w-0",
+                              booked
+                                ? "border-border bg-muted/50 text-muted-foreground/40 cursor-not-allowed"
+                                : sel
+                                  ? "border-primary bg-primary text-primary-foreground shadow-md"
+                                  : "border-primary/15 bg-white hover:border-primary/40 hover:bg-primary/5",
+                            )}
+                          >
+                            <span className="truncate w-full text-center">
+                              {apt.timeLabel}
+                            </span>
+                            {aptBranch && (
+                              <span
+                                className={cn(
+                                  "text-[9px] font-semibold leading-tight truncate w-full text-center",
+                                  sel
+                                    ? "text-primary-foreground/75"
+                                    : "text-muted-foreground",
+                                )}
+                              >
+                                {aptBranch.name}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -1307,7 +1498,7 @@ export default function ListBookAppointment({
   if (wizardStep === "done") {
     return (
       <div className="flex flex-col w-full min-h-screen" style={{ background: "radial-gradient(ellipse 65% 55% at 12% 88%, rgba(255, 180, 110, 0.42) 0%, transparent 100%), radial-gradient(ellipse 55% 50% at 88% 12%, rgba(255, 140, 90, 0.32) 0%, transparent 100%), radial-gradient(ellipse 45% 40% at 65% 78%, rgba(255, 210, 160, 0.24) 0%, transparent 100%), #fff8f3" }}>
-        <main className="flex flex-col flex-1 w-full max-w-7xl pt-[84px] pb-4 mx-auto px-4 md:px-8 md:pb-6">
+        <main className="flex flex-col flex-1 w-full max-w-7xl pt-[68px] md:pt-[84px] pb-4 mx-auto px-4 md:px-8 md:pb-6">
           <div className="rounded-3xl bg-white overflow-hidden shadow-2xl border border-orange-100/70">
             <BusinessHeaderStrip />
             <div className="flex flex-col w-fit mx-auto items-center gap-6 py-16 md:py-20 px-6">
@@ -1380,16 +1571,18 @@ export default function ListBookAppointment({
   // ── Main wizard layout ───────────────────────────────────────
   return (
     <div className="flex flex-col w-full min-h-screen md:h-screen md:min-h-0 md:overflow-hidden" style={{ background: "radial-gradient(ellipse 65% 55% at 12% 88%, rgba(255, 180, 110, 0.42) 0%, transparent 100%), radial-gradient(ellipse 55% 50% at 88% 12%, rgba(255, 140, 90, 0.32) 0%, transparent 100%), radial-gradient(ellipse 45% 40% at 65% 78%, rgba(255, 210, 160, 0.24) 0%, transparent 100%), #fff8f3" }}>
-      <main className="flex flex-col flex-1 md:min-h-0 w-full max-w-[1200px] 2xl:max-w-7xl pt-[84px] pb-4 mx-auto px-8 md:pb-6">
-        {/* La tarjeta se mide por su contenido y sólo usa el alto disponible como
-            techo: así no estira medio viewport vacío en pantallas grandes, pero
-            sigue clampeando (y scrolleando por dentro) cuando el paso es largo. */}
-        <div className="rounded-3xl bg-white overflow-hidden shadow-2xl border border-orange-100/70 flex flex-col md:min-h-0 md:max-h-full">
+      <main className="flex flex-col flex-1 md:min-h-0 w-full max-w-[1200px] 2xl:max-w-7xl pt-[68px] md:pt-[84px] pb-4 mx-auto px-4 md:px-8 md:pb-6">
+        {/* En desktop la tarjeta se mide por su contenido y sólo usa el alto
+            disponible como techo, así no estira medio viewport vacío en pantallas
+            grandes, pero sigue clampeando (y scrolleando por dentro) cuando el paso
+            es largo. En mobile, en cambio, crece hasta el borde inferior del
+            viewport dejando el mismo aire que a los lados (pb-4 = px-4). */}
+        <div className="rounded-3xl bg-white overflow-hidden shadow-2xl border border-orange-100/70 flex flex-col flex-1 md:flex-initial md:min-h-0 md:max-h-full">
           <BusinessHeaderStrip />
 
-          <div className="md:flex md:flex-row md:flex-1 md:min-h-0">
+          <div className="flex flex-col flex-1 md:flex-row md:min-h-0">
             {/* ── Desktop sidebar (warm orange gradient) ── */}
-            <aside className="hidden md:flex md:flex-col md:w-60 2xl:w-80 md:shrink-0 relative overflow-hidden bg-primary text-white p-5 2xl:p-10">
+            <aside className="hidden md:flex md:flex-col md:w-60 2xl:w-80 md:shrink-0 relative overflow-hidden bg-primary text-white p-5 2xl:px-10 2xl:py-6">
               {/* Decorative overlays for depth */}
               <div className="absolute -top-20 -right-20 size-52 rounded-full bg-white/10 pointer-events-none" />
               <div className="absolute -bottom-24 -left-16 size-60 rounded-full bg-white/5 pointer-events-none" />
@@ -1497,10 +1690,10 @@ export default function ListBookAppointment({
             </aside>
 
             {/* ── Mobile top strip (warm orange gradient) ── */}
-            <div className="md:hidden relative overflow-hidden bg-gradient-to-r from-orange-500 via-orange-600 to-orange-600 text-white px-5 pt-4 pb-3.5 shrink-0">
+            <div className="md:hidden relative overflow-hidden bg-gradient-to-r from-orange-500 via-orange-600 to-orange-600 text-white px-5 pt-3 pb-3 shrink-0">
               <div className="absolute -top-8 -right-4 size-24 rounded-full bg-white/10 pointer-events-none" />
-              <div className="relative flex items-center mb-2.5">
-                <p className="text-base text-white/85">
+              <div className="relative flex items-center mb-2">
+                <p className="text-sm text-white/85">
                   Paso {stepIndex + 1} de {activeSteps.length} ·{" "}
                   <span className="font-bold text-white">
                     {STEP_LABELS[wizardStep as ActiveStep]}
@@ -1529,14 +1722,11 @@ export default function ListBookAppointment({
             </div>
 
             {/* ── Step content ── */}
-            <section className="flex flex-col flex-1 min-w-0 md:min-h-0 p-5 md:p-6 2xl:p-10 bg-gradient-to-b from-white to-orange-50/20">
+            <section className="flex flex-col flex-1 min-w-0 md:min-h-0 px-5 py-3.5 md:p-6 2xl:px-10 2xl:py-6 bg-gradient-to-b from-white to-orange-50/20">
               {renderStepContent()}
             </section>
           </div>
         </div>
-
-        {/* Mobile bottom spacer */}
-        <div className="h-6 md:hidden" />
       </main>
     </div>
   );
