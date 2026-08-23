@@ -26,6 +26,12 @@ const nextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "DENY" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          // Fuerza HTTPS durante 1 año. Netlify ya sirve todo por HTTPS, así que
+          // no rompe nada. Sin includeSubDomains/preload por ahora (reversible).
+          { key: "Strict-Transport-Security", value: "max-age=31536000" },
+          // Desactiva APIs sensibles que la app no usa: si inyectan algo, no
+          // puede pedir cámara/micrófono/ubicación del usuario.
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
         ],
       },
     ];

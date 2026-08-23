@@ -64,11 +64,16 @@ const NewPasswordRecovery: React.FC<IProps> = ({ token }) => {
           error: true,
           msg: "¡Tu contraseña fue cambiada con éxito! Ya podés iniciar sesión con tus nuevos datos.",
         });
-      } catch (error) {
+      } catch (error: any) {
+        const reason = error?.response?.data?.msg;
+        const msg =
+          reason === "INVALID_OR_EXPIRED_TOKEN"
+            ? "El link para cambiar tu contraseña venció o no es válido. Pedí uno nuevo desde 'Olvidé mi contraseña'."
+            : "Ocurrió un error al reestablecer tu contraseña. Intentá nuevamente.";
         setAlert({
           alertType: "ERROR_ALERT",
           error: true,
-          msg: "Ocurrió un error al reestablecer tu contraseña. Intentá nuevamente.",
+          msg,
         });
         hideAlert()
       }

@@ -124,8 +124,15 @@ const FormProfileConfig: React.FC<Props> = ({ profileData }: Props) => {
       setAlert({ msg: "Imagen cambiada", error: true, alertType: "OK_ALERT" });
       hideAlert();
       router.refresh();
-    } catch (error) {
-      setAlert({ msg: "Error al cambiar imagen", error: true, alertType: "ERROR_ALERT" });
+    } catch (error: any) {
+      const reason = error?.response?.data?.error;
+      const msg =
+        reason === "FILE_TOO_LARGE"
+          ? "La imagen supera el máximo de 5MB."
+          : reason === "INVALID_MIME_TYPE" || reason === "INVALID_IMAGE_CONTENT"
+          ? "El archivo no es una imagen válida (usá JPG, PNG o WebP)."
+          : "Error al cambiar imagen";
+      setAlert({ msg, error: true, alertType: "ERROR_ALERT" });
       hideAlert();
     }
   };
