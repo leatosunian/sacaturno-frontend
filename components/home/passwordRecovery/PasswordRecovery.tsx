@@ -36,26 +36,15 @@ const PasswordRecovery = () => {
     if (data) {
       setLoading(true);
       try {
-        const userData = await axiosReq.get(
-          "/user/getbyemail/" + data.email
-        );
-        if (userData.data.response_data === "USER_NOT_FOUND") {
-          setAlert({
-            alertType: "ERROR_ALERT",
-            error: true,
-            msg: "No existe una cuenta con ese correo.",
-          });
-          setLoading(false);
-          return;
-        }
-        await axiosReq.post(
-          `/user/password/recovery/${userData.data.response_data._id}`
-        );
+        // El backend responde igual exista o no la cuenta (anti-enumeración):
+        // por eso mostramos siempre el mismo mensaje, sin revelar si el email
+        // está registrado.
+        await axiosReq.post("/user/password/recovery", { email: data.email });
         setLoading(false);
         setAlert({
           alertType: "OK_ALERT",
           error: true,
-          msg: "Te enviamos un correo para restablecer tu contraseña. Revisá tu casilla de correo no deseado.",
+          msg: "Si existe una cuenta con ese correo, te enviamos un link para restablecer tu contraseña. Revisá tu casilla de correo no deseado.",
         });
         hideAlert();
       } catch (error) {

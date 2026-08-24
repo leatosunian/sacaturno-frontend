@@ -13,7 +13,7 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-type Status = "idle" | "loading" | "sent" | "already_verified" | "not_found" | "error";
+type Status = "idle" | "loading" | "sent" | "error";
 
 export default function ResendConfirmationForm() {
   const [status, setStatus] = useState<Status>("idle");
@@ -27,12 +27,10 @@ export default function ResendConfirmationForm() {
   const onSubmit = async ({ email }: FormValues) => {
     setStatus("loading");
     try {
-      const res = await axiosReq.post(`/user/resend-confirmation/${email}`);
-      const data = res.data?.response_data;
-      if (data === "EMAIL_SENT") return setStatus("sent");
-      if (data === "USER_ALREADY_VERIFIED") return setStatus("already_verified");
-      if (data === "USER_NOT_FOUND") return setStatus("not_found");
-      setStatus("error");
+      // El backend responde igual exista o no la cuenta, y esté verificada o no
+      // (anti-enumeración): siempre mostramos el mismo mensaje.
+      await axiosReq.post(`/user/resend-confirmation/${email}`);
+      setStatus("sent");
     } catch {
       setStatus("error");
     }
@@ -48,28 +46,10 @@ export default function ResendConfirmationForm() {
           </svg>
         </div>
         <p className="text-[14px] text-[#3a3a3a] leading-[1.55]">
-          Te reenviamos el correo de activación. Revisá tu bandeja de entrada y también la carpeta de <strong className="text-[#3a3a3a]">spam o correo no deseado</strong>.
+          Si existe una cuenta sin activar con ese correo, te reenviamos el link de activación. Revisá tu bandeja de entrada y también la carpeta de <strong className="text-[#3a3a3a]">spam o correo no deseado</strong>.
         </p>
         <Link href="/login" className="mt-1 text-[13px] text-[#dd4924] font-semibold no-underline hover:opacity-75">
           Volver al inicio de sesión
-        </Link>
-      </div>
-    );
-  }
-
-  if (status === "already_verified") {
-    return (
-      <div className="flex flex-col items-center gap-3 py-2 text-center">
-        <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 6 9 17l-5-5" />
-          </svg>
-        </div>
-        <p className="text-[14px] text-[#3a3a3a] leading-[1.55]">
-          Tu cuenta <strong className="text-[#3a3a3a]">ya está activada</strong>. Podés iniciar sesión directamente.
-        </p>
-        <Link href="/login" className="mt-1 text-[13px] text-[#dd4924] font-semibold no-underline hover:opacity-75">
-          Ir al inicio de sesión
         </Link>
       </div>
     );
@@ -94,11 +74,6 @@ export default function ResendConfirmationForm() {
         )}
       </div>
 
-      {status === "not_found" && (
-        <p className="text-[12.5px] text-red-500 text-center">
-          No encontramos una cuenta con ese correo.
-        </p>
-      )}
       {status === "error" && (
         <p className="text-[12.5px] text-red-500 text-center">
           Ocurrió un error. Intentá de nuevo más tarde.

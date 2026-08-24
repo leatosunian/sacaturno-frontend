@@ -109,10 +109,7 @@ const FormLogin = ({ disabled = false, onLoadingChange }: FormLoginProps) => {
           setLoading(false);
           return;
         }
-        if (
-          login.data.response_data === "WRONG_PASSWORD" ||
-          login.data.response_data === "USER_NOT_FOUND"
-        ) {
+        if (login.data.response_data === "INVALID_CREDENTIALS") {
           setAlert({
             alertType: "ERROR_ALERT",
             error: true,
