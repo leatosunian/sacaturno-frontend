@@ -33,11 +33,21 @@ const getAppointments = async () => {
     },
   };
 
-  const businessFetch = await axiosReq.get(
-    `/business/get/${ownerID?.value}`,
-    authHeader,
-  );
-  const businessData: IBusiness = businessFetch.data;
+  let businessData: IBusiness | null = null;
+  try {
+    const businessFetch = await axiosReq.get(
+      `/business/get/${ownerID?.value}`,
+      authHeader,
+    );
+    businessData =
+      businessFetch.data && typeof businessFetch.data === "object"
+        ? (businessFetch.data as IBusiness)
+        : null;
+  } catch {
+    businessData = null;
+  }
+
+  if (!businessData?._id) return null;
 
   const servicesFetch = await axiosReq.get(
     `/business/service/get/${businessData._id}`,
@@ -90,45 +100,55 @@ async function getSubscriptionData() {
       Authorization: `Bearer ${token?.value}`,
     },
   };
-  const subscriptionData = await axiosReq.get(
-    `/subscription/get/ownerID/${ownerID?.value}`,
-    authHeader,
-  );
+  try {
+    const subscriptionData = await axiosReq.get(
+      `/subscription/get/ownerID/${ownerID?.value}`,
+      authHeader,
+    );
 
-  if (subscriptionData.data) {
-    const subscription: ISubscription = {
-      businessID: subscriptionData.data.businessID,
-      ownerID: subscriptionData.data.ownerID,
-      subscriptionType: subscriptionData.data.subscriptionType,
-      paymentDate: dayjs(subscriptionData.data.paymentDate).format(
-        "DD/MM/YYYY",
-      ),
-      expiracyDate: dayjs(subscriptionData.data.expiracyDate).format(
-        "DD/MM/YYYY",
-      ),
-    };
-    return subscription;
+    if (subscriptionData.data) {
+      const subscription: ISubscription = {
+        businessID: subscriptionData.data.businessID,
+        ownerID: subscriptionData.data.ownerID,
+        subscriptionType: subscriptionData.data.subscriptionType,
+        paymentDate: dayjs(subscriptionData.data.paymentDate).format(
+          "DD/MM/YYYY",
+        ),
+        expiracyDate: dayjs(subscriptionData.data.expiracyDate).format(
+          "DD/MM/YYYY",
+        ),
+      };
+      return subscription;
+    }
+  } catch {
+    return undefined;
   }
 }
 
 const AutomateSchedulePage: React.FC = async () => {
   const data = await getAppointments();
+
+  if (!data || !data.businessData.name) {
+    return (
+      <div className="w-full px-4 sm:px-6 md:px-8 max-w-screen-2xl mx-auto">
+        <NoBusinessEmptyState />
+      </div>
+    );
+  }
+
   const subscription: ISubscription | undefined = await getSubscriptionData();
 
   return (
     <>
       <div className="w-full px-4 sm:px-6 md:px-8 max-w-screen-2xl mx-auto">
-        {data.businessData.name && (
-          <AutomateSchedule
-            businessData={data.businessData}
-            servicesData={data.services}
-            subscriptionData={subscription}
-            daysAndAppointments={data.daysAndAppointments}
-            employees={data.employees}
-            branches={data.branches}
-          />
-        )}
-        {!data.businessData.name && <NoBusinessEmptyState />}
+        <AutomateSchedule
+          businessData={data.businessData}
+          servicesData={data.services}
+          subscriptionData={subscription}
+          daysAndAppointments={data.daysAndAppointments}
+          employees={data.employees}
+          branches={data.branches}
+        />
       </div>
     </>
   );
