@@ -1,6 +1,5 @@
 "use client";
 import { ReactNode, useRef, useState } from "react";
-import { LuInfo } from "react-icons/lu";
 import { timeOptions, durationOptions } from "@/helpers/timeOptions";
 import {
   Tooltip,
@@ -27,15 +26,18 @@ interface TimeRangeControlsProps {
   onDurationChange: (value: number) => void;
   className?: string;
   title?: string;
+  inline?: boolean;
 }
 
-const triggerClass =
-  "h-8 rounded-md border border-gray-200 bg-gray-100 px-2.5 text-xs font-medium text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus-visible:border-orange-600 data-[state=open]:border-orange-600";
+const triggerBase =
+  "h-8 rounded-md border border-gray-200 px-2.5 text-xs font-medium text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus-visible:border-orange-600 data-[state=open]:border-orange-600";
 
 const itemClass =
   "cursor-pointer text-xs text-gray-700 focus:bg-orange-50 focus:text-orange-700 data-[state=checked]:font-medium data-[state=checked]:text-orange-700";
 
-const labelClass = "text-[10px] font-semibold text-gray-400 uppercase tracking-wider";
+const stackedLabelClass = "text-[10px] font-semibold text-gray-400 uppercase tracking-wider";
+
+const inlineLabelClass = "text-[11px] font-medium text-gray-500 whitespace-nowrap";
 
 interface HintedTriggerProps {
   hoverCapable: boolean;
@@ -86,8 +88,13 @@ export default function TimeRangeControls({
   onDurationChange,
   className,
   title,
+  inline = false,
 }: TimeRangeControlsProps) {
   const hoverCapable = useHoverCapable();
+
+  const triggerClass = cn(triggerBase, inline ? "bg-white" : "bg-gray-100");
+  const labelClass = inline ? inlineLabelClass : stackedLabelClass;
+  const fieldClass = inline ? "flex items-center gap-1.5" : "flex flex-col gap-1";
 
   return (
     <TooltipProvider delayDuration={150}>
@@ -96,8 +103,14 @@ export default function TimeRangeControls({
           <p className="text-sm font-semibold text-gray-800">{title}</p>
         </div>
       )}
-      <div className={cn("flex items-end gap-3 flex-wrap", className)}>
-        <div className="flex flex-col gap-1">
+      <div
+        className={cn(
+          "flex gap-3",
+          inline ? "items-center gap-2.5" : "items-end flex-wrap",
+          className
+        )}
+      >
+        <div className={fieldClass}>
           <label className={labelClass}>Desde</label>
           <Select value={String(dayStart)} onValueChange={(v) => onDayStartChange(Number(v))}>
             <HintedTrigger hoverCapable={hoverCapable} hint="Inicio del día">
@@ -115,7 +128,7 @@ export default function TimeRangeControls({
           </Select>
         </div>
 
-        <div className="flex flex-col gap-1">
+        <div className={fieldClass}>
           <label className={labelClass}>Hasta</label>
           <Select value={String(dayEnd)} onValueChange={(v) => onDayEndChange(Number(v))}>
             <HintedTrigger hoverCapable={hoverCapable} hint="Fin del día">
@@ -133,16 +146,13 @@ export default function TimeRangeControls({
           </Select>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-1">
-            <label className={labelClass}>
-              Intervalos
-              <span className="lg:hidden ml-1 normal-case font-normal tracking-normal text-gray-400">
-                (división del día)
-              </span>
-            </label>
-            <LuInfo size={11} className="hidden lg:inline-flex text-gray-400" />
-          </div>
+        <div className={fieldClass}>
+          <label className={labelClass}>
+            Intervalos
+            <span className="lg:hidden ml-1 normal-case font-normal tracking-normal text-gray-400">
+              (división del día)
+            </span>
+          </label>
           <Select value={String(appointmentDuration)} onValueChange={(v) => onDurationChange(Number(v))}>
             <HintedTrigger
               hoverCapable={hoverCapable}

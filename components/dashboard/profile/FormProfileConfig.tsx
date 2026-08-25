@@ -8,9 +8,8 @@ import { FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userSchema } from "@/app/schemas/userSchema";
 import axiosReq from "@/config/axios";
-import AlertInterface from "@/interfaces/alert.interface";
+import { toast } from "@/lib/toast";
 import { resolveAvatarUrl } from "@/lib/images";
-import Alert from "@/components/Alert";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import dayjs from "dayjs";
@@ -37,7 +36,6 @@ const FormProfileConfig: React.FC<Props> = ({ profileData }: Props) => {
     resolver: zodResolver(userSchema),
   });
 
-  const [alert, setAlert] = useState<AlertInterface>();
   const [profile, setProfile] = useState<IUser>();
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
@@ -58,12 +56,6 @@ const FormProfileConfig: React.FC<Props> = ({ profileData }: Props) => {
     if (fileInput) fileInput.click();
   };
 
-  const hideAlert = () => {
-    setTimeout(() => {
-      setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
-    }, 3000);
-  };
-
   const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
     let image;
     if (e.target.files?.length != undefined) {
@@ -76,7 +68,7 @@ const FormProfileConfig: React.FC<Props> = ({ profileData }: Props) => {
       ) {
         updateProfileImage(image);
       } else {
-        setAlert({ msg: "Formato de archivo incorrecto", error: true, alertType: "ERROR_ALERT" });
+        toast.error("Formato inválido. Usá JPG, PNG o WebP");
       }
     }
   };
@@ -102,11 +94,9 @@ const FormProfileConfig: React.FC<Props> = ({ profileData }: Props) => {
           email: data.email,
           birthdate: data.birthdate,
         });
-        setAlert({ msg: "Los cambios han sido guardados", error: true, alertType: "OK_ALERT" });
-        hideAlert();
+        toast.success("Los cambios han sido guardados");
       } catch (error) {
-        setAlert({ msg: "No se pudo guardar los cambios", error: true, alertType: "ERROR_ALERT" });
-        hideAlert();
+        toast.error("No se pudieron guardar los cambios");
       }
     }
     setLoading(false);
@@ -121,8 +111,7 @@ const FormProfileConfig: React.FC<Props> = ({ profileData }: Props) => {
       let formData = new FormData();
       formData.append("profile_image", image);
       await axiosReq.post("/user/updateimage", formData, authHeader);
-      setAlert({ msg: "Imagen cambiada", error: true, alertType: "OK_ALERT" });
-      hideAlert();
+      toast.success("Imagen actualizada");
       router.refresh();
     } catch (error: any) {
       const reason = error?.response?.data?.error;
@@ -132,8 +121,7 @@ const FormProfileConfig: React.FC<Props> = ({ profileData }: Props) => {
           : reason === "INVALID_MIME_TYPE" || reason === "INVALID_IMAGE_CONTENT"
           ? "El archivo no es una imagen válida (usá JPG, PNG o WebP)."
           : "Error al cambiar imagen";
-      setAlert({ msg, error: true, alertType: "ERROR_ALERT" });
-      hideAlert();
+      toast.error(msg);
     }
   };
 
@@ -254,12 +242,6 @@ const FormProfileConfig: React.FC<Props> = ({ profileData }: Props) => {
           )}
         </div>
       </form>
-
-      {alert?.error && (
-        <div className="flex justify-center w-full h-fit">
-          <Alert error={alert?.error} msg={alert?.msg} alertType={alert?.alertType} />
-        </div>
-      )}
     </>
   );
 };

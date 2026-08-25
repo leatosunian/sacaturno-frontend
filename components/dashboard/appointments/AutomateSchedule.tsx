@@ -26,8 +26,6 @@ import CreateScheduleAppointmentModal from "./CreateScheduleAppointmentModal";
 import ScheduleAppointmentModal from "./ScheduleAppointmentModal";
 import BulkAssignModal from "./BulkAssignModal";
 import axiosReq from "@/config/axios";
-import AlertInterface from "@/interfaces/alert.interface";
-import Alert from "@/components/Alert";
 import Link from "next/link";
 import { IDaySchedule } from "@/interfaces/daySchedule.interface";
 import { IAppointmentSchedule } from "@/interfaces/appointmentSchedule.interface";
@@ -219,7 +217,6 @@ const AutomateSchedule: React.FC<Props> = ({
   branches,
 }) => {
   const { isMobile, open: sidebarOpen } = useSidebar();
-  const [alert, setAlert] = useState<AlertInterface>();
   const [eventModal, setEventModal] = useState(false);
   const [eventData, setEventData] = useState<IAppointmentSchedule | undefined>();
   const [createAppointmentModal, setCreateAppointmentModal] = useState(false);
@@ -317,12 +314,6 @@ const AutomateSchedule: React.FC<Props> = ({
   const refreshData = useCallback(() => {
     startRefresh(() => router.refresh());
   }, [router]);
-
-  const hideAlert = () => {
-    setTimeout(() => {
-      setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
-    }, 3300);
-  };
 
   const handleSelectDay = (day: { dayName: string; dayNumber: number }) => {
     setSelectedDay(day);
@@ -504,8 +495,7 @@ const AutomateSchedule: React.FC<Props> = ({
     if (parsedSelectedAppointments.length) {
       const earliestHour = Math.min(...parsedSelectedAppointments.map((a) => dayjs(a.start).hour()));
       if (val > earliestHour) {
-        setAlert({ msg: `Hay turnos desde las ${String(earliestHour).padStart(2, "0")}:00 hs`, error: true, alertType: "ERROR_ALERT" });
-        hideAlert();
+        toast.error(`Hay turnos desde las ${String(earliestHour).padStart(2, "0")}:00 hs`);
         return;
       }
     }
@@ -516,8 +506,7 @@ const AutomateSchedule: React.FC<Props> = ({
       const span = Math.max(selectedDayEnd - selectedDayStart, 1);
       nextEnd = Math.min(val + span, 23);
       if (nextEnd <= val) {
-        setAlert({ msg: "El horario de inicio no puede ser 23:00 hs", error: true, alertType: "ERROR_ALERT" });
-        hideAlert();
+        toast.error("El horario de inicio no puede ser 23:00 hs");
         return;
       }
     }
@@ -535,8 +524,7 @@ const AutomateSchedule: React.FC<Props> = ({
         ...parsedSelectedAppointments.map((a) => dayjs(a.end).hour() + (dayjs(a.end).minute() > 0 ? 1 : 0))
       );
       if (val < latestHour) {
-        setAlert({ msg: `Hay turnos hasta las ${String(latestHour).padStart(2, "0")}:00 hs`, error: true, alertType: "ERROR_ALERT" });
-        hideAlert();
+        toast.error(`Hay turnos hasta las ${String(latestHour).padStart(2, "0")}:00 hs`);
         return;
       }
     }
@@ -547,8 +535,7 @@ const AutomateSchedule: React.FC<Props> = ({
       const span = Math.max(selectedDayEnd - selectedDayStart, 1);
       nextStart = Math.max(val - span, 0);
       if (nextStart >= val) {
-        setAlert({ msg: "El horario de fin no puede ser 00:00 hs", error: true, alertType: "ERROR_ALERT" });
-        hideAlert();
+        toast.error("El horario de fin no puede ser 00:00 hs");
         return;
       }
     }
@@ -580,12 +567,7 @@ const AutomateSchedule: React.FC<Props> = ({
 
   const saveChanges = async (onSaved?: () => void) => {
     if (selectedAnticipation >= selectedDaysToCreate) {
-      setAlert({
-        msg: "Elige una anticipación menor a los dias a crear",
-        error: true,
-        alertType: "ERROR_ALERT",
-      });
-      hideAlert();
+      toast.error("Elegí una anticipación menor a los días a crear");
       return;
     }
     setLoadingButton(true);
@@ -618,16 +600,14 @@ const AutomateSchedule: React.FC<Props> = ({
         scheduleAnticipation: selectedAnticipation,
       });
       setSavedDays(toDayBaseline(daysSchedule));
-      setAlert({ msg: "Cambios guardados con éxito", error: true, alertType: "OK_ALERT" });
-      hideAlert();
+      toast.success("Cambios guardados con éxito");
       setLoadingButton(false);
       // Trae lo que el backend recalculó (scheduleEnd, turnos regenerados) e
       // invalida el Router Cache para el resto del panel.
       refreshData();
       onSaved?.();
     } catch {
-      setAlert({ msg: "Error al guardar cambios", error: true, alertType: "ERROR_ALERT" });
-      hideAlert();
+      toast.error("No se pudieron guardar los cambios");
       setLoadingButton(false);
     }
   };
@@ -815,25 +795,39 @@ const AutomateSchedule: React.FC<Props> = ({
     });
   };
 
+  // Al activar la automatización el backend recalcula scheduleEnd como
+  // hoy + días a crear, así que el resumen proyecta esa fecha en vez de esperar
+  // al guardado para mostrarla.
+  const projectedScheduleEnd =
+    previewAuto && !savedAuto ? dayjs().add(selectedDaysToCreate, "day") : null;
+
   const scheduleEndLabel = businessData.scheduleEnd
     ? dayjs(businessData.scheduleEnd).format("DD/MM/YYYY")
     : "—";
+  const previewScheduleEndLabel = projectedScheduleEnd
+    ? projectedScheduleEnd.format("DD/MM/YYYY")
+    : scheduleEndLabel;
+  const scheduleEndChanged =
+    !!projectedScheduleEnd && previewScheduleEndLabel !== scheduleEndLabel;
+
   const savedNextGenLabel = businessData.scheduleEnd
     ? dayjs(businessData.scheduleEnd)
         .subtract(savedConfig.scheduleAnticipation, "day")
         .format("ddd DD/MM")
     : "—";
-  // Next generation uses the already-loaded scheduleEnd (past) minus the newly
-  // selected anticipation (new), so the preview reflects both.
-  const previewNextGenLabel = businessData.scheduleEnd
-    ? dayjs(businessData.scheduleEnd)
-        .subtract(selectedAnticipation, "day")
-        .format("ddd DD/MM")
+  // Next generation uses the projected scheduleEnd while activating, or the
+  // already-loaded one (past) minus the newly selected anticipation (new), so
+  // the preview reflects both.
+  const nextGenBase =
+    projectedScheduleEnd ??
+    (businessData.scheduleEnd ? dayjs(businessData.scheduleEnd) : null);
+  const previewNextGenLabel = nextGenBase
+    ? nextGenBase.subtract(selectedAnticipation, "day").format("ddd DD/MM")
     : "—";
   const nextGenChanged =
-    !!businessData.scheduleEnd &&
     previewAuto &&
-    selectedAnticipation !== savedConfig.scheduleAnticipation;
+    !!businessData.scheduleEnd &&
+    previewNextGenLabel !== savedNextGenLabel;
 
   // Render
 
@@ -1048,11 +1042,16 @@ const AutomateSchedule: React.FC<Props> = ({
 
             {/* Header */}
             <div className="flex items-start justify-between gap-3">
-              <div className="flex flex-col gap-1">
-                <h2 className="text-base font-semibold text-gray-800">Horario de atención</h2>
-                <p className="text-sm text-gray-500">
-                  Por cada día de la semana, configurá el horario y agregá los turnos en cada horario deseado.
-                </p>
+              <div className="flex items-start gap-3">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-orange-50 text-primary shrink-0">
+                  <LuCalendarDays size={20} />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <h2 className="text-base font-semibold text-gray-800">Horario de atención</h2>
+                  <p className="text-sm text-gray-500">
+                    Por cada día de la semana, configurá el horario y agregá los turnos programados en cada horario deseado.
+                  </p>
+                </div>
               </div>
               {canAssign && (
                 <button
@@ -1076,6 +1075,16 @@ const AutomateSchedule: React.FC<Props> = ({
                 <FaCircleInfo size={13} />
                 <span className="hidden sm:inline">Tutorial</span>
               </button> */}
+            </div>
+
+            {/* Nota — la plantilla no publica turnos por sí sola */}
+            <div className="flex items-start gap-2.5 -mt-1 p-3 w-fit max-w-full rounded-lg bg-orange-50/70 border border-orange-100">
+              <LuZap size={14} className="text-primary mt-0.5 shrink-0" />
+              <p className="text-[13px] leading-relaxed text-gray-600">
+                Esto es una <span className="font-semibold text-gray-700">plantilla semanal</span>: los
+                turnos se publican en tu agenda solo si activás{" "}
+                <span className="font-semibold text-gray-700">Crear turnos automáticamente</span> más abajo.
+              </p>
             </div>
 
             {/* Day selector tabs */}
@@ -1115,22 +1124,9 @@ const AutomateSchedule: React.FC<Props> = ({
               })}
             </div>
 
-            {/* Time controls */}
-            <div className="flex flex-col gap-2 border-t border-gray-50 pt-2 -mt-2">
-              {/* Desktop — inline controls */}
-              <div className="hidden lg:block">
-                <TimeRangeControls
-                  dayStart={selectedDayStart}
-                  dayEnd={selectedDayEnd}
-                  appointmentDuration={selectedAppointmentDuration}
-                  onDayStartChange={handleSelectDayStart}
-                  onDayEndChange={handleSelectDayEnd}
-                  onDurationChange={handleSelectAppointmentDuration}
-                />
-              </div>
-
-              {/* Mobile/tablet — compact popover trigger */}
-              <div className="lg:hidden">
+            {/* Time controls — mobile/tablet only (en desktop viven en la cabecera de la grilla) */}
+            <div className="lg:hidden flex flex-col gap-2 border-t border-gray-50 pt-2 -mt-2">
+              <div>
                 <Popover>
                   <PopoverTrigger asChild>
                     <button
@@ -1177,21 +1173,39 @@ const AutomateSchedule: React.FC<Props> = ({
               </span>
             </div>
 
-            {/* Calendar grid */}
-            <div className="rounded-xl border border-gray-100 overflow-hidden">
+            {/* Calendar grid — overflow-clip (no hidden) para no romper el sticky de la cabecera */}
+            <div className="rounded-xl border border-gray-100 overflow-clip">
 
-              {/* Day header */}
-              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
-                <span className="text-xs font-semibold capitalize text-primary">
-                  {daysOfWeek.find((d) => d.dayName === selectedDay.dayName)?.fullName ?? selectedDay.dayName}
+              {/* Day header — identidad del día + controles de rango (desktop) */}
+              <div className="flex items-center gap-3 px-3 py-2.5 lg:py-3 border-b border-gray-100 bg-gray-50 rounded-t-xl sticky top-0 z-20">
+                <span className="hidden lg:block w-[3px] h-5 rounded-full bg-primary shrink-0" />
+                <div className="flex flex-col leading-tight shrink-0">
+                  <span className="text-[15px] lg:text-[13px] font-semibold capitalize text-primary lg:text-gray-800">
+                    {daysOfWeek.find((d) => d.dayName === selectedDay.dayName)?.fullName ?? selectedDay.dayName}
+                  </span>
+                  <span className="text-[11px] text-gray-400">
+                    {parsedSelectedAppointments.length} turno
+                    {parsedSelectedAppointments.length !== 1 ? "s" : ""}
+                    <span className="hidden lg:inline"> · {selectedDayEnd - selectedDayStart} h</span>
+                  </span>
+                </div>
+
+                <span className="hidden lg:block w-px h-6 bg-gray-200 shrink-0" />
+
+                <span className="lg:hidden ml-auto text-xs text-gray-400">
+                  {selectedDayStart}:00 a {selectedDayEnd}:00 hs
                 </span>
-                <span className="text-xs text-gray-400">
-                  — {selectedDayStart}:00 a {selectedDayEnd}:00 hs
-                </span>
-                <span className="ml-auto text-xs text-gray-400">
-                  {parsedSelectedAppointments.length} turno
-                  {parsedSelectedAppointments.length !== 1 ? "s" : ""}
-                </span>
+
+                <TimeRangeControls
+                  dayStart={selectedDayStart}
+                  dayEnd={selectedDayEnd}
+                  appointmentDuration={selectedAppointmentDuration}
+                  onDayStartChange={handleSelectDayStart}
+                  onDayEndChange={handleSelectDayEnd}
+                  onDurationChange={handleSelectAppointmentDuration}
+                  inline
+                  className="hidden lg:flex shrink-0"
+                />
               </div>
 
               {/* Scrollable grid */}
@@ -1376,10 +1390,10 @@ const AutomateSchedule: React.FC<Props> = ({
               <div className="flex items-center gap-4 px-4 py-2 border-t border-gray-100 bg-gray-50">
                 <span className="flex items-center gap-1.5 text-xs text-gray-400">
                   <span className="w-3 h-3 rounded-sm bg-primary border-l-2 border-orange-800 inline-block" />
-                  Turno configurado
+                  Turno automatizado
                 </span>
                 <span className="text-xs text-gray-400">
-                  Clic en franja vacía para agregar turno
+                  Click en franja vacía para agregar turno
                 </span>
               </div>
             </div>
@@ -1603,12 +1617,29 @@ const AutomateSchedule: React.FC<Props> = ({
                     </div>
 
                     {/* Agenda cargada hasta */}
-                    {previewAuto && businessData.scheduleEnd && (
-                      <div className="flex items-center justify-between py-2.5">
-                        <span className="text-xs text-gray-500">Agenda cargada hasta</span>
-                        <span className="text-xs font-semibold text-gray-800 tabular-nums">
-                          {scheduleEndLabel}
-                        </span>
+                    {previewAuto && (projectedScheduleEnd || businessData.scheduleEnd) && (
+                      <div className="flex items-center justify-between gap-2 py-2.5">
+                        <span className="text-xs text-gray-500 shrink-0">Agenda cargada hasta</span>
+                        {scheduleEndChanged && businessData.scheduleEnd ? (
+                          <span className="flex flex-wrap items-center justify-end gap-x-1.5 gap-y-0.5 pl-2">
+                            <span className="text-[11px] text-gray-400 line-through tabular-nums">
+                              {scheduleEndLabel}
+                            </span>
+                            <LuArrowRight size={11} className="text-orange-400 shrink-0" />
+                            <span className="text-xs font-semibold text-orange-600 tabular-nums">
+                              {previewScheduleEndLabel}
+                            </span>
+                          </span>
+                        ) : (
+                          <span
+                            className={cn(
+                              "text-xs font-semibold tabular-nums",
+                              projectedScheduleEnd ? "text-orange-600" : "text-gray-800"
+                            )}
+                          >
+                            {previewScheduleEndLabel}
+                          </span>
+                        )}
                       </div>
                     )}
 
@@ -1619,10 +1650,8 @@ const AutomateSchedule: React.FC<Props> = ({
                         <span className="text-xs font-semibold text-gray-400">
                           {autoChanged ? "Se pausará al guardar" : "Se genera al activar"}
                         </span>
-                      ) : !businessData.scheduleEnd ? (
-                        <span className="text-xs font-semibold text-gray-400">
-                          {autoChanged ? "Se genera al guardar" : "—"}
-                        </span>
+                      ) : !nextGenBase ? (
+                        <span className="text-xs font-semibold text-gray-400">—</span>
                       ) : nextGenChanged ? (
                         <span className="flex flex-wrap items-center justify-end gap-x-1.5 gap-y-0.5 pl-2">
                           <span className="text-[11px] text-gray-400 line-through capitalize">
@@ -1634,7 +1663,12 @@ const AutomateSchedule: React.FC<Props> = ({
                           </span>
                         </span>
                       ) : (
-                        <span className="text-xs font-semibold text-gray-800 capitalize">
+                        <span
+                          className={cn(
+                            "text-xs font-semibold capitalize",
+                            projectedScheduleEnd ? "text-orange-600" : "text-gray-800"
+                          )}
+                        >
                           {previewNextGenLabel}
                         </span>
                       )}
@@ -1733,13 +1767,6 @@ const AutomateSchedule: React.FC<Props> = ({
           </div>
         )}
       </div>
-
-      {/* Alert */}
-      {alert?.error && (
-        <div className="absolute flex justify-center w-full h-fit">
-          <Alert error={alert.error} msg={alert.msg} alertType={alert.alertType} />
-        </div>
-      )}
     </>
   );
 };

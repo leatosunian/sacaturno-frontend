@@ -17,8 +17,7 @@ import advanced from "dayjs/plugin/advancedFormat";
 import { useRouter } from "next/navigation";
 import styles from "@/app/css-modules/CalendarBookAppointment.module.css";
 import BookAppointmentModal from "./BookAppointmentModal";
-import AlertInterface from "@/interfaces/alert.interface";
-import Alert from "@/components/Alert";
+import { toast } from "@/lib/toast";
 import { IDaySchedule } from "@/interfaces/daySchedule.interface";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
@@ -91,7 +90,6 @@ const CalendarTurnos: React.FC<Props> = ({
   useState<eventType2>();
   const [view, setView] = useState<(typeof Views)[Keys]>(Views.DAY);
   const [date, setDate] = useState<Date>(now.toDate());
-  const [alert, setAlert] = useState<AlertInterface>();
   const [selectedDaySchedule, setSelectedDaySchedule] = useState({
     dayStart: 8,
     dayEnd: 19,
@@ -175,12 +173,6 @@ const CalendarTurnos: React.FC<Props> = ({
       }
     );
     return appointmentsList;
-  };
-
-  const hideAlert = () => {
-    setTimeout(() => {
-      setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
-    }, 3000);
   };
 
   const handleSelectEvent = (event: eventType) => {
@@ -269,13 +261,8 @@ const CalendarTurnos: React.FC<Props> = ({
   const handleCancelBooking = (action: string) => {
     setBookAppointmentModal(false);
     if (action === "CANCELLED") {
-      setAlert({
-        error: true,
-        alertType: "OK_ALERT",
-        msg: "Cancelaste tu reserva",
-      });
+      toast.success("Cancelaste tu reserva");
       router.refresh();
-      hideAlert();
     }
   };
 
@@ -384,16 +371,6 @@ const CalendarTurnos: React.FC<Props> = ({
           />
         </div>
       </div>
-      {/* ALERT */}
-      {alert?.error && (
-        <div className="flex justify-center w-full h-fit">
-          <Alert
-            error={alert?.error}
-            msg={alert?.msg}
-            alertType={alert?.alertType}
-          />
-        </div>
-      )}
     </>
   );
 };

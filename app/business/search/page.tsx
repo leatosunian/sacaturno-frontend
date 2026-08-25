@@ -5,9 +5,8 @@ import Image from "next/image";
 import { ChangeEventHandler, useState } from "react";
 import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
-import AlertInterface from "@/interfaces/alert.interface";
 import { resolveAvatarUrl } from "@/lib/images";
-import Alert from "@/components/Alert";
+import { toast } from "@/lib/toast";
 import { GrTableAdd } from "react-icons/gr";
 import { useRouter } from "next/navigation";
 
@@ -15,14 +14,7 @@ const SearchBusiness: React.FC = () => {
   const [searchField, setSearchField] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [searchResults, setSearchResults] = useState<IBusiness[]>([]);
-  const [alert, setAlert] = useState<AlertInterface>();
   const router = useRouter();
-
-  const hideAlert = () => {
-    setTimeout(() => {
-      setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
-    }, 3000);
-  };
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     e.preventDefault();
@@ -41,12 +33,7 @@ const SearchBusiness: React.FC = () => {
           },
         });
         if (res.data === "BUSINESS_NOT_FOUND") {
-          setAlert({
-            msg: "No se encontraron resultados",
-            error: true,
-            alertType: "ERROR_ALERT",
-          });
-          hideAlert();
+          toast.error("No se encontraron resultados");
           setLoading(false);
           return;
         }
@@ -144,17 +131,6 @@ const SearchBusiness: React.FC = () => {
           ))}
         </div>
       </div>
-
-      {/* ALERT */}
-      {alert?.error && (
-        <div className="flex justify-center w-full h-fit">
-          <Alert
-            error={alert?.error}
-            msg={alert?.msg}
-            alertType={alert?.alertType}
-          />
-        </div>
-      )}
     </>
   );
 };

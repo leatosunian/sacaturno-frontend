@@ -1254,10 +1254,17 @@ html {
 
 [data-sonner-toast][data-styled="true"].st-toast {
   --st-accent: #3f3a36;
+  --st-pad-y: 17px;
+  --st-pad-x: 16px;
+  --st-gap: 11px;
+  --st-icon: 22px;
+  --st-title: 14px;
+  --st-desc: 13px;
+  --st-close: 18px;
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  padding: 13px 15px 13px 13px;
+  gap: var(--st-gap);
+  padding: var(--st-pad-y) var(--st-pad-x) var(--st-pad-y) calc(var(--st-pad-x) - 2px);
   background: #ffffff;
   border: 1px solid #e6e0dc;
   border-left: 4px solid var(--st-accent);
@@ -1268,6 +1275,82 @@ html {
      abierto y Sonner no lo revierte: sin esto el botón de cerrar y el pausado
      por hover quedan muertos en todos los toasts que salen desde un modal. */
   pointer-events: auto;
+  /* Entrada: Sonner ya mueve el toast con --y (transform) y opacity, así que
+     solo se reemplaza la curva. Ambas son propiedades de compositor, no
+     disparan layout ni paint. La curva pasa de 1 para que asiente con un
+     rebote corto en vez de frenar en seco. height queda porque Sonner la usa
+     para abrir y cerrar la pila. */
+  transition:
+    transform 0.42s cubic-bezier(0.21, 1.15, 0.35, 1),
+    opacity 0.26s ease-out,
+    height 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+/* SALIDA — va como animación, no como transición.
+   Sonner mueve el toast escribiendo la variable --y, y `transform: var(--y)`
+   depende de que el navegador registre ese cambio como una transición mientras
+   el nodo sigue vivo. En la entrada funciona; en la salida no arranca y el
+   toast desaparece de golpe. Un keyframe no depende de detectar un cambio:
+   toma el control de transform y opacity apenas aparece data-removed, y las
+   animaciones le ganan a las declaraciones normales, así que el --y que Sonner
+   escribe en paralelo queda fuera de juego.
+
+   OJO CON LA DURACIÓN: Sonner desmonta el nodo 200 ms después de poner
+   data-removed (TIME_BEFORE_UNMOUNT, constante suya, no configurable). Todo lo
+   que dure más se corta y vuelve a verse como que no hay animación. 180 ms deja
+   20 ms de margen. */
+[data-sonner-toast][data-styled="true"][data-removed="true"][data-front="true"][data-swipe-out="false"].st-toast {
+  animation: st-toast-out 0.18s cubic-bezier(0.3, 0.05, 0.5, 1) forwards;
+}
+
+/* El de atrás de la pila cae en vez de subir, respetando el gesto de Sonner. */
+[data-sonner-toast][data-styled="true"][data-removed="true"][data-front="false"][data-swipe-out="false"].st-toast {
+  animation: st-toast-out-back 0.18s cubic-bezier(0.3, 0.05, 0.5, 1) forwards;
+}
+
+@keyframes st-toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes st-toast-out-back {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(30%);
+  }
+}
+
+/* A partir de lg la tarjeta crece a lo ancho. Hay que mover también el <ol>:
+   con position center los toasts se apoyan en su borde izquierdo, así que si
+   solo creciera la tarjeta quedaría corrida del centro. Sonner define --width
+   como estilo inline, por eso se pisa `width` y no la variable. 1024 está por
+   encima del breakpoint móvil de Sonner (600), así que no lo pisa. */
+@media (min-width: 1024px) {
+  [data-sonner-toaster].toaster {
+    width: 420px;
+  }
+
+  [data-sonner-toast][data-styled="true"].st-toast {
+    width: 420px;
+    --st-pad-y: 21px;
+    --st-pad-x: 20px;
+    --st-gap: 13px;
+    --st-icon: 24px;
+    --st-title: 15px;
+    --st-desc: 13.5px;
+    --st-close: 20px;
+    border-radius: 14px;
+  }
 }
 
 [data-sonner-toast][data-styled="true"].st-toast[data-type="success"] { --st-accent: #1a7f37; }
@@ -1275,32 +1358,51 @@ html {
 [data-sonner-toast][data-styled="true"].st-toast[data-type="warning"] { --st-accent: #b45309; }
 
 [data-sonner-toast][data-styled="true"].st-toast .st-toast-icon {
-  width: 20px;
-  height: 20px;
+  width: var(--st-icon);
+  height: var(--st-icon);
   margin: 0;
   flex: none;
   color: var(--st-accent);
 }
 
 [data-sonner-toast][data-styled="true"].st-toast .st-toast-icon svg {
-  width: 20px;
-  height: 20px;
+  width: var(--st-icon);
+  height: var(--st-icon);
 }
 
 [data-sonner-toast][data-styled="true"].st-toast .st-toast-title {
-  font-size: 13.5px;
+  font-size: var(--st-title);
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.45;
   letter-spacing: -0.01em;
   color: #171310;
 }
 
 [data-sonner-toast][data-styled="true"].st-toast .st-toast-description {
-  margin-top: 3px;
-  font-size: 12.5px;
+  margin-top: 4px;
+  font-size: var(--st-desc);
   font-weight: 400;
-  line-height: 1.45;
+  line-height: 1.5;
   color: #6b625c;
+}
+
+/* El ícono entra con su propio pop, un toque después de que la tarjeta llega.
+   Es transform + opacity sobre un elemento chico, así que no cuesta nada. El
+   loading queda afuera: su svg ya usa transform para girar y las dos
+   animaciones se pelearían por la misma propiedad. */
+[data-sonner-toast].st-toast:not([data-type="loading"]) .st-toast-icon > * {
+  animation: st-toast-icon-in 0.34s cubic-bezier(0.21, 1.15, 0.35, 1) 0.06s both;
+}
+
+@keyframes st-toast-icon-in {
+  from {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* El cierre manual solo tiene sentido donde el mensaje puede necesitar tiempo. */
@@ -1312,8 +1414,8 @@ html {
   order: 1;
   align-self: flex-start;
   margin-left: auto;
-  width: 18px;
-  height: 18px;
+  width: var(--st-close);
+  height: var(--st-close);
   background: transparent;
   border: 0;
   color: #a9a09a;
@@ -1338,6 +1440,40 @@ html {
   to { transform: rotate(360deg); }
 }
 
+/* MOVIMIENTO REDUCIDO
+   Sonner apaga transiciones y animaciones del toast con `!important`, así que
+   con esta preferencia activa el toast aparece y desaparece de golpe: se lee
+   como un bug, no como una decisión.
+   Acá se respeta la preferencia sacando el DESPLAZAMIENTO —que es lo que la
+   guía de prefers-reduced-motion busca evitar— pero se conserva un fundido,
+   que no dispara nada vestibular. El `!important` es para ganarle al de Sonner;
+   es el único lugar del archivo donde hace falta.
+   Los keyframes fijan el transform a 0 a propósito: Sonner escribe --y en
+   paralelo y sin eso el toast saltaría de posición mientras se desvanece. */
 @media (prefers-reduced-motion: reduce) {
-  .st-toast-spin { animation-duration: 2.5s; }
+  /* Se descartan los keyframes con desplazamiento y queda una transición de
+     opacidad. No se toca `transform`: Sonner lo usa para apilar los toasts, y
+     fijarlo los amontonaría a todos en la misma posición. */
+  [data-sonner-toast][data-styled="true"].st-toast {
+    animation: none !important;
+    transition: opacity 0.18s linear !important;
+  }
+
+  /* Al salir, el de adelante se desvanece donde está en vez de saltar hacia
+     arriba: sin esto el transform cambia de golpe (la transición ya no lo
+     cubre) y el salto es justamente el movimiento que hay que evitar. Los de
+     atrás quedan con el --y de Sonner porque su contenido ya está oculto. */
+  [data-sonner-toast][data-styled="true"].st-toast[data-removed="true"][data-front="true"] {
+    --y: translateY(0) !important;
+  }
+
+  /* El pop del ícono es movimiento. Mismo selector que la regla base para
+     ganarle por orden y no por especificidad. */
+  [data-sonner-toast].st-toast:not([data-type="loading"]) .st-toast-icon > * {
+    animation: none;
+  }
+
+  .st-toast-spin {
+    animation-duration: 2.5s;
+  }
 }

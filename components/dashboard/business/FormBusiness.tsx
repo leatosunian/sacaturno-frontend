@@ -8,8 +8,7 @@ import axiosReq from "@/config/axios";
 import { FieldValues, useForm } from "react-hook-form";
 import { businessSchema } from "@/app/schemas/businessSchema";
 import { LuSave, LuCamera, LuCopy, LuCheck, LuLink, LuExternalLink, LuBuilding2 } from "react-icons/lu";
-import Alert from "../../Alert";
-import AlertInterface from "@/interfaces/alert.interface";
+import { toast } from "@/lib/toast";
 import { resolveAvatarUrl } from "@/lib/images";
 import { useRouter } from "next/navigation";
 import { IService } from "@/interfaces/service.interface";
@@ -63,7 +62,6 @@ const FormCreateBusiness = ({
   const businessType = watch("businessType");
   const cancellationWindowHours = watch("cancellationWindowHours");
 
-  const [alert, setAlert] = useState<AlertInterface>();
   const [loading, setLoading] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
 
@@ -100,12 +98,6 @@ const FormCreateBusiness = ({
     if (fileInput) fileInput.click();
   };
 
-  const hideAlert = () => {
-    setTimeout(() => {
-      setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
-    }, 3000);
-  };
-
   const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
     const image = e.target.files[0];
@@ -113,8 +105,7 @@ const FormCreateBusiness = ({
     if (validTypes.includes(image.type)) {
       updateProfileImage(image);
     } else {
-      setAlert({ msg: "Formato de archivo incorrecto", error: true, alertType: "ERROR_ALERT" });
-      hideAlert();
+      toast.error("Formato inválido. Usá JPG, PNG o WebP");
     }
   };
 
@@ -129,8 +120,7 @@ const FormCreateBusiness = ({
           Authorization: `Bearer ${token}`,
         },
       });
-      setAlert({ msg: "Imagen cambiada", error: true, alertType: "OK_ALERT" });
-      hideAlert();
+      toast.success("Imagen actualizada");
       router.refresh();
     } catch (error: any) {
       const reason = error?.response?.data?.error;
@@ -140,8 +130,7 @@ const FormCreateBusiness = ({
           : reason === "INVALID_MIME_TYPE" || reason === "INVALID_IMAGE_CONTENT"
           ? "El archivo no es una imagen válida (usá JPG, PNG o WebP)."
           : "Error al cambiar imagen";
-      setAlert({ msg, error: true, alertType: "ERROR_ALERT" });
-      hideAlert();
+      toast.error(msg);
     }
   };
 
@@ -159,8 +148,7 @@ const FormCreateBusiness = ({
       });
 
       if (updatedUser.data.editedBusiness === "ERROR_EDIT_SLUG_EXISTS") {
-        setAlert({ msg: "El link ya existe, intentá con otro", error: true, alertType: "ERROR_ALERT" });
-        hideAlert();
+        toast.error("El link ya existe, intentá con otro");
         setLoading(false);
         return;
       }
@@ -179,15 +167,13 @@ const FormCreateBusiness = ({
           slug: data.slug,
           cancellationWindowHours: data.cancellationWindowHours,
         });
-        setAlert({ msg: "Los cambios han sido guardados", error: true, alertType: "OK_ALERT" });
-        hideAlert();
+        toast.success("Los cambios han sido guardados");
         setLoading(false);
         router.refresh();
       }
     } catch (error) {
       setLoading(false);
-      setAlert({ msg: "Error al actualizar perfil", error: true, alertType: "ERROR_ALERT" });
-      hideAlert();
+      toast.error("No se pudo actualizar el perfil");
     }
   };
 
@@ -467,12 +453,6 @@ const FormCreateBusiness = ({
           )}
         </div>
       </form>
-
-      {alert?.error && (
-        <div className="flex justify-center w-full h-fit">
-          <Alert error={alert?.error} msg={alert?.msg} alertType={alert?.alertType} />
-        </div>
-      )}
     </>
   );
 };

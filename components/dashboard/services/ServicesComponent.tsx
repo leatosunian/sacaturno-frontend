@@ -4,7 +4,6 @@ import { IService } from "@/interfaces/service.interface";
 import { IEmployee } from "@/interfaces/employee.interface";
 import { useEffect, useState } from "react";
 import axiosReq from "@/config/axios";
-import AlertInterface from "@/interfaces/alert.interface";
 import { useRouter } from "next/navigation";
 import UpgradePlanModal from "./UpgradePlanModal";
 import { LuSearchX, LuChevronRight, LuClock, LuUsers, LuPencil, LuTriangleAlert } from "react-icons/lu";
@@ -12,10 +11,10 @@ import { TbPlaylistAdd } from "react-icons/tb";
 import Link from "next/link";
 import CreateServiceModal from "./CreateServiceModal";
 import EditServiceModal from "./EditServiceModal";
-import Alert from "@/components/Alert";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { LuLock } from "react-icons/lu";
 import { getPlanLimits } from "@/lib/planLimits";
+import { toast } from "@/lib/toast";
 
 const ServicesComponent = ({
   businessData,
@@ -31,7 +30,6 @@ const ServicesComponent = ({
   isEmployee?: boolean;
 }) => {
   const [services, setServices] = useState<IService[]>();
-  const [alert, setAlert] = useState<AlertInterface>();
   const [upgradePlanModal, setUpgradePlanModal] = useState<boolean>(false);
   const [editServiceModal, setEditServiceModal] = useState<boolean>(false);
   const [serviceToEdit, setServiceToEdit] = useState<IService>();
@@ -40,12 +38,6 @@ const ServicesComponent = ({
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
   const router = useRouter();
-
-  const hideAlert = () => {
-    setTimeout(() => {
-      setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
-    }, 3000);
-  };
 
   const addService = async (formData: {
     name: string;
@@ -109,26 +101,19 @@ const ServicesComponent = ({
             prev?.map((s) => (s._id === tempID ? created : s)),
           );
         }
-        setAlert({
-          msg: "Servicio añadido correctamente",
-          error: true,
-          alertType: "OK_ALERT",
-        });
-        hideAlert();
+        toast.success("Servicio añadido correctamente");
         router.refresh();
       } catch (error: any) {
         setServices((prev) => prev?.filter((s) => s._id !== tempID));
         const isLimitReached = error?.response?.data?.msg === "SERVICE_LIMIT_REACHED";
         const depositTooHigh = error?.response?.data?.msg === "DEPOSIT_EXCEEDS_PRICE";
-        setAlert({
-          msg: isLimitReached
+        toast.error(
+          isLimitReached
             ? "Alcanzaste el límite máximo de servicios permitidos"
             : depositTooHigh
               ? "La seña no puede superar el precio del servicio"
-              : "Error al crear servicio",
-          error: true,
-          alertType: "ERROR_ALERT",
-        });
+              : "Error al crear servicio"
+        );
       } finally {
         setIsCreating(false);
       }
@@ -153,20 +138,11 @@ const ServicesComponent = ({
         `/business/service/delete/${serviceID}`,
         authHeader,
       );
-      setAlert({
-        msg: "Servicio eliminado",
-        error: true,
-        alertType: "OK_ALERT",
-      });
-      hideAlert();
+      toast.success("Servicio eliminado");
       router.refresh();
     } catch (error) {
       setServices(previous);
-      setAlert({
-        msg: "Error al eliminar servicio",
-        error: true,
-        alertType: "ERROR_ALERT",
-      });
+      toast.error("No se pudo eliminar el servicio");
     }
   };
 
@@ -214,19 +190,15 @@ const ServicesComponent = ({
           prev?.map((s) => (s._id === edited._id ? edited : s)),
         );
       }
-      setAlert({ msg: "Servicio editado", error: true, alertType: "OK_ALERT" });
-      hideAlert();
+      toast.success("Servicio editado");
       router.refresh();
     } catch (error: any) {
       setServices(previous);
-      setAlert({
-        msg:
-          error?.response?.data?.msg === "DEPOSIT_EXCEEDS_PRICE"
+      toast.error(
+        error?.response?.data?.msg === "DEPOSIT_EXCEEDS_PRICE"
             ? "La seña no puede superar el precio del servicio"
-            : "Error al editar servicio",
-        error: true,
-        alertType: "ERROR_ALERT",
-      });
+            : "Error al editar servicio"
+      );
     }
   };
 
@@ -509,16 +481,6 @@ const ServicesComponent = ({
           )}
         </div>
       </div>
-
-      {alert?.error && (
-        <div className="flex justify-center w-full h-fit">
-          <Alert
-            error={alert?.error}
-            msg={alert?.msg}
-            alertType={alert?.alertType}
-          />
-        </div>
-      )}
     </>
   );
 };

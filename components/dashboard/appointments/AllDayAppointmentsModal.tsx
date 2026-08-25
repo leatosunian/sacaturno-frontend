@@ -7,8 +7,7 @@ import { IBusiness } from "@/interfaces/business.interface";
 import { IEmployee } from "@/interfaces/employee.interface";
 import { IBranch } from "@/interfaces/branch.interface";
 import { timeOptions } from "@/helpers/timeOptions";
-import AlertInterface from "@/interfaces/alert.interface";
-import Alert from "@/components/Alert";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { IoInformationCircle } from "react-icons/io5";
 import {
@@ -58,7 +57,6 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
     currentEmployeeID ?? "",
   );
   const [selectedBranchID, setSelectedBranchID] = useState<string>("");
-  const [alert, setAlert] = useState<AlertInterface>();
 
   useEffect(() => {
     if (services?.[0]) {
@@ -107,12 +105,6 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
     serviceFilteredEmployees.length === 0 &&
     !!selectedServiceID;
 
-  const hideAlert = () => {
-    setTimeout(() => {
-      setAlert({ error: false, alertType: "ERROR_ALERT", msg: "" });
-    }, 3300);
-  };
-
   const handleSetSelectedService = (name: string) => {
     const match = services?.find((s) => s.name === name);
     setSelectedService({ price: match?.price, name: match?.name, description: match?.description });
@@ -151,8 +143,7 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
 
   const handleSave = () => {
     if (selectedDaySchedule.dayStart >= selectedDaySchedule.dayEnd) {
-      setAlert({ msg: "Ingresá un horario válido", error: true, alertType: "ERROR_ALERT" });
-      hideAlert();
+      toast.error("Ingresá un horario válido");
       return;
     }
 
@@ -386,12 +377,6 @@ const AllDayAppointmentsModal: React.FC<IAllDayModalProps> = ({
           Crear turnos del día
         </Button>
       </div>
-
-      {alert?.error && (
-        <div className="absolute flex justify-center w-full h-fit">
-          <Alert error={alert.error} msg={alert.msg} alertType={alert.alertType} />
-        </div>
-      )}
     </div>
   );
 };
