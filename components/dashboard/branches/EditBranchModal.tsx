@@ -7,7 +7,7 @@ import { IBranch } from "@/interfaces/branch.interface";
 import { IBusiness } from "@/interfaces/business.interface";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import axiosReq from "@/config/axios";
 import BranchFormFields from "./BranchFormFields";
 
@@ -75,12 +75,12 @@ const EditBranchModal: React.FC<Props> = ({ open, onClose, branch, businessData,
       );
       onEdited(res.data);
       onClose();
-      toast.success("Sucursal actualizada", { position: "top-center" });
+      toast.success("Sucursal actualizada");
     } catch (error: any) {
       if (error?.response?.status === 409) {
-        toast.error("Ya existe una sucursal con ese nombre", { position: "top-center" });
+        toast.error("Ya existe una sucursal con ese nombre");
       } else {
-        toast.error("No se pudo actualizar la sucursal", { position: "top-center" });
+        toast.error("No se pudo actualizar la sucursal");
       }
     } finally {
       setLoading(false);
@@ -98,9 +98,9 @@ const EditBranchModal: React.FC<Props> = ({ open, onClose, branch, businessData,
       });
       onDeleted(branch._id!);
       onClose();
-      toast.success("Sucursal eliminada", { position: "top-center" });
+      toast.success("Sucursal eliminada");
     } catch {
-      toast.error("No se pudo eliminar la sucursal", { position: "top-center" });
+      toast.error("No se pudo eliminar la sucursal");
     } finally {
       setDeleting(false);
     }

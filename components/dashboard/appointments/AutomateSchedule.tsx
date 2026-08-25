@@ -46,6 +46,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { toast } from "@/lib/toast";
 
 dayjs.locale("es-mx");
 dayjs.extend(utc);
@@ -259,6 +260,13 @@ const AutomateSchedule: React.FC<Props> = ({
   const [loadingButton, setLoadingButton] = useState(false);
   const [leaveModal, setLeaveModal] = useState(false);
   const [isRefreshing, startRefresh] = useTransition();
+  // Turnos optimistas: en vuelo, desvaneciéndose tras un error, y recién
+  // confirmados. Se llevan aparte del documento para no ensuciar la interfaz.
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
+  const [failedIds, setFailedIds] = useState<Set<string>>(new Set());
+  const [newIds, setNewIds] = useState<Set<string>>(new Set());
+  const pendingIdsRef = useRef<Set<string>>(new Set());
+  pendingIdsRef.current = pendingIds;
   const gridRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pendingNavRef = useRef<(() => void) | null>(null);
@@ -338,7 +346,14 @@ const AutomateSchedule: React.FC<Props> = ({
       scheduleDaysToCreate: businessData.scheduleDaysToCreate,
       scheduleAnticipation: businessData.scheduleAnticipation,
     });
-    setAppointmentsSchedule(daysAndAppointments.appointments);
+    // Un refresh que aterriza mientras se crea un turno no puede borrar el
+    // preview: los optimistas en vuelo se reinyectan sobre los datos frescos.
+    setAppointmentsSchedule((prev) => {
+      const inFlight = prev.filter((a) => a._id && pendingIdsRef.current.has(a._id));
+      return inFlight.length
+        ? [...daysAndAppointments.appointments, ...inFlight]
+        : daysAndAppointments.appointments;
+    });
     if (hasUnsavedRef.current) return;
     setDaysSchedule(nextDays);
     setSelectedAutomaticSchedule(businessData.automaticSchedule);
@@ -396,6 +411,79 @@ const AutomateSchedule: React.FC<Props> = ({
 
     setCreateAppointmentModal(true);
     setCreateAppointmentData(appointmentData);
+  };
+
+  // El resaltado de "recién creado" es temporal: se apaga solo a los 6 segundos.
+  useEffect(() => {
+    if (newIds.size === 0) return;
+    const timer = setTimeout(() => setNewIds(new Set()), 6000);
+    return () => clearTimeout(timer);
+  }, [newIds]);
+
+  const toggleIds = (
+    setter: React.Dispatch<React.SetStateAction<Set<string>>>,
+    ids: string[],
+    add: boolean
+  ) => {
+    setter((prev) => {
+      const next = new Set(prev);
+      ids.forEach((id) => (add ? next.add(id) : next.delete(id)));
+      return next;
+    });
+  };
+
+  // El turno fallido no desaparece de golpe: pasa a "desvaneciéndose" y recién
+  // se saca del array cuando termina la animación de salida.
+  const dismissGhost = (tempId: string) => {
+    toggleIds(setPendingIds, [tempId], false);
+    toggleIds(setFailedIds, [tempId], true);
+    setTimeout(() => {
+      setAppointmentsSchedule((prev) => prev.filter((a) => a._id !== tempId));
+      toggleIds(setFailedIds, [tempId], false);
+    }, 220);
+  };
+
+  // La request vive acá y no en el modal: el turno tiene que aparecer en la
+  // grilla apenas se envía, no cuando el servidor contesta.
+  const handleSaveAppointment = async (appointment: IAppointmentSchedule) => {
+    setCreateAppointmentModal(false);
+    const tempId = `temp_${Date.now()}`;
+    setAppointmentsSchedule((prev) => [...prev, { ...appointment, _id: tempId }]);
+    toggleIds(setPendingIds, [tempId], true);
+    const token = localStorage.getItem("sacaturno_token");
+    const authHeader = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        "Cache-Control": "no-store",
+      },
+    };
+    try {
+      const { data: created } = await axiosReq.post(
+        "/schedule/appointment/create",
+        appointment,
+        authHeader
+      );
+      // El temporal se convierte en el turno real sin esperar al refresh, así el
+      // resaltado sobrevive a la revalidación del servidor.
+      if (created?._id) {
+        setAppointmentsSchedule((prev) =>
+          prev.map((a) => (a._id === tempId ? created : a))
+        );
+      }
+      toggleIds(setPendingIds, [tempId], false);
+      toggleIds(setNewIds, [created?._id ?? tempId], true);
+      refreshData();
+    } catch (error: any) {
+      dismissGhost(tempId);
+      if (error?.response?.status === 409) {
+        toast.error("El empleado ya tiene un turno en ese horario");
+      } else if (error?.response?.status === 400) {
+        toast.error("Se alcanzó el límite máximo de turnos en la agenda");
+      } else {
+        toast.error("No se pudo crear el turno");
+      }
+    }
   };
 
   const handleSelectEvent = (event: IAppointmentSchedule) => {
@@ -787,10 +875,7 @@ const AutomateSchedule: React.FC<Props> = ({
         <DialogContent className="sm:w-[400px] w-[93vw]">
           <DialogTitle className="sr-only">Crear turno</DialogTitle>
           <CreateScheduleAppointmentModal
-            onNewAppointment={(newAppt) => {
-              setAppointmentsSchedule((prev) => [...prev, newAppt]);
-              refreshData();
-            }}
+            onSave={handleSaveAppointment}
             appointmentData={createAppointmentData}
             servicesData={servicesData}
             employees={employees}
@@ -1190,10 +1275,24 @@ const AutomateSchedule: React.FC<Props> = ({
                           const empName = getEmployeeName(event.employeeID);
                           const branchName = getBranchName(event.branchID);
                           const hasExtra = !!(empName || branchName);
+                          const isPending = !!(event._id && pendingIds.has(event._id));
+                          const isFailed = !!(event._id && failedIds.has(event._id));
+                          const isGhost = isPending || isFailed;
+                          const isNew = !isGhost && !!(event._id && newIds.has(event._id));
                           return (
                             <div
                               key={event._id ?? eventIdx}
-                              className="rounded-md overflow-hidden cursor-pointer transition-opacity duration-150 hover:opacity-80 select-none bg-primary border-l-[3px] border-orange-800"
+                              aria-busy={isPending || undefined}
+                              className={cn(
+                                "rounded-md overflow-hidden select-none",
+                                isGhost
+                                  ? "appt-ghost cursor-default"
+                                  : cn(
+                                      "cursor-pointer transition-opacity duration-150 hover:opacity-80 bg-primary border-l-[3px] border-orange-800",
+                                      isNew && "appt-new"
+                                    ),
+                                isFailed && "appt-ghost-out"
+                              )}
                               style={{
                                 marginTop: offsetTop,
                                 height: Math.max(height - 2, 20),
@@ -1203,9 +1302,31 @@ const AutomateSchedule: React.FC<Props> = ({
                               }}
                               onClick={(e) => {
                                 e.stopPropagation();
+                                if (isGhost) return;
                                 handleSelectEvent(event);
                               }}
                             >
+                              {isGhost ? (
+                                <div className="px-1.5 pt-1 pb-1 h-full flex flex-col min-h-0">
+                                  <span className="flex items-center gap-1 min-w-0 shrink-0">
+                                    <span className="appt-spinner" />
+                                    <span className="text-xs font-semibold text-orange-900 leading-tight truncate">
+                                      {event.service || "Turno"}
+                                    </span>
+                                  </span>
+                                  {height >= 36 && (
+                                    <span className="text-[10px] text-orange-700/75 leading-tight whitespace-nowrap shrink-0 tabular-nums">
+                                      {dayjs(event.start).format("HH:mm")} –{" "}
+                                      {dayjs(event.end).format("HH:mm")}
+                                    </span>
+                                  )}
+                                  {height >= 54 && (
+                                    <span className="text-[10px] font-medium text-primary/80 leading-tight whitespace-nowrap shrink-0 mt-0.5">
+                                      Creando…
+                                    </span>
+                                  )}
+                                </div>
+                              ) : (
                               <div className="px-1.5 pt-1 pb-1 h-full flex flex-col min-h-0">
                                 <span className="text-xs font-semibold text-white leading-tight whitespace-nowrap shrink-0">
                                   {event.service || "Turno"}
@@ -1241,6 +1362,7 @@ const AutomateSchedule: React.FC<Props> = ({
                                   </span>
                                 )}
                               </div>
+                              )}
                             </div>
                           );
                         })}

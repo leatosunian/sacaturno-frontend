@@ -1,24 +1,13 @@
 "use client"
 
-import { useTheme } from "next-themes"
 import { Toaster as Sonner } from "sonner"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
+// El panel es claro y no hay ThemeProvider en la app: fijamos el tema para que
+// Sonner no aplique sus estilos oscuros si alguna vez se agrega uno.
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "light" } = useTheme()
-
-  return (
-    <Sonner
-      theme={theme as ToasterProps["theme"]}
-      className="toaster group"
-      style={props.style}
-      icons={props.icons}
-      toastOptions={
-       props.toastOptions
-      }
-    />
-  )
+  return <Sonner theme="light" className="toaster group" {...props} />
 }
 
 export { Toaster }

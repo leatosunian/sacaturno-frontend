@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { LuUserPlus, LuUserX, LuUserCheck, LuMail, LuUser, LuMailCheck, LuCheck, LuPlus, LuLock, LuBuilding2, LuTriangleAlert, LuInfo, LuSparkles } from "react-icons/lu";
 import axiosReq from "@/config/axios";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { getPlanLimits } from "@/lib/planLimits";
 import { resolveImageUrl } from "@/lib/images";
 
@@ -145,7 +145,7 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
 
   const notifyAssignmentError = (error: any, fallback: string) => {
     const code = typeof error?.response?.data === "string" ? error.response.data : "";
-    toast.error(ASSIGNMENT_ERRORS[code] ?? fallback, { position: "top-center" });
+    toast.error(ASSIGNMENT_ERRORS[code] ?? fallback);
   };
 
   const toggleIn = (setter: React.Dispatch<React.SetStateAction<string[]>>) => (id: string) =>
@@ -198,9 +198,9 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
     setLoadingResend(true);
     try {
       await axiosReq.post(`/employee/${editingEmployee._id}/resend-invite`, {}, getAuthHeader());
-      toast.success("Invitación reenviada correctamente", { position: "top-center" });
+      toast.success("Invitación reenviada correctamente");
     } catch {
-      toast.error("No se pudo reenviar la invitación", { position: "top-center" });
+      toast.error("No se pudo reenviar la invitación");
     } finally {
       setLoadingResend(false);
     }
@@ -237,22 +237,22 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
         try {
           await applyOwnerProvider(true);
         } catch {
-          toast.error("El empleado se invitó, pero no pudimos publicarte como prestador. Probá desde el interruptor de arriba.", { position: "top-center" });
+          toast.error("El empleado se invitó, pero no pudimos publicarte como prestador. Probá desde el interruptor de arriba.");
         }
       }
 
       resetAddForm();
       setAddModal(false);
-      toast.success("Invitación enviada correctamente", { position: "top-center" });
+      toast.success("Invitación enviada correctamente");
     } catch (error: any) {
       if (error?.response?.status === 409) {
-        toast.error("Ya existe un empleado con ese email", { position: "top-center" });
+        toast.error("Ya existe un empleado con ese email");
       } else if (error?.response?.status === 422) {
         notifyAssignmentError(error, "Revisá los servicios y sucursales asignados");
       } else if (error?.response?.status === 400) {
-        toast.error("Se alcanzó el límite máximo de empleados permitidos", { position: "top-center" });
+        toast.error("Se alcanzó el límite máximo de empleados permitidos");
       } else {
-        toast.error("No se pudo enviar la invitación", { position: "top-center" });
+        toast.error("No se pudo enviar la invitación");
       }
     } finally {
       setLoadingAdd(false);
@@ -281,12 +281,12 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
       );
       setEditModal(false);
       setEditingEmployee(null);
-      toast.success("Empleado actualizado", { position: "top-center" });
+      toast.success("Empleado actualizado");
     } catch (error: any) {
       if (error?.response?.status === 422) {
         notifyAssignmentError(error, "Revisá los servicios y sucursales asignados");
       } else {
-        toast.error("No se pudo actualizar el empleado", { position: "top-center" });
+        toast.error("No se pudo actualizar el empleado");
       }
     } finally {
       setLoadingAction(false);
@@ -312,11 +312,10 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
       setConfirmModal(false);
       setConfirmTarget(null);
       toast.success(
-        action === "deactivate" ? "Empleado desactivado" : "Empleado reactivado",
-        { position: "top-center" }
+        action === "deactivate" ? "Empleado desactivado" : "Empleado reactivado"
       );
     } catch {
-      toast.error("No se pudo completar la acción", { position: "top-center" });
+      toast.error("No se pudo completar la acción");
     } finally {
       setLoadingAction(false);
     }
@@ -345,15 +344,13 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
       toast.success(
         next
           ? "Ya aparecés como prestador en tu página de reservas"
-          : "Dejaste de aparecer como prestador",
-        { position: "top-center" }
+          : "Dejaste de aparecer como prestador"
       );
     } catch (error: any) {
       toast.error(
         error?.response?.status === 409
           ? "Ya hay un empleado invitado con tu mismo email. Eliminalo para poder publicarte."
-          : "No se pudo guardar el cambio",
-        { position: "top-center" }
+          : "No se pudo guardar el cambio"
       );
     } finally {
       setSavingOwnerProvider(false);

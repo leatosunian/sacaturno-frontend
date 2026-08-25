@@ -6,7 +6,7 @@ import { IBusiness } from "@/interfaces/business.interface";
 import ISubscription from "@/interfaces/subscription.interface";
 import { LuBuilding2, LuPlus, LuLock } from "react-icons/lu";
 import axiosReq from "@/config/axios";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import BranchCard from "./BranchCard";
 import CreateBranchModal from "./CreateBranchModal";
 import EditBranchModal from "./EditBranchModal";
@@ -61,11 +61,9 @@ const BranchesSection: React.FC<Props> = ({
       );
     } catch (error: any) {
       if (error?.response?.data === "BRANCH_REQUIRED") {
-        toast.error("Cada empleado tiene que estar asignado al menos a una sucursal", {
-          position: "top-center",
-        });
+        toast.error("Cada empleado tiene que estar asignado al menos a una sucursal");
       } else {
-        toast.error("No se pudo actualizar la asignación", { position: "top-center" });
+        toast.error("No se pudo actualizar la asignación");
       }
     } finally {
       setLoadingEmployee(null);

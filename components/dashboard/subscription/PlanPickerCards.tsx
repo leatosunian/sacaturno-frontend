@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Loader2 } from "lucide-react";
 import { FaCheck, FaMedal, FaRocket, FaGem } from "react-icons/fa6";
 import { IBusiness } from "@/interfaces/business.interface";

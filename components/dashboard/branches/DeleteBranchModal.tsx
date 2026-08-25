@@ -4,7 +4,7 @@ import { IBranch } from "@/interfaces/branch.interface";
 import { IBusiness } from "@/interfaces/business.interface";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import axiosReq from "@/config/axios";
 
 interface Props {
@@ -29,9 +29,9 @@ const DeleteBranchModal: React.FC<Props> = ({ open, onClose, branch, businessDat
       });
       onDeleted(branch._id!);
       onClose();
-      toast.success("Sucursal eliminada", { position: "top-center" });
+      toast.success("Sucursal eliminada");
     } catch {
-      toast.error("No se pudo eliminar la sucursal", { position: "top-center" });
+      toast.error("No se pudo eliminar la sucursal");
     } finally {
       setLoading(false);
     }

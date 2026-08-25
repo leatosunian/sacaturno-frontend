@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import dayjs from "dayjs";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import axiosReq from "@/config/axios";
 import { LuCheck, LuCalendarCheck } from "react-icons/lu";
 import { Button } from "@/components/ui/button";
@@ -73,20 +73,15 @@ const PropagateBookedStep: React.FC<Props> = ({
       const failed: { _id: string }[] = data.failed ?? [];
 
       if (failed.length > 0) {
-        toast.warning(`${assigned.length} actualizados · ${failed.length} con conflicto`, {
-          position: "top-center",
-        });
+        toast.warning(`${assigned.length} actualizados · ${failed.length} con conflicto`);
       } else {
         toast.success(
-          `${assigned.length} ${assigned.length === 1 ? "turno reservado actualizado" : "turnos reservados actualizados"}`,
-          { position: "top-center" }
+          `${assigned.length} ${assigned.length === 1 ? "turno reservado actualizado" : "turnos reservados actualizados"}`
         );
       }
       onDone();
     } catch {
-      toast.error("No se pudieron actualizar los turnos reservados", {
-        position: "top-center",
-      });
+      toast.error("No se pudieron actualizar los turnos reservados");
       setSaving(false);
     }
   };

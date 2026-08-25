@@ -1120,3 +1120,224 @@ html {
   }
 }
 
+
+/* CALENDAR APPOINTMENT STATES (admin: CalendarTurnos / AutomateSchedule) */
+
+/* Turno en vuelo: la tarjeta ya ocupa su slot con los datos reales que eligió
+   el usuario, pero se lee como provisoria — borde punteado, rayado diagonal
+   que avanza y un spinner. El objetivo es que el turno "aparezca" al instante
+   sin hacerse pasar por uno ya guardado. */
+.appt-ghost {
+  border: 1px dashed rgba(221, 73, 36, 0.55);
+  background-color: #fff7ed;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(221, 73, 36, 0.085) 0 6px,
+    transparent 6px 12px
+  );
+  animation:
+    appt-ghost-in 0.18s ease-out both,
+    appt-ghost-stripes 0.9s linear infinite;
+}
+
+/* 12px de período perpendicular → 12·√2 ≈ 17px de recorrido horizontal por ciclo */
+@keyframes appt-ghost-stripes {
+  to { background-position: 17px 0; }
+}
+
+@keyframes appt-ghost-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Debe ir después de .appt-ghost: misma especificidad, gana el orden. */
+.appt-ghost-out {
+  animation: appt-ghost-out 0.22s ease-in forwards;
+}
+
+@keyframes appt-ghost-out {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.94); }
+}
+
+.appt-spinner {
+  width: 9px;
+  height: 9px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(221, 73, 36, 0.25);
+  border-top-color: #dd4924;
+  animation: appt-spin 0.65s linear infinite;
+}
+
+@keyframes appt-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Turno recién creado: aterriza con un rebote corto, un destello que lo recorre
+   una vez y un halo cálido que se apaga solo. Conserva sus propios colores —
+   el foco se disuelve en vez de quedar clavado como un anillo fijo. */
+.appt-new {
+  position: relative;
+  animation:
+    appt-new-pop 0.42s cubic-bezier(0.34, 1.4, 0.64, 1) both,
+    appt-new-halo 5.6s ease-out both;
+}
+
+@keyframes appt-new-pop {
+  0%   { transform: scale(0.92); }
+  55%  { transform: scale(1.025); }
+  100% { transform: scale(1); }
+}
+
+@keyframes appt-new-halo {
+  0%   { box-shadow: 0 0 0 0 rgba(221, 73, 36, 0.55), 0 6px 16px -4px rgba(221, 73, 36, 0.45); }
+  14%  { box-shadow: 0 0 0 3px rgba(221, 73, 36, 0.38), 0 6px 16px -4px rgba(221, 73, 36, 0.35); }
+  78%  { box-shadow: 0 0 0 3px rgba(221, 73, 36, 0.22), 0 5px 14px -4px rgba(221, 73, 36, 0.16); }
+  100% { box-shadow: 0 0 0 0 rgba(221, 73, 36, 0), 0 0 0 0 rgba(221, 73, 36, 0); }
+}
+
+.appt-new::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 34%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 66%
+  );
+  transform: translateX(-130%);
+  animation: appt-new-sheen 0.95s 0.12s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes appt-new-sheen {
+  to { transform: translateX(130%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .appt-ghost,
+  .appt-new {
+    animation: none;
+    transform: none;
+  }
+  .appt-new {
+    box-shadow: 0 0 0 2px rgba(221, 73, 36, 0.35);
+  }
+  .appt-new::after {
+    animation: none;
+    opacity: 0;
+  }
+  .appt-ghost-out {
+    animation: none;
+    opacity: 0;
+  }
+  .appt-spinner {
+    animation-duration: 1.4s;
+  }
+}
+
+/* ==========================================================================
+   Toasts (Sonner) — Opción A "Filo"
+   Tarjeta blanca con un filo de 4 px del color del estado. Sonner inyecta su
+   hoja de estilos en el head en tiempo de ejecución, así que va después de
+   este archivo: los selectores suben la especificidad a propósito para ganarle.
+   ========================================================================== */
+
+/* Sonner fija su propia pila de fuentes del sistema en el contenedor y su hoja
+   se inyecta después de este archivo: sin esto los toasts salen en system-ui
+   mientras el resto de la app está en Montserrat. */
+[data-sonner-toaster].toaster {
+  font-family: inherit;
+}
+
+[data-sonner-toast][data-styled="true"].st-toast {
+  --st-accent: #3f3a36;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px 15px 13px 13px;
+  background: #ffffff;
+  border: 1px solid #e6e0dc;
+  border-left: 4px solid var(--st-accent);
+  border-radius: 12px;
+  box-shadow: 0 10px 26px -12px rgba(23, 19, 16, 0.35);
+  color: #171310;
+  /* Radix Dialog pone pointer-events:none en el body mientras hay un modal
+     abierto y Sonner no lo revierte: sin esto el botón de cerrar y el pausado
+     por hover quedan muertos en todos los toasts que salen desde un modal. */
+  pointer-events: auto;
+}
+
+[data-sonner-toast][data-styled="true"].st-toast[data-type="success"] { --st-accent: #1a7f37; }
+[data-sonner-toast][data-styled="true"].st-toast[data-type="error"]   { --st-accent: #c41313; }
+[data-sonner-toast][data-styled="true"].st-toast[data-type="warning"] { --st-accent: #b45309; }
+
+[data-sonner-toast][data-styled="true"].st-toast .st-toast-icon {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex: none;
+  color: var(--st-accent);
+}
+
+[data-sonner-toast][data-styled="true"].st-toast .st-toast-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+[data-sonner-toast][data-styled="true"].st-toast .st-toast-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: #171310;
+}
+
+[data-sonner-toast][data-styled="true"].st-toast .st-toast-description {
+  margin-top: 3px;
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: #6b625c;
+}
+
+/* El cierre manual solo tiene sentido donde el mensaje puede necesitar tiempo. */
+[data-sonner-toast][data-styled="true"].st-toast .st-toast-close {
+  position: static;
+  transform: none;
+  /* Sonner renderiza el botón de cerrar antes del ícono en el DOM porque por
+     defecto lo posiciona en absoluto: sin esto queda pegado a la izquierda. */
+  order: 1;
+  align-self: flex-start;
+  margin-left: auto;
+  width: 18px;
+  height: 18px;
+  background: transparent;
+  border: 0;
+  color: #a9a09a;
+  transition: color 0.2s ease;
+}
+
+[data-sonner-toast][data-styled="true"].st-toast .st-toast-close:hover {
+  color: #171310;
+  background: transparent;
+}
+
+[data-sonner-toast][data-styled="true"].st-toast[data-type="success"] .st-toast-close,
+[data-sonner-toast][data-styled="true"].st-toast[data-type="loading"] .st-toast-close {
+  display: none;
+}
+
+.st-toast-spin {
+  animation: st-toast-spin 0.85s linear infinite;
+}
+
+@keyframes st-toast-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .st-toast-spin { animation-duration: 2.5s; }
+}

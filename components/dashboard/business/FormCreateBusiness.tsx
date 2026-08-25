@@ -8,7 +8,7 @@ import { createBusinessSchema } from "@/app/schemas/createBusinessSchema";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { LuBuilding2, LuCamera, LuLink, LuMail, LuMapPin, LuPlus, LuX } from "react-icons/lu";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import RubroPicker from "./RubroPicker";
 import CancellationPolicyCard from "./CancellationPolicyCard";
 

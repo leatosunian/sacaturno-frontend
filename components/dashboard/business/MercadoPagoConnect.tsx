@@ -5,7 +5,7 @@ import axiosReq from "@/config/axios";
 import { IBusiness } from "@/interfaces/business.interface";
 import ISubscription from "@/interfaces/subscription.interface";
 import { CheckCircle2, Info, Loader2, Lock, ShieldCheck, Unlink } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { SiMercadopago } from "react-icons/si";
 import { getPlanLimits } from "@/lib/planLimits";
 import PlanPickerModal from "@/components/dashboard/subscription/PlanPickerModal";

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { LuLoader, LuPencil } from "react-icons/lu";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {

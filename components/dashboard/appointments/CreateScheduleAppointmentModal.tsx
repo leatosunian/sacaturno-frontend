@@ -1,5 +1,4 @@
 "use client";
-import axiosReq from "@/config/axios";
 import dayjs from "dayjs";
 import { IService } from "@/interfaces/service.interface";
 import { IEmployee } from "@/interfaces/employee.interface";
@@ -18,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
 
 interface props {
   appointmentData: IAppointmentSchedule | undefined;
@@ -26,7 +24,9 @@ interface props {
   employees?: IEmployee[];
   branches?: IBranch[];
   closeModalF: () => void;
-  onNewAppointment: (newAppointment: IAppointmentSchedule) => void;
+  // El padre hace la request: necesita pintar el turno en el calendario apenas
+  // se envía, no cuando el servidor contesta.
+  onSave: (appointment: IAppointmentSchedule) => void;
 }
 
 const CreateScheduleAppointmentModal: React.FC<props> = ({
@@ -35,7 +35,7 @@ const CreateScheduleAppointmentModal: React.FC<props> = ({
   servicesData,
   employees,
   branches,
-  onNewAppointment,
+  onSave,
 }) => {
   const [selectedService, setSelectedService] = useState<{
     name: string | undefined;
@@ -138,16 +138,7 @@ const CreateScheduleAppointmentModal: React.FC<props> = ({
     setSelectedEmployeeID("");
   };
 
-  const doSaveAppointment = async () => {
-    closeModal();
-    const token = localStorage.getItem("sacaturno_token");
-    const authHeader = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-        "Cache-Control": "no-store",
-      },
-    };
+  const doSaveAppointment = () => {
     const data: IAppointmentSchedule = {
       businessID: appointmentData?.businessID!,
       day: appointmentData?.day!,
@@ -162,26 +153,8 @@ const CreateScheduleAppointmentModal: React.FC<props> = ({
       employeeID: selectedEmployeeID || soleEligible?._id || null,
       branchID: effectiveBranchID || null,
     };
-    try {
-      const newAppointment = await axiosReq.post(
-        "/schedule/appointment/create",
-        data,
-        authHeader,
-      );
-      onNewAppointment(newAppointment.data);
-      closeModal();
-    } catch (error: any) {
-      if (error?.response?.status === 409) {
-        toast.error("El empleado ya tiene un turno en ese horario", {
-          position: "top-center",
-        });
-      } else if (error?.response?.status === 400) {
-        toast.error("Se alcanzó el límite máximo de turnos en la agenda", {
-          position: "top-center",
-        });
-      }
-      closeModal();
-    }
+    closeModal();
+    onSave(data);
   };
 
   // Dejar el turno sin profesional es una función, no un olvido: lo toma

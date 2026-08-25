@@ -4,7 +4,7 @@ import { FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { setPasswordSchema } from "@/app/schemas/setPasswordSchema";
 import axiosReq from "@/config/axios";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { LuLock, LuShieldCheck } from "react-icons/lu";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 

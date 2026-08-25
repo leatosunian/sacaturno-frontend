@@ -3,7 +3,12 @@ import "./globals.css";
 import { AuthProvider } from "./context/authContext";
 import { NavigationLoadingProvider } from "./context/navigationLoadingContext";
 import { Toaster } from "@/components/ui/sonner"
-import { IoCheckmarkCircle } from "react-icons/io5";
+import {
+  IoCheckmarkCircle,
+  IoCloseCircle,
+  IoWarning,
+  IoReloadOutline,
+} from "react-icons/io5";
 import RouteChangeLoader from "@/components/ui/RouteChangeLoader";
 import type { Metadata } from "next";
 
@@ -72,22 +77,24 @@ export default function RootLayout({
           </AuthProvider>
         </NavigationLoadingProvider>
         <Toaster
+          position="top-center"
+          visibleToasts={3}
+          closeButton
           icons={{
-            success: <IoCheckmarkCircle color="green" size={24} />
+            success: <IoCheckmarkCircle size={20} />,
+            error: <IoCloseCircle size={20} />,
+            warning: <IoWarning size={20} />,
+            loading: <IoReloadOutline size={20} className="st-toast-spin" />,
           }}
-          style={{
-            backgroundColor: 'white',
-            paddingLeft: '10px',
+          toastOptions={{
+            classNames: {
+              toast: "st-toast",
+              title: "st-toast-title",
+              description: "st-toast-description",
+              icon: "st-toast-icon",
+              closeButton: "st-toast-close",
+            },
           }}
-          toastOptions={
-            {
-              classNames: {
-                title: "text-base text-black font-medium ml-2  ",
-                toast: "bg-white border pl-2 border-zinc-800 text-black shadow-lg",
-
-              }
-            }
-          }
         />
 
       </body>

@@ -48,7 +48,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import axiosReq from "@/config/axios";
 import { cn } from "@/lib/utils";
 
@@ -289,13 +289,24 @@ const CalendarTurnos: React.FC<Props> = ({
   const router = useRouter();
   const [isRefreshing, startRefresh] = useTransition();
   const [newAppointmentIds, setNewAppointmentIds] = useState<Set<string>>(new Set());
+  // Turnos optimistas cuya request todavía viaja, y los que fallaron y están
+  // desvaneciéndose. Se guardan aparte del documento para no ensuciar IAppointment.
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
+  const [failedIds, setFailedIds] = useState<Set<string>>(new Set());
+  const pendingIdsRef = useRef<Set<string>>(new Set());
+  pendingIdsRef.current = pendingIds;
   // IDs reservados del render anterior: null en el primero (nada es "nuevo").
   // Se compara sobre los reservados y no sobre todos porque un turno que se
   // reserva conserva su _id: pasa de unbooked a booked sin ser un documento nuevo.
   const knownBookedIdsRef = useRef<Set<string> | null>(null);
 
   useEffect(() => {
-    setAppointmentsData(appointments);
+    // Un refresh que aterriza mientras se crea un turno no puede borrar el
+    // preview: los optimistas en vuelo se reinyectan sobre los datos frescos.
+    setAppointmentsData((prev) => {
+      const inFlight = prev.filter((a) => a._id && pendingIdsRef.current.has(a._id));
+      return inFlight.length ? [...appointments, ...inFlight] : appointments;
+    });
     setBusiness(businessData);
     setServices(servicesData);
     setBookingsEnabled(businessData.bookingsEnabled ?? true);
@@ -488,30 +499,67 @@ const CalendarTurnos: React.FC<Props> = ({
 
   // ─── API handlers ─────────────────────────────────────────────────────────
 
+  const toggleIds = (
+    setter: React.Dispatch<React.SetStateAction<Set<string>>>,
+    ids: string[],
+    add: boolean
+  ) => {
+    setter((prev) => {
+      const next = new Set(prev);
+      ids.forEach((id) => (add ? next.add(id) : next.delete(id)));
+      return next;
+    });
+  };
+
+  // El turno fallido no desaparece de golpe: pasa a "desvaneciéndose" y recién
+  // se saca del array cuando termina la animación de salida.
+  const dismissGhosts = (ids: string[]) => {
+    toggleIds(setPendingIds, ids, false);
+    toggleIds(setFailedIds, ids, true);
+    setTimeout(() => {
+      setAppointmentsData((prev) => prev.filter((a) => !ids.includes(a._id ?? "")));
+      toggleIds(setFailedIds, ids, false);
+    }, 220);
+  };
+
   const handleSaveAppointment = async (appointmentData: IAppointment) => {
     setCreateAppointmentModal(false);
     const tempId = `temp_${Date.now()}`;
+    // El preview lleva los datos reales que eligió el usuario: lo único que le
+    // falta al turno es el _id del servidor.
     const optimistic: IAppointment = {
       ...appointmentData,
-      title:
-        appointmentData.status === "booked"
-          ? appointmentData.name ?? "Cargando..."
-          : "Cargando...",
       _id: tempId,
       status: appointmentData.status ?? "unbooked",
     };
     setAppointmentsData((prev) => [...prev, optimistic]);
-    const toastId = toast.loading("Creando turno...", { position: "top-center" });
+    toggleIds(setPendingIds, [tempId], true);
     try {
-      await axiosReq.post("/appointment/create", appointmentData, getAuthHeader());
-      toast.success("Turno creado correctamente", { id: toastId, position: "top-center" });
+      const { data } = await axiosReq.post(
+        "/appointment/create",
+        appointmentData,
+        getAuthHeader()
+      );
+      // El temporal se convierte en el turno real sin esperar al refresh, así el
+      // resaltado de "recién creado" sobrevive a la revalidación del servidor.
+      const created: IAppointment | undefined = data?.appointmentData;
+      const createdId = created?._id;
+      if (created) {
+        setAppointmentsData((prev) =>
+          prev.map((a) => (a._id === tempId ? { ...a, ...created } : a))
+        );
+      }
+      toggleIds(setPendingIds, [tempId], false);
+      toggleIds(setNewAppointmentIds, [createdId ?? tempId], true);
       router.refresh();
     } catch (error: any) {
-      setAppointmentsData((prev) => prev.filter((a) => a._id !== tempId));
+      dismissGhosts([tempId]);
       if (error?.response?.status === 409) {
-        toast.error("El empleado ya tiene un turno en ese horario", { id: toastId, position: "top-center" });
+        toast.error("El empleado ya tiene un turno en ese horario");
+      } else if (error?.response?.status === 400) {
+        toast.error("Se alcanzó el límite máximo de turnos");
       } else {
-        toast.error("No se pudo crear el turno", { id: toastId, position: "top-center" });
+        toast.error("No se pudo crear el turno");
       }
     }
   };
@@ -520,14 +568,14 @@ const CalendarTurnos: React.FC<Props> = ({
     setEventModal(false);
     const removed = appointmentsData.find((a) => a._id === id);
     setAppointmentsData((prev) => prev.filter((a) => a._id !== id));
-    const toastId = toast.loading("Eliminando turno...", { position: "top-center" });
+    const toastId = toast.loading("Eliminando turno...");
     try {
       await axiosReq.delete(`/appointment/delete/${id}`, getAuthHeader());
-      toast.success("Turno eliminado correctamente", { id: toastId, position: "top-center" });
+      toast.success("Turno eliminado correctamente", { id: toastId });
       router.refresh();
     } catch {
       if (removed) setAppointmentsData((prev) => [...prev, removed]);
-      toast.error("No se pudo eliminar el turno", { id: toastId, position: "top-center" });
+      toast.error("No se pudo eliminar el turno", { id: toastId });
     }
   };
 
@@ -550,7 +598,7 @@ const CalendarTurnos: React.FC<Props> = ({
           : a
       )
     );
-    const toastId = toast.loading("Cancelando turno...", { position: "top-center" });
+    const toastId = toast.loading("Cancelando turno...");
     try {
       const { data } = await axiosReq.put(
         "/appointment/book/cancel",
@@ -562,14 +610,14 @@ const CalendarTurnos: React.FC<Props> = ({
       if (data?.hadDeposit && !data?.refunded) {
         toast.warning(
           "Turno cancelado, pero no se pudo reembolsar la seña. Revisala en tu cuenta de Mercado Pago.",
-          { id: toastId, position: "top-center", duration: 8000 }
+          { id: toastId }
         );
       } else {
         toast.success(
           data?.refunded
             ? "Turno cancelado y seña reembolsada"
             : "Turno cancelado correctamente",
-          { id: toastId, position: "top-center" }
+          { id: toastId }
         );
       }
       router.refresh();
@@ -579,7 +627,7 @@ const CalendarTurnos: React.FC<Props> = ({
           prev.map((a) => (a._id === id ? original : a))
         );
       }
-      toast.error("No se pudo cancelar el turno", { id: toastId, position: "top-center" });
+      toast.error("No se pudo cancelar el turno", { id: toastId });
     }
   };
 
@@ -593,7 +641,7 @@ const CalendarTurnos: React.FC<Props> = ({
       notifyClient?: boolean;
     }
   ): Promise<boolean> => {
-    const toastId = toast.loading("Guardando asignación...", { position: "top-center" });
+    const toastId = toast.loading("Guardando asignación...");
     try {
       const { data } = await axiosReq.put(
         `/appointment/assign/${id}`,
@@ -614,7 +662,7 @@ const CalendarTurnos: React.FC<Props> = ({
       );
       toast.success(
         fields.notifyClient ? "Asignación actualizada y cliente avisado" : "Asignación actualizada",
-        { id: toastId, position: "top-center" }
+        { id: toastId }
       );
       router.refresh();
       return true;
@@ -630,26 +678,31 @@ const CalendarTurnos: React.FC<Props> = ({
               : status === 400
                 ? "El profesional no atiende en esa sucursal"
                 : "No se pudo guardar la asignación";
-      toast.error(msg, { id: toastId, position: "top-center" });
+      toast.error(msg, { id: toastId });
       return false;
     }
   };
 
   const handleSaveDayAppointments = async (dayAppointments: IAppointment[]) => {
     setAllDayAppointmentsModal(false);
-    const tempIds = dayAppointments.map((_, i) => `temp_day_${Date.now()}_${i}`);
+    const stamp = Date.now();
+    const tempIds = dayAppointments.map((_, i) => `temp_day_${stamp}_${i}`);
     const optimistic = dayAppointments.map((a, i) => ({ ...a, _id: tempIds[i] }));
     setAppointmentsData((prev) => [...prev, ...optimistic]);
-    const toastId = toast.loading("Creando turnos del día...", { position: "top-center" });
+    toggleIds(setPendingIds, tempIds, true);
     try {
       await axiosReq.post("/appointment/create/day", dayAppointments, getAuthHeader());
-      toast.success("Turnos del día creados correctamente", { id: toastId, position: "top-center" });
+      // En lote no se resaltan uno por uno: veinte halos a la vez son ruido.
+      // Basta con que dejen de ser fantasmas.
+      toggleIds(setPendingIds, tempIds, false);
       router.refresh();
-    } catch {
-      setAppointmentsData((prev) =>
-        prev.filter((a) => !tempIds.includes(a._id ?? ""))
+    } catch (error: any) {
+      dismissGhosts(tempIds);
+      toast.error(
+        error?.response?.status === 400
+          ? "Se alcanzó el límite máximo de turnos"
+          : "No se pudieron crear los turnos"
       );
-      toast.error("No se pudieron crear los turnos", { id: toastId, position: "top-center" });
     }
   };
 
@@ -658,8 +711,7 @@ const CalendarTurnos: React.FC<Props> = ({
     setBookingsEnabled(next);
     setBookingsSaving(true);
     const toastId = toast.loading(
-      next ? "Habilitando reservas..." : "Deshabilitando reservas...",
-      { position: "top-center" }
+      next ? "Habilitando reservas..." : "Deshabilitando reservas..."
     );
     try {
       await axiosReq.put(
@@ -669,13 +721,13 @@ const CalendarTurnos: React.FC<Props> = ({
       );
       toast.success(
         next ? "Reservas habilitadas" : "Reservas deshabilitadas",
-        { id: toastId, position: "top-center" }
+        { id: toastId }
       );
       setBusiness((b) => ({ ...b, bookingsEnabled: next }));
       router.refresh();
     } catch {
       setBookingsEnabled(prev);
-      toast.error("No se pudo actualizar", { id: toastId, position: "top-center" });
+      toast.error("No se pudo actualizar", { id: toastId });
     } finally {
       setBookingsSaving(false);
     }
@@ -705,7 +757,7 @@ const CalendarTurnos: React.FC<Props> = ({
     const end = start.add(appointmentDuration, "minute").toDate();
 
     if (start.isBefore(dayjs().subtract(2, "day"))) {
-      toast.error("Solo podés cargar turnos de hasta 2 días atrás", { position: "top-center" });
+      toast.error("Solo podés cargar turnos de hasta 2 días atrás");
       return;
     }
 
@@ -732,7 +784,7 @@ const CalendarTurnos: React.FC<Props> = ({
     const end = start.add(appointmentDuration, "minute").toDate();
 
     if (start.isBefore(dayjs().subtract(2, "day"))) {
-      toast.error("Solo podés cargar turnos de hasta 2 días atrás", { position: "top-center" });
+      toast.error("Solo podés cargar turnos de hasta 2 días atrás");
       return;
     }
 
@@ -756,14 +808,14 @@ const CalendarTurnos: React.FC<Props> = ({
 
   const handleDayStartChange = (val: number) => {
     if (val >= selectedDaySchedule.dayEnd) {
-      toast.error("El horario de inicio debe ser menor al horario de fin", { position: "top-center" });
+      toast.error("El horario de inicio debe ser menor al horario de fin");
       return;
     }
     const visibleEvents = getEventsForDay(date);
     if (visibleEvents.length) {
       const earliestHour = Math.min(...visibleEvents.map((e) => dayjs(e.start).hour()));
       if (val > earliestHour) {
-        toast.error(`Hay turnos desde las ${String(earliestHour).padStart(2, "0")}:00 hs`, { position: "top-center" });
+        toast.error(`Hay turnos desde las ${String(earliestHour).padStart(2, "0")}:00 hs`);
         return;
       }
     }
@@ -772,7 +824,7 @@ const CalendarTurnos: React.FC<Props> = ({
 
   const handleDayEndChange = (val: number) => {
     if (val <= selectedDaySchedule.dayStart) {
-      toast.error("El horario de fin debe ser mayor al horario de inicio", { position: "top-center" });
+      toast.error("El horario de fin debe ser mayor al horario de inicio");
       return;
     }
     const visibleEvents = getEventsForDay(date);
@@ -781,7 +833,7 @@ const CalendarTurnos: React.FC<Props> = ({
         ...visibleEvents.map((e) => dayjs(e.end).hour() + (dayjs(e.end).minute() > 0 ? 1 : 0))
       );
       if (val < latestHour) {
-        toast.error(`Hay turnos hasta las ${String(latestHour).padStart(2, "0")}:00 hs`, { position: "top-center" });
+        toast.error(`Hay turnos hasta las ${String(latestHour).padStart(2, "0")}:00 hs`);
         return;
       }
     }
@@ -1567,18 +1619,28 @@ const CalendarTurnos: React.FC<Props> = ({
                             const empName = getEmployeeName(event.employeeID);
                             const branchName = getBranchName(event.branchID);
                             const hasExtra = !!(empName || branchName);
-                            const isNew = !!(event._id && newAppointmentIds.has(event._id));
+                            const isPending = !!(event._id && pendingIds.has(event._id));
+                            const isFailed = !!(event._id && failedIds.has(event._id));
+                            const isGhost = isPending || isFailed;
+                            const isNew =
+                              !isGhost && !!(event._id && newAppointmentIds.has(event._id));
 
                             return (
                               <div
                                 key={event._id ?? eventIdx}
+                                aria-busy={isPending || undefined}
                                 className={cn(
-                                  "rounded-md overflow-hidden cursor-pointer transition-opacity duration-150 hover:opacity-80 select-none",
-                                  isBooked
-                                    ? "bg-orange-50 border-l-[3px] border-orange-400"
-                                    : "bg-primary border-l-[3px] border-orange-800",
-                                  isNew &&
-                                    "relative bg-orange-100 ring-2 ring-primary ring-offset-1 ring-offset-white shadow-md animate-in fade-in zoom-in-95 duration-300"
+                                  "rounded-md overflow-hidden select-none",
+                                  isGhost
+                                    ? "appt-ghost cursor-default"
+                                    : cn(
+                                        "cursor-pointer transition-opacity duration-150 hover:opacity-80",
+                                        isBooked
+                                          ? "bg-orange-50 border-l-[3px] border-orange-400"
+                                          : "bg-primary border-l-[3px] border-orange-800",
+                                        isNew && "appt-new"
+                                      ),
+                                  isFailed && "appt-ghost-out"
                                 )}
                                 style={{
                                   marginTop: offsetTop,
@@ -1587,20 +1649,38 @@ const CalendarTurnos: React.FC<Props> = ({
                                   minWidth: 90,
                                   flexShrink: 0,
                                 }}
-                                onClick={(e) => handleSelectEvent(event, e)}
+                                onClick={(e) => {
+                                  if (isGhost) {
+                                    e.stopPropagation();
+                                    return;
+                                  }
+                                  handleSelectEvent(event, e);
+                                }}
                               >
-                                {isNew && (
-                                  <span
-                                    aria-label="Turno nuevo"
-                                    className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary animate-pulse"
-                                  />
-                                )}
-                                <div
-                                  className={cn(
-                                    "px-1.5 pt-1 pb-1 h-full flex flex-col min-h-0",
-                                    isNew && "pr-3.5"
-                                  )}
-                                >
+                                {isGhost ? (
+                                  <div className="px-1.5 pt-1 pb-1 h-full flex flex-col min-h-0">
+                                    <span className="flex items-center gap-1 min-w-0 shrink-0">
+                                      <span className="appt-spinner" />
+                                      <span className="text-xs font-semibold text-orange-900 leading-tight truncate">
+                                        {isBooked
+                                          ? event.name || "Turno"
+                                          : event.service || "Disponible"}
+                                      </span>
+                                    </span>
+                                    {height >= 36 && (
+                                      <span className="text-[10px] text-orange-700/75 leading-tight whitespace-nowrap shrink-0 tabular-nums">
+                                        {dayjs(event.start).format("HH:mm")} –{" "}
+                                        {dayjs(event.end).format("HH:mm")}
+                                      </span>
+                                    )}
+                                    {height >= 54 && (
+                                      <span className="text-[10px] font-medium text-primary/80 leading-tight whitespace-nowrap shrink-0 mt-0.5">
+                                        Creando…
+                                      </span>
+                                    )}
+                                  </div>
+                                ) : (
+                                <div className="px-1.5 pt-1 pb-1 h-full flex flex-col min-h-0">
                                   <span
                                     className={cn(
                                       "text-xs font-semibold leading-tight whitespace-nowrap shrink-0",
@@ -1655,6 +1735,7 @@ const CalendarTurnos: React.FC<Props> = ({
                                     </div>
                                   )}
                                 </div>
+                                )}
                               </div>
                             );
                           })}

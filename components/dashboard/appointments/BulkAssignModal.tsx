@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import dayjs from "dayjs";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import axiosReq from "@/config/axios";
 import { LuUser, LuMapPin, LuCheck } from "react-icons/lu";
 import { Button } from "@/components/ui/button";
@@ -155,8 +155,7 @@ const BulkAssignModal: React.FC<Props> = ({
         }
         toast.success(
           `${assigned.length} ${assigned.length === 1 ? "turno asignado" : "turnos asignados"}` +
-            (unbookedUpdated > 0 ? ` · ${unbookedUpdated} ya creados al día` : ""),
-          { position: "top-center" }
+            (unbookedUpdated > 0 ? ` · ${unbookedUpdated} ya creados al día` : "")
         );
         closeModalF();
         return;
@@ -177,11 +176,10 @@ const BulkAssignModal: React.FC<Props> = ({
         .join(" · ");
 
       toast.warning(
-        `${assigned.length} asignados · ${detail || `${failed.length} sin aplicar`}`,
-        { position: "top-center" }
+        `${assigned.length} asignados · ${detail || `${failed.length} sin aplicar`}`
       );
     } catch {
-      toast.error("No se pudo aplicar la asignación", { position: "top-center" });
+      toast.error("No se pudo aplicar la asignación");
     } finally {
       setSaving(false);
     }

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import axiosReq from "@/config/axios";
 import dayjs from "dayjs";
 import { LuTag, LuBanknote, LuMapPin, LuUser, LuPencil, LuX } from "react-icons/lu";
@@ -157,17 +157,16 @@ const ScheduleAppointmentModal: React.FC<props> = ({
       toast.success(
         unbookedUpdated > 0
           ? `Turno actualizado · ${unbookedUpdated} ${unbookedUpdated === 1 ? "turno ya creado" : "turnos ya creados"} al día`
-          : "Turno actualizado correctamente",
-        { position: "top-center" }
+          : "Turno actualizado correctamente"
       );
     } catch (error: any) {
       setSaving(false);
       if (error?.response?.status === 409) {
-        toast.error("El empleado ya tiene un turno en ese horario", { position: "top-center" });
+        toast.error("El empleado ya tiene un turno en ese horario");
       } else if (error?.response?.status === 400) {
-        toast.error("El empleado no atiende en esa sucursal", { position: "top-center" });
+        toast.error("El empleado no atiende en esa sucursal");
       } else {
-        toast.error("No se pudo actualizar el turno", { position: "top-center" });
+        toast.error("No se pudo actualizar el turno");
       }
     }
   };
@@ -181,10 +180,10 @@ const ScheduleAppointmentModal: React.FC<props> = ({
       );
       closeModalF();
       onDeleteAppointment(deletedAppointment.data);
-      toast.success("Turno eliminado correctamente", { position: "top-center" });
+      toast.success("Turno eliminado correctamente");
     } catch (error) {
       setDeleting(false);
-      toast.error("No se pudo eliminar el turno", { position: "top-center" });
+      toast.error("No se pudo eliminar el turno");
     }
   };
 

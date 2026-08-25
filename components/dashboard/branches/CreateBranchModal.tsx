@@ -9,7 +9,7 @@ import { IEmployee } from "@/interfaces/employee.interface";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { LuUsers } from "react-icons/lu";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import axiosReq from "@/config/axios";
 import BranchFormFields from "./BranchFormFields";
 
@@ -122,16 +122,16 @@ const CreateBranchModal: React.FC<Props> = ({
         totalSchedules: totalSchedules ?? 0,
       });
       handleClose();
-      toast.success("Sucursal creada correctamente", { position: "top-center" });
+      toast.success("Sucursal creada correctamente");
     } catch (error: any) {
       if (error?.response?.status === 402) {
-        toast.error("Necesitás el plan completo para crear sucursales", { position: "top-center" });
+        toast.error("Necesitás el plan completo para crear sucursales");
       } else if (error?.response?.status === 400) {
-        toast.error("Alcanzaste el límite máximo de 10 sucursales", { position: "top-center" });
+        toast.error("Alcanzaste el límite máximo de 10 sucursales");
       } else if (error?.response?.status === 409) {
-        toast.error("Ya existe una sucursal con ese nombre", { position: "top-center" });
+        toast.error("Ya existe una sucursal con ese nombre");
       } else {
-        toast.error("No se pudo crear la sucursal", { position: "top-center" });
+        toast.error("No se pudo crear la sucursal");
       }
     } finally {
       setLoading(false);
