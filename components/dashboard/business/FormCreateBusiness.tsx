@@ -156,6 +156,11 @@ const FormCreateBusiness: React.FC<Props> = ({ userEmail, userPhone }) => {
         setLoading(false);
         return;
       }
+      if (res.data.businessData === "ADDRESS_INCOMPLETE") {
+        toast.error("Completá calle, altura, ciudad y provincia del domicilio");
+        setLoading(false);
+        return;
+      }
       await uploadLogo(token);
       setLoading(false);
       setIsCreated(true);
@@ -344,6 +349,9 @@ const FormCreateBusiness: React.FC<Props> = ({ userEmail, userPhone }) => {
                   <span className="text-xs text-red-500 leading-tight">{errors.province.message}</span>
                 )}
               </div>
+              <span className="text-xs text-gray-400 sm:col-span-12">
+                Podés dejarlo vacío, pero si cargás el domicilio va completo: sin ciudad y provincia el mapa no cae en tu local.
+              </span>
             </div>
           </div>
         </div>

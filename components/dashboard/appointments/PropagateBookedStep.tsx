@@ -21,6 +21,8 @@ interface Props {
   fields: { employeeID?: string | null; branchID?: string | null };
   /** Cambió la sucursal: al cliente le cambia la dirección, el aviso es obligatorio. */
   branchChanged: boolean;
+  /** Avisa al Dialog padre que hay un request en vuelo: no se puede cerrar. */
+  onBusyChange?: (busy: boolean) => void;
   onDone: () => void;
 }
 
@@ -29,6 +31,7 @@ const PropagateBookedStep: React.FC<Props> = ({
   unbookedUpdated,
   fields,
   branchChanged,
+  onBusyChange,
   onDone,
 }) => {
   const [selected, setSelected] = useState<Set<string>>(
@@ -36,6 +39,11 @@ const PropagateBookedStep: React.FC<Props> = ({
   );
   const [notifyClient, setNotifyClient] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const setBusy = (busy: boolean) => {
+    setSaving(busy);
+    onBusyChange?.(busy);
+  };
 
   const toggle = (id: string) =>
     setSelected((prev) => {
@@ -51,7 +59,7 @@ const PropagateBookedStep: React.FC<Props> = ({
       onDone();
       return;
     }
-    setSaving(true);
+    setBusy(true);
     try {
       const token = localStorage.getItem("sacaturno_token");
       const { data } = await axiosReq.put(
@@ -79,15 +87,27 @@ const PropagateBookedStep: React.FC<Props> = ({
           `${assigned.length} ${assigned.length === 1 ? "turno reservado actualizado" : "turnos reservados actualizados"}`
         );
       }
+      setBusy(false);
       onDone();
     } catch {
       toast.error("No se pudieron actualizar los turnos reservados");
-      setSaving(false);
+      setBusy(false);
     }
   };
 
   return (
-    <div className="flex flex-col w-full gap-4">
+    <div className="relative flex flex-col w-full gap-4" aria-busy={saving}>
+      {saving && (
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 bg-white/80 animate-in fade-in duration-150">
+          <div className="loaderSmall" />
+          <span className="text-xs font-medium text-gray-500">
+            {branchChanged || notifyClient
+              ? "Actualizando turnos y avisando a los clientes…"
+              : "Actualizando turnos…"}
+          </span>
+        </div>
+      )}
+
       <div className="pb-4 border-b border-gray-100 flex items-start gap-3">
         <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-green-50 text-green-600 shrink-0">
           <LuCheck size={20} />

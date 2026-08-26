@@ -11,6 +11,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { getTeamSectionLabel } from "@/lib/planLimits";
+import type { SubscriptionType } from "@/lib/planLimits";
 
 type Crumb = { label: string; href?: string };
 
@@ -46,9 +48,21 @@ const ROUTE_MAP: Record<string, Crumb[]> = {
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-export default function AdminBreadcrumbs() {
+export default function AdminBreadcrumbs({
+  subscriptionType,
+}: {
+  subscriptionType?: SubscriptionType;
+}) {
   const pathname = usePathname();
-  const crumbs = ROUTE_MAP[pathname];
+  let crumbs = ROUTE_MAP[pathname];
+
+  // En Free/Básico la sección no gestiona empleados: sólo publica al dueño.
+  if (pathname === "/admin/team/employees") {
+    crumbs = [
+      { label: "mi equipo" },
+      { label: getTeamSectionLabel(subscriptionType).toLowerCase() },
+    ];
+  }
 
   if (!crumbs?.length) return null;
 

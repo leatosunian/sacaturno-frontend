@@ -28,7 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import sacaturno_logo from "@/public/sacaturno-orange.svg";
-import { getPlanLimits } from "@/lib/planLimits";
+import { getPlanLimits, getTeamSectionLabel } from "@/lib/planLimits";
 import type { SubscriptionType } from "@/lib/planLimits";
 import {
   HiOutlineCalendar,
@@ -112,6 +112,7 @@ export default function AdminSidebar({
   const isEmployee = role === "employee";
   const can = (p: string) => !isEmployee || permissions.includes(p);
   const planLimits = getPlanLimits(subscriptionType as SubscriptionType | undefined);
+  const teamLabel = getTeamSectionLabel(subscriptionType as SubscriptionType | undefined);
   const router = useRouter();
   const [avatarError, setAvatarError] = useState(false);
 
@@ -219,8 +220,9 @@ export default function AdminSidebar({
           </>
         )}
 
-        {/* Mi equipo */}
-        {!isEmployee && planLimits.maxEmployees > 0 && (
+        {/* Mi equipo — visible en todos los planes: sin empleados sigue siendo
+            el único lugar donde el dueño se publica como prestador. */}
+        {!isEmployee && (
           <>
             <SidebarGroup className={groupClass}>
               <SidebarGroupLabel className={groupLabelClass}>
@@ -229,7 +231,7 @@ export default function AdminSidebar({
               <SidebarGroupContent>
                 <SidebarMenu className={menuClass}>
                   <NavItem href="/admin/team/employees" icon={HiOutlineUsers}>
-                    Empleados
+                    {teamLabel}
                   </NavItem>
                 </SidebarMenu>
               </SidebarGroupContent>

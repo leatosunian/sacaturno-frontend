@@ -23,7 +23,7 @@ import {
   Sunset,
   Moon,
 } from "lucide-react";
-import { cn, composeBranchAddress, resolveContactPhone } from "@/lib/utils";
+import { cn, buildMapsUrl, composeBranchAddress, resolveContactPhone } from "@/lib/utils";
 import { resolveImageUrl } from "@/lib/images";
 import { IAppointment } from "@/interfaces/appointment.interface";
 import { IBusiness } from "@/interfaces/business.interface";
@@ -584,11 +584,16 @@ export default function ListBookAppointment({
 
   // Con sucursales cargadas, ellas son la fuente de verdad para la dirección:
   // con una sola sucursal se muestra su dirección puntual; con 2+ es ambiguo y se oculta.
-  const singleLocationAddress = useMemo(() => {
-    if (branches.length === 0) return composeBranchAddress(businessData) || null;
-    if (branches.length === 1) return composeBranchAddress(branches[0]) || null;
+  const singleLocation = useMemo(() => {
+    if (branches.length === 0) return businessData;
+    if (branches.length === 1) return branches[0];
     return null;
   }, [branches, businessData]);
+
+  const singleLocationAddress = useMemo(
+    () => (singleLocation ? composeBranchAddress(singleLocation) || null : null),
+    [singleLocation],
+  );
 
   // El teléfono de contacto sale de la sucursal en juego (la elegida o la única
   // que hay) y cae al del negocio mientras esa sucursal no tenga uno propio.
@@ -603,12 +608,11 @@ export default function ListBookAppointment({
 
   // ── Resumen: dónde y con quién ──
   const summaryPlaceName = displayBranchObj?.name ?? businessData.name ?? "";
-  const summaryAddress = displayBranchObj
-    ? composeBranchAddress(displayBranchObj)
-    : singleLocationAddress ?? "";
-  const summaryMapsUrl = summaryAddress
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(summaryAddress)}`
-    : null;
+  const summaryLocation = displayBranchObj ?? singleLocation;
+  const summaryAddress = summaryLocation ? composeBranchAddress(summaryLocation) : "";
+  // El link a Maps lleva provincia y país aunque no se muestren: sin eso la
+  // búsqueda puede resolver a una calle homónima de otra provincia.
+  const summaryMapsUrl = summaryLocation ? buildMapsUrl(summaryLocation) : null;
 
   // ── Step subtitles (selected value per completed step) ──
   const stepSubtitles = useMemo<Partial<Record<ActiveStep, string>>>(() => ({

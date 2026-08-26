@@ -35,7 +35,7 @@ const BranchFormFields: React.FC<Props> = ({ register, errors }) => {
       {errors.name?.message && <span className="text-xs text-red-500">{errors.name.message}</span>}
     </div>
     <div className="flex gap-3">
-      <div className="flex flex-col gap-1 flex-1">
+      <div className="flex flex-col gap-1 flex-1 min-w-0">
         <label className={labelCls}>
           <span className="flex items-center gap-1.5"><LuMapPin size={11} /> Calle *</span>
         </label>
@@ -52,7 +52,7 @@ const BranchFormFields: React.FC<Props> = ({ register, errors }) => {
         />
         {errors.street?.message && <span className="text-xs text-red-500">{errors.street.message}</span>}
       </div>
-      <div className="flex flex-col gap-1 w-24">
+      <div className="flex flex-col gap-1 w-20 sm:w-24 flex-shrink-0">
         <label className={labelCls}>Altura *</label>
         <input
           type="text"
@@ -69,9 +69,9 @@ const BranchFormFields: React.FC<Props> = ({ register, errors }) => {
         {errors.number?.message && <span className="text-xs text-red-500 leading-tight">{errors.number.message}</span>}
       </div>
     </div>
-    <div className="flex gap-3">
-      <div className="flex flex-col gap-1 flex-1">
-        <label className={labelCls}>Ciudad</label>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="flex flex-col gap-1 min-w-0">
+        <label className={labelCls}>Ciudad *</label>
         <input
           type="text"
           {...register("city")}
@@ -81,8 +81,8 @@ const BranchFormFields: React.FC<Props> = ({ register, errors }) => {
         />
         {errors.city?.message && <span className="text-xs text-red-500">{errors.city.message}</span>}
       </div>
-      <div className="flex flex-col gap-1 flex-1">
-        <label className={labelCls}>Provincia</label>
+      <div className="flex flex-col gap-1 min-w-0">
+        <label className={labelCls}>Provincia *</label>
         <input
           type="text"
           {...register("province")}
@@ -93,8 +93,8 @@ const BranchFormFields: React.FC<Props> = ({ register, errors }) => {
         {errors.province?.message && <span className="text-xs text-red-500">{errors.province.message}</span>}
       </div>
     </div>
-    <div className="flex gap-3">
-      <div className="flex flex-col gap-1 flex-1">
+    <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-3">
+      <div className="flex flex-col gap-1 min-w-0">
         <label className={labelCls}>
           <span className="flex items-center gap-1.5"><LuPhone size={11} /> Teléfono</span>
         </label>
@@ -111,7 +111,7 @@ const BranchFormFields: React.FC<Props> = ({ register, errors }) => {
           <span className="text-xs text-gray-400">Si lo dejás vacío se usa el del negocio.</span>
         )}
       </div>
-      <div className="flex flex-col gap-1 flex-1">
+      <div className="flex flex-col gap-1 min-w-0">
         <label className={labelCls}>
           <span className="flex items-center gap-1.5"><LuMail size={11} /> Email</span>
         </label>

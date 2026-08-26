@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
 // Domicilio opcional con la misma forma que el de las sucursales (branchSchema).
-// Ahí calle y altura son obligatorias; acá el domicilio entero se puede omitir,
-// pero si se carga una de las dos hay que cargar la otra.
+// Ahí los cuatro campos son obligatorios; acá el domicilio entero se puede omitir,
+// pero apenas se carga uno hay que cargarlos todos.
 export const optionalAddressFields = {
     street: z.string().trim()
         .max(70, { message: 'Máximo 70 caracteres' })
@@ -17,8 +17,8 @@ export const optionalAddressFields = {
 }
 
 // El domicilio es todo o nada: se puede omitir entero, pero apenas se toca
-// cualquiera de sus campos (provincia incluida) hace falta el domicilio completo.
-// Provincia queda opcional siempre: no hace falta para ubicar el local.
+// cualquiera de sus campos hace falta el domicilio completo. Ciudad y provincia
+// incluidas: sin ellas el link a Maps puede caer en otra localidad homónima.
 export const refineAddressGroup = (
     data: { street?: string; number?: string; city?: string; province?: string },
     ctx: z.RefinementCtx,
@@ -38,5 +38,8 @@ export const refineAddressGroup = (
     }
     if (!city) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['city'], message: 'Completá la ciudad' })
+    }
+    if (!province) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['province'], message: 'Completá la provincia' })
     }
 }

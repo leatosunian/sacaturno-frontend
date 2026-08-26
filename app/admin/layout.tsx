@@ -117,7 +117,7 @@ export default async function Layout({
         <PermissionsProvider permissions={permissions}>
           {/* Breadcrumbs — above page title */}
           <div className="w-full px-4 sm:px-6 md:px-8 max-w-screen-2xl mx-auto pt-4 md:pt-6 pb-0 -mb-2 md:mb-0">
-            <AdminBreadcrumbs />
+            <AdminBreadcrumbs subscriptionType={subscriptionType} />
           </div>
           {children}
         </PermissionsProvider>

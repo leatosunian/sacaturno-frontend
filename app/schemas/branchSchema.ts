@@ -12,8 +12,14 @@ export const branchSchema = z.object({
         .min(1, { message: 'La altura es obligatoria' })
         .max(5, { message: 'Máximo 5 dígitos' })
         .regex(/^\d+$/, { message: 'Solo se permiten números' }),
-    city: z.string().trim().max(50, { message: 'Máximo 50 caracteres' }).optional().or(z.literal('')),
-    province: z.string().trim().max(50, { message: 'Máximo 50 caracteres' }).optional().or(z.literal('')),
+    // Ciudad y provincia son obligatorias: sin ellas la dirección es ambigua y
+    // el link a Google Maps puede caer en otra localidad homónima.
+    city: z.string().trim()
+        .min(2, { message: 'La ciudad es obligatoria' })
+        .max(50, { message: 'Máximo 50 caracteres' }),
+    province: z.string().trim()
+        .min(2, { message: 'La provincia es obligatoria' })
+        .max(50, { message: 'Máximo 50 caracteres' }),
     // Opcional: sin teléfono propio, la sucursal usa el del negocio como contacto.
     phone: z.string().trim()
         .min(8, { message: 'Mínimo 8 dígitos' })

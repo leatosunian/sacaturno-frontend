@@ -325,7 +325,7 @@ const ServicesComponent = ({
           )}
         </div>
 
-        <div className="py-4 px-6">
+        <div className="p-6 2xl:p-8">
           {/* Loading */}
           {loading && (
             <div className="flex items-center justify-center h-48">

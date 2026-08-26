@@ -8,11 +8,12 @@ import ISubscription from "@/interfaces/subscription.interface";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { LuUserPlus, LuUserX, LuUserCheck, LuMail, LuUser, LuMailCheck, LuCheck, LuPlus, LuLock, LuBuilding2, LuTriangleAlert, LuInfo, LuSparkles } from "react-icons/lu";
+import { LuUserPlus, LuUserX, LuUserCheck, LuMail, LuUser, LuMailCheck, LuCheck, LuPlus, LuLock, LuBuilding2, LuTriangleAlert, LuInfo, LuSparkles, LuEye, LuEyeOff } from "react-icons/lu";
 import axiosReq from "@/config/axios";
 import { toast } from "@/lib/toast";
-import { getPlanLimits } from "@/lib/planLimits";
+import { getPlanLimits, getTeamSectionLabel } from "@/lib/planLimits";
 import { resolveImageUrl } from "@/lib/images";
+import PlanPickerModal from "@/components/dashboard/subscription/PlanPickerModal";
 
 interface Props {
   businessData: IBusiness;
@@ -20,7 +21,12 @@ interface Props {
   initialServices: IService[];
   initialBranches: IBranch[];
   subscriptionData?: ISubscription | { response_data: object };
+  ownerUser?: { name: string; surname: string; email: string; profileImage: string };
 }
+
+// Id imposible en Mongo: marca la ficha del dueño que todavía no existe en la
+// base. Nunca viaja al backend, sólo distingue la fila de sólo lectura.
+const OWNER_PLACEHOLDER_ID = "__owner_placeholder__";
 
 const StatusBadge = ({ status }: { status: IEmployee["status"] }) => {
   if (status === "active")
@@ -75,14 +81,22 @@ const ASSIGNMENT_ERRORS: Record<string, string> = {
   INVALID_BRANCH: "Alguna de las sucursales seleccionadas ya no existe",
 };
 
-const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, initialServices, initialBranches, subscriptionData }) => {
+const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, initialServices, initialBranches, subscriptionData, ownerUser }) => {
   const [employees, setEmployees] = useState<IEmployee[]>(initialEmployees);
 
   const subscription =
     subscriptionData && "subscriptionType" in subscriptionData
       ? (subscriptionData as ISubscription)
       : null;
-  const { maxEmployees } = getPlanLimits(subscription?.subscriptionType);
+  const subscriptionType = subscription?.subscriptionType;
+  const { maxEmployees } = getPlanLimits(subscriptionType);
+  // Free y Básico ven la sección para publicarse como prestador, pero no pueden
+  // invitar: el alta guía al upgrade en vez de esconderse.
+  const canInviteEmployees = maxEmployees > 0;
+  // Vencido: se conserva lo que ya existe (grandfathering) pero no se habilita
+  // nada nuevo, ni siquiera publicarse.
+  const planExpired = subscriptionType === "SC_EXPIRED";
+  const sectionLabel = getTeamSectionLabel(subscriptionType);
 
   // El dueño se publica como prestador mediante un registro de empleado propio
   // (isOwner): llega en la misma lista, pero no es una plaza del plan ni se
@@ -92,7 +106,29 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
   const ownerIsProvider = ownerRecord?.status === "active";
   const ownerNeverDecided = !ownerRecord;
 
+  // Antes de decidir no hay documento en Mongo, pero el dueño igual encabeza la
+  // lista: verse ahí es la mitad de entender qué hace el interruptor. La ficha
+  // es de sólo lectura hasta que se publica y el registro existe de verdad.
+  const ownerPlaceholder: IEmployee | null =
+    ownerRecord || !ownerUser
+      ? null
+      : ({
+          _id: OWNER_PLACEHOLDER_ID,
+          businessID: businessData._id,
+          ownerID: businessData.ownerID,
+          name: ownerUser.name,
+          surname: ownerUser.surname,
+          email: ownerUser.email,
+          status: "inactive",
+          isOwner: true,
+          permissions: [],
+          services: [],
+          branches: [],
+          profileImage: ownerUser.profileImage,
+        } as unknown as IEmployee);
+
   const [addModal, setAddModal] = useState(false);
+  const [planPicker, setPlanPicker] = useState(false);
   const [savingOwnerProvider, setSavingOwnerProvider] = useState(false);
   const [publishOwnerWithFirst, setPublishOwnerWithFirst] = useState(false);
   const [editModal, setEditModal] = useState(false);
@@ -172,7 +208,13 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
   // página pública: es el momento en que al dueño le importa decidir si aparece.
   const showOwnerProviderPrompt = staff.length === 0 && ownerNeverDecided;
 
+  // Sin plaza en el plan el alta no se esconde: se convierte en la puerta al
+  // upgrade, que es lo que el dueño está buscando cuando toca el botón.
   const openAddModal = () => {
+    if (!canInviteEmployees) {
+      setPlanPicker(true);
+      return;
+    }
     resetAddForm();
     setAddModal(true);
   };
@@ -337,6 +379,10 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
   };
 
   const handleToggleOwnerProvider = async () => {
+    if (planExpired) {
+      setPlanPicker(true);
+      return;
+    }
     const next = !ownerIsProvider;
     setSavingOwnerProvider(true);
     try {
@@ -347,10 +393,13 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
           : "Dejaste de aparecer como prestador"
       );
     } catch (error: any) {
+      const status = error?.response?.status;
       toast.error(
-        error?.response?.status === 409
+        status === 409
           ? "Ya hay un empleado invitado con tu mismo email. Eliminalo para poder publicarte."
-          : "No se pudo guardar el cambio"
+          : status === 403
+            ? "Tu suscripción está vencida. Renovala para publicarte como prestador."
+            : "No se pudo guardar el cambio"
       );
     } finally {
       setSavingOwnerProvider(false);
@@ -395,6 +444,9 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
     const missingBranch = requiresBranch && empBranches.length === 0;
     const missingService = requiresService && empServices.length === 0;
     const isOwnerCard = !!emp.isOwner;
+    // Ficha del dueño sin registro todavía: se muestra, no se edita. Las
+    // asignaciones se eligen recién cuando el interruptor crea el documento.
+    const isPlaceholder = emp._id === OWNER_PLACEHOLDER_ID;
     // El registro del dueño sólo estorba si está publicado y le falta algo: si
     // no se publica, no aparece en ningún lado y el aviso sería ruido.
     const showMissingWarning =
@@ -407,13 +459,17 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
           isOwnerCard ? "border-orange-200 bg-orange-50/30" : "border-gray-100"
         }`}
       >
-        {/* Top row: info + actions */}
+        {/* Top row: identidad a la izquierda, estado y acciones a la derecha.
+            En mobile la columna derecha baja completa y queda alineada con el
+            texto, en vez de que las chapitas se corten entre el nombre y el rol. */}
         <div
-          onClick={() => openEdit(emp)}
-          className="flex items-center justify-between py-3 px-4 hover:bg-orange-50 cursor-pointer transition-colors"
+          onClick={isPlaceholder ? undefined : () => openEdit(emp)}
+          className={`flex flex-wrap items-start justify-between gap-x-3 gap-y-2 py-3 px-4 transition-colors ${
+            isPlaceholder ? "" : "hover:bg-orange-50 cursor-pointer"
+          }`}
         >
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-orange-50 border border-orange-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+          <div className="flex items-start gap-3 min-w-0 flex-1">
+            <div className="w-8 h-8 mt-0.5 rounded-full bg-orange-50 border border-orange-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
               {resolveImageUrl(emp.profileImage) ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -426,35 +482,12 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
               )}
             </div>
             <div className="flex flex-col gap-0.5 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2 min-w-0">
                 <span className="text-sm font-semibold text-gray-800 truncate">{emp.name} {emp.surname}</span>
-                {isOwnerCard ? (
-                  <>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary text-white border border-primary">
-                      <LuSparkles size={10} />
-                      Vos
-                    </span>
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
-                        emp.status === "active"
-                          ? "bg-green-50 text-green-700 border-green-200"
-                          : "bg-gray-100 text-gray-500 border-gray-200"
-                      }`}
-                    >
-                      {emp.status === "active" ? "Publicado" : "No publicado"}
-                    </span>
-                  </>
-                ) : (
-                  <StatusBadge status={emp.status} />
-                )}
-                {showMissingWarning && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-50 text-red-600 border border-red-200">
-                    <LuTriangleAlert size={10} />
-                    {missingBranch && missingService
-                      ? "Sin servicios ni sucursal"
-                      : missingBranch
-                        ? "Sin sucursal"
-                        : "Sin servicios"}
+                {isOwnerCard && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary text-white border border-primary shrink-0">
+                    <LuSparkles size={10} />
+                    Vos
                   </span>
                 )}
               </div>
@@ -463,34 +496,69 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
               </span>
             </div>
           </div>
-          {!isOwnerCard && (
-            <div className="flex items-center gap-1.5 flex-shrink-0 ml-3" onClick={(e) => e.stopPropagation()}>
-              {emp.status === "active" && (
-                <button
-                  type="button"
-                  title="Desactivar"
-                  onClick={() => openConfirm(emp, "deactivate")}
-                  className="p-1.5 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
-                >
-                  <LuUserX size={14} />
-                </button>
-              )}
-              {emp.status === "inactive" && (
-                <button
-                  type="button"
-                  title="Reactivar"
-                  onClick={() => openConfirm(emp, "activate")}
-                  className="p-1.5 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors"
-                >
-                  <LuUserCheck size={14} />
-                </button>
-              )}
-            </div>
-          )}
+
+          <div className="flex items-center flex-wrap gap-1.5 w-full sm:w-auto shrink-0 pl-11 sm:pl-0 sm:mt-0.5">
+            {isOwnerCard ? (
+              <span
+                className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+                  emp.status === "active"
+                    ? "bg-green-50 text-green-700 border-green-200"
+                    : "bg-gray-100 text-gray-500 border-gray-200"
+                }`}
+              >
+                {emp.status === "active" ? "Publicado" : "No publicado"}
+              </span>
+            ) : (
+              <StatusBadge status={emp.status} />
+            )}
+            {showMissingWarning && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-50 text-red-600 border border-red-200">
+                <LuTriangleAlert size={10} />
+                {missingBranch && missingService
+                  ? "Sin servicios ni sucursal"
+                  : missingBranch
+                    ? "Sin sucursal"
+                    : "Sin servicios"}
+              </span>
+            )}
+            {!isOwnerCard && (
+              <div className="flex items-center gap-1.5 ml-0.5" onClick={(e) => e.stopPropagation()}>
+                {emp.status === "active" && (
+                  <button
+                    type="button"
+                    title="Desactivar"
+                    onClick={() => openConfirm(emp, "deactivate")}
+                    className="p-1.5 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <LuUserX size={14} />
+                  </button>
+                )}
+                {emp.status === "inactive" && (
+                  <button
+                    type="button"
+                    title="Reactivar"
+                    onClick={() => openConfirm(emp, "activate")}
+                    className="p-1.5 rounded-md text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors"
+                  >
+                    <LuUserCheck size={14} />
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Assignments summary — read-only, se edita desde el modal */}
-        {(requiresService || requiresBranch) && (
+        {isPlaceholder ? (
+          (requiresService || requiresBranch) && (
+            <div className="flex items-start gap-1.5 px-4 py-2.5 border-t border-gray-100 bg-gray-50/60 text-[11px] text-gray-400 leading-snug">
+              <LuInfo size={12} className="mt-0.5 shrink-0" />
+              Al publicarte vas a prestar todos tus servicios
+              {requiresBranch ? " en todas tus sucursales" : ""}. Después podés
+              recortar la lista desde acá.
+            </div>
+          )
+        ) : (requiresService || requiresBranch) && (
           <div className="px-4 py-2.5 border-t border-gray-100 bg-gray-50/60 flex flex-col gap-2.5">
             {requiresService && (
               <div className="flex flex-col gap-1.5">
@@ -613,73 +681,76 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
   // de equipo: por eso la card va antes del bloqueo por plan y la ve todo el
   // mundo, incluido el negocio de una sola persona en Free o Básico.
   const ownerProviderCard = (
-    <div className="flex flex-col gap-0 w-full max-w-4xl bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">
-      <div className="flex items-center gap-2 px-6 py-4 2xl:px-8 2xl:py-5 border-b border-gray-100">
-        <h2 className="text-sm 2xl:text-base font-semibold text-gray-800">
-          Mostrarme como prestador
-        </h2>
-        <span
-          className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+    <div
+      className={`flex flex-col gap-0 w-full max-w-4xl bg-white rounded-xl border shadow-lg overflow-hidden transition-colors duration-300 ${
+        ownerIsProvider ? "border-orange-200" : "border-gray-100"
+      }`}
+    >
+      {/* Grilla y no flex: en mobile la descripción baja a una fila propia a lo
+          ancho, y en desktop vuelve a la columna del título con el icono
+          abarcando las dos filas. Una sola copia del texto en el DOM. */}
+      <div
+        className={`grid grid-cols-[auto_1fr_auto] items-start gap-x-3 gap-y-2 sm:gap-x-4 sm:gap-y-1.5 px-4 py-4 sm:px-6 2xl:px-8 2xl:py-5 transition-colors duration-300 ${
+          ownerIsProvider ? "bg-orange-50/50" : "bg-white"
+        }`}
+      >
+        <div
+          className={`w-9 h-9 2xl:w-10 2xl:h-10 rounded-lg border flex items-center justify-center shrink-0 sm:row-span-2 transition-colors duration-300 ${
             ownerIsProvider
-              ? "bg-green-50 text-green-700 border-green-200"
-              : "bg-gray-100 text-gray-500 border-gray-200"
+              ? "bg-primary text-white border-primary"
+              : "bg-gray-50 text-gray-400 border-gray-200"
           }`}
         >
-          {ownerIsProvider ? "Publicado" : "No publicado"}
-        </span>
-      </div>
-
-      <div className="px-6 py-4 2xl:px-8 flex flex-col sm:flex-row sm:items-center gap-4">
-        <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-          <p className="text-xs 2xl:text-sm text-gray-600 leading-relaxed">
-            Activalo para aparecer como especialista en tu página pública de reservas.
-            Tus clientes van a ver tu nombre y tu foto, y van a poder elegirte al
-            reservar. Si lo dejás apagado, los turnos sólo se pueden asignar a
-            empleados.
-          </p>
-          <span className="flex items-start gap-1.5 text-[11px] text-gray-400 leading-snug">
-            <LuInfo size={12} className="mt-0.5 shrink-0" />
-            No ocupa un lugar de tu plan y podés cambiarlo cuando quieras.
-          </span>
+          {ownerIsProvider ? <LuEye size={17} /> : <LuEyeOff size={17} />}
         </div>
-        <div className="flex items-center gap-2.5 shrink-0">
+
+        {/* Sin badge de estado: el interruptor de la derecha ya dice si está
+            publicado, y en mobile el badge caía a una línea propia. */}
+        <h2 className="text-sm 2xl:text-base font-semibold text-gray-800 min-w-0 self-center sm:self-start">
+          Mostrarme como prestador
+        </h2>
+
+        <div className="flex items-center gap-2 shrink-0 self-center sm:self-start sm:mt-0.5">
+          {savingOwnerProvider && (
+            <span className="w-3.5 h-3.5 rounded-full border-2 border-orange-200 border-t-primary animate-spin" />
+          )}
           <Switch
             checked={!!ownerIsProvider}
             onCheckedChange={handleToggleOwnerProvider}
-            disabled={savingOwnerProvider}
+            disabled={savingOwnerProvider || planExpired}
             aria-label="Mostrarme como prestador de servicio"
           />
-          <span className="text-xs font-semibold text-gray-700">
-            {ownerIsProvider ? "Activado" : "Desactivado"}
-          </span>
         </div>
+
+        <p className="col-span-3 sm:col-span-1 sm:col-start-2 text-xs 2xl:text-sm text-gray-500 leading-relaxed">
+          Activalo para aparecer como especialista en tu página pública de reservas.
+          Tus clientes van a ver tu nombre y tu foto, y van a poder elegirte al
+          reservar. Si lo dejás apagado, los turnos sólo se pueden asignar a
+          empleados.
+        </p>
       </div>
+
+      {planExpired ? (
+        <button
+          type="button"
+          onClick={() => setPlanPicker(true)}
+          className="flex items-start gap-1.5 w-full text-left px-4 py-4 sm:px-6 sm:py-2.5 2xl:px-8 border-t border-gray-100 bg-gray-50/60 text-[11px] text-gray-500 leading-snug hover:bg-orange-50 transition-colors cursor-pointer"
+        >
+          <LuLock size={12} className="mt-0.5 shrink-0 text-gray-400" />
+          <span>
+            Tu suscripción está vencida.{" "}
+            <span className="font-semibold text-primary">Renovala</span> para
+            volver a publicarte como prestador.
+          </span>
+        </button>
+      ) : (
+        <div className="flex items-start gap-1.5 px-4 py-4 sm:px-6 sm:py-2.5 2xl:px-8 border-t border-gray-100 bg-gray-50/60 text-[11px] text-gray-400 leading-snug">
+          <LuInfo size={12} className="mt-0.5 shrink-0" />
+          No ocupa un lugar de tu plan y podés cambiarlo cuando quieras.
+        </div>
+      )}
     </div>
   );
-
-  if (maxEmployees === 0) {
-    return (
-      <div className="flex flex-col gap-4 2xl:gap-6 w-full">
-        {ownerProviderCard}
-        <div className="flex flex-col gap-0 bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden w-full max-w-4xl">
-          <div className="flex items-center gap-2 px-6 py-4 border-b border-gray-100">
-            <h2 className="text-sm 2xl:text-base font-semibold text-gray-800">Empleados</h2>
-          </div>
-          <div className="flex flex-col items-center justify-center gap-3 py-10 px-6 text-center">
-            <div className="w-12 h-12 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center">
-              <LuLock size={20} className="text-gray-400" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <p className="text-sm font-semibold text-gray-700">Función disponible en los planes Pro y Full</p>
-              <p className="text-xs text-gray-400 max-w-xs">
-                Activá el Plan Pro o el Plan Full para invitar empleados a gestionar tu agenda.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <>
@@ -688,12 +759,23 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
 
       <div className="flex flex-col gap-0 w-full max-w-4xl bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 2xl:px-8 2xl:py-5 border-b border-gray-100">
+        {/* En mobile el inset es parejo (16px en los cuatro lados): el px-6
+            comía ancho de más en pantallas angostas. */}
+        <div className="flex items-center justify-between px-4 py-4 sm:px-6 2xl:px-8 2xl:py-5 border-b border-gray-100">
           <div className="flex items-center gap-2 flex-wrap">
-            <h2 className="text-sm 2xl:text-base font-semibold text-gray-800">Empleados</h2>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-500 border border-gray-200">
-              {staff.length} / {maxEmployees}
-            </span>
+            <h2 className="text-sm 2xl:text-base font-semibold text-gray-800">{sectionLabel}</h2>
+            {/* Sin plaza en el plan el contador diría "0 / 0": no informa nada
+                y suena a error. El candado dice lo mismo mejor. */}
+            {canInviteEmployees ? (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-500 border border-gray-200">
+                {staff.length} / {maxEmployees}
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-500 border border-gray-200">
+                <LuLock size={9} />
+                Plan Pro
+              </span>
+            )}
             {activeCount > 0 && (
               <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-50 text-green-700 border border-green-200">
                 {activeCount} activo{activeCount !== 1 ? "s" : ""}
@@ -705,28 +787,48 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
               </span>
             )}
           </div>
-          {!atLimit && (
+          {!canInviteEmployees ? (
+            // Bloqueado, no ausente: `disabled` no dispara clicks y perderíamos
+            // el único momento en que el dueño pide la función.
             <button
               type="button"
               onClick={openAddModal}
-              className="flex items-center gap-1.5 bg-primary hover:bg-orange-500 text-white text-[11px] 2xl:text-xs font-semibold px-3 2xl:px-4 py-1.5 2xl:py-2 rounded-lg transition-all duration-300 ease-in-out cursor-pointer"
+              title="Disponible en los planes Pro y Full"
+              className="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-500 text-[11px] 2xl:text-xs font-semibold px-3 2xl:px-4 py-1.5 2xl:py-2 rounded-lg border border-gray-200 transition-all duration-300 ease-in-out cursor-pointer"
             >
-              <LuUserPlus size={14} />
+              <LuLock size={13} />
               Invitar empleado
             </button>
+          ) : (
+            !atLimit && (
+              <button
+                type="button"
+                onClick={openAddModal}
+                className="flex items-center gap-1.5 bg-primary hover:bg-orange-500 text-white text-[11px] 2xl:text-xs font-semibold px-3 2xl:px-4 py-1.5 2xl:py-2 rounded-lg transition-all duration-300 ease-in-out cursor-pointer"
+              >
+                <LuUserPlus size={14} />
+                Invitar empleado
+              </button>
+            )
           )}
         </div>
 
         {/* Body */}
-        <div className="px-6 py-4">
+        <div className="px-4 py-4 sm:px-6">
           <div className="flex flex-col gap-3">
             {/* El dueño encabeza la grilla: es un prestador más, pero no se
-                invita, no se elimina y su estado lo maneja el toggle de arriba. */}
-            {ownerRecord && renderEmployeeCard(ownerRecord)}
+                invita, no se elimina y su estado lo maneja el toggle de arriba.
+                Sin registro todavía va la ficha de sólo lectura. */}
+            {ownerRecord
+              ? renderEmployeeCard(ownerRecord)
+              : ownerPlaceholder && renderEmployeeCard(ownerPlaceholder)}
 
             {staff.map((emp) => renderEmployeeCard(emp))}
 
-            {staff.length === 0 && (
+            {/* El estado vacío grande sólo tiene sentido si la lista está de
+                verdad vacía: con la ficha del dueño arriba sería un cartel
+                contradiciendo lo que se ve. */}
+            {staff.length === 0 && canInviteEmployees && !ownerRecord && !ownerPlaceholder && (
               <div className="flex flex-col items-center justify-center gap-3 py-8 text-center">
                 <div className="w-12 h-12 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center">
                   <LuUser size={20} className="text-gray-400" />
@@ -747,10 +849,51 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
                 </button>
               </div>
             )}
+
+            {staff.length === 0 && canInviteEmployees && (ownerRecord || ownerPlaceholder) && (
+              <p className="text-xs text-gray-400 text-center py-2">
+                Todavía no invitaste empleados. Agregá uno para repartir los turnos de tu agenda.
+              </p>
+            )}
           </div>
         </div>
+
+        {/* Upsell al pie: la lista de arriba ya muestra al dueño, así que el
+            candado explica qué falta en vez de ocupar toda la card. */}
+        {!canInviteEmployees && (
+          <button
+            type="button"
+            onClick={() => setPlanPicker(true)}
+            className="flex items-center gap-3 w-full text-left px-4 py-4 sm:px-6 sm:py-3.5 2xl:px-8 border-t border-gray-100 bg-gray-50/60 hover:bg-orange-50 transition-colors cursor-pointer"
+          >
+            <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center shrink-0">
+              <LuLock size={14} className="text-gray-400" />
+            </div>
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <span className="text-xs 2xl:text-sm font-semibold text-gray-700">
+                {planExpired
+                  ? "Renová tu suscripción para volver a sumar empleados"
+                  : "Sumá empleados con el Plan Pro o el Plan Full"}
+              </span>
+              <span className="text-[11px] text-gray-400 leading-snug">
+                Invitalos con su propio acceso, asignales servicios y repartí los turnos de tu agenda.
+              </span>
+            </div>
+            <span className="ml-auto text-[11px] font-semibold text-primary shrink-0 hidden sm:block">
+              Ver planes
+            </span>
+          </button>
+        )}
       </div>
       </div>
+
+      <PlanPickerModal
+        open={planPicker}
+        onOpenChange={setPlanPicker}
+        businessData={businessData}
+        title="Sumá tu equipo."
+        description="Los planes Pro y Full te dejan invitar empleados con su propio acceso, asignarles servicios y repartir los turnos de tu agenda."
+      />
 
       {/* Add Employee Modal */}
       <Dialog open={addModal} onOpenChange={(open) => { if (!open) { setAddModal(false); resetAddForm(); } }}>

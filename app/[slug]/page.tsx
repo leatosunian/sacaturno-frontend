@@ -20,13 +20,14 @@ interface AddressBranch {
   street?: string;
   number?: string;
   city?: string;
+  province?: string;
 }
 
 // Con sucursales cargadas, ellas son la fuente de verdad para la dirección:
 // con una sola sucursal se usa su dirección puntual; con 2+ es ambiguo y se omite.
-function resolveSingleLocationAddress(business: AddressBranch, branches: AddressBranch[]): string | null {
-  if (branches.length === 0) return composeBranchAddress(business) || null;
-  if (branches.length === 1) return composeBranchAddress(branches[0]) || null;
+function resolveSingleLocation(business: AddressBranch, branches: AddressBranch[]): AddressBranch | null {
+  if (branches.length === 0) return business;
+  if (branches.length === 1) return branches[0];
   return null;
 }
 
@@ -47,7 +48,8 @@ export async function generateMetadata({
   const branches = businessData._id
     ? await axiosReq.get(`/branch/public/list/${businessData._id}`).then((r) => r.data ?? []).catch(() => [])
     : [];
-  const displayAddress = resolveSingleLocationAddress(businessData, branches);
+  const metadataLocation = resolveSingleLocation(businessData, branches);
+  const displayAddress = metadataLocation ? composeBranchAddress(metadataLocation) : "";
 
   const title = `${businessData.name}`;
   const description = `Reservá un turno en ${businessData.name}${businessData.businessType ? ` — ${businessData.businessType}` : ""}${displayAddress ? `. Ubicados en ${displayAddress}` : ""}. Reservá online fácil y rápido con SacaTurno.`;
@@ -99,7 +101,10 @@ const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
   const data = await getAppointments(params.slug);
   const bookingsEnabled = data.businessData.bookingsEnabled !== false;
 
-  const jsonLdAddress = resolveSingleLocationAddress(data.businessData, data.branches);
+  const jsonLdLocation = resolveSingleLocation(data.businessData, data.branches);
+  const jsonLdStreet = jsonLdLocation
+    ? [jsonLdLocation.street, jsonLdLocation.number].filter(Boolean).join(" ")
+    : "";
   const contactPhone = resolveContactPhone(
     data.businessData.phone,
     data.branches.length === 1 ? data.branches[0] : null
@@ -115,10 +120,12 @@ const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
         ...(data.businessData.businessType && {
           description: data.businessData.businessType,
         }),
-        ...(jsonLdAddress && {
+        ...(jsonLdStreet && {
           address: {
             "@type": "PostalAddress",
-            streetAddress: jsonLdAddress,
+            streetAddress: jsonLdStreet,
+            ...(jsonLdLocation?.city && { addressLocality: jsonLdLocation.city }),
+            ...(jsonLdLocation?.province && { addressRegion: jsonLdLocation.province }),
             addressCountry: "AR",
           },
         }),

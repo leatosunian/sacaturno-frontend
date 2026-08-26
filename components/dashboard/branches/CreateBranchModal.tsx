@@ -95,8 +95,8 @@ const CreateBranchModal: React.FC<Props> = ({
           name: data.name.trim(),
           street: data.street.trim(),
           number: data.number.trim(),
-          city: data.city?.trim() || undefined,
-          province: data.province?.trim() || undefined,
+          city: data.city.trim(),
+          province: data.province.trim(),
           phone: data.phone?.trim() ? Number(data.phone) : null,
           email: data.email?.trim() || undefined,
           employeeIDs: selectedEmployees,
@@ -126,6 +126,8 @@ const CreateBranchModal: React.FC<Props> = ({
     } catch (error: any) {
       if (error?.response?.status === 402) {
         toast.error("Necesitás el plan completo para crear sucursales");
+      } else if (error?.response?.data === "BRANCH_ADDRESS_REQUIRED") {
+        toast.error("Cargá calle, altura, ciudad y provincia de la sucursal");
       } else if (error?.response?.status === 400) {
         toast.error("Alcanzaste el límite máximo de 10 sucursales");
       } else if (error?.response?.status === 409) {
@@ -140,7 +142,7 @@ const CreateBranchModal: React.FC<Props> = ({
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
-      <DialogContent className="sm:w-[440px] w-[93vw] max-h-[85vh] overflow-y-auto">
+      <DialogContent className="sm:w-[520px] w-[93vw] max-w-[93vw] max-h-[85vh] overflow-y-auto">
         <div className="flex flex-col w-full gap-4">
           <div className="pb-4 border-b border-gray-100 flex flex-col gap-1">
             <h4 className="text-lg leading-none font-semibold text-gray-800">Nueva sucursal</h4>

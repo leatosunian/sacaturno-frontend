@@ -22,7 +22,7 @@ import {
   HiOutlineBanknotes,
 } from "react-icons/hi2";
 import styles from "@/app/css-modules/AdminHeader.module.css";
-import { getPlanLimits } from "@/lib/planLimits";
+import { getPlanLimits, getTeamSectionLabel } from "@/lib/planLimits";
 import type { SubscriptionType } from "@/lib/planLimits";
 
 interface AdminHeaderProps {
@@ -39,6 +39,7 @@ export default function AdminHeader({
   const isEmployee = role === "employee";
   const can = (p: string) => !isEmployee || permissions.includes(p);
   const planLimits = getPlanLimits(subscriptionType as SubscriptionType | undefined);
+  const teamLabel = getTeamSectionLabel(subscriptionType as SubscriptionType | undefined);
   const [isOpen, setIsOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState("");
   const router = useRouter();
@@ -207,8 +208,9 @@ export default function AdminHeader({
             </Link>
           )}
 
-          {/* Mi equipo — direct link, owner only */}
-          {!isEmployee && planLimits.maxEmployees > 0 && (
+          {/* Mi equipo — direct link, owner only. Visible en todos los planes:
+              sin empleados sigue siendo donde el dueño se publica. */}
+          {!isEmployee && (
             <Link
               onClick={closeMenu}
               className={styles.asideNavItem}

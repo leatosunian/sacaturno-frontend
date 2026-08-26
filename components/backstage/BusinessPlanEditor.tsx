@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
 import { toast } from "@/lib/toast";
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { PLAN_LIMITS, PLAN_SHORT_LABELS, SubscriptionType } from "@/lib/planLimits";
 
-const PLAN_BADGE_STYLES: Record<SubscriptionType, string> = {
+export const PLAN_BADGE_STYLES: Record<SubscriptionType, string> = {
   SC_FREE: "bg-gray-100 text-gray-700",
   SC_BASIC: "bg-blue-100 text-blue-700",
   SC_PRO: "bg-purple-100 text-purple-700",
@@ -25,7 +25,7 @@ const PLAN_BADGE_STYLES: Record<SubscriptionType, string> = {
 
 const PLAN_OPTIONS = Object.keys(PLAN_SHORT_LABELS) as SubscriptionType[];
 
-const normalizePlan = (type?: string): SubscriptionType =>
+export const normalizePlan = (type?: string): SubscriptionType =>
   type && type in PLAN_SHORT_LABELS ? (type as SubscriptionType) : "SC_FREE";
 
 interface Props {
@@ -35,6 +35,9 @@ interface Props {
   expiracyDate?: string | null;
   employeeCount: number;
   branchCount: number;
+  // Trigger alternativo: en mobile la tarjeta entera abre el modal.
+  children?: ReactNode;
+  triggerClassName?: string;
 }
 
 const BusinessPlanEditor = ({
@@ -44,6 +47,8 @@ const BusinessPlanEditor = ({
   expiracyDate,
   employeeCount,
   branchCount,
+  children,
+  triggerClassName,
 }: Props) => {
   const router = useRouter();
   const currentPlan = normalizePlan(subscriptionType);
@@ -91,15 +96,21 @@ const BusinessPlanEditor = ({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        title="Cambiar plan"
-        className={`group flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-all duration-200 ease-in-out hover:brightness-95 cursor-pointer ${PLAN_BADGE_STYLES[currentPlan]}`}
-      >
-        {PLAN_SHORT_LABELS[currentPlan]}
-        <LuPencil size={11} className="opacity-40 transition-opacity duration-200 group-hover:opacity-100" />
-      </button>
+      {children ? (
+        <button type="button" onClick={() => setOpen(true)} className={triggerClassName}>
+          {children}
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          title="Cambiar plan"
+          className={`group flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-all duration-200 ease-in-out hover:brightness-95 cursor-pointer ${PLAN_BADGE_STYLES[currentPlan]}`}
+        >
+          {PLAN_SHORT_LABELS[currentPlan]}
+          <LuPencil size={11} className="opacity-40 transition-opacity duration-200 group-hover:opacity-100" />
+        </button>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-md rounded-2xl">

@@ -227,14 +227,14 @@ const FormProfileConfig: React.FC<Props> = ({ profileData }: Props) => {
 
         <div className="flex justify-end px-6 2xl:px-8 py-4 2xl:py-5 border-t border-gray-100">
           {loading ? (
-            <div className="flex items-center justify-center w-32 h-9">
+            <div className="flex items-center justify-center w-full sm:w-32 h-9">
               <div className="loaderSmall"></div>
             </div>
           ) : (
             <button
               type="submit"
               disabled={!isDirty}
-              className="flex items-center gap-2 bg-primary hover:bg-orange-500 text-white text-xs 2xl:text-sm font-semibold px-5 2xl:px-6 py-2.5 2xl:py-3 rounded-lg transition-all duration-300 ease-in-out cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary hover:bg-orange-500 text-white text-xs 2xl:text-sm font-semibold px-5 2xl:px-6 py-2.5 2xl:py-3 rounded-lg transition-all duration-300 ease-in-out cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary"
             >
               <LuSave size={14} />
               Guardar cambios

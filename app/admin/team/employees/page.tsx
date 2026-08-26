@@ -78,6 +78,29 @@ async function getBranchesData(businessID: string, token: string) {
   }
 }
 
+// El dueño se pinta en la lista aunque todavía no exista su registro de
+// empleado: el documento se crea recién al publicarse como prestador.
+async function getOwnerUser(ownerID: string, token: string) {
+  try {
+    const res = await axiosReq.get(`/user/get/${ownerID}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = res.data?.response_data ?? res.data;
+    if (!data?.name) return null;
+    return {
+      name: data.name as string,
+      surname: (data.surname ?? "") as string,
+      email: (data.email ?? "") as string,
+      profileImage: (data.profileImage ?? "") as string,
+    };
+  } catch {
+    return null;
+  }
+}
+
 async function getSubscriptionData(businessID: string, token: string) {
   try {
     const res = await axiosReq.get(
@@ -104,11 +127,12 @@ const EmployeesPage: NextPage = async () => {
     return <NoBusinessEmptyState />;
   }
 
-  const [employees, services, branches, subscription] = await Promise.all([
+  const [employees, services, branches, subscription, ownerUser] = await Promise.all([
     getEmployeesData(business._id!, token?.value ?? ""),
     getServicesData(business._id!, token?.value ?? ""),
     getBranchesData(business._id!, token?.value ?? ""),
     getSubscriptionData(business._id!, token?.value ?? ""),
+    getOwnerUser(business.ownerID, token?.value ?? ""),
   ]);
 
   return (
@@ -123,6 +147,7 @@ const EmployeesPage: NextPage = async () => {
         initialServices={services}
         initialBranches={branches}
         subscriptionData={subscription ?? undefined}
+        ownerUser={ownerUser ?? undefined}
       />
 
       <div className="w-full h-10" />

@@ -37,6 +37,8 @@ interface Props {
   employees?: IEmployee[];
   branches?: IBranch[];
   onAssigned: (updated: { ids: string[]; employeeID: string | null; branchID: string | null }) => void;
+  /** Avisa al Dialog padre que hay un request en vuelo: no se puede cerrar. */
+  onBusyChange?: (busy: boolean) => void;
   closeModalF: () => void;
 }
 
@@ -45,6 +47,7 @@ const BulkAssignModal: React.FC<Props> = ({
   employees,
   branches,
   onAssigned,
+  onBusyChange,
   closeModalF,
 }) => {
   const activeEmployees = (employees ?? []).filter((e) => e.status === "active");
@@ -112,10 +115,15 @@ const BulkAssignModal: React.FC<Props> = ({
 
   const nothingToApply = !targetEmployeeID && !targetBranchID;
 
+  const setBusy = (busy: boolean) => {
+    setSaving(busy);
+    onBusyChange?.(busy);
+  };
+
   const apply = async () => {
     const ids = Array.from(selected);
     if (ids.length === 0) return;
-    setSaving(true);
+    setBusy(true);
     setFailedReasons(new Map());
     try {
       const token = localStorage.getItem("sacaturno_token");
@@ -181,7 +189,7 @@ const BulkAssignModal: React.FC<Props> = ({
     } catch {
       toast.error("No se pudo aplicar la asignación");
     } finally {
-      setSaving(false);
+      setBusy(false);
     }
   };
 
@@ -190,6 +198,7 @@ const BulkAssignModal: React.FC<Props> = ({
       <PropagateBookedStep
         booked={propagation.booked}
         unbookedUpdated={propagation.unbookedUpdated}
+        onBusyChange={onBusyChange}
         fields={{
           ...(targetEmployeeID ? { employeeID: targetEmployeeID } : {}),
           ...(targetBranchID ? { branchID: targetBranchID } : {}),
@@ -201,7 +210,16 @@ const BulkAssignModal: React.FC<Props> = ({
   }
 
   return (
-    <div className="flex flex-col w-full gap-4 min-h-0">
+    <div className="relative flex flex-col w-full gap-4 min-h-0" aria-busy={saving}>
+      {saving && (
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 bg-white/80 animate-in fade-in duration-150">
+          <div className="loaderSmall" />
+          <span className="text-xs font-medium text-gray-500">
+            Asignando turnos…
+          </span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="pb-4 border-b border-gray-100 flex flex-col gap-1">
         <h4 className="text-lg leading-none font-semibold text-gray-800">

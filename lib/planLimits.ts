@@ -100,3 +100,14 @@ export const PAID_PLAN_CARDS: IPlanFeatureCard[] = [
 
 export const getPlanLimits = (subscriptionType: SubscriptionType | undefined | null): IPlanLimits =>
   PLAN_LIMITS[subscriptionType ?? "SC_FREE"] ?? PLAN_LIMITS.SC_FREE;
+
+// En Free y Básico la sección "Mi equipo" existe sólo para publicarse como
+// prestador — no hay empleados que gestionar — así que se nombra por lo que
+// hace. No se deriva de maxEmployees porque un plan vencido conserva a sus
+// empleados (grandfathering) y llamarlos "prestadores" sería mentir.
+export const getTeamSectionLabel = (
+  subscriptionType: SubscriptionType | undefined | null
+): string =>
+  subscriptionType === "SC_FREE" || subscriptionType === "SC_BASIC" || !subscriptionType
+    ? "Prestadores"
+    : "Empleados";

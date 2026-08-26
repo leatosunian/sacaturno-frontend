@@ -101,7 +101,7 @@ const RubroPicker: React.FC<Props> = ({ category, type, onChange, categoryError,
     <div className="flex flex-col gap-3">
       {/* Categoría (rubro) */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-gray-700">Rubro del negocio</label>
+        <label className="text-xs 2xl:text-sm font-medium text-gray-700">Rubro del negocio</label>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
           {BUSINESS_CATEGORIES.map((cat) => {
             const Icon = CATEGORY_ICONS[cat.code] ?? LuEllipsis;
@@ -123,13 +123,13 @@ const RubroPicker: React.FC<Props> = ({ category, type, onChange, categoryError,
             );
           })}
         </div>
-        {categoryError && <span className="text-sm text-red-500">{categoryError}</span>}
+        {categoryError && <span className="text-xs 2xl:text-sm text-red-500">{categoryError}</span>}
       </div>
 
       {/* Especialidad */}
       {activeCat && (
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">Especialidad</label>
+          <label className="text-xs 2xl:text-sm font-medium text-gray-700">Especialidad</label>
           <Select value={specialty || undefined} onValueChange={selectSpecialty}>
             <SelectTrigger
               className={`h-9 w-full rounded-md bg-gray-50 px-3 text-sm text-gray-800 shadow-none transition-all duration-200 ease-in-out focus:ring-0 focus:ring-offset-0 hover:border-orange-600 focus:border-orange-600 data-[state=open]:border-orange-600 ${
@@ -168,7 +168,7 @@ const RubroPicker: React.FC<Props> = ({ category, type, onChange, categoryError,
               className={selectClass(!!typeError)}
             />
           )}
-          {typeError && <span className="text-sm text-red-500">{typeError}</span>}
+          {typeError && <span className="text-xs 2xl:text-sm text-red-500">{typeError}</span>}
         </div>
       )}
     </div>

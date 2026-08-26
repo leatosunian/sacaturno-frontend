@@ -4,13 +4,22 @@ import { useState } from "react";
 import { IBusiness } from "@/interfaces/business.interface";
 import { IPlanPayment } from "@/interfaces/planPayment.interface";
 import ISubscriptionDisplay from "@/interfaces/subscriptionDisplay.interface";
-import { FaMedal } from "react-icons/fa6";
+import { FaGem, FaMedal, FaRocket } from "react-icons/fa6";
+import { MdMoneyOff } from "react-icons/md";
 import { IoMdAlert } from "react-icons/io";
 import { LuCalendar, LuCalendarClock, LuCreditCard, LuInfo, LuSparkles } from "react-icons/lu";
 import dayjs from "dayjs";
 import { isPaidPlan, PLAN_LABELS, SubscriptionType } from "@/lib/planLimits";
 import PlanPickerModal from "@/components/dashboard/subscription/PlanPickerModal";
 import MercadoPagoResultModal from "@/components/payments/MercadoPagoResultModal";
+
+const PLAN_ICONS = {
+  SC_BASIC: FaRocket,
+  SC_PRO: FaGem,
+  SC_FULL: FaMedal,
+} as const;
+
+const getPlanIcon = (plan: string) => PLAN_ICONS[plan as keyof typeof PLAN_ICONS] ?? MdMoneyOff;
 
 interface Props {
   subscriptionData: ISubscriptionDisplay;
@@ -24,7 +33,7 @@ const BillingSection: React.FC<Props> = ({ subscriptionData, businessData, payme
   const isPaid = isPaidPlan(subscriptionData.subscriptionType);
   const isFree = subscriptionData.subscriptionType === "SC_FREE";
   const isExpired = subscriptionData.subscriptionType === "SC_EXPIRED";
-  const isFull = subscriptionData.subscriptionType === "SC_FULL";
+  const PlanIcon = getPlanIcon(subscriptionData.subscriptionType);
 
   return (
     <div className="flex flex-col gap-4 md:gap-6 w-full max-w-4xl">
@@ -63,7 +72,9 @@ const BillingSection: React.FC<Props> = ({ subscriptionData, businessData, payme
                   Plan actual
                 </span>
                 <span className="text-sm 2xl:text-base font-bold text-gray-800 flex items-center gap-1.5">
-                  {isFull && <FaMedal className="text-orange-600 flex-shrink-0" />}
+                  <PlanIcon
+                    className={`flex-shrink-0 ${isPaid ? "text-orange-600" : "text-gray-400"}`}
+                  />
                   <span className="truncate">{PLAN_LABELS[subscriptionData.subscriptionType]}</span>
                 </span>
               </div>
@@ -188,51 +199,86 @@ const BillingSection: React.FC<Props> = ({ subscriptionData, businessData, payme
                 <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Estado</span>
               </div>
 
-              <div className="flex flex-col max-h-80 overflow-y-auto">
-                {paymentsData.map((payment) => (
-                  <div
-                    key={payment._id}
-                    className="grid grid-cols-2 md:grid-cols-4 gap-y-2 md:gap-y-0 items-start md:items-center px-5 sm:px-6 py-4 md:py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50/60 transition-colors duration-150"
-                  >
-                    {/* Suscripción */}
-                    <div className="flex flex-col md:flex-row md:items-center gap-0.5 md:gap-1.5 order-1">
-                      <span className="md:hidden text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Suscripción</span>
-                      <span className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-gray-800">
-                        {payment.subscriptionType === "SC_FULL" && (
-                          <FaMedal className="text-orange-600 flex-shrink-0" />
-                        )}
-                        <span className="truncate">
-                          {PLAN_LABELS[payment.subscriptionType as SubscriptionType] ?? payment.subscriptionType}
+              <div className="flex flex-col gap-3 p-4 md:gap-0 md:p-0 md:max-h-80 md:overflow-y-auto">
+                {paymentsData.map((payment) => {
+                  const planLabel =
+                    PLAN_LABELS[payment.subscriptionType as SubscriptionType] ?? payment.subscriptionType;
+                  const priceLabel =
+                    payment.price > 0 ? `AR$ ${payment.price.toLocaleString("es-AR")}` : "Gratis";
+                  const dateLabel = dayjs(payment.paymentDate).format("DD/MM/YYYY");
+                  const isFullPlan = payment.subscriptionType === "SC_FULL";
+
+                  return (
+                    <div key={payment._id} className="md:border-b md:border-gray-50 md:last:border-0">
+                      {/* Mobile: stacked card */}
+                      <div className="md:hidden flex flex-col gap-3 rounded-xl border border-gray-100 bg-gradient-to-br from-gray-50 to-white p-4 shadow-sm">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-orange-50 flex-shrink-0">
+                              {isFullPlan ? (
+                                <FaMedal className="w-4 h-4 text-orange-600" />
+                              ) : (
+                                <LuCreditCard className="w-4 h-4 text-orange-600" />
+                              )}
+                            </div>
+                            <div className="flex flex-col gap-0.5 min-w-0">
+                              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                                Suscripción
+                              </span>
+                              <span className="text-sm font-bold text-gray-800 truncate">{planLabel}</span>
+                            </div>
+                          </div>
+                          <span className="inline-flex items-center gap-1.5 flex-shrink-0 rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-semibold text-green-700 ring-1 ring-inset ring-green-100">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                            Aprobado
+                          </span>
+                        </div>
+
+                        <div className="h-px w-full bg-gray-100" />
+
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                              Precio
+                            </span>
+                            <span
+                              className={`text-sm font-bold ${payment.price > 0 ? "text-gray-800" : "text-gray-500"}`}
+                            >
+                              {priceLabel}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                              Fecha de pago
+                            </span>
+                            <span className="flex items-center gap-1.5 text-sm font-medium text-gray-600">
+                              <LuCalendar className="w-3.5 h-3.5 text-gray-400" />
+                              {dateLabel}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Desktop: table row */}
+                      <div className="hidden md:grid grid-cols-4 items-center px-6 py-3 hover:bg-gray-50/60 transition-colors duration-150">
+                        <span className="flex items-center gap-1.5 text-sm font-semibold text-gray-800 min-w-0">
+                          {isFullPlan && <FaMedal className="text-orange-600 flex-shrink-0" />}
+                          <span className="truncate">{planLabel}</span>
                         </span>
-                      </span>
+                        <span
+                          className={`text-sm font-semibold ${payment.price > 0 ? "text-gray-800" : "text-gray-500"}`}
+                        >
+                          {priceLabel}
+                        </span>
+                        <span className="text-sm text-gray-500">{dateLabel}</span>
+                        <span className="inline-flex w-fit items-center gap-1.5 justify-self-start rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-semibold text-green-700 ring-1 ring-inset ring-green-100">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                          Aprobado
+                        </span>
+                      </div>
                     </div>
-
-                    {/* Precio */}
-                    <div className="flex flex-col md:flex-row md:items-center gap-0.5 md:gap-1.5 order-3 md:order-2 text-right md:text-left">
-                      <span className="md:hidden text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Precio</span>
-                      <span className={`text-xs sm:text-sm font-semibold ${payment.price > 0 ? "text-gray-800" : "text-gray-500"}`}>
-                        {payment.price > 0 ? `AR$ ${payment.price.toLocaleString("es-AR")}` : "Gratis"}
-                      </span>
-                    </div>
-
-                    {/* Fecha */}
-                    <div className="flex flex-col md:flex-row md:items-center gap-0.5 md:gap-1.5 order-2 md:order-3">
-                      <span className="md:hidden text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Fecha</span>
-                      <span className="text-xs sm:text-sm text-gray-500">
-                        {dayjs(payment.paymentDate).format("DD/MM/YYYY")}
-                      </span>
-                    </div>
-
-                    {/* Estado */}
-                    <div className="flex flex-col md:flex-row md:items-center gap-0.5 md:gap-1.5 order-4 text-right md:text-left">
-                      <span className="md:hidden text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Estado</span>
-                      <span className="inline-flex items-center gap-1.5 self-end md:self-start rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-semibold text-green-700 ring-1 ring-inset ring-green-100">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                        Aprobado
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </>
           )}

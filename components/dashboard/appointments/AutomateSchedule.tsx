@@ -223,6 +223,9 @@ const AutomateSchedule: React.FC<Props> = ({
   const [createAppointmentData, setCreateAppointmentData] = useState<IAppointmentSchedule>();
   const [tutorialModal, setTutorialModal] = useState(false);
   const [bulkAssignModal, setBulkAssignModal] = useState(false);
+  // Mientras la asignacion en lote esta en vuelo el modal queda trabado: cerrarlo
+  // dejaria al usuario sin saber si termino ni que turnos se aplicaron.
+  const [bulkAssignBusy, setBulkAssignBusy] = useState(false);
   const [expiredModal, setExpiredModal] = useState(false);
   const [selectedDay, setSelectedDay] = useState<{ dayName: string; dayNumber: number }>({
     dayName: "LUN",
@@ -841,7 +844,7 @@ const AutomateSchedule: React.FC<Props> = ({
       </Dialog> */}
 
       <Dialog open={eventModal} onOpenChange={() => setEventModal(false)}>
-        <DialogContent className="md:w-[510px] w-[93vw]">
+        <DialogContent className="md:w-[510px] w-[93vw]" hideCloseButton>
           <DialogTitle className="sr-only">Detalle del turno</DialogTitle>
           <ScheduleAppointmentModal
             onDeleteAppointment={(deleted) => {
@@ -956,8 +959,22 @@ const AutomateSchedule: React.FC<Props> = ({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={bulkAssignModal} onOpenChange={() => setBulkAssignModal(false)}>
-        <DialogContent className="sm:w-[560px] w-[93vw] max-h-[90dvh] overflow-y-auto">
+      <Dialog
+        open={bulkAssignModal}
+        onOpenChange={(open) => {
+          if (!open && !bulkAssignBusy) setBulkAssignModal(false);
+        }}
+      >
+        <DialogContent
+          className="sm:w-[560px] w-[93vw] max-h-[90dvh] overflow-y-auto"
+          hideCloseButton={bulkAssignBusy}
+          onInteractOutside={(e) => {
+            if (bulkAssignBusy) e.preventDefault();
+          }}
+          onEscapeKeyDown={(e) => {
+            if (bulkAssignBusy) e.preventDefault();
+          }}
+        >
           <DialogTitle className="sr-only">Asignar profesional y sucursal</DialogTitle>
           <BulkAssignModal
             appointments={appointmentsSchedule}
@@ -978,7 +995,11 @@ const AutomateSchedule: React.FC<Props> = ({
               );
               refreshData();
             }}
-            closeModalF={() => setBulkAssignModal(false)}
+            onBusyChange={setBulkAssignBusy}
+            closeModalF={() => {
+              setBulkAssignBusy(false);
+              setBulkAssignModal(false);
+            }}
           />
         </DialogContent>
       </Dialog>
@@ -1055,7 +1076,10 @@ const AutomateSchedule: React.FC<Props> = ({
               </div>
               {canAssign && (
                 <button
-                  onClick={() => setBulkAssignModal(true)}
+                  onClick={() => {
+                    setBulkAssignBusy(false);
+                    setBulkAssignModal(true);
+                  }}
                   className="flex items-center gap-1.5 h-9 px-3 rounded-lg border border-gray-200 text-gray-600 text-xs font-semibold hover:bg-gray-50 hover:border-orange-300 hover:text-orange-600 transition-colors duration-200 shrink-0"
                   title="Asignar profesional o sucursal a varios turnos"
                 >

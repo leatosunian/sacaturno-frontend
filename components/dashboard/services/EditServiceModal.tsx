@@ -4,12 +4,11 @@ import { useForm } from "react-hook-form";
 import { createServiceSchema } from "@/app/schemas/createServiceSchema";
 import { IService } from "@/interfaces/service.interface";
 import { useEffect, useRef, useState } from "react";
-import { LuSave } from "react-icons/lu";
-import { IoTrashBinOutline } from "react-icons/io5";
-import { Button } from "@/components/ui/button";
+import { LuSave, LuTag, LuTrash2, LuTriangleAlert } from "react-icons/lu";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  DurationPicker, descInput, errorText, fieldLabel, moneyInput, moneyPrefix,
+  moneyRow, titleInput,
+} from "./serviceFormUI";
 
 interface formInputs {
   name: string | undefined;
@@ -33,19 +32,27 @@ interface props {
   }) => void;
 }
 
-const inputClass = "h-9 w-full rounded-md border border-gray-200 bg-gray-50 px-3 text-sm transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none focus:bg-gray-100 placeholder:text-gray-400";
-const labelClass = "text-xs font-medium text-gray-600";
-const errorClass = "text-xs text-red-500 mt-0.5";
+const DURATIONS = [15, 20, 30, 40, 45, 60, 75, 90, 120];
 
 const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteService, serviceData }) => {
   const {
-    register, handleSubmit, setValue, reset, trigger,
+    register, handleSubmit, setValue, reset, trigger, watch,
     formState: { errors, isDirty },
   } = useForm<formInputs>({ resolver: zodResolver(createServiceSchema) });
 
   const [priceDisplay, setPriceDisplay] = useState<string>("");
   const [depositDisplay, setDepositDisplay] = useState<string>("");
+  const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
   const descRef = useRef<HTMLTextAreaElement | null>(null);
+  const duration = watch("duration");
+  const price = watch("price");
+  const deposit = watch("depositAmount");
+  const depositShare = price && deposit ? Math.round((deposit / price) * 100) : null;
+  // El campo también se muestra sin Mercado Pago vinculado cuando el servicio ya
+  // tiene una seña guardada: si no, no habría manera de ponerla en cero desde el
+  // panel y el servicio se queda sin poder reservarse.
+  const showDeposit = mpLinked || (serviceData?.depositAmount ?? 0) > 0;
+  const depositBlocksBooking = !mpLinked && (deposit ?? 0) > 0;
 
   useEffect(() => {
     reset({
@@ -59,6 +66,7 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
     setDepositDisplay(
       serviceData?.depositAmount ? serviceData.depositAmount.toLocaleString("es-AR") : ""
     );
+    setConfirmDelete(false);
     setTimeout(() => {
       if (descRef.current) {
         descRef.current.style.height = "auto";
@@ -89,153 +97,179 @@ const EditServiceModal: React.FC<props> = ({ mpLinked, onEditService, onDeleteSe
     // cuerpo. Antes este modal no tenía tope de alto y en pantallas bajas se
     // desbordaba del viewport dejando los botones fuera de alcance.
     <div className="flex flex-col w-full min-h-0">
-      <div className="shrink-0 px-6 pt-6 pb-4 pr-12 border-b border-gray-100 flex flex-col gap-1">
-        <h4 className="text-lg leading-none font-semibold text-gray-800">Editar servicio</h4>
+      <div className="shrink-0 px-6 pt-6 pb-4 pr-12 border-b border-gray-100 flex items-center gap-3">
+        <span className="flex items-center justify-center w-9 h-9 rounded-lg bg-orange-50 text-orange-600 shrink-0">
+          <LuTag size={17} />
+        </span>
+        <div className="flex flex-col min-w-0">
+          <h4 className="text-lg leading-none font-semibold text-gray-800">Editar servicio</h4>
+          <p className="text-xs text-gray-400 mt-1 truncate">{serviceData?.name}</p>
+        </div>
       </div>
 
       <form
         onSubmit={handleSubmit(editService)}
-        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-6 py-4 flex flex-col gap-4"
+        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-6 py-5 flex flex-col gap-5 2xl:gap-6"
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-3 min-w-0">
-            <div className="flex flex-col gap-1">
-              <label className={labelClass}>Nombre</label>
+        <div className="flex flex-col gap-1">
+          <label className={fieldLabel}>Nombre</label>
+          <input
+            type="text"
+            maxLength={30}
+            className={titleInput}
+            {...register("name")}
+          />
+          {errors.name?.message && <span className={errorText}>{errors.name.message}</span>}
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className={fieldLabel}>Descripción</label>
+          <textarea
+            className={descInput}
+            rows={2}
+            maxLength={140}
+            placeholder="Describí el servicio brevemente"
+            ref={(el) => { descRegisterRef(el); descRef.current = el; }}
+            onInput={(e) => {
+              const el = e.currentTarget;
+              el.style.height = "auto";
+              el.style.height = el.scrollHeight + "px";
+            }}
+            {...descRegister}
+          />
+          {errors.description?.message && (
+            <span className={errorText}>{errors.description.message}</span>
+          )}
+        </div>
+
+        {/* Los importes van en cuerpo grande: en mobile se apilan para que un
+            precio de siete cifras no quede apretado contra la seña. */}
+        <div className={`grid gap-5 ${showDeposit ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
+          <div className="flex flex-col gap-1 min-w-0">
+            <label className={fieldLabel}>Precio</label>
+            <div className={moneyRow}>
+              <span className={moneyPrefix}>$</span>
               <input
                 type="text"
-                maxLength={30}
-                className={inputClass}
-                {...register("name")}
-              />
-              {errors.name?.message && <span className={errorClass}>{errors.name.message}</span>}
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className={labelClass}>Descripción</label>
-              <textarea
-                className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm transition-all duration-200 ease-in-out hover:border-orange-600 focus:border-orange-600 focus:outline-none focus:bg-gray-100 resize-none overflow-hidden placeholder:text-gray-400"
-                rows={4}
-                maxLength={140}
-                placeholder="Describí el servicio brevemente"
-                ref={(el) => { descRegisterRef(el); descRef.current = el; }}
-                onInput={(e) => {
-                  const el = e.currentTarget;
-                  el.style.height = "auto";
-                  el.style.height = el.scrollHeight + "px";
+                inputMode="numeric"
+                className={moneyInput}
+                placeholder="0"
+                value={priceDisplay}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/\./g, "").replace(/\D/g, "");
+                  setPriceDisplay(raw ? Number(raw).toLocaleString("es-AR") : "");
+                  setValue("price", raw ? Number(raw) : 0, { shouldDirty: true });
+                  // La seña se valida contra el precio: al cambiarlo hay que
+                  // revalidarla para que el cartel aparezca o se vaya solo.
+                  if (depositDisplay) trigger("depositAmount");
                 }}
-                {...descRegister}
               />
-              {errors.description?.message && (
-                <span className={errorClass}>{errors.description.message}</span>
-              )}
             </div>
+            {errors.price?.message && <span className={errorText}>{errors.price.message}</span>}
           </div>
 
-          <div className="flex flex-col gap-3 min-w-0">
-            {/* En mobile precio y seña comparten fila; sin Mercado Pago no hay
-                campo de seña y el precio se queda con todo el ancho. */}
-            <div
-              className={`grid gap-3 sm:grid-cols-1 ${
-                mpLinked ? "grid-cols-2" : "grid-cols-1"
-              }`}
-            >
-              <div className="flex flex-col gap-1">
-                <label className={labelClass}>Precio</label>
-                <div className="flex items-center h-9 rounded-md border border-gray-200 bg-gray-50 px-3 transition-all duration-200 ease-in-out hover:border-orange-600 focus-within:border-orange-600 focus-within:bg-gray-100">
-                  <span className="text-sm text-gray-400 mr-1.5">$</span>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    className="flex-1 min-w-0 bg-transparent outline-none text-sm placeholder:text-gray-400"
-                    placeholder="0"
-                    value={priceDisplay}
-                    onChange={(e) => {
-                      const raw = e.target.value.replace(/\./g, "").replace(/\D/g, "");
-                      setPriceDisplay(raw ? Number(raw).toLocaleString("es-AR") : "");
-                      setValue("price", raw ? Number(raw) : 0, { shouldDirty: true });
-                      // La seña se valida contra el precio: al cambiarlo hay que
-                      // revalidarla para que el cartel aparezca o se vaya solo.
-                      if (depositDisplay) trigger("depositAmount");
-                    }}
-                  />
-                </div>
-                {errors.price?.message && <span className={errorClass}>{errors.price.message}</span>}
+          {showDeposit && (
+            <div className="flex flex-col gap-1 min-w-0">
+              <label className={fieldLabel}>Seña</label>
+              <div className={moneyRow}>
+                <span className={moneyPrefix}>$</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  className={moneyInput}
+                  placeholder="0"
+                  value={depositDisplay}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/\./g, "").replace(/\D/g, "");
+                    setDepositDisplay(raw ? Number(raw).toLocaleString("es-AR") : "");
+                    setValue("depositAmount", raw ? Number(raw) : 0, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
+                  }}
+                />
               </div>
-
-              {mpLinked && (
-                <div className="flex flex-col gap-1">
-                  <label className={labelClass}>Seña</label>
-                  <div className="flex items-center h-9 rounded-md border border-gray-200 bg-gray-50 px-3 transition-all duration-200 ease-in-out hover:border-orange-600 focus-within:border-orange-600 focus-within:bg-gray-100">
-                    <span className="text-sm text-gray-400 mr-1.5">$</span>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      className="flex-1 min-w-0 bg-transparent outline-none text-sm placeholder:text-gray-400"
-                      placeholder="0"
-                      value={depositDisplay}
-                      onChange={(e) => {
-                        const raw = e.target.value.replace(/\./g, "").replace(/\D/g, "");
-                        setDepositDisplay(raw ? Number(raw).toLocaleString("es-AR") : "");
-                        setValue("depositAmount", raw ? Number(raw) : 0, {
-                          shouldDirty: true,
-                          shouldValidate: true,
-                        });
-                      }}
-                    />
-                  </div>
-                  {errors.depositAmount?.message && (
-                    <span className={errorClass}>{errors.depositAmount.message}</span>
-                  )}
-                </div>
+              {errors.depositAmount?.message ? (
+                <span className={errorText}>{errors.depositAmount.message}</span>
+              ) : (
+                depositShare !== null && (
+                  <span className="text-[11px] text-gray-400 mt-1">
+                    {depositShare}% del precio
+                  </span>
+                )
               )}
             </div>
+          )}
+        </div>
 
-            <div className="flex flex-col gap-1">
-              <label className={labelClass}>Duración</label>
-              <Select
-                defaultValue={String(serviceData?.duration ?? 30)}
-                onValueChange={(val) => setValue("duration", Number(val), { shouldDirty: true })}
-              >
-                <SelectTrigger className="h-9 text-sm border-gray-200 bg-gray-50 hover:border-orange-600 focus:ring-0 focus:border-orange-600 transition-all duration-200">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {[15, 20, 30, 40, 45, 60, 75, 90, 120].map((minutes) => {
-                    const hours = Math.floor(minutes / 60);
-                    const mins = minutes % 60;
-                    const label =
-                      hours > 0
-                        ? mins > 0 ? `${hours}h ${mins}min` : `${hours} hora${hours > 1 ? "s" : ""}`
-                        : `${mins} min`;
-                    return (
-                      <SelectItem key={minutes} value={String(minutes)} className="text-sm">
-                        {label}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            </div>
+        {depositBlocksBooking && (
+          <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 -mt-2">
+            <LuTriangleAlert size={13} className="text-amber-600 mt-0.5 shrink-0" />
+            <p className="text-[11px] text-amber-700 leading-snug">
+              Este servicio pide seña pero no tenés Mercado Pago vinculado: nadie
+              va a poder reservarlo hasta que lo vincules o dejes la seña en 0.
+            </p>
           </div>
+        )}
+
+        <div className="flex flex-col gap-2">
+          <label className={fieldLabel}>Duración</label>
+          <DurationPicker
+            value={duration}
+            options={DURATIONS}
+            onChange={(minutes) => setValue("duration", minutes, { shouldDirty: true })}
+          />
         </div>
 
         <button type="submit" className="inputSubmitField hidden" />
       </form>
 
-      <div className="shrink-0 flex justify-center w-full gap-3 px-6 pb-6 pt-4 border-t border-gray-100">
-        <Button
-          className="flex-1 h-11 text-white bg-red-600 hover:bg-red-700"
-          onClick={() => onDeleteService(serviceData?._id)}
-        >
-          <IoTrashBinOutline size={18} /> Eliminar
-        </Button>
-        <Button
-          disabled={!isDirty}
-          className="flex-1 h-11 text-white bg-primary hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary"
-          onClick={handleSubmitClick}
-        >
-          <LuSave size={18} /> Guardar
-        </Button>
+      {/* Eliminar baja de jerarquía: es un link discreto, no la mitad del pie, y
+          pide confirmación en el lugar antes de borrar. */}
+      <div className="shrink-0 px-6 pb-6 pt-4 border-t border-gray-100">
+        {!confirmDelete ? (
+          <div className="flex items-center justify-between gap-3">
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-red-600 transition-colors duration-200 cursor-pointer"
+              onClick={() => setConfirmDelete(true)}
+            >
+              <LuTrash2 size={14} /> Eliminar
+            </button>
+            <button
+              type="button"
+              disabled={!isDirty}
+              className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-orange-500 text-white text-sm font-semibold px-8 py-2.5 rounded-lg transition-all duration-300 ease-in-out cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary"
+              onClick={handleSubmitClick}
+            >
+              <LuSave size={16} /> Guardar
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2 rounded-lg border border-red-100 bg-red-50 px-4 py-3">
+            <p className="text-xs text-red-600 text-center font-medium">
+              ¿Eliminar <strong>{serviceData?.name}</strong>? Los turnos ya
+              reservados lo conservan, pero deja de estar disponible para nuevas
+              reservas.
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                className="flex-1 h-8 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs font-semibold transition-all duration-200 ease-in-out cursor-pointer"
+                onClick={() => setConfirmDelete(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="flex-1 h-8 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition-all duration-200 ease-in-out cursor-pointer"
+                onClick={() => onDeleteService(serviceData?._id)}
+              >
+                Confirmar eliminación
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
