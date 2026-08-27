@@ -276,6 +276,21 @@ export interface FormattedAppointment {
 type ActiveStep = "service" | "branch" | "employee" | "date" | "confirm";
 type WizardStep = ActiveStep | "done";
 
+// Fases del envío: el overlay de carga vive acá, no en el botón, para que el
+// salto del último paso a la pantalla final tenga un estado intermedio visible.
+type BookingPhase = "idle" | "sending" | "confirmed" | "leaving";
+
+// Piso de permanencia del overlay: sin esto una respuesta rápida lo deja en un
+// parpadeo que se lee como un glitch en vez de como "se está guardando".
+const BOOKING_MIN_SENDING_MS = 700;
+const BOOKING_CONFIRMED_HOLD_MS = 750;
+// Cuánto tarda el velo en disolverse ya con la pantalla final montada detrás.
+// Tiene que coincidir con .booking-overlay-out en globals.css.
+const BOOKING_LEAVE_MS = 450;
+
+const sleep = (ms: number) =>
+  ms > 0 ? new Promise((r) => setTimeout(r, ms)) : Promise.resolve();
+
 const STEP_LABELS: Record<ActiveStep, string> = {
   service: "Servicio",
   branch: "Sucursal",
@@ -342,7 +357,8 @@ export default function ListBookAppointment({
 
   // ── Wizard state ──
   const [wizardStep, setWizardStep] = useState<WizardStep>("service");
-  const [bookingSpinner, setBookingSpinner] = useState(false);
+  const [bookingPhase, setBookingPhase] = useState<BookingPhase>("idle");
+  const bookingSpinner = bookingPhase !== "idle";
   const [bookingError, setBookingError] = useState("");
   const [logoFailed, setLogoFailed] = useState(false);
 
@@ -627,7 +643,8 @@ export default function ListBookAppointment({
   // ── Booking API ──
   const bookWithoutDeposit = async (formData: FormInputs) => {
     if (!selectedSlot) return;
-    setBookingSpinner(true);
+    setBookingPhase("sending");
+    const startedAt = Date.now();
     try {
       await axiosReq.put("/appointment/book", {
         _id: selectedSlot._id,
@@ -641,7 +658,17 @@ export default function ListBookAppointment({
         // entró por "Cualquier especialista" y le tocó de casualidad.
         employeeChosenByClient: selectedEmployee !== null,
       });
+      // El turno ya quedó reservado: lo que sigue es sólo el ritmo del overlay
+      // (piso de "guardando" + confirmación) antes de dar paso a la pantalla final.
+      await sleep(BOOKING_MIN_SENDING_MS - (Date.now() - startedAt));
+      setBookingPhase("confirmed");
+      await sleep(BOOKING_CONFIRMED_HOLD_MS);
+      // La pantalla final se monta detrás del velo todavía opaco y recién ahí
+      // el velo se disuelve: sin esto el swap deja un frame con el fondo pelado.
       setWizardStep("done");
+      setBookingPhase("leaving");
+      await sleep(BOOKING_LEAVE_MS);
+      setBookingPhase("idle");
       router.refresh();
     } catch (error: any) {
       if (error?.response?.status === 409) {
@@ -652,14 +679,13 @@ export default function ListBookAppointment({
       } else {
         setBookingError("Error al reservar. Intentá de nuevo.");
       }
-    } finally {
-      setBookingSpinner(false);
+      setBookingPhase("idle");
     }
   };
 
   const bookWithDeposit = async (formData: FormInputs) => {
     if (!selectedSlot) return;
-    setBookingSpinner(true);
+    setBookingPhase("sending");
     try {
       const res = await axiosReq.post("/mp/deposit/create-preference", {
         appointmentID: selectedSlot._id,
@@ -685,7 +711,7 @@ export default function ListBookAppointment({
             : "No se pudo generar el pago. Intentá de nuevo.",
         );
       }
-      setBookingSpinner(false);
+      setBookingPhase("idle");
     }
   };
 
@@ -1280,8 +1306,15 @@ export default function ListBookAppointment({
                   href={summaryMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="shrink-0 whitespace-nowrap text-[11px] 2xl:text-xs font-bold text-primary border border-primary/25 hover:bg-primary/5 hover:border-primary/40 px-2.5 py-1.5 rounded-full transition-all"
+                  aria-label={`Cómo llegar a ${summaryPlaceName || summaryAddress} — abrir en Google Maps`}
+                  title="Abrir en Google Maps"
+                  className="group shrink-0 whitespace-nowrap flex items-center gap-1.5 pl-1 pr-2.5 py-1 rounded-full border border-primary/25 bg-white text-[11px] 2xl:text-xs font-bold text-orange-800 hover:border-primary/40 hover:bg-orange-50/60 transition-all"
                 >
+                  {/* Recorte de mapa: contiene la impronta cartográfica en 22px
+                      en vez de teñir el chip entero, que rompía la armonía cálida. */}
+                  <span className="maps-chip-tile flex items-center justify-center size-[22px] 2xl:size-6 rounded-md shrink-0 transition-transform group-hover:scale-105">
+                    <MapPin className="size-3 text-primary" strokeWidth={2.5} />
+                  </span>
                   Cómo llegar
                 </a>
               )}
@@ -1498,76 +1531,153 @@ export default function ListBookAppointment({
     </div>
   );
 
+  // Overlay de envío: tapa la tarjeta entera (barra de pasos incluida) para que
+  // el salto del último paso a "Turno reservado" tenga un estado intermedio
+  // visible, y de paso bloquea cualquier reenvío mientras el turno se guarda.
+  // La `key` por fase hace que el cambio spinner → check reproduzca su animación.
+  const bookingOverlay =
+    bookingPhase === "idle" ? null : (
+      <div
+        role="status"
+        aria-live="polite"
+        className={cn(
+          "booking-overlay fixed inset-0 z-50 flex flex-col items-center justify-center px-6 text-center bg-white/95 backdrop-blur-[3px]",
+          bookingPhase === "leaving" && "booking-overlay-out",
+        )}
+      >
+        <div
+          key={bookingPhase === "sending" ? "sending" : "confirmed"}
+          className="booking-overlay-content flex flex-col items-center gap-5"
+        >
+          <div className="relative size-16">
+            {/* El spinner queda montado y sale por opacidad mientras el check
+                entra encima: si se desmontara de golpe el cambio se vería cortado. */}
+            <div
+              className={cn(
+                "absolute inset-0 transition-opacity duration-300 ease-out",
+                bookingPhase === "sending" ? "opacity-100" : "opacity-0",
+              )}
+            >
+              <div className="absolute inset-0 rounded-full border-[3px] border-primary/15" />
+              <div className="absolute inset-0 rounded-full border-[3px] border-transparent border-t-primary animate-spin" />
+              {requiresDeposit ? (
+                <ExternalLink className="absolute inset-0 m-auto size-6 text-primary" strokeWidth={2.5} />
+              ) : (
+                <CalendarDays className="absolute inset-0 m-auto size-6 text-primary" strokeWidth={2.5} />
+              )}
+            </div>
+
+            {bookingPhase !== "sending" && (
+              <div className="absolute inset-0">
+                <div className="booking-glow absolute inset-0 rounded-full bg-emerald-500/15 blur-2xl" />
+                <div className="booking-ripple absolute inset-0 rounded-full border-2 border-emerald-500/60" />
+                <div className="booking-badge absolute inset-0 rounded-full bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center">
+                  <Check className="booking-check size-8 text-emerald-600" strokeWidth={3} />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5 max-w-xs">
+            <p className="text-lg md:text-xl font-black tracking-tight text-neutral-900">
+              {bookingPhase === "confirmed"
+                ? "¡Listo!"
+                : requiresDeposit
+                  ? "Te llevamos a Mercado Pago"
+                  : "Confirmando tu reserva"}
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {bookingPhase === "confirmed"
+                ? "Tu turno quedó reservado."
+                : requiresDeposit
+                  ? "Estamos preparando el pago de la seña. No cierres esta ventana."
+                  : "Estamos guardando el turno a tu nombre. No cierres esta ventana."}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+
   // ── Done screen ──────────────────────────────────────────────
   if (wizardStep === "done") {
     return (
       <div className="flex flex-col w-full min-h-screen" style={{ background: "radial-gradient(ellipse 65% 55% at 12% 88%, rgba(255, 180, 110, 0.42) 0%, transparent 100%), radial-gradient(ellipse 55% 50% at 88% 12%, rgba(255, 140, 90, 0.32) 0%, transparent 100%), radial-gradient(ellipse 45% 40% at 65% 78%, rgba(255, 210, 160, 0.24) 0%, transparent 100%), #fff8f3" }}>
-        <main className="flex flex-col flex-1 w-full max-w-7xl pt-[68px] md:pt-[84px] pb-4 mx-auto px-4 md:px-8 md:pb-6">
-          <div className="rounded-3xl bg-white overflow-hidden shadow-2xl border border-orange-100/70">
+        <main className="flex flex-col flex-1 w-full max-w-[1200px] 2xl:max-w-7xl pt-[68px] md:pt-[84px] pb-4 md:pb-[84px] mx-auto px-4 md:px-8">
+          <div className="booking-screen-in rounded-3xl bg-white overflow-hidden shadow-2xl border border-orange-100/70 flex flex-col flex-1 md:flex-initial md:my-auto">
             <BusinessHeaderStrip />
-            <div className="flex flex-col w-fit mx-auto items-center gap-6 py-16 md:py-20 px-6">
-              <div className="relative">
-                <div className="booking-glow absolute inset-0 rounded-full bg-emerald-500/15 blur-2xl" />
-                <div className="booking-ripple absolute inset-0 rounded-full border-2 border-emerald-500/60" />
-                <div
-                  className="booking-ripple absolute inset-0 rounded-full border-2 border-emerald-500/40"
-                  style={{ animationDelay: "0.3s" }}
-                />
-                <div className="booking-badge relative size-16 rounded-full bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center">
-                  <Check className="booking-check text-emerald-600 size-8" strokeWidth={3} />
+            {/* En mobile es una columna (mensaje → resumen → recordatorio + CTA).
+                En desktop pasa a dos columnas: el mensaje y las acciones a la
+                izquierda, el resumen a la derecha, para no apilar medio metro
+                de alto en pantallas anchas. */}
+            <div className="mx-auto w-full max-w-[30rem] flex flex-col gap-5 px-5 py-8 md:px-8 md:py-10 lg:max-w-none lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,23rem)] 2xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:grid-rows-[auto_auto] lg:items-start lg:gap-x-10 lg:gap-y-6 lg:px-10 lg:py-12 2xl:px-14">
+              {/* Mensaje */}
+              <div className="flex flex-col items-center text-center gap-3 lg:col-start-1 lg:row-start-1 lg:items-start lg:text-left">
+                <div className="relative shrink-0">
+                  <div className="booking-glow absolute inset-0 rounded-full bg-emerald-500/15 blur-2xl" />
+                  <div className="booking-ripple absolute inset-0 rounded-full border-2 border-emerald-500/60" />
+                  <div
+                    className="booking-ripple absolute inset-0 rounded-full border-2 border-emerald-500/40"
+                    style={{ animationDelay: "0.3s" }}
+                  />
+                  <div className="booking-badge relative size-14 md:size-16 rounded-full bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center">
+                    <Check className="booking-check text-emerald-600 size-7 md:size-8" strokeWidth={3} />
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex flex-col items-center gap-3 max-w-md">
                 <h2
-                  className="booking-rise text-2xl md:text-3xl font-black tracking-tight text-neutral-900"
-                  style={{ "--rise-delay": "0.45s" } as React.CSSProperties}
+                  className="booking-rise text-[26px] md:text-3xl 2xl:text-4xl font-black tracking-tight text-neutral-900 leading-none mt-1"
+                  style={{ "--rise-delay": "0.18s" } as React.CSSProperties}
                 >
                   Turno reservado
                 </h2>
                 <p
-                  className="booking-rise text-base text-muted-foreground text-center leading-relaxed"
-                  style={{ "--rise-delay": "0.55s" } as React.CSSProperties}
+                  className="booking-rise text-sm md:text-base text-muted-foreground leading-relaxed max-w-md"
+                  style={{ "--rise-delay": "0.26s" } as React.CSSProperties}
                 >
                   Te enviamos los datos de la reserva a tu email. Si no lo ves, chequeá tu carpeta de correo no deseado.
                 </p>
               </div>
 
+              {/* Resumen */}
               <BookingSummary
-                className="booking-rise w-full max-w-md mt-2 text-left"
-                style={{ "--rise-delay": "0.68s" } as React.CSSProperties}
+                className="booking-rise w-full text-left lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:self-center"
+                style={{ "--rise-delay": "0.34s" } as React.CSSProperties}
               />
 
-              <div
-                className="booking-rise w-full max-w-md flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3 text-left"
-                style={{ "--rise-delay": "0.8s" } as React.CSSProperties}
-              >
-                <div className="mt-0.5 shrink-0 size-8 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center">
-                  <Clock className="size-4 text-amber-700" strokeWidth={2.5} />
+              {/* Recordatorio + acción */}
+              <div className="flex flex-col gap-4 lg:col-start-1 lg:row-start-2">
+                <div
+                  className="booking-rise flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/70 px-3.5 py-3 text-left md:px-4"
+                  style={{ "--rise-delay": "0.42s" } as React.CSSProperties}
+                >
+                  <div className="mt-0.5 shrink-0 size-7 md:size-8 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center">
+                    <Clock className="size-3.5 md:size-4 text-amber-700" strokeWidth={2.5} />
+                  </div>
+                  <div className="flex flex-col gap-0.5 min-w-0">
+                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-amber-800">
+                      Recordatorio
+                    </span>
+                    <p className="text-[13px] md:text-sm text-amber-900/90 leading-snug md:leading-relaxed">
+                      Por favor, llegá con anticipación al horario de inicio. La puntualidad es clave para que todo salga bien. ¡Nos vemos pronto!
+                    </p>
+                  </div>
                 </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-xs font-bold uppercase tracking-wider text-amber-800">
-                    Recordatorio
-                  </span>
-                  <p className="text-sm text-amber-900/90 leading-relaxed">
-                    Por favor, llegá con anticipación al horario de inicio. La puntualidad es clave para que todo salga bien. ¡Nos vemos pronto!
-                  </p>
-                </div>
-              </div>
 
-              <button
-                onClick={() => {
-                  setWizardStep("service");
-                  setSelectedSlot(null);
-                }}
-                className="booking-rise mt-2 w-full xs:w-fit h-11 px-6 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-bold shadow-md hover:shadow-lg transition-all"
-                style={{ "--rise-delay": "0.92s" } as React.CSSProperties}
-              >
-                Reservar otro turno
-              </button>
+                <button
+                  onClick={() => {
+                    setWizardStep("service");
+                    setSelectedSlot(null);
+                  }}
+                  className="booking-rise w-full lg:w-fit h-11 2xl:h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-bold shadow-md hover:shadow-lg transition-all"
+                  style={{ "--rise-delay": "0.5s" } as React.CSSProperties}
+                >
+                  Reservar otro turno
+                </button>
+              </div>
             </div>
           </div>
         </main>
+        {bookingOverlay}
       </div>
     );
   }
@@ -1727,11 +1837,16 @@ export default function ListBookAppointment({
 
             {/* ── Step content ── */}
             <section className="flex flex-col flex-1 min-w-0 md:min-h-0 px-5 py-3.5 md:p-6 2xl:px-10 2xl:py-6 bg-gradient-to-b from-white to-orange-50/20">
-              {renderStepContent()}
+              {/* La `key` por paso remonta el contenido para que cada avance
+                  entre por opacidad en vez de saltar. */}
+              <div key={wizardStep} className="booking-step-in flex flex-col flex-1 min-h-0">
+                {renderStepContent()}
+              </div>
             </section>
           </div>
         </div>
       </main>
+      {bookingOverlay}
     </div>
   );
 }

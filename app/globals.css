@@ -1085,6 +1085,31 @@ html {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes booking-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes booking-overlay-content {
+  from { opacity: 0; transform: translateY(12px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes booking-screen-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes booking-overlay-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes booking-step-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .booking-badge {
   animation: booking-pop 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
@@ -1107,19 +1132,73 @@ html {
   animation-delay: var(--rise-delay, 0s);
 }
 
+.booking-overlay {
+  animation: booking-overlay-in 0.2s ease-out both;
+}
+
+.booking-overlay-content {
+  animation: booking-overlay-content 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.booking-screen-in {
+  animation: booking-screen-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* El 450ms tiene que coincidir con BOOKING_LEAVE_MS en ListBookAppointment. */
+.booking-overlay-out {
+  animation: booking-overlay-out 0.45s ease-out both;
+  pointer-events: none;
+}
+
+.booking-step-in {
+  animation: booking-step-in 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .booking-badge,
   .booking-glow,
   .booking-ripple,
   .booking-check path,
-  .booking-rise {
+  .booking-rise,
+  .booking-overlay,
+  .booking-overlay-content,
+  .booking-screen-in,
+  .booking-step-in {
     animation: none;
     opacity: 1;
     transform: none;
     stroke-dashoffset: 0;
   }
+
+  /* El shorthand animation:none de .booking-overlay de arriba también
+     aplica acá: hay que reponer el nombre, no sólo acortar la duración, o el
+     velo nunca llega a opacidad 0 y tapa la pantalla final para siempre. */
+  .booking-overlay-out {
+    animation: booking-overlay-out 0.12s ease-out both;
+  }
 }
 
+
+/* MINIATURA DE MAPA DEL CHIP "CÓMO LLEGAR" (public /[slug])
+   Recorte de mapa de 22px: papel, una avenida en diagonal y una retícula fina
+   de calles. La impronta cartográfica se contiene acá adentro en vez de teñir
+   el chip entero, que rompía la armonía cálida de la tarjeta. Los tonos van en
+   CSS y no en clases de Tailwind porque son colores de mapa, no de la paleta. */
+
+.maps-chip-tile {
+  background-color: #f4f1ea;
+  background-image:
+    linear-gradient(
+      125deg,
+      transparent 47%,
+      rgba(255, 255, 255, 0.95) 47%,
+      rgba(255, 255, 255, 0.95) 53%,
+      transparent 53%
+    ),
+    linear-gradient(0deg, rgba(255, 255, 255, 0.75) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.75) 1px, transparent 1px);
+  background-size: 100% 100%, 5px 5px, 5px 5px;
+}
 
 /* CALENDAR APPOINTMENT STATES (admin: CalendarTurnos / AutomateSchedule) */
 
