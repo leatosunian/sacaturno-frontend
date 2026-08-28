@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ShimmerButton } from "@/components/ui/ShimmerButton";
-import mockup from "@/public/macbook_mockup.png";
+import HeroMockup from "./HeroMockup";
+import HeroMockupMobile, {
+  HERO_MOCKUP_AIR,
+  HERO_MOCKUP_PEEK,
+} from "./HeroMockupMobile";
 import {
   leftContainerVariants,
   badgeVariants,
@@ -169,119 +172,143 @@ const HeroSection = () => {
   const v = prefersReducedMotion ? noMotionVariant : undefined; // undefined = use declared variants
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
-      <AnimatedBg />
+    <>
+      <section
+        className="relative min-h-screen flex items-center overflow-hidden"
+        style={
+          {
+            "--hero-peek-pb": `${HERO_MOCKUP_PEEK + HERO_MOCKUP_AIR}px`,
+          } as React.CSSProperties
+        }
+      >
+        <AnimatedBg />
 
-      {/* Overlay */}
-      <div
-        className="absolute inset-0 pointer-events-none z-[1]"
-        style={{
-          background:
-            "linear-gradient(135deg,rgba(255,255,255,0.72) 0%,rgba(255,255,255,0.48) 40%,rgba(255,255,255,0.18) 70%,rgba(255,255,255,0.05) 100%)",
-        }}
-      />
+        {/* Overlay */}
+        <div
+          className="absolute inset-0 pointer-events-none z-[1]"
+          style={{
+            background:
+              "linear-gradient(135deg,rgba(255,255,255,0.72) 0%,rgba(255,255,255,0.48) 40%,rgba(255,255,255,0.18) 70%,rgba(255,255,255,0.05) 100%)",
+          }}
+        />
 
-      {/* Dot grid */}
-      <div
-        className="absolute inset-0 pointer-events-none z-[2]"
-        style={{
-          backgroundImage:
-            "radial-gradient(rgba(128,128,128,0.22) 1px,transparent 1px)",
-          backgroundSize: "22px 22px",
-          maskImage:
-            "radial-gradient(ellipse 90% 90% at 50% 50%,black 20%,transparent 80%)",
-          WebkitMaskImage:
-            "radial-gradient(ellipse 90% 90% at 50% 50%,black 20%,transparent 80%)",
-        }}
-      />
+        {/* Dot grid */}
+        <div
+          className="absolute inset-0 pointer-events-none z-[2]"
+          style={{
+            backgroundImage:
+              "radial-gradient(rgba(128,128,128,0.22) 1px,transparent 1px)",
+            backgroundSize: "22px 22px",
+            maskImage:
+              "radial-gradient(ellipse 90% 90% at 50% 50%,black 20%,transparent 80%)",
+            WebkitMaskImage:
+              "radial-gradient(ellipse 90% 90% at 50% 50%,black 20%,transparent 80%)",
+          }}
+        />
 
-      {/* Bottom fade */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-[180px] pointer-events-none z-[3]"
-        style={{ background: "linear-gradient(transparent, #fdf0e8)" }}
-      />
+        {/* Bottom fade */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[180px] pointer-events-none z-[3]"
+          style={{ background: "linear-gradient(transparent, #fdf0e8)" }}
+        />
 
-      {/* Content */}
-      <div className="relative z-[4] justify-between max-w-[1300px] 2xl:max-w-[1400px] mx-auto px-6 2xl:px-0 pt-[80px] 2xl:pt-[110px] pb-12 2xl:pb-16 flex items-center w-full flex-wrap lg:flex-nowrap">
-        {/* ── Left column ── */}
-        <motion.div
-          className="w-full flex-col flex gap-3 sm:gap-0 lg:w-fit"
-          variants={v ?? leftContainerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {/* Badge */}
+        {/* En mobile la hoja monta sobre el borde inferior del hero pero no cubre
+          las franjas laterales: sin esto queda una costura durazno/blanco justo
+          ahí, contra el blanco de Features. */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[120px] pointer-events-none z-[3] lg:hidden"
+          style={{ background: "linear-gradient(transparent, #ffffff)" }}
+        />
+
+        {/* Content */}
+        {/* En mobile el padding inferior reserva lo que la maqueta monta sobre
+            el hero más un poco de aire, para que el texto no se le encime. */}
+        {/* Debajo de 2xl el contenedor va a 1200/px-8 igual que HeaderPublic,
+            Footer y Sectors: con 1300/px-6 el H1 arrancaba a la izquierda del
+            logo y toda la sección se leía más ancha que el resto de la home. */}
+        <div className="relative z-[4] justify-between max-w-[1200px] 2xl:max-w-[1400px] mx-auto px-6 lg:px-8 2xl:px-0 pt-[80px] 2xl:pt-[110px] pb-[var(--hero-peek-pb)] lg:pb-12 2xl:pb-16 flex items-center w-full flex-wrap lg:flex-nowrap">
+          {/* ── Left column ── */}
           <motion.div
-            variants={v ?? badgeVariants}
-            className="inline-flex items-center gap-[7px] px-3 2xl:px-4 py-1 2xl:py-[6px] rounded-full bg-[#fff1e8] w-fit border border-[rgba(221,73,36,0.18)] text-[#dd4924] text-[10px] 2xl:text-[12px] font-bold tracking-[0.5px] uppercase mb-5 2xl:mb-7 backdrop-blur-sm"
+            className="w-full flex-col flex gap-3 sm:gap-0 lg:w-fit"
+            variants={v ?? leftContainerVariants}
+            initial="hidden"
+            animate="visible"
           >
-            {/* <span className="w-[5px] h-[5px] 2xl:w-[7px] 2xl:h-[7px] rounded-full bg-[#4bc720] shadow-[0_0_0_3px_rgba(75,199,32,0.2)] shrink-0" /> */}
-            15 días gratis · sin tarjeta
-          </motion.div>
-
-          {/* H1 — each line animates independently via stagger from container */}
-          <h1 className="text-[clamp(42px,4.5vw,58px)] 2xl:text-[72px] leading-[1.0] tracking-[-1.5px] 2xl:tracking-[-3px] text-[#1a1a1a] mb-5 2xl:mb-7">
-            <motion.span
-              variants={v ?? h1LineVariants}
-              className="block font-medium"
+            {/* Badge */}
+            <motion.div
+              variants={v ?? badgeVariants}
+              className="inline-flex items-center gap-[7px] px-3 2xl:px-4 py-1 2xl:py-[6px] rounded-full bg-[#fff1e8] w-fit border border-[rgba(221,73,36,0.18)] text-[#dd4924] text-[10px] 2xl:text-[12px] font-bold tracking-[0.5px] uppercase mb-5 2xl:mb-7 backdrop-blur-sm"
             >
-              Automatizá tus
-            </motion.span>
-            <motion.span
-              variants={v ?? h1LineVariants}
-              className="block font-medium"
-            >
-              reservas,
-            </motion.span>
-            <motion.span
-              variants={v ?? h1LineVariants}
-              className="block font-bold"
-            >
-              tu tiempo <span className="text-[#dd4924]">vale</span>.
-            </motion.span>
-          </h1>
-
-          {/* Paragraph */}
-          <motion.p
-            variants={v ?? paragraphVariants}
-            className="text-[16px] 2xl:text-[18px] font-normal text-[#5a5a5a] leading-[1.65] max-w-[400px] 2xl:max-w-[520px] mb-7 2xl:mb-10"
-          >
-            La plataforma que usan +250 negocios argentinos para tener su propia
-            página de reservas online y recibir turnos las 24hs. Tu agenda
-            automática lista en 5 minutos.
-          </motion.p>
-
-          {/* CTAs */}
-          <motion.div
-            variants={v ?? ctaContainerVariants}
-            className="flex items-center gap-3 flex-wrap mb-8 2xl:mb-12"
-          >
-            <motion.div variants={v ?? ctaItemVariants}>
-              <ShimmerButton
-                primary
-                href="/register"
-                className="px-4 2xl:px-7 py-3 2xl:py-4 rounded-[9px] 2xl:rounded-[12px] font-semibold  text-[13px] 2xl:text-[16px]"
-              >
-                Empezar gratis
-                <FaArrowRight className="block md:hidden ml-1" size={13} />
-                <FaArrowRight
-                  className="hidden md:block ml-2 2xl:hidden"
-                  size={14}
-                />
-                <FaArrowRight className="hidden 2xl:block ml-2" size={16} />
-              </ShimmerButton>
+              {/* <span className="w-[5px] h-[5px] 2xl:w-[7px] 2xl:h-[7px] rounded-full bg-[#4bc720] shadow-[0_0_0_3px_rgba(75,199,32,0.2)] shrink-0" /> */}
+              15 días gratis · sin tarjeta
             </motion.div>
-            <motion.div variants={v ?? ctaItemVariants}>
-              <Link
-                href="/login"
-                className="bg-white/60 text-[#1a1a1a] border-[1.5px] border-black/[0.08] px-5 2xl:px-7 py-[13px] 2xl:py-[18px] rounded-[9px] 2xl:rounded-[12px] text-[13px] 2xl:text-[16px] font-semibold hover:bg-white/90 transition-colors backdrop-blur-sm"
-              >
-                Iniciar sesión
-              </Link>
-            </motion.div>
-          </motion.div>
 
-          {/* <figure
+            {/* H1 — each line animates independently via stagger from container */}
+            {/* Tope en 52 y no 58: entre lg y xl el título competía con la
+                maqueta en vez de acompañarla. Mobile no cambia (el piso de 42
+                manda hasta ~1050px) y 2xl sigue en 72. */}
+            <h1 className="text-[clamp(42px,4vw,52px)] 2xl:text-[72px] leading-[1.0] tracking-[-1.5px] 2xl:tracking-[-3px] text-[#1a1a1a] mb-5 2xl:mb-7">
+              <motion.span
+                variants={v ?? h1LineVariants}
+                className="block font-medium"
+              >
+                Automatizá tus
+              </motion.span>
+              <motion.span
+                variants={v ?? h1LineVariants}
+                className="block font-medium"
+              >
+                reservas,
+              </motion.span>
+              <motion.span
+                variants={v ?? h1LineVariants}
+                className="block font-bold"
+              >
+                tu tiempo <span className="text-[#dd4924]">vale</span>.
+              </motion.span>
+            </h1>
+
+            {/* Paragraph */}
+            <motion.p
+              variants={v ?? paragraphVariants}
+              className="text-[16px] 2xl:text-[18px] font-normal text-[#5a5a5a] leading-[1.65] max-w-[400px] 2xl:max-w-[520px] mb-7 2xl:mb-10"
+            >
+              La plataforma que usan +250 negocios argentinos para tener su
+              propia página de reservas online y recibir turnos las 24hs. Tu
+              agenda automática lista en 5 minutos.
+            </motion.p>
+
+            {/* CTAs */}
+            <motion.div
+              variants={v ?? ctaContainerVariants}
+              className="flex items-center gap-3 flex-wrap mb-0 lg:mb-8 2xl:mb-12"
+            >
+              <motion.div variants={v ?? ctaItemVariants}>
+                <ShimmerButton
+                  primary
+                  href="/register"
+                  className="px-4 2xl:px-7 py-3 2xl:py-4 rounded-[9px] 2xl:rounded-[12px] font-semibold  text-[13px] 2xl:text-[16px]"
+                >
+                  Empezar gratis
+                  <FaArrowRight className="block md:hidden ml-1" size={13} />
+                  <FaArrowRight
+                    className="hidden md:block ml-2 2xl:hidden"
+                    size={14}
+                  />
+                  <FaArrowRight className="hidden 2xl:block ml-2" size={16} />
+                </ShimmerButton>
+              </motion.div>
+              <motion.div variants={v ?? ctaItemVariants}>
+                <Link
+                  href="/login"
+                  className="bg-white/60 text-[#1a1a1a] border-[1.5px] border-black/[0.08] px-5 2xl:px-7 py-[13px] 2xl:py-[18px] rounded-[9px] 2xl:rounded-[12px] text-[13px] 2xl:text-[16px] font-semibold hover:bg-white/90 transition-colors backdrop-blur-sm"
+                >
+                  Iniciar sesión
+                </Link>
+              </motion.div>
+            </motion.div>
+
+            {/* <figure
             role="figure"
             aria-label="Reseña de Laura, peluquería en Buenos Aires"
             className="flex items-start gap-[14px] mt-7 max-w-[460px] rounded-[14px] border border-black/[0.08] bg-white/70 backdrop-blur-[10px] shadow-[0_8px_24px_rgba(0,0,0,0.04)]"
@@ -317,30 +344,27 @@ const HeroSection = () => {
               </figcaption>
             </div>
           </figure> */}
-        </motion.div>
+          </motion.div>
 
-        {/* ── Right column (mockup) ── */}
-        <motion.div
-          className="w-full lg:w-[55%] flex items-center justify-center"
-          variants={v ?? mockupVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {/*
-            priority ensures Next.js preloads this image — combined with
-            opacity starting at 0.4 (not 0), the browser sees a painted
-            LCP candidate immediately rather than waiting for the animation.
-          */}
-          <Image
-            src={mockup}
-            className="hidden lg:block w-full"
-            width={620}
-            alt="Vista previa de la app SacaTurno en distintos dispositivos"
-            priority
-          />
-        </motion.div>
-      </div>
-    </section>
+          {/* ── Right column (mockup) ── */}
+          <motion.div
+            className="w-full lg:w-[55%] flex items-center justify-center"
+            variants={v ?? mockupVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {/* Réplica en vivo del wizard de reserva: reemplaza al PNG viejo,
+              que mostraba una UI que ya no existe. */}
+            <HeroMockup className="hidden lg:block" />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Fuera de la <section> a propósito: adentro, su overflow-hidden dejaba
+          la hoja recortada para siempre. Acá monta sobre el hero con margen
+          negativo y sigue hacia abajo hasta mostrarse entera. */}
+      <HeroMockupMobile />
+    </>
   );
 };
 
