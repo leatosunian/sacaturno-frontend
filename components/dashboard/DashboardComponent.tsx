@@ -12,6 +12,8 @@ import {
   LuClock,
   LuX,
   LuRefreshCw,
+  LuChevronDown,
+  LuChevronUp,
 } from "react-icons/lu";
 import { MdOutlineWorkOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
@@ -90,6 +92,8 @@ interface eventType extends IAppointment {
 
 const cardShadow = { boxShadow: "5px 5px 8px hsla(0, 0%, 12%, 0.17)" };
 
+const APPOINTMENTS_PAGE_SIZE = 8;
+
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat("es-AR", {
     style: "currency",
@@ -153,6 +157,9 @@ const DashboardComponent: React.FC<Props> = ({
   );
   // IDs conocidos del render anterior: null en el primer render (nada es "nuevo")
   const knownIdsRef = useRef<Set<string> | null>(null);
+  const [visibleCount, setVisibleCount] = useState<number>(
+    APPOINTMENTS_PAGE_SIZE,
+  );
 
   const stats = businessData?.stats ?? null;
   const employees = businessData?.employees ?? [];
@@ -238,6 +245,17 @@ const DashboardComponent: React.FC<Props> = ({
     knownIdsRef.current = currentIds;
     setNewAppointmentIds(new Set(freshIds));
 
+    // Un turno recién llegado no puede quedar escondido detrás del "cargar más"
+    if (freshIds.length > 0) {
+      const lastFreshIdx = list.reduce(
+        (max, appt, i) => (appt._id && freshIds.includes(appt._id) ? i : max),
+        -1,
+      );
+      if (lastFreshIdx >= 0) {
+        setVisibleCount((prev) => Math.max(prev, lastFreshIdx + 1));
+      }
+    }
+
     setAppointmentsData(list);
     setLoading(false);
   };
@@ -269,6 +287,9 @@ const DashboardComponent: React.FC<Props> = ({
     appointmentsData?.filter((a) => a.depositStatus === "pending").length ?? 0;
   // El empleado sólo cuenta sus propios turnos; el dueño, los de todo el negocio
   const todayPending = isEmployee ? todayCount : stats?.todayRemaining ?? 0;
+
+  const visibleAppointments = appointmentsData?.slice(0, visibleCount) ?? [];
+  const remainingCount = todayCount - visibleAppointments.length;
 
   async function checkFirstLogin() {
     setOpenGuideDialog(false);
@@ -587,43 +608,35 @@ const DashboardComponent: React.FC<Props> = ({
 
           {/* TODAY'S APPOINTMENTS */}
           <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center justify-between gap-2">
               <div className="flex items-baseline gap-2 min-w-0">
-                <span className="text-lg font-semibold">Turnos de hoy</span>
+                <span className="text-lg font-semibold whitespace-nowrap">
+                  Turnos de hoy
+                </span>
                 {!loading && todayCount > 0 && (
-                  <span className="text-xs font-semibold text-gray-400 whitespace-nowrap">
+                  <span className="text-xs font-semibold text-gray-400 whitespace-nowrap truncate">
                     {todayCount} {todayCount === 1 ? "turno" : "turnos"}
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                {!loading && (
-                  <button
-                    type="button"
-                    onClick={handleRefresh}
-                    disabled={isRefreshing}
-                    aria-label="Actualizar turnos"
-                    title="Actualizar turnos"
-                    className="flex items-center justify-center gap-1.5 h-8 min-w-8 px-2.5 text-gray-500 border border-gray-200 rounded-md transition-all duration-200 ease-in-out md:hover:text-primary md:hover:border-orange-300 md:hover:bg-orange-50 disabled:opacity-60 disabled:cursor-not-allowed"
-                  >
-                    <LuRefreshCw
-                      size={13}
-                      className={isRefreshing ? "animate-spin" : ""}
-                    />
-                    <span className="text-xs font-medium whitespace-nowrap">
-                      {isRefreshing ? "Actualizando…" : "Actualizar"}
-                    </span>
-                  </button>
-                )}
-                {!loading && todayCount > 0 && (
-                  <Link
-                    href="/admin/schedule"
-                    className="text-xs font-medium text-primary md:hover:underline whitespace-nowrap"
-                  >
-                    Ver agenda →
-                  </Link>
-                )}
-              </div>
+              {!loading && (
+                <button
+                  type="button"
+                  onClick={handleRefresh}
+                  disabled={isRefreshing}
+                  aria-label="Actualizar turnos"
+                  title="Actualizar turnos"
+                  className="flex items-center justify-center shrink-0 gap-1.5 h-8 min-w-8 px-2.5 text-gray-500 border border-gray-200 rounded-md transition-all duration-200 ease-in-out md:hover:text-primary md:hover:border-orange-300 md:hover:bg-orange-50 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  <LuRefreshCw
+                    size={13}
+                    className={isRefreshing ? "animate-spin" : ""}
+                  />
+                  <span className="text-xs font-medium whitespace-nowrap">
+                    {isRefreshing ? "Actualizando…" : "Actualizar"}
+                  </span>
+                </button>
+              )}
             </div>
 
             <AnimatePresence>
@@ -683,7 +696,7 @@ const DashboardComponent: React.FC<Props> = ({
                   </div>
                 </div>
 
-                {appointmentsData.map((appointment, idx) => {
+                {visibleAppointments.map((appointment, idx) => {
                   const branchName = getBranchName(appointment.branchID);
                   const employeeName = isEmployee
                     ? null
@@ -718,7 +731,7 @@ const DashboardComponent: React.FC<Props> = ({
                             ? "border-l-primary bg-orange-50/40"
                             : "border-l-transparent"
                       } ${
-                        idx !== appointmentsData.length - 1
+                        idx !== visibleAppointments.length - 1
                           ? "border-b border-b-gray-100"
                           : ""
                       }`}
@@ -800,6 +813,40 @@ const DashboardComponent: React.FC<Props> = ({
                     </motion.div>
                   );
                 })}
+
+                {remainingCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setVisibleCount((prev) => prev + APPOINTMENTS_PAGE_SIZE)
+                    }
+                    className="group flex items-center justify-center w-full gap-2 px-4 py-3.5 text-sm font-bold text-primary bg-orange-50 border-t border-orange-100 transition-colors duration-200 md:hover:bg-orange-100"
+                  >
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white transition-transform duration-200 md:group-hover:translate-y-0.5">
+                      <LuChevronDown size={13} />
+                    </span>
+                    Cargar más
+                    <span className="text-xs font-semibold text-orange-400">
+                      ({remainingCount}{" "}
+                      {remainingCount === 1 ? "restante" : "restantes"})
+                    </span>
+                  </button>
+                )}
+
+                {remainingCount === 0 &&
+                  visibleCount > APPOINTMENTS_PAGE_SIZE && (
+                    <button
+                      type="button"
+                      onClick={() => setVisibleCount(APPOINTMENTS_PAGE_SIZE)}
+                      className="group flex items-center justify-center w-full gap-2 px-4 py-3 text-xs font-semibold text-gray-500 bg-gray-50 border-t border-gray-100 transition-colors duration-200 md:hover:bg-gray-100 md:hover:text-primary"
+                    >
+                      <LuChevronUp
+                        size={14}
+                        className="transition-transform duration-200 md:group-hover:-translate-y-0.5"
+                      />
+                      Mostrar menos
+                    </button>
+                  )}
               </div>
               )}
 

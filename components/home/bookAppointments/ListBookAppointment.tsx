@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,6 +32,8 @@ import axiosReq from "@/config/axios";
 import { bookAppointmentSchema } from "@/app/schemas/bookAppointmentSchema";
 import type { IPublicBranch } from "./BranchSelector";
 import type { IPublicEmployee } from "./EmployeeSelector";
+import { DemoSyncContext } from "@/components/demo/demoSyncContext";
+import type { DemoAdapter, DemoSyncApi } from "@/components/demo/demoSync";
 
 // ── Timezone config ─────────────────────────────────────────
 const ARG_TZ_OFFSET_HOURS = -3;
@@ -305,6 +307,39 @@ interface FormInputs {
   email: string;
 }
 
+/*
+  Estado del wizard con un modo compartido opcional.
+
+  Sin contexto de sincronización —o sea, en /[slug]— es un useState y nada más.
+  Dentro de /demo, donde el mismo wizard corre en dos dispositivos a la vez, el
+  valor vive afuera y los dos frames leen y escriben el mismo estado.
+*/
+function useSharedState<T>(
+  sync: DemoSyncApi | null,
+  key: string,
+  initial: T | (() => T),
+): [T, (value: T | ((prev: T) => T)) => void] {
+  const [local, setLocal] = useState<T>(initial);
+  const shared = sync && key in sync.state ? (sync.state[key] as T) : undefined;
+  const value = shared !== undefined ? shared : local;
+  const valueRef = useRef(value);
+  valueRef.current = value;
+
+  const set = useCallback(
+    (next: T | ((prev: T) => T)) => {
+      const resolved =
+        typeof next === "function"
+          ? (next as (prev: T) => T)(valueRef.current)
+          : next;
+      if (sync) sync.patch(key, resolved);
+      else setLocal(resolved);
+    },
+    [sync, key],
+  );
+
+  return [value, set];
+}
+
 // ── Props ────────────────────────────────────────────────────
 interface Props {
   appointments: IAppointment[];
@@ -312,6 +347,8 @@ interface Props {
   scheduleDays: IDaySchedule[];
   employees: IPublicEmployee[];
   branches: IPublicBranch[];
+  /** Presente sólo en /demo: corta la red y usa datos ficticios. */
+  demo?: DemoAdapter;
 }
 
 // ── Component ────────────────────────────────────────────────
@@ -321,8 +358,10 @@ export default function ListBookAppointment({
   scheduleDays,
   employees,
   branches,
+  demo,
 }: Props) {
   const router = useRouter();
+  const sync = useContext(DemoSyncContext);
 
   // Un turno con reserva temporal vigente (alguien lo está pagando en MP) se
   // muestra igual que uno ocupado. Normalizarlo acá evita repetir la condición
@@ -344,22 +383,51 @@ export default function ListBookAppointment({
   }, []);
 
   // ── Data state ──
-  const [services, setServices] = useState<IService[]>([]);
+  const [fetchedServices, setFetchedServices] = useState<IService[]>([]);
   const [loadingServices, setLoadingServices] = useState(false);
-  const [selectedService, setSelectedService] = useState<string | null>(null);
-  const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
-  const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
-  const [currentDateStr, setCurrentDateStr] = useState(initialDateStr);
-  const [calendarMonth, setCalendarMonth] = useState(() => monthOf(initialDateStr));
-  const [selectedSlot, setSelectedSlot] = useState<FormattedAppointment | null>(
+  const services = demo ? demo.services : fetchedServices;
+  const [selectedService, setSelectedService] = useSharedState<string | null>(
+    sync,
+    "selectedService",
+    null,
+  );
+  const [selectedBranch, setSelectedBranch] = useSharedState<string | null>(
+    sync,
+    "selectedBranch",
+    null,
+  );
+  const [selectedEmployee, setSelectedEmployee] = useSharedState<string | null>(
+    sync,
+    "selectedEmployee",
+    null,
+  );
+  const [currentDateStr, setCurrentDateStr] = useSharedState(
+    sync,
+    "currentDateStr",
+    initialDateStr,
+  );
+  const [calendarMonth, setCalendarMonth] = useSharedState(sync, "calendarMonth", () =>
+    monthOf(initialDateStr),
+  );
+  const [selectedSlot, setSelectedSlot] = useSharedState<FormattedAppointment | null>(
+    sync,
+    "selectedSlot",
     null,
   );
 
   // ── Wizard state ──
-  const [wizardStep, setWizardStep] = useState<WizardStep>("service");
-  const [bookingPhase, setBookingPhase] = useState<BookingPhase>("idle");
+  const [wizardStep, setWizardStep] = useSharedState<WizardStep>(
+    sync,
+    "wizardStep",
+    "service",
+  );
+  const [bookingPhase, setBookingPhase] = useSharedState<BookingPhase>(
+    sync,
+    "bookingPhase",
+    "idle",
+  );
   const bookingSpinner = bookingPhase !== "idle";
-  const [bookingError, setBookingError] = useState("");
+  const [bookingError, setBookingError] = useSharedState(sync, "bookingError", "");
   const [logoFailed, setLogoFailed] = useState(false);
 
   // Sin imagen propia se prefiere la inicial de marca al avatar genérico, que
@@ -370,22 +438,53 @@ export default function ListBookAppointment({
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<FormInputs>({
     resolver: zodResolver(bookAppointmentSchema),
+    defaultValues: demo?.client,
   });
+
+  // Demo: los datos del cliente se espejan al otro dispositivo al salir del
+  // campo. Hacerlo en cada tecla remontaría el paso y le sacaría el foco.
+  const [clientDraft, setClientDraft] = useSharedState<FormInputs | null>(
+    sync,
+    "clientDraft",
+    null,
+  );
+  useEffect(() => {
+    if (!clientDraft) return;
+    (Object.keys(clientDraft) as (keyof FormInputs)[]).forEach((field) =>
+      setValue(field, clientDraft[field]),
+    );
+  }, [clientDraft, setValue]);
+
+  const clientField = (name: keyof FormInputs) => {
+    const field = register(name);
+    if (!demo) return field;
+    return {
+      ...field,
+      onBlur: async (event: React.FocusEvent<HTMLInputElement>) => {
+        await field.onBlur(event);
+        setClientDraft({
+          ...(clientDraft ?? demo.client),
+          [name]: event.target.value,
+        });
+      },
+    };
+  };
 
   // ── Fetch services ──
   useEffect(() => {
-    if (!businessData._id) return;
+    if (demo || !businessData._id) return;
     setLoadingServices(true);
     getBusinessServices(businessData._id)
       .then((data) => {
-        setServices(data);
+        setFetchedServices(data);
       })
-      .catch(() => setServices([]))
+      .catch(() => setFetchedServices([]))
       .finally(() => setLoadingServices(false));
-  }, [businessData._id]);
+  }, [businessData._id, demo]);
 
   // ── Active steps (dynamic) ──
   const activeSteps = useMemo<ActiveStep[]>(() => {
@@ -504,7 +603,8 @@ export default function ListBookAppointment({
     const d = selectedServiceObj?.duration;
     return typeof d === "number" ? d : daySchedule.appointmentDuration;
   }, [selectedServiceObj, daySchedule]);
-  const requiresDeposit = (selectedServiceObj?.depositAmount ?? 0) > 0;
+  const depositAmount = selectedServiceObj?.depositAmount ?? 0;
+  const requiresDeposit = depositAmount > 0;
 
   // ── Appointments for current day ──
   const dayAppointments = useMemo(() => {
@@ -646,18 +746,22 @@ export default function ListBookAppointment({
     setBookingPhase("sending");
     const startedAt = Date.now();
     try {
-      await axiosReq.put("/appointment/book", {
-        _id: selectedSlot._id,
-        status: "booked",
-        clientID: "",
-        email: formData.email,
-        phone: formData.phone,
-        name: formData.name,
-        title: formData.name,
-        // Único momento en que se sabe si el cliente pidió a esa persona o si
-        // entró por "Cualquier especialista" y le tocó de casualidad.
-        employeeChosenByClient: selectedEmployee !== null,
-      });
+      if (demo) {
+        await demo.onBook(selectedSlot, formData, depositAmount);
+      } else {
+        await axiosReq.put("/appointment/book", {
+          _id: selectedSlot._id,
+          status: "booked",
+          clientID: "",
+          email: formData.email,
+          phone: formData.phone,
+          name: formData.name,
+          title: formData.name,
+          // Único momento en que se sabe si el cliente pidió a esa persona o si
+          // entró por "Cualquier especialista" y le tocó de casualidad.
+          employeeChosenByClient: selectedEmployee !== null,
+        });
+      }
       // El turno ya quedó reservado: lo que sigue es sólo el ritmo del overlay
       // (piso de "guardando" + confirmación) antes de dar paso a la pantalla final.
       await sleep(BOOKING_MIN_SENDING_MS - (Date.now() - startedAt));
@@ -669,7 +773,7 @@ export default function ListBookAppointment({
       setBookingPhase("leaving");
       await sleep(BOOKING_LEAVE_MS);
       setBookingPhase("idle");
-      router.refresh();
+      if (!demo) router.refresh();
     } catch (error: any) {
       if (error?.response?.status === 409) {
         setBookingError(
@@ -685,6 +789,13 @@ export default function ListBookAppointment({
 
   const bookWithDeposit = async (formData: FormInputs) => {
     if (!selectedSlot) return;
+    // En la demo el checkout simulado hace de Mercado Pago: si el visitante
+    // paga, el turno sigue exactamente el mismo camino que uno sin seña.
+    if (demo) {
+      const paid = await demo.onDeposit(selectedSlot, depositAmount);
+      if (paid) await bookWithoutDeposit(formData);
+      return;
+    }
     setBookingPhase("sending");
     try {
       const res = await axiosReq.post("/mp/deposit/create-preference", {
@@ -1401,7 +1512,7 @@ export default function ListBookAppointment({
             Nombre y apellido
           </label>
           <input
-            {...register("name")}
+            {...clientField("name")}
             placeholder="Juan Pérez"
             maxLength={35}
             className="h-10 2xl:h-11 px-3 rounded-lg border border-border bg-white text-[13px] 2xl:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
@@ -1415,7 +1526,7 @@ export default function ListBookAppointment({
             Teléfono
           </label>
           <input
-            {...register("phone")}
+            {...clientField("phone")}
             type="number"
             placeholder="11 1234 5678"
             onKeyDown={(e) => ["+", "-", "e", "E", "."].includes(e.key) && e.preventDefault()}
@@ -1431,7 +1542,7 @@ export default function ListBookAppointment({
           Email
         </label>
         <input
-          {...register("email")}
+          {...clientField("email")}
           type="email"
           placeholder="juan@email.com"
           maxLength={100}

@@ -9,6 +9,7 @@ import Features from "@/components/home/Features";
 import Sectors from "@/components/home/Sectors";
 import Testimonials from "@/components/home/Testimonials";
 import CallToAction from "@/components/home/CallToAction";
+import DemoCtaSection from "@/components/home/DemoCtaSection";
 
 export default function Home() {
   return (
@@ -25,6 +26,7 @@ export default function Home() {
 
       <Features />
       <Sectors />
+      <DemoCtaSection />
       <PricingSection />
       <Testimonials />
       <FAQSection />

@@ -268,6 +268,8 @@ const AutomateSchedule: React.FC<Props> = ({
   const pendingIdsRef = useRef<Set<string>>(new Set());
   pendingIdsRef.current = pendingIds;
   const gridRef = useRef<HTMLDivElement>(null);
+  const dayColRef = useRef<HTMLDivElement>(null);
+  const [dayColWidth, setDayColWidth] = useState(0);
   const router = useRouter();
   const pendingNavRef = useRef<(() => void) | null>(null);
   const bypassGuardRef = useRef(false);
@@ -638,6 +640,39 @@ const AutomateSchedule: React.FC<Props> = ({
     () => parseAppointments(selectedDayAppointments),
     [selectedDayAppointments]
   );
+
+  // Los turnos que se solapan se apilan hacia la derecha y pueden pasarse del
+  // ancho de la columna: se mide el clúster más ancho para que la grilla crezca
+  // y el contenedor pueda desplazarse en horizontal en lugar de recortarlos.
+  useEffect(() => {
+    const el = dayColRef.current;
+    if (!el) return;
+    const measure = () => {
+      let widest = 0;
+      el.querySelectorAll<HTMLElement>("[data-cluster]").forEach((cluster) => {
+        widest = Math.max(widest, cluster.offsetLeft + cluster.offsetWidth);
+      });
+      setDayColWidth(widest ? widest + CARD_GUTTER : 0);
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [
+    parsedSelectedAppointments,
+    selectedAppointmentDuration,
+    selectedDayStart,
+    selectedDayEnd,
+    employees,
+    branches,
+  ]);
+
+  // Al cambiar de día la vista vuelve al inicio: quedarse en el desplazamiento
+  // del día anterior deja la columna en blanco.
+  useEffect(() => {
+    if (gridRef.current) gridRef.current.scrollLeft = 0;
+  }, [selectedDay.dayName]);
 
   const appointmentCountByDay = useMemo(() => {
     const counts = new Map<string, number>();
@@ -1233,12 +1268,15 @@ const AutomateSchedule: React.FC<Props> = ({
               </div>
 
               {/* Scrollable grid */}
-              <div ref={gridRef} className="flex">
+              <div
+                ref={gridRef}
+                className="flex overflow-x-auto overflow-y-clip overscroll-x-contain"
+              >
 
                 {/* Time gutter */}
                 <div
                   style={{ width: TIME_GUTTER, flexShrink: 0 }}
-                  className="border-r border-gray-100 bg-white"
+                  className="sticky left-0 z-10 border-r border-gray-100 bg-white"
                 >
                   {slots.map((slot) => (
                     <div
@@ -1266,7 +1304,11 @@ const AutomateSchedule: React.FC<Props> = ({
                 </div>
 
                 {/* Day column */}
-                <div className="relative flex-1 bg-white">
+                <div
+                  ref={dayColRef}
+                  className="relative flex-1 bg-white"
+                  style={{ minWidth: dayColWidth || undefined }}
+                >
 
                   {/* Slot rows — one per appointment duration unit */}
                   {slots.map((slot) => (
@@ -1294,10 +1336,12 @@ const AutomateSchedule: React.FC<Props> = ({
                     return (
                       <div
                         key={`cluster-${clusterIdx}`}
+                        data-cluster="true"
                         style={{
                           position: "absolute",
                           top: Math.max(minTop, 0) + 1,
                           left: CARD_GUTTER,
+                          width: "max-content",
                           display: "flex",
                           flexDirection: "row",
                           gap: CARD_GAP,

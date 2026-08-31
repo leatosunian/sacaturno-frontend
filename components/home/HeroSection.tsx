@@ -22,6 +22,7 @@ import {
   noMotionVariant,
 } from "./hero.animations";
 import { FaArrowRight } from "react-icons/fa6";
+import { MousePointerClick } from "lucide-react";
 import { Marquee } from "../ui/marquee";
 
 // Animated canvas background
@@ -306,6 +307,27 @@ const HeroSection = () => {
                   Iniciar sesión
                 </Link>
               </motion.div>
+
+              {/* Sólo desktop: en mobile la demo ya tiene su propio botón
+                  debajo del teléfono, y acá el laptop no se puede tocar. */}
+              <motion.div
+                variants={v ?? ctaItemVariants}
+                className="hidden lg:block basis-full"
+              >
+                <Link
+                  href="/demo"
+                  className="group inline-flex items-center gap-2 pt-1 text-[13px] 2xl:text-[15px] font-semibold text-[#5a5a5a] transition-colors hover:text-[#dd4924]"
+                >
+                  <MousePointerClick className="size-4 shrink-0 text-[#dd4924]" />
+                  <span className="underline decoration-black/[0.15] underline-offset-4 transition-colors group-hover:decoration-[#dd4924]">
+                    O probá la demo interactiva
+                  </span>
+                  <FaArrowRight
+                    className="transition-transform duration-300 group-hover:translate-x-0.5"
+                    size={11}
+                  />
+                </Link>
+              </motion.div>
             </motion.div>
 
             {/* <figure
@@ -355,7 +377,7 @@ const HeroSection = () => {
           >
             {/* Réplica en vivo del wizard de reserva: reemplaza al PNG viejo,
               que mostraba una UI que ya no existe. */}
-            <HeroMockup className="hidden lg:block" />
+            <HeroMockup className="hidden lg:block" href="/demo" />
           </motion.div>
         </div>
       </section>

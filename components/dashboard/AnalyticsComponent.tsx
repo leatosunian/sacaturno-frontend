@@ -121,6 +121,7 @@ function BarChart({
   data: { label: string; value: number; year: number }[];
   formatValue: (v: number) => string;
 }) {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const maxVal = Math.max(...data.map((d) => d.value), 1);
   const minBarWidth = 36;
   const chartWidth = Math.max(data.length * (minBarWidth + 8), 100);
@@ -132,9 +133,11 @@ function BarChart({
           {data.map((d, i) => {
             const pct = d.value > 0 ? Math.max((d.value / maxVal) * 100, 3) : 0;
             const showYear = i === 0 || d.year !== data[i - 1].year;
+            const isActive = activeIndex === i;
             return (
               <div
                 key={`${d.label}-${d.year}-${i}`}
+                onClick={() => setActiveIndex((prev) => (prev === i ? null : i))}
                 className="flex flex-col items-center flex-1 h-full group cursor-default"
                 style={{ minWidth: `${minBarWidth}px` }}
               >
@@ -145,11 +148,17 @@ function BarChart({
                 )}
                 <div className="flex-1 w-full flex items-end">
                   <div
-                    className="relative w-full rounded-t-md bg-orange-500 hover:bg-orange-600 transition-colors duration-200"
+                    className={`relative w-full rounded-t-md transition-colors duration-200 hover:bg-orange-600 ${
+                      isActive ? "bg-orange-600" : "bg-orange-500"
+                    }`}
                     style={{ height: `${pct}%`, minHeight: d.value > 0 ? "3px" : "0px" }}
                   >
                     {d.value > 0 && (
-                      <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-medium text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap bg-white px-1 rounded shadow-sm z-10 pointer-events-none">
+                      <span
+                        className={`absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-medium text-gray-700 group-hover:opacity-100 transition-opacity whitespace-nowrap bg-white px-1 rounded shadow-sm z-10 pointer-events-none ${
+                          isActive ? "opacity-100" : "opacity-0"
+                        }`}
+                      >
                         {formatValue(d.value)}
                       </span>
                     )}
@@ -581,7 +590,10 @@ const AnalyticsComponent: React.FC<Props> = ({ businessId }) => {
                 <div className="flex items-start justify-between">
                   <div>
                     <span className="text-sm font-semibold text-gray-800">Ingresos por mes</span>
-                    <p className="text-xs text-gray-400 mt-0.5">Pasá el mouse sobre las barras para ver el detalle</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      <span className="md:hidden">Tocá las barras para ver el detalle</span>
+                      <span className="hidden md:inline">Pasá el mouse sobre las barras para ver el detalle</span>
+                    </p>
                   </div>
                   <span className="text-xs font-semibold text-orange-600 whitespace-nowrap ml-2">
                     {formatCurrencyShort(summary.totalRevenue)} total
@@ -594,7 +606,10 @@ const AnalyticsComponent: React.FC<Props> = ({ businessId }) => {
                 <div className="flex items-start justify-between">
                   <div>
                     <span className="text-sm font-semibold text-gray-800">Turnos por mes</span>
-                    <p className="text-xs text-gray-400 mt-0.5">Pasá el mouse sobre las barras para ver el detalle</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      <span className="md:hidden">Tocá las barras para ver el detalle</span>
+                      <span className="hidden md:inline">Pasá el mouse sobre las barras para ver el detalle</span>
+                    </p>
                   </div>
                   <span className="text-xs font-semibold text-orange-600 whitespace-nowrap ml-2">
                     {summary.totalAppointments} total
@@ -610,11 +625,53 @@ const AnalyticsComponent: React.FC<Props> = ({ businessId }) => {
 
             {/* MONTHLY TABLE */}
             <div style={cardShadow} className="bg-white rounded-xl overflow-hidden">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+              <div className="flex items-center justify-between gap-3 px-4 md:px-5 py-4 border-b border-gray-100">
                 <span className="text-sm font-semibold text-gray-800">Detalle mensual</span>
-                <span className="text-[11px] text-gray-400">Hacé clic en un mes para ver el detalle</span>
+                <span className="text-[11px] text-gray-400 text-right">
+                  <span className="md:hidden">Tocá un mes para ver el detalle</span>
+                  <span className="hidden md:inline">Hacé clic en un mes para ver el detalle</span>
+                </span>
               </div>
-              <div className="overflow-x-auto">
+
+              {/* MOBILE CARD LIST */}
+              <div className="md:hidden divide-y divide-gray-50">
+                {[...monthlyData].reverse().map((m, idx) => (
+                  <div
+                    key={`${m.month}-${m.year}`}
+                    onClick={() => setSelectedMonth(m)}
+                    className="px-4 py-3.5 flex flex-col gap-2 active:bg-orange-50/60 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className={`text-sm text-gray-800 capitalize truncate ${idx === 0 ? "font-bold" : "font-semibold"}`}>
+                          {m.month} {m.year}
+                        </span>
+                        {idx === 0 && (
+                          <span className="flex-shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-600">
+                            actual
+                          </span>
+                        )}
+                      </div>
+                      <span className="flex-shrink-0 text-sm font-bold text-gray-800">
+                        {m.revenue > 0 ? formatCurrency(m.revenue) : <span className="text-gray-300 font-normal">-</span>}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                        {m.appointments} turno{m.appointments !== 1 ? "s" : ""}
+                      </span>
+                      {m.paidDeposits > 0 && (
+                        <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                          {m.paidDeposits} seña{m.paidDeposits !== 1 ? "s" : ""}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* DESKTOP TABLE */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="bg-gray-50 border-b border-gray-100">

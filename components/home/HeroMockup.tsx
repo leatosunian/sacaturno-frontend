@@ -2,7 +2,18 @@
 
 import { useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ArrowLeft, CalendarDays, Check, Lock, LogIn, Phone, Search } from "lucide-react";
+import Link from "next/link";
+import {
+  ArrowLeft,
+  ArrowRight,
+  CalendarDays,
+  Check,
+  Lock,
+  LogIn,
+  MousePointerClick,
+  Phone,
+  Search,
+} from "lucide-react";
 import {
   BizHeader,
   MockupCalendar,
@@ -248,9 +259,11 @@ const BookingCard = () => (
 // ── Marco del laptop ─────────────────────────────────────────
 interface HeroMockupProps {
   className?: string;
+  /** Si se pasa, la maqueta entera se vuelve el acceso a la demo interactiva. */
+  href?: string;
 }
 
-const HeroMockup = ({ className = "" }: HeroMockupProps) => {
+const HeroMockup = ({ className = "", href }: HeroMockupProps) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0);
 
@@ -269,15 +282,13 @@ const HeroMockup = ({ className = "" }: HeroMockupProps) => {
     return () => ro.disconnect();
   }, []);
 
-  return (
-    <div
-      ref={wrapRef}
-      className={"w-full " + className}
-      role="img"
-      aria-label="Vista previa de la página de reservas de SacaTurno: un cliente eligiendo fecha y horario"
-    >
+  const stage = (
+    <>
       <div
-        className="relative w-full transition-opacity duration-300 ease-in-out"
+        className={
+          "relative w-full transition-[opacity,transform] duration-300 ease-out" +
+          (href ? " group-hover:-translate-y-1.5" : "")
+        }
         style={{
           aspectRatio: DESIGN_W + " / " + DESIGN_H,
           opacity: scale ? 1 : 0,
@@ -349,6 +360,59 @@ const HeroMockup = ({ className = "" }: HeroMockupProps) => {
           </div>
         </div>
       </div>
+
+      {href && (
+        <>
+          {/* Velo cálido: sólo al pasar por encima, y sólo sobre la pantalla —
+              la base del laptop queda afuera para que no se vea como una capa
+              pegada encima de la foto. */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0 bottom-[3.5%] rounded-[20px] bg-gradient-to-t from-[#2b1108]/50 via-[#2b1108]/10 to-transparent opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100"
+          />
+
+          {/* La pastilla vive siempre: si la invitación aparece recién al pasar
+              el mouse, la mitad de la gente nunca se entera de que hay demo. */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-[8%] left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-black/[0.06] bg-white/90 py-2.5 pl-3.5 pr-4 text-[13px] font-bold text-[#1a1a1a] shadow-[0_10px_30px_-10px_rgba(28,10,4,0.45)] backdrop-blur-md transition-all duration-300 ease-out group-hover:border-transparent group-hover:bg-[#dd4924] group-hover:text-white group-hover:shadow-[0_16px_36px_-12px_rgba(221,73,36,0.7)]"
+          >
+            <span className="relative flex size-5 shrink-0 items-center justify-center">
+              <span className="absolute inset-0 animate-ping rounded-full bg-[#dd4924]/30 group-hover:bg-white/40 motion-reduce:hidden" />
+              <span className="relative flex size-5 items-center justify-center rounded-full bg-[#dd4924] text-white group-hover:bg-white group-hover:text-[#dd4924]">
+                <MousePointerClick className="size-3" strokeWidth={2.5} />
+              </span>
+            </span>
+            Reservá un turno de prueba
+            <ArrowRight className="size-3.5 shrink-0 transition-transform duration-300 group-hover:translate-x-0.5" />
+          </span>
+        </>
+      )}
+    </>
+  );
+
+  if (!href) {
+    return (
+      <div
+        ref={wrapRef}
+        className={"w-full " + className}
+        role="img"
+        aria-label="Vista previa de la página de reservas de SacaTurno: un cliente eligiendo fecha y horario"
+      >
+        {stage}
+      </div>
+    );
+  }
+
+  return (
+    <div ref={wrapRef} className={"w-full " + className}>
+      <Link
+        href={href}
+        aria-label="Abrir la demo interactiva y reservar un turno de prueba"
+        className="group relative block w-full rounded-[22px] outline-none focus-visible:ring-2 focus-visible:ring-[#dd4924] focus-visible:ring-offset-4 focus-visible:ring-offset-[#fff8f3]"
+      >
+        {stage}
+      </Link>
     </div>
   );
 };

@@ -21,7 +21,21 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: "/(.*)",
+        // Único punto enmarcable del sitio, y sólo desde el propio origen: /demo
+        // muestra el escenario dentro de dos iframes. Es una pantalla sin sesión
+        // ni acciones reales, así que no hay nada que secuestrar por clickjacking.
+        source: "/demo/stage",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Strict-Transport-Security", value: "max-age=31536000" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+        ],
+      },
+      {
+        source: "/((?!demo/stage).*)",
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "DENY" },
