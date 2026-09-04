@@ -44,6 +44,7 @@ const ROUTE_MAP: Record<string, Crumb[]> = {
     { label: "suscripción y facturación" },
   ],
   "/admin/profile": [{ label: "cuenta" }, { label: "mi perfil" }],
+  "/admin/ayuda": [{ label: "soporte" }, { label: "centro de ayuda" }],
 };
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);

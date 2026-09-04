@@ -274,6 +274,15 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
                 <span className="text-base leading-none mt-0.5 shrink-0">💡</span>
                 <p className="text-sm text-blue-600 leading-relaxed">{step.tip}</p>
               </div>
+
+              {/* Esta guía es el resumen; el manual completo vive en /admin/ayuda */}
+              <Link
+                href="/admin/ayuda"
+                onClick={handleClose}
+                className="self-start text-xs font-semibold text-primary [@media(hover:hover)]:hover:text-orange-500 underline underline-offset-2 transition-colors"
+              >
+                Ver el manual completo, con capturas paso a paso
+              </Link>
             </div>
 
             {/* Navigation */}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
+  BarChart3,
   Bell,
   Building2,
   CalendarDays,
@@ -12,6 +13,7 @@ import {
   CreditCard,
   LayoutDashboard,
   Mail,
+  MessageCircle,
   Pause,
   Play,
   Plus,
@@ -19,6 +21,7 @@ import {
   Sparkles,
   Tag,
   Timer,
+  TrendingUp,
   Users,
   Zap,
 } from "lucide-react";
@@ -27,7 +30,7 @@ import { DEMO_BRANCH_NAMES, DEMO_TEAM, demoMoney } from "./demoData";
 import type { DemoBooking, DemoConfig } from "./demoSync";
 
 /*
-  "Del otro lado": el panel del negocio, contado.
+  "Como dueño": el panel del negocio, contado.
 
   No es el panel real montado con datos falsos —arrastraría auth, permisos y
   SWR, y a alguien que recién llega una agenda real le dice poco—. Es una
@@ -37,44 +40,44 @@ import type { DemoBooking, DemoConfig } from "./demoSync";
 */
 
 /** El momento en que el turno reservado aterriza en la agenda. */
-export const TOUR_APPOINTMENT_STEP = 5;
+export const TOUR_APPOINTMENT_STEP = 4;
 
 const STEPS = [
   {
     title: "El día y su horario",
-    line: "La plantilla se arma un día a la vez: de qué hora a qué hora atendés y en intervalos de cuánto se divide la jornada.",
+    line: "Elegís de qué hora a qué hora atendés en cada día de la semana. Cada día puede tener su propio horario.",
   },
   {
     title: "Cargás los turnos",
-    line: "Clic en una franja libre y elegís el servicio. De a un turno, o toda la jornada de una vez.",
+    line: "Clic en una franja libre y elegís servicio, profesional y sucursal. Ese turno se repite cada semana: todos los lunes a las 10:00. Los días que no trabajás, no cargás nada.",
   },
   {
-    title: "El sábado es distinto",
-    line: "Cada día tiene su propio horario y sus propios turnos. El sábado, sólo la mañana.",
-  },
-  {
-    title: "Lo activás una vez",
-    line: "Elegís cuántos días de agenda querés publicados y con cuánta anticipación se renuevan. De ahí en más se regenera sola.",
+    title: "Activá la agenda automática",
+    line: "Elegís cuántos días de agenda generar y con cuánta anticipación se renuevan, contando desde el último día ya publicado. De ahí en más se regenera sola.",
   },
   {
     title: "Cada turno con su dueño",
     line: "La agenda queda publicada, y cada turno sale asignado al profesional y a la sucursal que corresponde.",
   },
   {
-    title: "Entra un turno",
-    line: "Tu cliente reserva desde el link y aparece acá al instante, sin que toques nada.",
+    title: "Recibiste una reserva",
+    line: "Tus clientes reservan desde tu link. En la agenda ves qué turnos siguen disponibles y cuáles ya están tomados.",
   },
   {
-    title: "La ficha del turno",
-    line: "Quién es, cómo contactarlo y si dejó la seña. Desde acá también se cancela con devolución.",
+    title: "Datos de la reserva",
+    line: "Quién reservó, el detalle de la seña y botones para contactar al cliente por WhatsApp o cancelar el turno.",
   },
   {
-    title: "Lo que pasa sin vos",
-    line: "Los correos al cliente salen solos: confirmación al reservar y recordatorio antes del turno.",
+    title: "Tareas automatizadas",
+    line: "Correos de confirmación al reservar, recordatorio antes del turno y renovación de la agenda: todo sale sin que hagas nada.",
+  },
+  {
+    title: "Estadísticas del negocio",
+    line: "Ingresos, turnos, señas cobradas y cancelaciones, mes a mes, con el historial completo de turnos.",
   },
 ];
 
-const STEP_MS = [4600, 5400, 4600, 5400, 4800, 5200, 5200, 6000];
+const STEP_MS = [5000, 6200, 5600, 4800, 5200, 5400, 5600, 6000];
 
 const DAYS = ["LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
 const TIMES = ["09:00", "10:00", "11:00", "12:00", "15:00", "16:00", "17:00"];
@@ -132,12 +135,29 @@ export default function DemoPanelTour({ step, onStep, booking, config }: Props) 
   };
 
   const current = STEPS[Math.min(step, STEPS.length - 1)];
+  const isLastStep = step >= STEPS.length - 1;
 
   return (
     <div className="flex flex-col lg:flex-row gap-5 lg:gap-7">
       {/* ── Narración ── */}
       <div className="lg:w-[290px] shrink-0 flex flex-col gap-4">
-        <div className="rounded-2xl bg-white border border-orange-100 shadow-sm p-5 flex flex-col gap-2">
+        <div className="relative overflow-hidden rounded-2xl bg-white border border-orange-100 shadow-sm p-5 flex flex-col gap-2">
+          {/* Cuánto le queda al paso actual. Se congela al pausar. */}
+          <div aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-orange-100">
+            <div
+              key={step}
+              className="h-full bg-gradient-to-r from-orange-500 to-[#d92f04]"
+              style={
+                isLastStep && !playing
+                  ? { width: "100%" }
+                  : {
+                      animation: `demo-step-progress ${STEP_MS[step] ?? 4500}ms linear forwards`,
+                      animationPlayState: playing ? "running" : "paused",
+                    }
+              }
+            />
+          </div>
+
           <span className="text-[11px] font-bold uppercase tracking-wider text-orange-600">
             Paso {step + 1} de {STEPS.length}
           </span>
@@ -234,7 +254,7 @@ export default function DemoPanelTour({ step, onStep, booking, config }: Props) 
       </div>
 
       {/* ── Pantalla ── */}
-      <div className="flex-1 min-w-0 flex flex-col items-center gap-2.5">
+      <div className="flex-1 min-w-0 flex flex-col items-center">
         <div className="w-full rounded-t-2xl lg:border-[10px] lg:border-b-0 border-neutral-900 bg-neutral-900 overflow-hidden shadow-2xl rounded-b-2xl lg:rounded-b-none">
           <PanelScreen step={step} booking={booking} config={config} />
         </div>
@@ -256,7 +276,8 @@ function PanelScreen({
 }) {
   const nav = [
     { label: "Inicio", Icon: LayoutDashboard },
-    { label: "Turnos", Icon: CalendarDays, active: true },
+    { label: "Turnos", Icon: CalendarDays, active: step !== 7 },
+    { label: "Estadísticas", Icon: BarChart3, active: step === 7 },
     { label: "Servicios", Icon: Tag },
     ...(config.employees ? [{ label: "Equipo", Icon: Users }] : []),
     ...(config.branches ? [{ label: "Sucursales", Icon: Building2 }] : []),
@@ -297,25 +318,33 @@ function PanelScreen({
         <header className="shrink-0 flex items-center justify-between gap-3 px-4 md:px-5 h-14 bg-white border-b border-neutral-100">
           <div className="flex flex-col min-w-0">
             <h4 className="text-sm font-bold tracking-tight truncate">
-              {step <= 3 ? "Automatizar agenda" : step === 7 ? "Automatizaciones" : "Turnos"}
+              {step <= 2
+                ? "Automatizar agenda"
+                : step === 6
+                  ? "Automatizaciones"
+                  : step === 7
+                    ? "Estadísticas"
+                    : "Turnos"}
             </h4>
             <span className="text-[11px] text-neutral-400 truncate">
-              {step <= 2
+              {step <= 1
                 ? "Plantilla semanal"
-                : step === 3
+                : step === 2
                   ? "Frecuencia y cantidad de días"
-                  : step === 7
-                    ? "Correos que salen solos"
-                    : "Esta semana"}
+                  : step === 6
+                    ? "Lo que sale sin que entres"
+                    : step === 7
+                      ? "Historial completo · 5 meses"
+                      : "Esta semana"}
             </span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {step <= 3 && (
+            {step <= 2 && (
               <span className="hidden sm:flex items-center gap-1.5 h-8 px-3 rounded-lg bg-orange-600 text-white text-[11px] font-bold">
                 <Check className="size-3.5" strokeWidth={3} /> Guardar cambios
               </span>
             )}
-            {step >= 4 && step < 7 && (
+            {step >= 3 && step <= 5 && (
               <span className="hidden sm:flex items-center gap-1.5 h-8 px-3 rounded-lg border border-neutral-200 text-neutral-600 text-[11px] font-bold">
                 <Repeat className="size-3.5" /> Automatizar
               </span>
@@ -324,19 +353,20 @@ function PanelScreen({
         </header>
 
         <div className="flex-1 min-h-0 overflow-hidden relative">
-          {step <= 2 && <TemplateView step={step} />}
-          {step === 3 && <AutomationConfigView />}
-          {step >= 4 && step <= 6 && (
+          {step <= 1 && <TemplateView step={step} />}
+          {step === 2 && <AutomationConfigView />}
+          {step >= 3 && step <= 5 && (
             <AgendaView step={step} booking={booking} config={config} />
           )}
-          {step === 7 && <AutomationsView booking={booking} />}
+          {step === 6 && <AutomationsView booking={booking} />}
+          {step === 7 && <StatsView />}
         </div>
       </div>
     </div>
   );
 }
 
-// ── Plantilla semanal (pasos 1 a 3) ─────────────────────────
+// ── Plantilla semanal (pasos 1 y 2) ─────────────────────────
 //
 // Réplica de /admin/schedule/automate: pestañas por día, rango horario propio
 // (Desde / Hasta / Intervalos) y una grilla donde los turnos se cargan de a
@@ -366,7 +396,6 @@ const TPL_SLOTS = [
 ];
 
 const WEEKDAY_SHIFT = { from: "09:00", to: "20:00", every: 30, hours: 11 };
-const SATURDAY_SHIFT = { from: "09:00", to: "13:00", every: 30, hours: 4 };
 
 const WEEKDAY_APPOINTMENTS = [
   { at: "09:00", service: "Consulta", end: "09:30" },
@@ -375,23 +404,15 @@ const WEEKDAY_APPOINTMENTS = [
   { at: "12:00", service: "Blanqueamiento", end: "13:00" },
 ];
 
-const SATURDAY_APPOINTMENTS = [
-  { at: "09:00", service: "Consulta", end: "09:30" },
-  { at: "10:30", service: "Limpieza dental", end: "11:15" },
-];
-
 const SLOT_H = 34;
 
 function TemplateView({ step }: { step: number }) {
-  const isSaturday = step >= 2;
-  const dayIndex = isSaturday ? 5 : 0;
-  const shift = isSaturday ? SATURDAY_SHIFT : WEEKDAY_SHIFT;
-  const appointments =
-    step === 0 ? [] : isSaturday ? SATURDAY_APPOINTMENTS : WEEKDAY_APPOINTMENTS;
+  const dayIndex = 0;
+  const shift = WEEKDAY_SHIFT;
+  const appointments = step === 0 ? [] : WEEKDAY_APPOINTMENTS;
 
   // El puntito bajo la pestaña marca los días que ya tienen turnos cargados.
-  const loaded = (index: number) =>
-    step === 0 ? false : index <= 4 || (index === 5 && isSaturday);
+  const loaded = (index: number) => step > 0 && index <= 5;
 
   return (
     <div className="h-full overflow-y-auto p-3 md:p-4 flex flex-col gap-3">
@@ -710,9 +731,9 @@ function AgendaView({
   booking: DemoBooking | null;
   config: DemoConfig;
 }) {
-  const colored = step >= 4 && config.employees;
-  const showBooking = step >= 5;
-  const showDetail = step === 6;
+  const colored = step >= 3 && config.employees;
+  const showBooking = step >= 4;
+  const showDetail = step === 5;
 
   const bookingRow = Math.max(
     0,
@@ -749,7 +770,7 @@ function AgendaView({
       <div
         className={cn(
           "flex-1 min-h-0 overflow-auto p-3 md:p-4",
-          step === 5 && "pt-14 md:pt-16",
+          step === 4 && "pt-14 md:pt-16",
         )}
       >
         <div className="min-w-[520px]">
@@ -827,7 +848,7 @@ function AgendaView({
       </div>
 
       {/* Aviso de turno nuevo */}
-      {step === 5 && (
+      {step === 4 && (
         <div className="absolute top-3 right-3 md:right-4 w-[230px] rounded-xl bg-white border border-neutral-200 shadow-xl p-3 flex gap-2.5 motion-safe:animate-in motion-safe:slide-in-from-right-4 motion-safe:fade-in">
           <span className="size-7 rounded-lg bg-orange-600 flex items-center justify-center shrink-0">
             <Bell className="size-3.5 text-white" />
@@ -869,11 +890,11 @@ function AgendaView({
                 </div>
               )}
               <div className="flex gap-2 mt-2">
-                <span className="flex-1 h-8 rounded-lg bg-orange-600 text-white text-[11px] font-bold flex items-center justify-center">
-                  Reprogramar
+                <span className="flex-1 h-8 rounded-lg bg-emerald-600 text-white text-[11px] font-bold flex items-center justify-center gap-1.5">
+                  <MessageCircle className="size-3.5" /> WhatsApp
                 </span>
                 <span className="flex-1 h-8 rounded-lg border border-red-200 text-red-600 text-[11px] font-bold flex items-center justify-center">
-                  Cancelar y devolver
+                  Cancelar turno
                 </span>
               </div>
             </div>
@@ -893,7 +914,7 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-// ── Automatizaciones (paso 8) ───────────────────────────────
+// ── Automatizaciones (paso 7) ───────────────────────────────
 function AutomationsView({ booking }: { booking: DemoBooking | null }) {
   const client = booking?.clientName ?? "Martina Gómez";
 
@@ -901,19 +922,19 @@ function AutomationsView({ booking }: { booking: DemoBooking | null }) {
     {
       Icon: Mail,
       title: "Confirmación al reservar",
-      line: `${client} ya recibió el detalle del turno y el link para cancelarlo.`,
+      line: `Tu cliente ${client} y vos recibieron el detalle del turno reservado y el link para cancelarlo.`,
       state: "Enviado",
     },
     {
       Icon: Bell,
-      title: "Recordatorio 24 horas antes",
-      line: "Sale solo la tarde anterior. Es lo que más baja los ausentes.",
+      title: "Recordatorios recurrentes",
+      line: "Se envían automáticamente antes del turno programado. Hacemos lo mejor para reducir el ausentismo.",
       state: "Programado",
     },
     {
       Icon: Repeat,
-      title: "Turnos del mes que viene",
-      line: "La agenda se vuelve a publicar sin que entres al panel.",
+      title: "Renovación de agenda automática",
+      line: "Los turnos del período siguiente se crean solos según tu configuración, sin que hagas nada.",
       state: "Automático",
     },
   ];
@@ -941,8 +962,141 @@ function AutomationsView({ booking }: { booking: DemoBooking | null }) {
       <div className="mt-auto flex items-start gap-2.5 rounded-xl bg-orange-50 border border-orange-100 p-3.5">
         <Sparkles className="size-4 text-orange-600 shrink-0 mt-0.5" />
         <p className="text-[12px] text-orange-900 leading-relaxed">
-          Todo esto pasa sin que abras el panel. Vos entrás cuando querés ver
-          cómo viene la semana.
+          Todo esto pasa sin que abras el panel. Vos entrás a ver las reservas
+          que entraron y cómo viene el negocio.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ── Estadísticas (paso 8) ───────────────────────────────────
+//
+// Réplica reducida de /admin/analytics: las tarjetas de Histórico y Este mes,
+// más el gráfico de turnos por mes y la pestaña de historial.
+const STAT_CARDS = [
+  { label: "Ingresos totales", value: "$4.860.000", Icon: TrendingUp },
+  { label: "Turnos totales", value: "312", Icon: CalendarDays },
+  { label: "Señas cobradas", value: "$975.000", Icon: CreditCard },
+  { label: "Cancelaciones", value: "9", Icon: Timer },
+];
+
+// Los cinco meses cierran contra los totales de las tarjetas: 312 turnos y
+// $4.860.000. Si los números del gráfico no suman lo de arriba, el que mira
+// con atención —que es justo el que está evaluando comprar— lo nota.
+const STAT_MONTHS = [
+  { label: "may", turnos: 48, ingresos: 720000 },
+  { label: "jun", turnos: 61, ingresos: 940000 },
+  { label: "jul", turnos: 55, ingresos: 860000 },
+  { label: "ago", turnos: 71, ingresos: 1150000 },
+  { label: "sep", turnos: 77, ingresos: 1190000 },
+];
+
+const money = (value: number) => `$${value.toLocaleString("es-AR")}`;
+
+/** Barras con su valor arriba: un gráfico sin cifras no dice nada de lo que
+ *  el panel realmente muestra. */
+function MonthChart({
+  title,
+  values,
+  format,
+}: {
+  title: string;
+  values: number[];
+  format: (value: number) => string;
+}) {
+  const top = Math.max(...values);
+
+  return (
+    <div className="rounded-xl bg-white border border-neutral-100 p-3 flex flex-col gap-2.5">
+      <span className="text-[12px] font-bold text-neutral-800">{title}</span>
+
+      <div className="flex items-end gap-2 h-[92px]">
+        {values.map((value, index) => (
+          <span
+            key={STAT_MONTHS[index].label}
+            className="flex-1 h-full flex flex-col justify-end items-center gap-1"
+          >
+            <span className="text-[9px] font-bold text-neutral-500 tabular-nums">
+              {format(value)}
+            </span>
+            {/* El alto va en px y no en %: adentro de un flex sin alto propio
+                los porcentajes se resuelven contra cero y no se dibuja nada. */}
+            <span
+              style={{ height: Math.round((value / top) * 68) }}
+              className={cn(
+                "w-full rounded-t-md",
+                index === values.length - 1 ? "bg-orange-600" : "bg-orange-200",
+              )}
+            />
+          </span>
+        ))}
+      </div>
+
+      <div className="flex gap-2">
+        {STAT_MONTHS.map(({ label }) => (
+          <span
+            key={label}
+            className="flex-1 text-center text-[9px] font-medium text-neutral-400 capitalize"
+          >
+            {label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function StatsView() {
+  return (
+    <div className="h-full overflow-y-auto p-3 md:p-4 flex flex-col gap-3">
+      <div className="flex gap-5 border-b border-neutral-100">
+        <span className="pb-2 -mb-px text-[12px] font-bold text-orange-600 border-b-2 border-orange-500">
+          Estadísticas
+        </span>
+        <span className="pb-2 -mb-px text-[12px] font-semibold text-neutral-400">
+          Historial de turnos
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        {STAT_CARDS.map(({ label, value, Icon }) => (
+          <div
+            key={label}
+            className="rounded-xl bg-white border border-neutral-100 p-2.5 flex flex-col gap-1.5"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[9px] font-bold uppercase tracking-wide text-neutral-400 truncate">
+                {label}
+              </span>
+              <span className="size-6 rounded-lg bg-orange-50 flex items-center justify-center shrink-0">
+                <Icon className="size-3 text-orange-600" />
+              </span>
+            </div>
+            <span className="text-[15px] font-bold leading-none tabular-nums">
+              {value}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <MonthChart
+        title="Ingresos por mes"
+        values={STAT_MONTHS.map((month) => month.ingresos)}
+        format={money}
+      />
+
+      <MonthChart
+        title="Turnos por mes"
+        values={STAT_MONTHS.map((month) => month.turnos)}
+        format={(value) => String(value)}
+      />
+
+      <div className="mt-auto flex items-start gap-2.5 rounded-xl bg-orange-50 border border-orange-100 p-3">
+        <Sparkles className="size-4 text-orange-600 shrink-0 mt-0.5" />
+        <p className="text-[12px] text-orange-900 leading-relaxed">
+          Todo se calcula solo con los turnos que se van reservando. No cargás
+          ninguna planilla.
         </p>
       </div>
     </div>

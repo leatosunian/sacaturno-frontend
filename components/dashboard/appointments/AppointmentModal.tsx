@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
+import "dayjs/locale/es-mx";
 import Link from "next/link";
 import { FaWhatsapp } from "react-icons/fa6";
-import { LuMapPin, LuUser, LuTrash2 } from "react-icons/lu";
-import { Button } from "@/components/ui/button";
+import { LuMapPin, LuUser, LuTrash2, LuPhone, LuMail } from "react-icons/lu";
 import {
   Select,
   SelectContent,
@@ -63,44 +63,133 @@ interface props {
   canClaim?: boolean;
 }
 
+// Botones: las mismas piezas que el resto del panel (DESIGN.md §8.1).
+const BTN =
+  "inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-lg text-xs font-semibold transition-all duration-200 ease-in-out cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed";
+const BTN_PRIMARY = `${BTN} bg-primary text-white hover:bg-orange-500`;
+const BTN_OUTLINE = `${BTN} border border-primary text-primary bg-white hover:bg-primary hover:text-white`;
+const BTN_NEUTRAL = `${BTN} border border-gray-200 text-gray-600 bg-white hover:bg-gray-50 hover:border-gray-300`;
+const BTN_DANGER_SOFT = `${BTN} border border-red-200 text-red-600 bg-white hover:bg-red-50 hover:border-red-300`;
+const BTN_DANGER = `${BTN} bg-red-600 text-white hover:bg-red-700`;
+
 const depositStatusConfig = {
   paid: {
     bg: "bg-green-50",
-    border: "border-green-100",
+    border: "border-green-200",
     label: "text-green-700",
     value: "text-green-800",
-    text: "Seña pagada",
+    chip: "bg-green-100 text-green-700",
+    text: "Pagada",
   },
   pending: {
-    bg: "bg-yellow-50",
-    border: "border-yellow-100",
-    label: "text-yellow-700",
-    value: "text-yellow-800",
-    text: "Seña pendiente",
+    bg: "bg-amber-50",
+    border: "border-amber-200",
+    label: "text-amber-700",
+    value: "text-amber-900",
+    chip: "bg-amber-100 text-amber-800",
+    text: "Pendiente",
   },
   failed: {
     bg: "bg-red-50",
-    border: "border-red-100",
+    border: "border-red-200",
     label: "text-red-700",
     value: "text-red-800",
-    text: "Pago fallido",
+    chip: "bg-red-100 text-red-700",
+    text: "Fallida",
+  },
+  none: {
+    bg: "bg-white/70",
+    border: "border-orange-200",
+    label: "text-orange-600",
+    value: "text-gray-800",
+    chip: "bg-orange-100 text-orange-700",
+    text: "A cobrar",
   },
 };
 
-const RailLabel = ({ children }: { children: React.ReactNode }) => (
+const d = (value?: Date) => dayjs(value).locale("es-mx");
+const capFirst = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+
+const Label = ({ children }: { children: React.ReactNode }) => (
   <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
     {children}
   </span>
 );
 
-const Field = ({ label, value }: { label: string; value: React.ReactNode }) => (
-  <div className="flex flex-col gap-0.5 min-w-0">
-    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-      {label}
+const SectionTitle = ({
+  children,
+  action,
+}: {
+  children: React.ReactNode;
+  action?: { label: string; onClick: () => void };
+}) => (
+  <div className="flex items-center justify-between gap-3 mb-3">
+    <span className="flex items-center gap-2 min-w-0">
+      <span className="w-[3px] h-4 rounded-full bg-primary shrink-0" />
+      <span className="text-[11px] font-bold uppercase tracking-wider text-gray-700">
+        {children}
+      </span>
     </span>
-    <span className="text-sm font-medium text-gray-800">{value}</span>
+    {action && (
+      <button
+        type="button"
+        onClick={action.onClick}
+        className="shrink-0 text-[11px] font-semibold text-primary hover:underline transition-all duration-200 ease-in-out cursor-pointer"
+      >
+        {action.label}
+      </button>
+    )}
   </div>
 );
+
+// Ficha de dato: el icono ancla la lectura y las dos columnas quedan a la misma
+// altura, así el bloque no se desarma cuando un mail es largo.
+const InfoTile = ({
+  icon,
+  label,
+  value,
+  href,
+  muted = false,
+  breakAll = false,
+  className = "",
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+  href?: string;
+  muted?: boolean;
+  breakAll?: boolean;
+  className?: string;
+}) => {
+  const base = `group flex items-start gap-2.5 rounded-xl border border-gray-100 bg-gray-50/70 px-3 py-2.5 min-w-0 h-full ${className}`;
+  const body = (
+    <>
+      <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-lg bg-white border border-gray-200 text-gray-400 group-hover:text-primary group-hover:border-orange-200 transition-colors duration-200">
+        {icon}
+      </span>
+      <span className="flex flex-col gap-0.5 min-w-0 pt-0.5">
+        <Label>{label}</Label>
+        <span
+          className={`text-[13px] font-medium leading-snug ${
+            breakAll ? "break-all" : "break-words"
+          } ${muted ? "italic text-gray-400" : "text-gray-800"}`}
+        >
+          {value}
+        </span>
+      </span>
+    </>
+  );
+
+  if (!href) return <div className={base}>{body}</div>;
+  return (
+    <a
+      href={href}
+      className={`${base} hover:border-orange-200 hover:bg-orange-50/50 transition-colors duration-200`}
+    >
+      {body}
+    </a>
+  );
+};
 
 const AppointmentModal: React.FC<props> = ({
   appointment,
@@ -164,7 +253,7 @@ const AppointmentModal: React.FC<props> = ({
       ? depositStatusConfig[
           appointment.depositStatus as keyof typeof depositStatusConfig
         ]
-      : null;
+      : depositStatusConfig.none;
 
   const assignedEmployee = appointment?.employeeID
     ? employees?.find((e) => e._id === appointment.employeeID)
@@ -257,50 +346,55 @@ const AppointmentModal: React.FC<props> = ({
   // abajo: en horizontal el alto es el recurso escaso.
   const confirming = confirmReassign || confirmCancel;
 
-  const assignmentHeader = (action?: { label: string; onClick: () => void }) => (
-    <div className="flex items-center justify-between gap-3">
-      <span className="text-[11px] font-bold uppercase tracking-wider text-orange-600">
-        Asignación
-      </span>
-      {action && (
-        <button
-          type="button"
-          onClick={action.onClick}
-          className="shrink-0 text-[11px] font-semibold text-orange-600 hover:underline transition-all duration-200 ease-in-out cursor-pointer"
-        >
-          {action.label}
-        </button>
-      )}
-    </div>
-  );
+  const clientInitials = (appointment?.name ?? "")
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((word) => word.charAt(0))
+    .join("")
+    .toUpperCase();
+
+  // Distancia en días: lo primero que se quiere saber al abrir un turno.
+  const dayDiff = d(appointment?.start)
+    .startOf("day")
+    .diff(dayjs().startOf("day"), "day");
+  const relativeLabel =
+    dayDiff === 0
+      ? "Hoy"
+      : dayDiff === 1
+        ? "Mañana"
+        : dayDiff === -1
+          ? "Ayer"
+          : dayDiff > 1
+            ? `En ${dayDiff} días`
+            : `Hace ${Math.abs(dayDiff)} días`;
+
+  const selectTriggerClass =
+    "w-full h-9 text-xs bg-gray-50 border-gray-200 hover:border-orange-600 focus:border-orange-600 transition-colors duration-200";
 
   // Función y no componente: definido acá adentro, un componente se remontaría
   // en cada render y cerraría el desplegable abierto.
-  // `narrow`: el bloque va en la mitad de la columna derecha (turno reservado),
-  // así que los selects se apilan en vez de ir a la par.
-  const renderAssignment = (narrow = false) => {
+  const renderAssignment = () => {
     if (!hasTeam) return null;
 
     // En un turno reservado la asignación ya es un hecho: se lee como dato y los
     // selectores aparecen sólo si el dueño entra a cambiarla a propósito.
     if (canEditAssignment && (!isBooked || editingAssignment)) {
       return (
-        <div className="flex flex-col gap-3 min-w-0">
-          {assignmentHeader(
-            isBooked
-              ? { label: "Descartar", onClick: cancelAssignmentEdit }
-              : undefined
-          )}
-          <div
-            className={`grid grid-cols-1 sm:grid-cols-2 gap-3 ${
-              narrow ? "lg:grid-cols-1" : ""
-            }`}
+        <div className="min-w-0">
+          <SectionTitle
+            action={
+              isBooked
+                ? { label: "Descartar", onClick: cancelAssignmentEdit }
+                : undefined
+            }
           >
+            Asignación
+          </SectionTitle>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {activeBranches.length > 0 && (
-              <div className="flex flex-col gap-1 min-w-0">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                  Sucursal
-                </label>
+              <div className="flex flex-col gap-1.5 min-w-0">
+                <Label>Sucursal</Label>
                 <Select
                   value={draftBranchID || "none"}
                   onValueChange={(v) => {
@@ -308,7 +402,7 @@ const AppointmentModal: React.FC<props> = ({
                     setDraftEmployeeID("");
                   }}
                 >
-                  <SelectTrigger className="w-full h-9 text-xs bg-white">
+                  <SelectTrigger className={selectTriggerClass}>
                     <SelectValue placeholder="Sin asignar" />
                   </SelectTrigger>
                   <SelectContent>
@@ -327,17 +421,18 @@ const AppointmentModal: React.FC<props> = ({
             )}
 
             {activeEmployees.length > 0 && (
-              <div className="flex flex-col gap-1 min-w-0">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                  Profesional {assignmentRequired && <span className="text-primary">*</span>}
-                </label>
+              <div className="flex flex-col gap-1.5 min-w-0">
+                <Label>
+                  Profesional{" "}
+                  {assignmentRequired && <span className="text-primary">*</span>}
+                </Label>
                 {assignmentRequired ? (
                   <Select
                     value={draftEmployeeID || undefined}
                     onValueChange={setDraftEmployeeID}
                   >
                     <SelectTrigger
-                      className={`w-full h-9 text-xs bg-white ${
+                      className={`${selectTriggerClass} ${
                         employeeMissing ? "border-orange-400" : ""
                       }`}
                     >
@@ -371,11 +466,11 @@ const AppointmentModal: React.FC<props> = ({
           </div>
 
           {activeEmployees.length > 0 && eligibleEmployees.length === 0 ? (
-            <span className="text-[11px] text-orange-600">
+            <span className="block mt-2.5 text-[11px] text-orange-600">
               Ningún profesional coincide con la sucursal y el servicio de este turno.
             </span>
           ) : (
-            <span className="text-[11px] text-gray-400">
+            <span className="block mt-2.5 text-[11px] text-gray-400">
               Los cambios se guardan al confirmar.
             </span>
           )}
@@ -386,38 +481,42 @@ const AppointmentModal: React.FC<props> = ({
     if (showClaim) {
       if (!appointment?.employeeID) {
         return (
-          <div className="flex flex-col gap-2.5 p-4 rounded-xl border border-orange-200 bg-orange-50/60">
+          <div className="flex flex-col gap-3 p-4 rounded-xl border border-orange-200 bg-orange-50/60">
             <div className="flex flex-col gap-0.5">
               <span className="text-sm font-semibold text-gray-800">
                 Este turno no tiene profesional
               </span>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 leading-relaxed">
                 Cualquiera del equipo puede atenderlo. Tomalo si lo vas a hacer vos.
               </span>
             </div>
-            <Button
+            <button
+              type="button"
               disabled={assigning}
               onClick={() => runAssign({ employeeID: currentEmployeeID })}
-              className="w-full h-9 text-xs text-white bg-primary hover:bg-orange-500 border-none rounded-lg disabled:opacity-60"
+              className={`${BTN_PRIMARY} w-full`}
             >
               {assigning ? "Asignando..." : "Asignarme el turno"}
-            </Button>
+            </button>
           </div>
         );
       }
       if (isMine) {
         return (
-          <div className="flex items-center justify-between gap-3 p-4 rounded-xl border border-gray-200 bg-gray-50">
-            <div className="flex items-center gap-2 min-w-0">
-              <LuUser className="text-primary shrink-0" size={15} />
+          <div className="flex items-center justify-between gap-3 p-4 rounded-xl border border-gray-100 bg-gray-50/70">
+            <span className="flex items-center gap-2.5 min-w-0">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-lg bg-white border border-gray-200 text-primary">
+                <LuUser size={15} />
+              </span>
               <span className="text-sm font-medium text-gray-700">
                 Este turno es tuyo
               </span>
-            </div>
+            </span>
             <button
+              type="button"
               disabled={assigning}
               onClick={() => runAssign({ employeeID: null })}
-              className="text-xs font-semibold text-gray-500 hover:text-red-600 transition-colors shrink-0 disabled:opacity-60"
+              className="shrink-0 text-xs font-semibold text-gray-500 hover:text-red-600 transition-colors duration-200 disabled:opacity-60 cursor-pointer"
             >
               Soltar turno
             </button>
@@ -428,44 +527,38 @@ const AppointmentModal: React.FC<props> = ({
 
     // Lectura: turno reservado, o alguien sin permiso para reasignar.
     return (
-      <div className="flex flex-col gap-3 min-w-0">
-        {assignmentHeader(
-          canEditAssignment
-            ? { label: "Cambiar", onClick: () => setEditingAssignment(true) }
-            : undefined
-        )}
-        {activeBranches.length > 0 && (
-          <Field
-            label="Sucursal"
-            value={
-              <span className="flex items-center gap-1.5">
-                <LuMapPin className="text-gray-400 shrink-0" size={14} />
-                {assignedBranch ? (
-                  <span className="break-words">{assignedBranch.name}</span>
-                ) : (
-                  <span className="italic text-gray-400">Sin asignar</span>
-                )}
-              </span>
-            }
-          />
-        )}
-        {activeEmployees.length > 0 && (
-          <Field
-            label="Profesional"
-            value={
-              <span className="flex items-center gap-1.5">
-                <LuUser className="text-gray-400 shrink-0" size={14} />
-                {assignedEmployee ? (
-                  <span className="break-words">
-                    {assignedEmployee.name} {assignedEmployee.surname}
-                  </span>
-                ) : (
-                  <span className="italic text-gray-400">Cualquiera del equipo</span>
-                )}
-              </span>
-            }
-          />
-        )}
+      <div className="min-w-0">
+        <SectionTitle
+          action={
+            canEditAssignment
+              ? { label: "Cambiar", onClick: () => setEditingAssignment(true) }
+              : undefined
+          }
+        >
+          Asignación
+        </SectionTitle>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {activeBranches.length > 0 && (
+            <InfoTile
+              icon={<LuMapPin size={15} />}
+              label="Sucursal"
+              value={assignedBranch ? assignedBranch.name : "Sin asignar"}
+              muted={!assignedBranch}
+            />
+          )}
+          {activeEmployees.length > 0 && (
+            <InfoTile
+              icon={<LuUser size={15} />}
+              label="Profesional"
+              value={
+                assignedEmployee
+                  ? `${assignedEmployee.name} ${assignedEmployee.surname}`
+                  : "Cualquiera del equipo"
+              }
+              muted={!assignedEmployee}
+            />
+          )}
+        </div>
       </div>
     );
   };
@@ -533,7 +626,7 @@ const AppointmentModal: React.FC<props> = ({
 
     if (confirmCancel) {
       return (
-        <div className="flex flex-col gap-2 rounded-xl border border-red-100 bg-red-50 px-4 py-3.5">
+        <div className="flex flex-col gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3.5">
           <span className="text-sm font-semibold text-red-700">
             Cancelar este turno
           </span>
@@ -562,32 +655,66 @@ const AppointmentModal: React.FC<props> = ({
     }
 
     if (isBooked) {
+      const assignment = renderAssignment();
       return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-5">
-          <div className="flex flex-col gap-3 min-w-0">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-orange-600">
-              Cliente
-            </span>
-            <Field
-              label="Nombre"
-              value={<span className="break-words">{appointment?.name}</span>}
-            />
-            <Field label="Teléfono" value={`+54 ${appointment?.phone}`} />
-            <Field
-              label="Email"
-              value={<span className="break-all">{appointment?.email}</span>}
-            />
+        <div className="flex flex-col gap-5">
+          <div className="min-w-0">
+            <SectionTitle>Cliente</SectionTitle>
+            <div className="flex items-center gap-3 mb-3 min-w-0">
+              <span className="flex items-center justify-center w-10 h-10 shrink-0 rounded-full bg-orange-100 text-primary text-[13px] font-bold">
+                {clientInitials || "?"}
+              </span>
+              <span className="flex flex-col min-w-0">
+                <span className="text-[15px] font-semibold text-gray-800 leading-tight break-words">
+                  {appointment?.name}
+                </span>
+                <span className="text-[11px] text-gray-400 mt-0.5">
+                  Reservó este turno
+                </span>
+              </span>
+            </div>
+            {/* El mail es siempre más largo que el teléfono: se lleva 3/5 del
+                ancho para no partirse al medio de una palabra. */}
+            <div className="grid grid-cols-1 sm:grid-cols-5 gap-2.5">
+              <InfoTile
+                className="sm:col-span-2"
+                icon={<LuPhone size={15} />}
+                label="Teléfono"
+                value={`+54 ${appointment?.phone}`}
+                href={`tel:+54${appointment?.phone}`}
+              />
+              <InfoTile
+                className="sm:col-span-3"
+                icon={<LuMail size={15} />}
+                label="Email"
+                value={appointment?.email}
+                href={`mailto:${appointment?.email}`}
+                breakAll
+              />
+            </div>
           </div>
-          {renderAssignment(true)}
+
+          {assignment && (
+            <>
+              <div className="h-px bg-gray-100" />
+              {assignment}
+            </>
+          )}
         </div>
       );
     }
 
     return (
       renderAssignment() ?? (
-        <p className="text-sm text-gray-400">
-          Este turno queda disponible para que lo reserve un cliente.
-        </p>
+        <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
+          <span className="flex items-center justify-center w-11 h-11 rounded-full bg-gray-50 border border-gray-100 text-gray-300">
+            <Calendar className="w-5 h-5" />
+          </span>
+          <span className="text-sm font-semibold text-gray-700">Turno libre</span>
+          <p className="text-xs text-gray-400 max-w-[280px] leading-relaxed">
+            Queda publicado en tu perfil para que lo reserve un cliente.
+          </p>
+        </div>
       )
     );
   };
@@ -596,20 +723,22 @@ const AppointmentModal: React.FC<props> = ({
     if (confirmReassign) {
       return (
         <>
-          <Button
+          <button
+            type="button"
             disabled={assigning}
             onClick={() => setConfirmReassign(false)}
-            className="h-9 px-4 text-xs bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-lg"
+            className={`${BTN_NEUTRAL} w-full sm:w-auto`}
           >
             Volver
-          </Button>
-          <Button
+          </button>
+          <button
+            type="button"
             disabled={assigning}
             onClick={saveAssignment}
-            className="h-9 px-4 text-xs text-white bg-primary hover:bg-orange-500 border-none rounded-lg disabled:opacity-60"
+            className={`${BTN_PRIMARY} w-full sm:w-auto`}
           >
             {assigning ? "Guardando..." : "Confirmar cambio"}
-          </Button>
+          </button>
         </>
       );
     }
@@ -617,18 +746,20 @@ const AppointmentModal: React.FC<props> = ({
     if (confirmCancel) {
       return (
         <>
-          <Button
+          <button
+            type="button"
             onClick={() => setConfirmCancel(false)}
-            className="h-9 px-4 text-xs bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-lg"
+            className={`${BTN_NEUTRAL} w-full sm:w-auto`}
           >
             Volver
-          </Button>
-          <Button
+          </button>
+          <button
+            type="button"
             onClick={handleCancel}
-            className="h-9 px-4 text-xs text-white bg-red-600 hover:bg-red-700 border-none rounded-lg"
+            className={`${BTN_DANGER} w-full sm:w-auto`}
           >
             Confirmar cancelación
-          </Button>
+          </button>
         </>
       );
     }
@@ -639,28 +770,28 @@ const AppointmentModal: React.FC<props> = ({
           <Link
             target="_blank"
             href={`https://wa.me/54${appointment?.phone}`}
-            className="shrink-0"
+            className={`${BTN_OUTLINE} w-full sm:w-auto`}
           >
-            <Button className="h-9 px-4 text-xs bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-lg">
-              <FaWhatsapp size={14} /> WhatsApp
-            </Button>
+            <FaWhatsapp size={15} /> Escribirle por WhatsApp
           </Link>
         ) : (
-          <Button
+          <button
+            type="button"
             onClick={closeModalF}
-            className="h-9 px-4 text-xs bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-lg"
+            className={`${BTN_NEUTRAL} w-full sm:w-auto`}
           >
             Cerrar
-          </Button>
+          </button>
         )}
         {canEditAssignment && assignDirty && (
-          <Button
+          <button
+            type="button"
             disabled={assigning || employeeMissing}
             onClick={startSave}
-            className="h-9 px-4 text-xs text-white bg-primary hover:bg-orange-500 border-none rounded-lg disabled:opacity-60"
+            className={`${BTN_PRIMARY} w-full sm:w-auto`}
           >
             Guardar asignación
-          </Button>
+          </button>
         )}
       </>
     );
@@ -671,140 +802,155 @@ const AppointmentModal: React.FC<props> = ({
     if (isBooked) {
       if (!onCancel || !canDelete) return null;
       return (
-        <Button
+        <button
+          type="button"
           onClick={() => setConfirmCancel(true)}
-          className="h-9 px-4 text-xs bg-white text-red-600 hover:bg-red-50 border border-red-200 rounded-lg"
+          className={`${BTN_DANGER_SOFT} w-full sm:w-auto`}
         >
           Cancelar turno
-        </Button>
+        </button>
       );
     }
     if (!canDelete) return null;
     return (
-      <Button
+      <button
+        type="button"
         onClick={handleDelete}
-        className="h-9 px-4 text-xs bg-white text-red-600 hover:bg-red-50 border border-red-200 rounded-lg"
+        className={`${BTN_DANGER_SOFT} w-full sm:w-auto`}
       >
         <LuTrash2 size={14} /> Eliminar turno
-      </Button>
+      </button>
     );
   };
 
   return (
-    <div className="flex flex-col lg:grid lg:grid-cols-[auto_minmax(0,1fr)] w-full max-h-[85dvh] overflow-hidden">
-      {/* Resumen: lo que no se edita desde acá. El riel se mide por su contenido
-          (la fecha larga es la que manda) en vez de tener un ancho fijo, así no
-          sobra aire con fechas cortas ni se corta "miércoles 30 de septiembre". */}
-      <aside className="shrink-0 min-h-0 lg:min-w-[250px] lg:max-w-[340px] lg:overflow-y-auto flex flex-col gap-4 px-6 py-5 bg-orange-50/60 border-b lg:border-b-0 lg:border-r border-orange-100">
-        <div className="flex items-center gap-3">
-          <div className="flex flex-col items-center justify-center w-11 h-11 bg-primary rounded-lg shrink-0">
-            <span className="text-lg font-black text-white leading-none">
-              {dayjs(appointment?.start).format("DD")}
-            </span>
-            <span className="text-[9px] font-bold text-orange-200 uppercase leading-none mt-0.5">
-              {dayjs(appointment?.start).format("MMM")}
+    <div className="flex flex-col w-full max-h-[85dvh] overflow-hidden bg-white">
+      {/* Encabezado: el estado del turno, a lo ancho de todo el modal. */}
+      <header className="shrink-0 flex items-center gap-3 px-5 sm:px-6 py-4 pr-14 border-b border-gray-100">
+        <span
+          className={`flex items-center justify-center w-9 h-9 shrink-0 rounded-xl border ${
+            isBooked
+              ? "bg-green-50 text-green-600 border-green-100"
+              : "bg-gray-50 text-gray-400 border-gray-100"
+          }`}
+        >
+          {isBooked ? (
+            <Check size={17} strokeWidth={3} />
+          ) : (
+            <Calendar className="w-4 h-4" />
+          )}
+        </span>
+        <div className="flex flex-col min-w-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <h4 className="text-base sm:text-lg leading-none font-semibold text-gray-800 truncate">
+              {isBooked ? "Turno reservado" : "Turno disponible"}
+            </h4>
+            <span
+              className={`shrink-0 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full ${
+                dayDiff === 0
+                  ? "bg-orange-100 text-orange-700"
+                  : "bg-gray-100 text-gray-500"
+              }`}
+            >
+              {relativeLabel}
             </span>
           </div>
-          <div className="flex flex-col gap-1 min-w-0">
-            <span className="text-[15px] leading-tight font-semibold text-gray-800 capitalize whitespace-nowrap">
-              {dayjs(appointment?.start).format("dddd DD [de] MMMM")}
-            </span>
-            <div className="flex items-center gap-1.5 whitespace-nowrap">
-              <Clock className="w-4 h-4 text-gray-400 shrink-0" />
-              <span className="text-sm leading-none font-medium text-gray-500">
-                {dayjs(appointment?.start).format("HH:mm")} —{" "}
-                {dayjs(appointment?.end).format("HH:mm [hs]")}
+          {!isBooked && (
+            <p className="text-xs text-gray-400 mt-1.5 truncate">
+              Todavía no lo reservó nadie
+            </p>
+          )}
+        </div>
+      </header>
+
+      {/* Cuerpo: resumen inmutable a la izquierda, detalle editable a la derecha. */}
+      <div className="flex-1 min-h-0 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
+        <aside className="shrink-0 lg:w-[272px] lg:overflow-y-auto flex flex-col gap-4 px-5 sm:px-6 py-5 bg-orange-50/60 border-b lg:border-b-0 lg:border-r border-orange-100">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex flex-col items-center justify-center w-12 h-12 bg-primary rounded-xl shrink-0 shadow-sm">
+              <span className="text-lg font-black text-white leading-none">
+                {d(appointment?.start).format("DD")}
+              </span>
+              <span className="text-[9px] font-bold text-orange-100 uppercase leading-none mt-0.5">
+                {d(appointment?.start).format("MMM").replace(".", "")}
+              </span>
+            </div>
+            <div className="flex flex-col gap-1.5 min-w-0">
+              <span className="text-sm leading-snug font-semibold text-gray-800">
+                {capFirst(d(appointment?.start).format("dddd D [de] MMMM"))}
+              </span>
+              <span className="flex items-center gap-1.5 min-w-0">
+                <Clock className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                <span className="text-[13px] leading-none font-medium text-gray-500">
+                  {d(appointment?.start).format("HH:mm")} —{" "}
+                  {d(appointment?.end).format("HH:mm [hs]")}
+                </span>
               </span>
             </div>
           </div>
-        </div>
 
-        <div className="h-px mt-1 bg-orange-100" />
+          <div className="h-px bg-orange-100" />
 
-        <div className="grid grid-cols-2 lg:grid-cols-1 gap-3.5">
-          <div className="flex flex-col gap-1 min-w-0">
-            <RailLabel>Servicio</RailLabel>
-            <span className="text-[13px] font-semibold text-gray-800 leading-snug break-words">
-              {appointment?.service}
-            </span>
+          <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
+            <div className="flex flex-col gap-1 min-w-0">
+              <Label>Servicio</Label>
+              <span className="text-[13px] font-semibold text-gray-800 leading-snug break-words">
+                {appointment?.service}
+              </span>
+            </div>
+            <div className="flex flex-col gap-1 min-w-0">
+              <Label>Precio</Label>
+              <span className="text-xl font-bold text-gray-800 leading-none">
+                $ {appointment?.price?.toLocaleString("es-AR")}
+              </span>
+            </div>
           </div>
-          <div className="flex flex-col gap-0.5">
-            <RailLabel>Precio</RailLabel>
-            <span className="text-lg font-bold text-gray-800 leading-none">
-              $ {appointment?.price?.toLocaleString("es-AR")}
-            </span>
-          </div>
-          {hasDeposit && !depositCfg && (
-            <div className="flex flex-col gap-1">
-              <RailLabel>Seña</RailLabel>
-              <span className="text-[13px] font-semibold text-orange-600">
+
+          {hasDeposit && (
+            <div
+              className={`flex flex-col gap-1.5 rounded-xl border px-3 py-2.5 ${depositCfg.bg} ${depositCfg.border}`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span
+                  className={`text-[10px] font-bold uppercase tracking-widest ${depositCfg.label}`}
+                >
+                  Seña
+                </span>
+                <span
+                  className={`shrink-0 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full ${depositCfg.chip}`}
+                >
+                  {depositCfg.text}
+                </span>
+              </div>
+              <span
+                className={`text-[15px] font-bold leading-none ${depositCfg.value}`}
+              >
                 $ {appointment!.depositAmount!.toLocaleString("es-AR")}
               </span>
-            </div>
-          )}
-          {hasDeposit && depositCfg && (
-            <div
-              className={`flex flex-col gap-0.5 rounded-lg border px-2.5 py-2 ${depositCfg.bg} ${depositCfg.border}`}
-            >
-              <span
-                className={`text-[10px] font-bold uppercase tracking-widest ${depositCfg.label}`}
-              >
-                Seña
-              </span>
-              <span className={`text-xs font-semibold ${depositCfg.value}`}>
-                $ {appointment!.depositAmount!.toLocaleString("es-AR")} —{" "}
-                {depositCfg.text}
-              </span>
               {appointment?.depositStatus === "paid" && appointment.mpPaymentID && (
-                <span className="text-[10px] tracking-wide text-gray-400 mt-0.5 break-all">
-                  ID {appointment.mpPaymentID}
+                <span
+                  title={`Pago de Mercado Pago ${appointment.mpPaymentID}`}
+                  className="text-[10px] leading-tight tracking-wide text-gray-400 truncate"
+                >
+                  MP · {appointment.mpPaymentID}
                 </span>
               )}
             </div>
           )}
-        </div>
+        </aside>
 
-        {!isBooked && (
-          <div className="hidden lg:flex mt-auto items-center gap-1.5 w-fit rounded-full bg-gray-100 px-2.5 py-1">
-            <Calendar className="w-3 h-3 text-gray-500 shrink-0" />
-            <span className="text-[11px] font-medium text-gray-600">Sin reservar</span>
-          </div>
-        )}
-      </aside>
-
-      {/* Contenido y acciones */}
-      <section className="flex flex-col min-h-0 flex-1">
-        <div className="shrink-0 flex flex-col gap-0.5 px-6 py-6 pr-14 border-b border-gray-100">
-          {isBooked ? (
-            <div className="flex items-center gap-2.5">
-              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500 shrink-0">
-                <Check size={13} className="text-white" strokeWidth={3} />
-              </div>
-              <h4 className="text-lg leading-none font-semibold text-gray-800">
-                Turno reservado
-              </h4>
-            </div>
-          ) : (
-            <>
-              <h4 className="text-lg leading-none font-semibold text-gray-800">
-                Turno disponible
-              </h4>
-              <p className="text-xs text-gray-400 mt-0.5">
-                Este turno aún no fue reservado
-              </p>
-            </>
-          )}
-        </div>
-
-        <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5">
+        <section className="flex-1 min-w-0 lg:min-h-0 lg:overflow-y-auto px-5 sm:px-6 py-5">
           {renderBody()}
-        </div>
+        </section>
+      </div>
 
-        <div className="shrink-0 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-2 px-6 py-4 border-t border-gray-100">
-          {destructiveAction() ?? <span className="hidden sm:block" />}
-          <div className="flex items-center justify-end gap-2">{renderFooter()}</div>
+      {/* Acciones: a lo ancho del modal, la destructiva separada del resto. */}
+      <footer className="shrink-0 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-2 px-5 sm:px-6 py-3.5 border-t border-gray-100 bg-gray-50/60">
+        {destructiveAction() ?? <span className="hidden sm:block" />}
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center gap-2">
+          {renderFooter()}
         </div>
-      </section>
+      </footer>
     </div>
   );
 };

@@ -46,7 +46,8 @@ interface IDashboardStats {
   todayRemaining: number;
   weekBooked: number;
   monthBooked: number;
-  monthRevenue: number;
+  // El backend omite monthRevenue para empleados sin view_stats
+  monthRevenue?: number;
 }
 
 const PLAN_BADGE_CLASSES: Record<SubscriptionType, string> = {
@@ -287,6 +288,9 @@ const DashboardComponent: React.FC<Props> = ({
     appointmentsData?.filter((a) => a.depositStatus === "pending").length ?? 0;
   // El empleado sólo cuenta sus propios turnos; el dueño, los de todo el negocio
   const todayPending = isEmployee ? todayCount : stats?.todayRemaining ?? 0;
+  // Sin view_stats no hay tarjeta de Ingresos: el backend tampoco manda monthRevenue.
+  // Semana y Mes sí se muestran, pero con los conteos propios del empleado.
+  const canViewRevenue = !isEmployee || can("view_stats");
 
   const visibleAppointments = appointmentsData?.slice(0, visibleCount) ?? [];
   const remainingCount = todayCount - visibleAppointments.length;
@@ -380,7 +384,11 @@ const DashboardComponent: React.FC<Props> = ({
           {/* STATS CARDS */}
           <div className="flex flex-col gap-3">
             <span className="text-lg font-semibold">Resumen</span>
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+            <div
+              className={`grid grid-cols-2 gap-3 md:gap-4 ${
+                canViewRevenue ? "md:grid-cols-4" : "md:grid-cols-3"
+              }`}
+            >
               {/* Turnos restantes hoy */}
               <div
                 style={cardShadow}
@@ -439,14 +447,16 @@ const DashboardComponent: React.FC<Props> = ({
                   </span>
                 )}
                 <span className="text-xs text-gray-500">
-                  reservados esta semana
+                  {canViewRevenue ? "reservados esta semana" : "tuyos esta semana"}
                 </span>
               </div>
 
-              {/* Mes */}
+              {/* Mes — sin Ingresos queda impar, así ocupa el ancho en mobile */}
               <div
                 style={cardShadow}
-                className="flex flex-col gap-3 p-4 bg-white rounded-xl"
+                className={`flex flex-col gap-3 p-4 bg-white rounded-xl ${
+                  canViewRevenue ? "" : "col-span-2 md:col-span-1"
+                }`}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
@@ -470,12 +480,12 @@ const DashboardComponent: React.FC<Props> = ({
                   </span>
                 )}
                 <span className="text-xs text-gray-500">
-                  reservados este mes
+                  {canViewRevenue ? "reservados este mes" : "tuyos este mes"}
                 </span>
               </div>
 
               {/* Ingresos → link to analytics (solo si tiene permiso) */}
-              {!isEmployee || can("view_stats") ? (
+              {canViewRevenue && (
                 <Link href="/admin/analytics">
                   <div
                     style={cardShadow}
@@ -507,29 +517,6 @@ const DashboardComponent: React.FC<Props> = ({
                     </span>
                   </div>
                 </Link>
-              ) : (
-                <div
-                  style={cardShadow}
-                  className="flex flex-col gap-3 p-4 bg-white rounded-xl"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                      Ingresos
-                    </span>
-                    <div
-                      className="flex items-center justify-center w-8 h-8 rounded-lg"
-                      style={{ backgroundColor: "#fff3ef" }}
-                    >
-                      <LuTrendingUp size={15} color="#dd4924" />
-                    </div>
-                  </div>
-                  <span className="text-xl font-bold leading-tight">
-                    {formatCurrency(stats?.monthRevenue ?? 0)}
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    durante mes de {dayjs().locale("es-mx").format("MMMM")}
-                  </span>
-                </div>
               )}
             </div>
           </div>

@@ -1556,3 +1556,49 @@ html {
     animation-duration: 2.5s;
   }
 }
+
+/* Barra de avance del paso actual en la demo "Como dueño". */
+@keyframes demo-step-progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+/* Brillo del velo de carga sobre los dispositivos de la demo. */
+@keyframes demo-stage-sheen {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Entrada y salida del modo pantalla completa de la demo (mobile). El
+   contenedor es el mismo nodo en los dos estados —no se puede remontar sin
+   recargar el iframe—, así que no hay transición posible entre `fixed` y el
+   flujo normal: cada estado entra con su propio asentamiento. */
+@keyframes demo-fs-enter {
+  from {
+    opacity: 0.35;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes demo-fs-exit {
+  from {
+    opacity: 0.45;
+    transform: scale(1.03);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

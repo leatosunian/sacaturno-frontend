@@ -44,6 +44,7 @@ import {
   HiOutlineChevronUpDown,
   HiOutlineExclamationTriangle,
   HiOutlineChevronRight,
+  HiOutlineQuestionMarkCircle,
 } from "react-icons/hi2";
 import { IoIosLogOut } from "react-icons/io";
 import { SiMercadopago } from "react-icons/si";
@@ -282,6 +283,21 @@ export default function AdminSidebar({
             <SidebarSeparator className={separatorClass} />
           </>
         )}
+
+        {/* Ayuda — sin restricción de rol ni de plan: el centro de ayuda se
+            filtra solo según quién lo abre. */}
+        <SidebarGroup className={groupClass}>
+          <SidebarGroupLabel className={groupLabelClass}>
+            Soporte
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className={menuClass}>
+              <NavItem href="/admin/ayuda" icon={HiOutlineQuestionMarkCircle}>
+                Centro de ayuda
+              </NavItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       {/* Footer — user account dropdown */}

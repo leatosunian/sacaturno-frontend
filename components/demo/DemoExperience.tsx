@@ -7,6 +7,9 @@ import {
   Building2,
   CalendarCheck,
   CreditCard,
+  Maximize2,
+  Minimize2,
+  Play,
   Sparkles,
   Tag,
   Users,
@@ -23,6 +26,7 @@ import {
   type DemoMessage,
 } from "./demoSync";
 import { PLAN_LABELS } from "@/lib/planLimits";
+import { cn } from "@/lib/utils";
 
 /*
   Contenedor de /demo.
@@ -44,6 +48,11 @@ import { PLAN_LABELS } from "@/lib/planLimits";
 // `bezel` es el grosor del marco y se aplica por style, no con una clase de
 // Tailwind: los marcos son border-box, así que el borde hay que sumárselo al
 // tamaño o se come pantalla y recorta el contenido contra el borde derecho.
+// Cuánto queda la pantalla de éxito a la vista antes de que la demo se
+// contraiga sola. Alcanza para ver la animación de confirmación y leer el
+// mensaje; el botón "Salir" sigue estando para el que no quiera esperar.
+const BOOKED_EXIT_MS = 7000;
+
 const PHONE = { width: 380, height: 780, box: 300, bezel: 9 };
 const LAPTOP = { width: 1080, height: 700, bezel: 10 };
 
@@ -117,10 +126,20 @@ export default function DemoExperience() {
   const [booking, setBooking] = useState<DemoBooking | null>(null);
   const [tourStep, setTourStep] = useState(0);
   const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
+  const [fullscreen, setFullscreen] = useState(false);
+  // Sin esto la animación de salida corre sola al montar la página, porque el
+  // estado inicial ya es "no está a pantalla completa".
+  const [fsToggled, setFsToggled] = useState(false);
+  const toggleFullscreen = useCallback((next?: boolean) => {
+    if (exitTimer.current) clearTimeout(exitTimer.current);
+    setFsToggled(true);
+    setFullscreen((value) => next ?? !value);
+  }, []);
 
   const configRef = useRef(config);
   const phoneRef = useRef<HTMLIFrameElement>(null);
   const laptopRef = useRef<HTMLIFrameElement>(null);
+  const exitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [stageSrc] = useState(
     () => `/demo/stage?cfg=${encodeConfig(DEFAULT_DEMO_CONFIG)}`,
   );
@@ -135,6 +154,30 @@ export default function DemoExperience() {
     query.addEventListener("change", update);
     return () => query.removeEventListener("change", update);
   }, []);
+
+  // El modo pantalla completa es sólo del escenario de mobile: si la ventana
+  // crece hasta el layout de dispositivos, o se pasa al panel, se apaga solo.
+  useEffect(() => {
+    if (isDesktop || tab !== "booking") setFullscreen(false);
+  }, [isDesktop, tab]);
+
+  // Mientras está a pantalla completa la página de atrás no scrollea, y Escape
+  // sale — el botón flotante queda sobre la UI del wizard y no siempre es lo
+  // primero que el pulgar encuentra.
+  useEffect(() => {
+    if (!fullscreen) return;
+    const { body } = document;
+    const previous = body.style.overflow;
+    body.style.overflow = "hidden";
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setFullscreen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      body.style.overflow = previous;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [fullscreen]);
 
   // ── Central entre los dos dispositivos ──
   const frames = useCallback(
@@ -170,11 +213,24 @@ export default function DemoExperience() {
           .forEach((frame) => send(frame, message));
         return;
       }
-      if (message.type === DEMO_MSG.booked) setBooking(message.booking);
+      if (message.type === DEMO_MSG.booked) {
+        setBooking(message.booking);
+        // El aviso de "ya está en la agenda" vive en la página, no en el
+        // iframe, así que hay que salir de pantalla completa. Pero no de
+        // golpe: primero se ve la confirmación adentro de la demo.
+        if (exitTimer.current) clearTimeout(exitTimer.current);
+        exitTimer.current = setTimeout(
+          () => setFullscreen(false),
+          BOOKED_EXIT_MS,
+        );
+      }
     };
 
     window.addEventListener("message", onMessage);
-    return () => window.removeEventListener("message", onMessage);
+    return () => {
+      window.removeEventListener("message", onMessage);
+      if (exitTimer.current) clearTimeout(exitTimer.current);
+    };
   }, [frames, send]);
 
   const toggle = (key: keyof DemoConfig) => {
@@ -209,14 +265,16 @@ export default function DemoExperience() {
           <span className="rounded-full text-orange-600 bg-orange-50 border border-orange-100 px-3.5 py-1 md:px-4 md:py-1.5 text-[13px] md:text-sm font-medium">
             Demo interactiva
           </span>
-          <h1 className="text-[26px] leading-[1.15] md:text-5xl font-bold tracking-tight text-neutral-900 max-w-3xl text-balance">
-            Probá SacaTurno como si fueras{" "}
-            <span className="text-orange-600">tu propio cliente</span>
+          <h1 className="text-[26.5px] leading-[1.15] md:text-5xl font-bold tracking-tight text-neutral-900 max-w-3xl text-balance">
+            Probá SacaTurno {" "}
+            <span className="text-orange-600">como cliente</span>{" "}y{" "} 
+            <span className="text-orange-600">como dueño</span>
           </h1>
-          <p className="text-[13px] md:text-base text-neutral-600 max-w-2xl">
-            Este es un negocio de ejemplo. Armalo como es el tuyo, reservá un
-            turno y mirá cómo le llega a la agenda del negocio. Sin crear
-            cuenta.
+          <p className="text-[14px] mt-1 md:text-base text-neutral-600 max-w-2xl">
+            Como cliente, reservá un turno de prueba y elegí qué pasos tiene la
+            reserva: servicios, profesional, sucursal y seña. Como dueño,
+            descubrí cómo automatizar tu agenda y visualizar las reservas. Sin
+            crear una cuenta.
           </p>
         </div>
 
@@ -225,8 +283,8 @@ export default function DemoExperience() {
           <div className="inline-flex gap-1 p-1 rounded-full bg-white border border-orange-100 shadow-sm">
             {(
               [
-                ["booking", "Reservá un turno"],
-                ["panel", "Del otro lado"],
+                ["booking", "Como cliente"],
+                ["panel", "Como dueño"],
               ] as const
             ).map(([value, label]) => (
               <button
@@ -360,8 +418,8 @@ export default function DemoExperience() {
                       transformOrigin: "top left",
                     }}
                   >
-                    <iframe
-                      ref={phoneRef}
+                    <StageFrame
+                      frameRef={phoneRef}
                       src={stageSrc}
                       title="La reserva vista desde un teléfono"
                       className="w-full h-full border-0 bg-white"
@@ -402,8 +460,8 @@ export default function DemoExperience() {
                             transformOrigin: "top left",
                           }}
                         >
-                          <iframe
-                            ref={laptopRef}
+                          <StageFrame
+                            frameRef={laptopRef}
                             src={stageSrc}
                             title="La misma reserva vista desde una computadora"
                             className="w-full h-full border-0 bg-white"
@@ -438,13 +496,99 @@ export default function DemoExperience() {
           // En mobile no hay dispositivo: la demo es la pantalla. Sigue siendo un
           // iframe para que el wizard tenga su propio viewport y entre justo, sin
           // un scroll anidado dentro de la página.
-          <div className="rounded-2xl overflow-hidden border border-orange-100 shadow-lg bg-white">
-            <iframe
-              ref={phoneRef}
-              src={stageSrc}
-              title="La reserva, como la ve tu cliente"
-              className="w-full h-[calc(100dvh-190px)] min-h-[540px] border-0 block"
-            />
+          // El contenedor es siempre el mismo nodo: sólo cambia de clases al
+          // entrar y salir. Remontarlo recargaría el iframe y la reserva a
+          // medio hacer se perdería.
+          <div
+            className={cn(
+              "flex flex-col bg-white",
+              fullscreen
+                ? "fixed inset-0 z-[70]"
+                : "rounded-2xl overflow-hidden border border-orange-100 shadow-lg",
+              fsToggled &&
+                (fullscreen
+                  ? "motion-safe:animate-[demo-fs-enter_260ms_cubic-bezier(0.22,1,0.36,1)]"
+                  : "motion-safe:animate-[demo-fs-exit_240ms_cubic-bezier(0.22,1,0.36,1)]"),
+            )}
+            style={
+              fullscreen
+                ? { paddingTop: "env(safe-area-inset-top)" }
+                : undefined
+            }
+          >
+            {/* Barra propia en vez de un botón flotante: encima del iframe
+                taparía el menú del negocio, que está en esa misma esquina. */}
+            <div className="flex items-center justify-between gap-2 h-11 shrink-0 pl-3.5 pr-2 border-b border-neutral-100 bg-white">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 truncate">
+                Reserva de prueba
+              </span>
+              <button
+                onClick={() => toggleFullscreen()}
+                className="inline-flex items-center gap-1.5 h-8 rounded-full border border-orange-100 bg-orange-50 pl-2.5 pr-3 text-[11px] font-bold text-orange-700 active:scale-95 transition-transform shrink-0"
+              >
+                {fullscreen ? (
+                  <>
+                    <Minimize2
+                      className="size-3.5 shrink-0"
+                      strokeWidth={2.5}
+                    />
+                    Salir
+                  </>
+                ) : (
+                  <>
+                    <Maximize2
+                      className="size-3.5 shrink-0"
+                      strokeWidth={2.5}
+                    />
+                    Pantalla completa
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* El alto va acá y no en el iframe: StageFrame mete su propio
+                envoltorio, que es quien tiene que estirarse. */}
+            <div
+              className={cn(
+                "relative",
+                fullscreen
+                  ? "flex-1 min-h-0"
+                  : "h-[calc(100dvh-240px)] min-h-[500px]",
+              )}
+            >
+              <StageFrame
+                frameRef={phoneRef}
+                src={stageSrc}
+                title="La reserva, como la ve tu cliente"
+                className="w-full h-full border-0 block"
+              />
+
+              {/* Fuera de pantalla completa la demo se mira, no se toca: el
+                  iframe scrollea por su cuenta y el dedo que quiere seguir
+                  bajando por la página queda atrapado adentro. El velo se come
+                  el toque y lo convierte en la única acción que tiene sentido
+                  acá, que es agrandarla. */}
+              {!fullscreen && (
+                <button
+                  onClick={() => toggleFullscreen(true)}
+                  className="absolute inset-0 z-10 flex items-center justify-center bg-white/55 backdrop-blur-[2px] px-4 text-center"
+                >
+                  {/* El texto necesita piso propio: suelto sobre la UI
+                      desenfocada se lee como parte del borrón. */}
+                  <span className="flex w-full max-w-[22rem] flex-col items-center gap-4 rounded-2xl border border-orange-100 bg-white/95 px-5 py-6 shadow-[0_18px_44px_-18px_rgba(58,20,8,0.4)]">
+                    <span className="text-[15.5px] font-semibold leading-[1.35] tracking-tight text-neutral-900 text-balance">
+                      Reservá un turno de prueba como harían tus clientes.
+                    </span>
+                    <span className="inline-flex items-center gap-2.5 whitespace-nowrap rounded-full bg-orange-600 pl-3 pr-4 py-3 text-[13px] font-bold text-white shadow-[0_14px_30px_-10px_rgba(221,73,36,0.85)]">
+                      <span className="size-6 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                        <Play className="size-3 fill-current" strokeWidth={0} />
+                      </span>
+                      Probar en pantalla completa
+                    </span>
+                  </span>
+                </button>
+              )}
+            </div>
           </div>
         ) : (
           <DemoPanelTour
@@ -499,6 +643,77 @@ export default function DemoExperience() {
       </main>
 
       <Footer />
+    </div>
+  );
+}
+
+/*
+  Envoltorio del iframe del escenario.
+
+  El wizard vive en /demo/stage y tarda un instante en montar: sin esto se ve
+  el blanco del iframe recién creado dentro del marco del dispositivo. El velo
+  arranca visible y se va recién cuando el documento terminó de cargar.
+*/
+function StageFrame({
+  src,
+  title,
+  className,
+  frameRef,
+}: {
+  src: string;
+  title: string;
+  className: string;
+  frameRef: React.RefObject<HTMLIFrameElement>;
+}) {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <div className="relative w-full h-full">
+      <iframe
+        ref={frameRef}
+        src={src}
+        title={title}
+        onLoad={() => setLoaded(true)}
+        className={className}
+      />
+      <div
+        aria-hidden="true"
+        className={cn(
+          "absolute inset-0 bg-white flex flex-col transition-opacity duration-500",
+          loaded ? "opacity-0 pointer-events-none" : "opacity-100",
+        )}
+      >
+        {/* Cabecera del negocio */}
+        <div className="flex items-center gap-3 px-4 py-4 border-b border-orange-100 bg-orange-50/60">
+          <span className="size-9 rounded-full bg-orange-200/70 shrink-0" />
+          <span className="flex flex-col gap-1.5 flex-1 min-w-0">
+            <span className="h-3 w-2/5 min-w-[90px] rounded-full bg-orange-200/70" />
+            <span className="h-2 w-1/4 min-w-[60px] rounded-full bg-orange-100" />
+          </span>
+        </div>
+
+        {/* Barra de pasos */}
+        <div className="h-1.5 bg-orange-100">
+          <div className="h-full w-1/5 bg-orange-300" />
+        </div>
+
+        {/* Tarjetas de servicio */}
+        <div className="flex-1 flex flex-col gap-3 p-4">
+          <span className="h-3.5 w-1/2 min-w-[120px] rounded-full bg-neutral-200" />
+          <span className="h-2 w-1/3 min-w-[80px] rounded-full bg-neutral-100" />
+          <div className="mt-1 flex flex-col gap-2.5">
+            {[0, 1, 2, 3].map((index) => (
+              <span
+                key={index}
+                className="h-14 rounded-xl border border-neutral-100 bg-neutral-50"
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Brillo que recorre el velo: deja claro que está cargando */}
+        <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/70 to-transparent motion-safe:animate-[demo-stage-sheen_1.4s_ease-in-out_infinite]" />
+      </div>
     </div>
   );
 }

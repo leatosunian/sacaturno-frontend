@@ -104,6 +104,19 @@ const HeaderPublic: NextPage<Props> = () => {
 
           {/* 2 — Nav links (centro) */}
           <div className="hidden overflow-hidden lg:flex items-center gap-7">
+            <Link
+              href="/demo"
+              className={[
+                "flex items-center gap-1.5 text-[13px] font-medium transition-all duration-300 ease-in-out",
+                pathname === "/demo" ? "text-[#dd4924]" : "text-[#5a5a5a] hover:text-[#dd4924]",
+              ].join(" ")}
+            >
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-[#dd4924] opacity-60 animate-ping" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#dd4924]" />
+              </span>
+              Demo
+            </Link>
             {navLinks.map((link) => (
               <a
                 key={link.href}
@@ -172,6 +185,14 @@ const HeaderPublic: NextPage<Props> = () => {
               transition={{ duration: 0.2, ease: "easeOut" }}
               className="md:hidden flex flex-col bg-white/97 backdrop-blur-lg border-b border-black/7 px-8 pb-5 pt-3"
             >
+              <Link
+                href="/demo"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 text-[14px] font-medium text-[#5a5a5a] py-3 border-b border-[#5a5a5a]/10 cursor-pointer"
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-[#dd4924]" />
+                Demo
+              </Link>
               {navLinks.map((link) => (
                 <a
                   key={link.href}

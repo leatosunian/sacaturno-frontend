@@ -154,6 +154,15 @@ const HelpModal: React.FC<Props> = ({ onClose }) => {
             <p className="text-sm text-blue-600 leading-relaxed">{step.tip}</p>
           </div>
         )}
+
+        {/* Versión larga de esta misma explicación */}
+        <Link
+          href="/admin/ayuda#agenda"
+          onClick={onClose}
+          className="self-start text-xs font-semibold text-primary hover:text-orange-500 underline underline-offset-2 transition-colors"
+        >
+          Ver el capítulo completo de agenda en el centro de ayuda
+        </Link>
       </div>
 
       {/* Navigation */}

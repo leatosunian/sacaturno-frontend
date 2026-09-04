@@ -2,51 +2,29 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, CreditCard, MousePointerClick, Users } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarCheck,
+  LayoutDashboard,
+  MousePointerClick,
+} from "lucide-react";
 import DemoWizardReel from "./DemoWizardReel";
-
-/*
-  Banda hacia /demo, entre Sectors y Pricing.
-
-  Va antes de los precios a propósito: quien llega a mirar la tabla sin haber
-  visto el producto andando es justo a quien la demo rescata. Y va lejos de
-  CallToAction, que es el pedido grande —"creá tu cuenta"—; pegados, el pedido
-  chico le come conversión al grande.
-
-  Sólo desktop: en mobile el hero ya cierra con su propio botón a la demo, y
-  repetirlo dos pantallas más abajo es pedir lo mismo dos veces.
-
-  El teléfono asoma recortado por el borde de la banda. El recorte es el punto:
-  le pide al ojo que complete lo que falta, y eso se resuelve haciendo clic. Es
-  un teléfono y no un laptop porque la pantalla que muestra es la del cliente, y
-  los clientes reservan del celular — además de que arriba ya hay un laptop y
-  dos seguidos hacen que la página se vea fotocopiada.
-*/
 
 const DEMO_HREF = "/demo";
 
-// La UI se dibuja al ancho real de un teléfono y se reduce, así conserva las
-// medidas de la app en vez de re-maquetarse chica.
-//
-// SCREEN_H sale de multiplicar el ancho por RATIO y no es un número suelto: un
-// teléfono ronda 2,1:1, y con menos que eso el marco se lee como una tablet
-// rechoncha por más que la UI de adentro esté a escala correcta.
 const DESIGN_W = 390;
 const SCALE = 0.66;
 const RATIO = 2.1;
 const SCREEN_W = Math.round(DESIGN_W * SCALE);
 const SCREEN_H = Math.round(SCREEN_W * RATIO);
 const BEZEL = 10;
-// Reserva del notch y alto del lienzo en su propia escala: el carrusel apila
-// las pantallas en absoluto, así que necesita un alto declarado.
 const NOTCH_SPACE = 26;
 const DESIGN_H = Math.round(SCREEN_H / SCALE) - NOTCH_SPACE;
 
 const HIGHLIGHTS = [
-  { Icon: Users, label: "Con empleados y sucursales" },
-  { Icon: CreditCard, label: "Cobrando seña" },
+  { Icon: CalendarCheck, label: "Reservá como tu cliente" },
+  { Icon: LayoutDashboard, label: "Probá tu panel de administración" },
 ];
-
 
 const DemoCtaSection = () => {
   const prefersReducedMotion = useReducedMotion();
@@ -83,21 +61,30 @@ const DemoCtaSection = () => {
             }}
           />
 
-          {/* ── Texto ── */}
+          {/* Texto */}
           <div className="relative z-[2] flex max-w-[560px] flex-col items-start px-10 py-12 2xl:max-w-[640px] 2xl:px-14">
             <span className="mb-5 inline-flex items-center gap-[7px] rounded-full border border-[rgba(221,73,36,0.18)] bg-[#fff1e8] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.5px] text-[#dd4924] backdrop-blur-sm 2xl:px-4 2xl:py-[6px] 2xl:text-[12px]">
-              <MousePointerClick className="size-3 shrink-0" strokeWidth={2.5} />
+              <MousePointerClick
+                className="size-3 shrink-0"
+                strokeWidth={2.5}
+              />
               Demo interactiva
             </span>
 
-            <h2 className="mb-4 text-[34px] font-medium leading-[1.05] tracking-[-1.5px] text-[#1a1a1a] 2xl:text-[44px] 2xl:tracking-[-2px]">
-              Antes de ver los precios,{" "}
-              <span className="font-bold text-[#dd4924]">probalo</span>.
+            {/* Misma receta que los títulos de Features, Sectors, Pricing y
+                Testimonios: si esta banda escribe su tipografía a mano, se lee
+                como una pieza pegada de otra página. */}
+            <h2 className="mb-4 text-3xl font-bold tracking-tight text-[#1a1a1a] md:text-4xl 2xl:text-5xl">
+              Probalo como{" "}
+              <span className="font-extrabold text-accent">cliente</span> y como{" "}
+              <span className="font-extrabold text-accent">dueño</span>.
             </h2>
 
-            <p className="mb-7 max-w-[440px] text-[16px] leading-[1.65] text-[#5a5a5a] 2xl:text-[18px]">
-              Armá el negocio de ejemplo como es el tuyo y reservá un turno,
-              igual que lo haría tu cliente. Sin crear cuenta.
+            <p className="mb-7 max-w-[495px] text-[16px] leading-[1.65] text-[#5a5a5a] 2xl:text-[18px]">
+              Reservá un turno como lo haría tu cliente y después probá tu panel
+              de administración: cómo armás tu agenda, cómo recibís las reservas
+              y qué funcionalidades tenés a mano cada día, sin crearte una
+              cuenta.
             </p>
 
             <div className="mb-8 flex flex-wrap items-center gap-2">
@@ -112,19 +99,15 @@ const DemoCtaSection = () => {
               ))}
             </div>
 
-            <span className="inline-flex items-center gap-2 rounded-[12px] bg-[#dd4924] px-7 py-4 text-[16px] font-semibold text-white shadow-[0_12px_28px_-12px_rgba(221,73,36,0.75)] transition-all duration-300 group-hover:bg-[#d92f04] group-hover:shadow-[0_18px_36px_-12px_rgba(221,73,36,0.85)]">
-              Probar la demo interactiva
+            <span className="inline-flex items-center gap-2 rounded-[12px] bg-[#dd4924] px-6 py-3.5 text-[15px] font-semibold text-white 2xl:px-7 2xl:py-4 2xl:text-[16px] shadow-[0_12px_28px_-12px_rgba(221,73,36,0.75)] transition-all duration-300 group-hover:bg-[#d92f04] group-hover:shadow-[0_18px_36px_-12px_rgba(221,73,36,0.85)]">
+              Probar la demo
               <ArrowRight className="size-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
             </span>
           </div>
 
-          {/* ── Teléfono asomando ──
-              Entra por arriba y se va por abajo y por la derecha: recortado por
-              un solo borde parecería un error de medida, y recortarlo también
-              arriba se comería la isla, que es lo que lo delata como teléfono. */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute -right-[64px] top-10 z-[1] select-none 2xl:-right-[24px]"
+            className="pointer-events-none absolute -right-[20px] top-10 z-[1] select-none 2xl:-right-[6px]"
           >
             <div
               className="rotate-[-7deg] rounded-[38px] bg-gradient-to-br from-neutral-700 to-neutral-900 transition-transform duration-500 ease-out group-hover:-translate-y-2.5 group-hover:rotate-[-5deg]"
@@ -138,8 +121,6 @@ const DemoCtaSection = () => {
                 className="relative overflow-hidden rounded-[28px] bg-white"
                 style={{ width: SCREEN_W, height: SCREEN_H }}
               >
-                {/* Isla al frente de la UI, con su propio respiro arriba: sin
-                    ella el marco podría ser cualquier rectángulo negro. */}
                 <span className="absolute left-1/2 top-2 z-[5] h-[9px] w-[30%] -translate-x-1/2 rounded-full bg-neutral-900" />
                 <div
                   className="origin-top-left"
@@ -149,7 +130,10 @@ const DemoCtaSection = () => {
                     transform: `scale(${SCALE})`,
                   }}
                 >
-                  <DemoWizardReel designWidth={DESIGN_W} designHeight={DESIGN_H} />
+                  <DemoWizardReel
+                    designWidth={DESIGN_W}
+                    designHeight={DESIGN_H}
+                  />
                 </div>
               </div>
             </div>

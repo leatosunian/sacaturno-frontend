@@ -1,7 +1,14 @@
 import { NextResponse, NextRequest } from "next/server";
 
 // Routes blocked for all employees regardless of permissions (exact match)
-const ALWAYS_BLOCKED_FOR_EMPLOYEES = ["/admin/business"];
+const ALWAYS_BLOCKED_FOR_EMPLOYEES = [
+  "/admin/business",
+  "/admin/business/create",
+  "/admin/business/branches",
+];
+
+// Secciones enteras de dueño: no hay ninguna vista de empleado debajo (prefix match)
+const OWNER_ONLY_PREFIXES = ["/admin/team", "/admin/account"];
 
 // Routes that require a specific permission (prefix match)
 const PERMISSION_ROUTE_MAP: Record<string, string[]> = {
@@ -45,6 +52,11 @@ export const middleware = async (req: NextRequest) => {
   if (data?.role === "employee") {
     // Rutas siempre bloqueadas (match exacto para no bloquear sub-rutas como /services)
     if (ALWAYS_BLOCKED_FOR_EMPLOYEES.includes(pathname)) {
+      return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+    }
+
+    // Secciones completas de dueño (equipo, cuenta/facturación)
+    if (OWNER_ONLY_PREFIXES.some((p) => pathname.startsWith(p))) {
       return NextResponse.redirect(new URL("/admin/dashboard", req.url));
     }
 
