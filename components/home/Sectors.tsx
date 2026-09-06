@@ -138,7 +138,7 @@ export default function Sectors() {
   return (
     <section
       id="sectors"
-      className="relative overflow-hidden bg-background py-24"
+      className="relative overflow-hidden bg-background pt-12 pb-8 lg:py-24"
     >
       {/* Top/bottom white fades */}
       <div
@@ -267,9 +267,9 @@ export default function Sectors() {
       </div>
 
       {/* Closing strip */}
-      <div className="relative z-[1] mx-auto max-w-[1200px] px-8 max-lg:px-6 max-md:px-5">
+      <div className="relative z-[20] mx-auto max-w-[1200px] px-8 max-lg:px-6 max-md:px-5">
         <motion.div
-          className="mt-7 md:mt-14 flex justify-center"
+          className="mt-7 mb-1 md:mt-14 md:mb-0 flex justify-center"
           initial={{ opacity: 0, y: 28 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.5 }}

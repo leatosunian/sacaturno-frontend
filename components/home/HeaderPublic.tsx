@@ -44,7 +44,6 @@ const HeaderPublic: NextPage<Props> = () => {
   const navLinks = [
     { href: "#features", label: "Funciones" },
     { href: "#pricing", label: "Precios" },
-    { href: "#testimonials", label: "Testimonios" },
     { href: "#faq", label: "FAQ" },
   ];
 

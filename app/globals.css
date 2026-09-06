@@ -697,47 +697,8 @@ html {
 
 /* ACCORDION */
 
-.accordionCard {
-  position: relative;
-  border-radius: 12px;
-  background-color: white;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  color: black;
-  overflow: hidden;
-  transition: box-shadow 0.25s ease, border-color 0.25s ease;
-}
-
-.accordionCard::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background-color: #dd4924;
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-.accordionCard.accordionCardActive::before {
-  opacity: 1;
-}
-
-.accordionCard:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-}
-
-.accordionCard.accordionCardActive,
-.accordionCard.accordionCardActive:hover {
-  border-color: rgba(221, 73, 36, 0.25);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
-
-.accordionAnswer {
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+.faqAnswer {
   line-height: 1.7;
-  color: black;
 }
 
 /**/

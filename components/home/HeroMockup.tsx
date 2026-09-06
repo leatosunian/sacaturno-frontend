@@ -41,7 +41,7 @@ const SCREEN_PAD = 12;
 const CHROME_H = 38;
 const PAGE_H = 672;
 
-const NAV_LINKS = ["Funciones", "Precios", "Testimonios", "FAQ"];
+const NAV_LINKS = ["Funciones", "Precios", "FAQ"];
 
 // ── Chrome del navegador ─────────────────────────────────────
 const BrowserChrome = () => (

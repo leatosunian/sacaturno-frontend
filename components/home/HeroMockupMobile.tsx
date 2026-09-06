@@ -59,7 +59,9 @@ const MobileStrip = () => {
       <div className="pointer-events-none absolute -right-4 -top-8 size-24 rounded-full bg-white/10" />
       <p className="relative mb-2 text-sm text-white/85">
         Paso {stepIndex + 1} de {WIZARD_STEPS.length} ·{" "}
-        <span className="font-bold text-white">{WIZARD_STEPS[stepIndex].label}</span>
+        <span className="font-bold text-white">
+          {WIZARD_STEPS[stepIndex].label}
+        </span>
       </p>
       <div className="relative flex gap-1">
         {WIZARD_STEPS.map((step, i) => (
@@ -198,12 +200,15 @@ const HeroMockupMobile = () => {
         <BookingNotification />
       </div>
 
-      <div className="mt-7">
-        <h2 className="text-[27px] font-extrabold leading-tight tracking-tight text-neutral-900">
-          Así reservan <span className="text-primary">tus clientes</span>
+      <div className="mt-10 py-2">
+        <h2 className="text-[28.5px] font-extrabold leading-tight tracking-tight text-neutral-900">
+          Probalo como{" "}
+          <span className="text-primary">cliente</span>{" "}y como{" "}
+          <span className="text-primary">dueño</span>
         </h2>
-        <p className="mt-2 max-w-[30ch] text-sm leading-relaxed text-neutral-600">
-          La misma pantalla que ve alguien que entra por tu link. Probala vos.
+        <p className="mt-3 mb-1 max-w-[30ch] text-[17px] leading-relaxed text-neutral-600">
+          Reservá un turno de prueba como si fueras tu cliente y descubrí el
+          panel de administración de tu negocio.
         </p>
         <Link
           href={DEMO_HREF}

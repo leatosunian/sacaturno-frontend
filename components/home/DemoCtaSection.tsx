@@ -23,7 +23,7 @@ const DESIGN_H = Math.round(SCREEN_H / SCALE) - NOTCH_SPACE;
 
 const HIGHLIGHTS = [
   { Icon: CalendarCheck, label: "Reservá como tu cliente" },
-  { Icon: LayoutDashboard, label: "Probá tu panel de administración" },
+  { Icon: LayoutDashboard, label: "Descubrí tu panel de administración" },
 ];
 
 const DemoCtaSection = () => {
@@ -81,10 +81,10 @@ const DemoCtaSection = () => {
             </h2>
 
             <p className="mb-7 max-w-[495px] text-[16px] leading-[1.65] text-[#5a5a5a] 2xl:text-[18px]">
-              Reservá un turno como lo haría tu cliente y después probá tu panel
-              de administración: cómo armás tu agenda, cómo recibís las reservas
-              y qué funcionalidades tenés a mano cada día, sin crearte una
-              cuenta.
+              Sin crear una cuenta, reservá un turno como lo haría tu cliente y
+              después probá tu panel de administración: cómo armás tu agenda,
+              cómo recibís las reservas y qué funcionalidades tenés a mano
+              cada día.
             </p>
 
             <div className="mb-8 flex flex-wrap items-center gap-2">
@@ -100,7 +100,7 @@ const DemoCtaSection = () => {
             </div>
 
             <span className="inline-flex items-center gap-2 rounded-[12px] bg-[#dd4924] px-6 py-3.5 text-[15px] font-semibold text-white 2xl:px-7 2xl:py-4 2xl:text-[16px] shadow-[0_12px_28px_-12px_rgba(221,73,36,0.75)] transition-all duration-300 group-hover:bg-[#d92f04] group-hover:shadow-[0_18px_36px_-12px_rgba(221,73,36,0.85)]">
-              Probar la demo
+              Probar demo interactiva
               <ArrowRight className="size-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
             </span>
           </div>

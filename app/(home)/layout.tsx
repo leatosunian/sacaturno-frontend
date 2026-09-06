@@ -36,7 +36,7 @@ const structuredData = {
         "@type": "Offer",
         price: "0",
         priceCurrency: "ARS",
-        description: "30 días de prueba gratuita",
+        description: "15 días de prueba gratuita",
       },
       publisher: { "@id": "https://sacaturno.com.ar/#organization" },
     },

@@ -58,7 +58,7 @@ const PricingSection = () => {
   return (
     <div
       id="pricing"
-      className="flex relative overflow-hidden flex-col items-center justify-center w-full gap-14 text-black h-fit pt-24 pb-16 lg:py-20 2xl:py-28"
+      className="flex relative overflow-hidden flex-col items-center justify-center w-full gap-8 text-black h-fit pt-10 pb-10 lg:gap-14 lg:py-20 2xl:py-28"
     >
       {/* Top/bottom white fades */}
       <div

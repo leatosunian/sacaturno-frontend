@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "./Badge";
 import { ShimmerButton } from "../ui/ShimmerButton";
@@ -17,18 +17,22 @@ const ctaItem = {
 };
 
 const TICKER_ITEMS = [
-  "15 días gratis",
-  "sin tarjeta de crédito",
-  "listo en 5 minutos",
-  "agenda automatica",
   "tus clientes reservan solos",
+  "reducí el ausentismo",
+  "sin consultas por mensaje",
+  "tu agenda digital ordenada y automatizada",
 ];
 
-const STATS = [
-  { val: "24/7", label: "tu agenda disponible" },
-  { val: "99% asistencia", label: "cobrando seña" },
-  { val: "+8.000", label: "clientes reservaron" },
-  { val: "$0", label: "para empezar" },
+const INCLUDED = [
+  "Tu propia página de reservas",
+  "Turnos ilimitados",
+  "Servicios ilimitados",
+  "Señas con Mercado Pago",
+  "Recordatorios automáticos",
+  "Agenda que se renueva sola",
+  "Cancelación online",
+  "Centro de ayuda",
+  "Sin instalar nada",
 ];
 
 function AnimatedBg() {
@@ -174,7 +178,7 @@ export default function CallToAction() {
       </div>
 
       {/* Main body */}
-      <div className="relative overflow-hidden px-8 pt-[88px] pb-[72px]">
+      <div className="relative overflow-hidden px-8 pt-14 pb-12 lg:pt-[88px] lg:pb-[72px]">
         <AnimatedBg />
 
         {/* White gradient overlay — same as HeroSection */}
@@ -226,15 +230,13 @@ export default function CallToAction() {
             <br />
             <span className="font-bold text-[#1a1a1a]">
               <span className="text-[#dd4924] font-extrabold">
-                {" "}
                 transformar{" "}
               </span>
-              tu
-            </span>
-            <br />
-            <span className="text-[#dd4924] font-extrabold">
-              negocio
-              <span className="text-[#1a1a1a]">?</span>
+              tu{" "}
+              <span className="text-[#dd4924] font-extrabold">
+                negocio
+                <span className="text-[#1a1a1a]">?</span>
+              </span>
             </span>
           </motion.h2>
 
@@ -243,7 +245,7 @@ export default function CallToAction() {
             variants={ctaItem}
             className="text-[17px] text-[#5a5a5a] leading-[1.75] max-w-[440px] mx-auto mb-8 font-normal"
           >
-            Más de 200 negocios ya lo están usando.
+            Tu página de reservas online, lista en 5 minutos.
             <br />
             Empezá gratis, sin tarjeta.
           </motion.p>
@@ -271,31 +273,32 @@ export default function CallToAction() {
             </ShimmerButton>
           </motion.div>
 
-          {/* Stats strip */}
+          {/* Included strip */}
           <motion.div
             variants={ctaItem}
-            className="cta-glow-card hidden md:inline-flex gap-0 rounded-2xl py-5 px-2 overflow-hidden"
+            className="cta-glow-card hidden md:grid w-full grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-3.5 rounded-2xl py-6 px-8 text-left"
           >
-            {STATS.map((s, i) => (
-              <React.Fragment key={i}>
-                <div className="px-7 text-center">
-                  <div
-                    className="font-bold text-[#1a1a1a] leading-none"
-                    style={{
-                      fontSize: "clamp(16px, 3.5vw, 26px)",
-                      letterSpacing: "-1px",
-                    }}
-                  >
-                    {s.val}
-                  </div>
-                  <div className="text-[11px] text-[#9a9a9a] font-medium mt-1 tracking-[0.2px]">
-                    {s.label}
-                  </div>
-                </div>
-                {i < STATS.length - 1 && (
-                  <div className="w-px h-9 bg-black/[0.08] self-center" />
-                )}
-              </React.Fragment>
+            {INCLUDED.map((item) => (
+              <div
+                key={item}
+                className="flex items-center gap-2.5 text-[13px] font-medium text-[#3a3a3a]"
+              >
+                <svg
+                  className="shrink-0"
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#dd4924"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                {item}
+              </div>
             ))}
           </motion.div>
         </motion.div>
@@ -303,7 +306,7 @@ export default function CallToAction() {
 
       {/* Fine print */}
       <div className="border-t border-black/[0.06] text-center py-4 px-8 text-[11px] text-[#9a9a9a] tracking-[0.2px]">
-        15 días de prueba full · Sin costos ocultos · Cancelá cuando quieras
+        15 días de prueba · Sin costos ni comisiones ocultos
       </div>
     </section>
   );

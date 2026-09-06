@@ -8,6 +8,14 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+  		screens: {
+  			// Bloque fijado de la sección de funcionalidades: sólo se fija si hay
+  			// ancho y alto suficientes para que entre entero en pantalla.
+  			pin: { raw: '(min-width: 1024px) and (min-height: 700px)' },
+  			// Desktop con poca altura: la sección se compacta, se fije o no.
+  			// Va después de `pin` para poder pisar sus utilidades.
+  			short: { raw: '(min-width: 1024px) and (max-height: 860px)' }
+  		},
   		backgroundImage: {
   			'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
   			'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))'

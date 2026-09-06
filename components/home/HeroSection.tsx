@@ -154,8 +154,8 @@ function AnimatedBg() {
 // Hero
 
 const stats = [
-  { val: "+251", label: "negocios activos" },
-  { val: "15 dias", label: "de prueba gratis" },
+  { val: "Con seña", label: "cobrás por adelantado" },
+  { val: "15 días", label: "de prueba gratis" },
   { val: "<5 min", label: "para configurar" },
 ];
 
@@ -274,9 +274,9 @@ const HeroSection = () => {
               variants={v ?? paragraphVariants}
               className="text-[16px] 2xl:text-[18px] font-normal text-[#5a5a5a] leading-[1.65] max-w-[400px] 2xl:max-w-[520px] mb-7 2xl:mb-10"
             >
-              La plataforma que usan +250 negocios argentinos para tener su
-              propia página de reservas online y recibir turnos las 24hs. Tu
-              agenda automática lista en 5 minutos.
+              Tu propia página de reservas online para recibir turnos las 24
+              hs. Agenda automática, recordatorios y cobro de seña. Lista en 5
+              minutos.
             </motion.p>
 
             {/* CTAs */}

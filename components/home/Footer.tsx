@@ -8,6 +8,7 @@ const COLUMNS = [
   {
     title: "Navegación",
     links: [
+      { label: "Demo interactiva", href: "/demo" },
       { label: "Funciones", href: "/#features" },
       { label: "Precios", href: "/#pricing" },
       { label: "Preguntas frecuentes", href: "/#faq" },
