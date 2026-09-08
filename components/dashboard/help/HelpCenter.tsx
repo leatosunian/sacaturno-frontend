@@ -12,6 +12,7 @@ import {
   HiOutlineLightBulb,
   HiOutlineExclamationTriangle,
   HiOutlineListBullet,
+  HiOutlineArrowUp,
 } from "react-icons/hi2";
 
 // Busca sin acentos: "seña" tiene que encontrarse escribiendo "sena".
@@ -237,7 +238,59 @@ export default function HelpCenter() {
           )}
         </div>
       </div>
+
+      <ScrollTopButton />
     </div>
+  );
+}
+
+/* ── Volver arriba ──────────────────────────────────────────────────── */
+
+// El manual es largo: el botón aparece recién cuando el usuario scrollea hacia
+// arriba (señal de que está volviendo), no de forma permanente.
+function ScrollTopButton() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    let last = window.scrollY;
+    let raf = 0;
+
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const y = window.scrollY;
+        const delta = y - last;
+        // Umbral mínimo: el rebote del scroll suave no tiene que hacer parpadear el botón.
+        if (Math.abs(delta) < 8) return;
+        last = y;
+        setVisible(delta < 0 && y > 400);
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  return (
+    <button
+      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      aria-label="Volver arriba"
+      aria-hidden={!visible}
+      tabIndex={visible ? 0 : -1}
+      className={cn(
+        "fixed bottom-5 right-5 md:bottom-6 md:right-6 z-30",
+        "flex items-center justify-center w-11 h-11 rounded-full",
+        "bg-orange-600 hover:bg-[#d92f04] text-white shadow-lg",
+        "transition-all duration-300 ease-in-out cursor-pointer",
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3 pointer-events-none",
+      )}
+    >
+      <HiOutlineArrowUp size={18} />
+    </button>
   );
 }
 

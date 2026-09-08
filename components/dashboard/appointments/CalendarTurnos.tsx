@@ -14,7 +14,7 @@ import NoServicesModal from "../services/NoServicesModal";
 import ISubscription from "@/interfaces/subscription.interface";
 import ExpiredPlanModal from "./ExpiredPlanModal";
 import { LuCalendar, LuCalendarPlus, LuCalendarCheck, LuCalendarX, LuChevronLeft, LuChevronRight, LuClock, LuUser, LuMapPin, LuRefreshCw } from "react-icons/lu";
-import { IoInformationCircle } from "react-icons/io5";
+import { IoInformationCircle, IoWarning } from "react-icons/io5";
 import { IoMdMore, IoIosAlert } from "react-icons/io";
 import { MdEditCalendar } from "react-icons/md";
 import { IDaySchedule } from "@/interfaces/daySchedule.interface";
@@ -223,10 +223,27 @@ const CalendarTurnos: React.FC<Props> = ({
   const canManageOwn = employeePermissions.includes("manage_own_appointments");
   const canCreateAppointments = !isEmployee || canManageAll || canManageOwn;
   const now = dayjs();
-  const activeBranches = branches ?? [];
+  // Sin "gestionar todos los turnos" el backend ya manda sólo los propios y los
+  // libres sin asignar de sus sucursales. Los filtros acompañan ese recorte: no
+  // pueden ofrecer compañeros ni sucursales que nunca van a traer nada.
+  const canViewAll = !isEmployee || canManageAll;
+  const selfEmployee = isEmployee
+    ? (employees ?? []).find((e) => e._id === currentEmployeeID)
+    : undefined;
+  const selfBranches = selfEmployee?.branches ?? [];
+  const selfBranchesKey = selfBranches.join(",");
+  const activeBranches =
+    canViewAll || !selfBranches.length
+      ? branches ?? []
+      : (branches ?? []).filter((b) => selfBranches.includes(b._id ?? ""));
   const showBranchFilter = activeBranches.length >= 2;
   const [selectedBranchFilter, setSelectedBranchFilter] = useState<string>("");
-  const activeEmployees = (employees ?? []).filter((e) => e.status === "active");
+  const activeEmployees = (employees ?? []).filter(
+    (e) => e.status === "active" && (canViewAll || e._id === currentEmployeeID)
+  );
+  // Marcar "sin asignar" sólo tiene sentido si el negocio tiene a quién asignarle:
+  // sin empleados activos todos los turnos quedan sin profesional y la marca es ruido.
+  const hasAssignableStaff = (employees ?? []).some((e) => e.status === "active");
   // Con un solo empleado el filtro igual sirve: separa lo suyo de lo que quedó
   // en el pool. Sucursales no, porque con una sola todo cae ahí.
   const showEmployeeFilter = activeEmployees.length >= 1;
@@ -373,6 +390,15 @@ const CalendarTurnos: React.FC<Props> = ({
 
   const parsedEvents = useMemo<CalendarEvent[]>(() => {
     const filtered = appointmentsData
+      // Red de seguridad sobre el recorte del backend: un turno ajeno que se
+      // cuele por un optimista o un refresh no tiene que llegar a la grilla.
+      .filter((a) => {
+        if (canViewAll) return true;
+        if ((a as any).employeeID) return (a as any).employeeID === currentEmployeeID;
+        if (!selfBranches.length) return true;
+        const b = (a as any).branchID;
+        return !b || selfBranches.includes(b);
+      })
       .filter((a) => {
         if (!selectedBranchFilter) return true;
         if (selectedBranchFilter === UNASSIGNED_FILTER_VALUE) return !(a as any).branchID;
@@ -402,7 +428,7 @@ const CalendarTurnos: React.FC<Props> = ({
       branchID: appt.branchID,
       employeeChosenByClient: appt.employeeChosenByClient,
     }));
-  }, [appointmentsData, selectedBranchFilter, selectedEmployeeFilter]);
+  }, [appointmentsData, selectedBranchFilter, selectedEmployeeFilter, canViewAll, currentEmployeeID, selfBranchesKey]);
 
   const appointmentDateSet = useMemo(() => {
     const set = new Set<string>();
@@ -1618,7 +1644,8 @@ const CalendarTurnos: React.FC<Props> = ({
                             const offsetTop = Math.max(top, 0) - Math.max(minTop, 0);
                             const empName = getEmployeeName(event.employeeID);
                             const branchName = getBranchName(event.branchID);
-                            const hasExtra = !!(empName || branchName);
+                            const isUnassigned = hasAssignableStaff && !event.employeeID;
+                            const hasExtra = !!(empName || branchName || isUnassigned);
                             const isPending = !!(event._id && pendingIds.has(event._id));
                             const isFailed = !!(event._id && failedIds.has(event._id));
                             const isGhost = isPending || isFailed;
@@ -1681,13 +1708,23 @@ const CalendarTurnos: React.FC<Props> = ({
                                   </div>
                                 ) : (
                                 <div className="px-1.5 pt-1 pb-1 h-full flex flex-col min-h-0">
-                                  <span
-                                    className={cn(
-                                      "text-xs font-semibold leading-tight whitespace-nowrap shrink-0",
-                                      isBooked ? "text-orange-900" : "text-white"
+                                  <span className="flex items-center gap-1 shrink-0">
+                                    <span
+                                      className={cn(
+                                        "text-xs font-semibold leading-tight whitespace-nowrap",
+                                        isBooked ? "text-orange-900" : "text-white"
+                                      )}
+                                    >
+                                      {isBooked ? event.name : event.title ?? "Disponible"}
+                                    </span>
+                                    {/* En cards bajas el footer no entra: la marca viaja al título */}
+                                    {isUnassigned && height < 70 && (
+                                      <IoWarning
+                                        size={13}
+                                        aria-label="Turno sin asignar"
+                                        className={cn("shrink-0", isBooked ? "text-orange-600" : "text-white")}
+                                      />
                                     )}
-                                  >
-                                    {isBooked ? event.name : event.title ?? "Disponible"}
                                   </span>
                                   {height >= 36 && (
                                     <span
@@ -1717,13 +1754,25 @@ const CalendarTurnos: React.FC<Props> = ({
                                         isBooked ? "text-orange-500" : "text-orange-300"
                                       )}
                                     >
-                                      {empName && (
-                                        <span className="flex items-center gap-0.5 min-w-0">
-                                          <LuUser size={9} className="shrink-0" />
-                                          <span className="text-[10px] leading-tight truncate">{empName}</span>
+                                      {isUnassigned ? (
+                                        <span
+                                          className={cn(
+                                            "flex items-center gap-0.5 min-w-0 rounded-full px-1.5 py-[1px] font-semibold",
+                                            isBooked ? "bg-orange-600 text-white" : "bg-white text-orange-700"
+                                          )}
+                                        >
+                                          <IoWarning size={11} className="shrink-0" />
+                                          <span className="text-[10px] leading-tight truncate">Sin asignar</span>
                                         </span>
+                                      ) : (
+                                        empName && (
+                                          <span className="flex items-center gap-0.5 min-w-0">
+                                            <LuUser size={9} className="shrink-0" />
+                                            <span className="text-[10px] leading-tight truncate">{empName}</span>
+                                          </span>
+                                        )
                                       )}
-                                      {empName && branchName && (
+                                      {(empName || isUnassigned) && branchName && (
                                         <span className="text-[10px] shrink-0 opacity-50">·</span>
                                       )}
                                       {branchName && (
