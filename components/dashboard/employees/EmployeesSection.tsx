@@ -553,9 +553,10 @@ const EmployeesSection: React.FC<Props> = ({ businessData, initialEmployees, ini
           (requiresService || requiresBranch) && (
             <div className="flex items-start gap-1.5 px-4 py-2.5 border-t border-gray-100 bg-gray-50/60 text-[11px] text-gray-400 leading-snug">
               <LuInfo size={12} className="mt-0.5 shrink-0" />
-              Al publicarte vas a prestar todos tus servicios
-              {requiresBranch ? " en todas tus sucursales" : ""}. Después podés
-              recortar la lista desde acá.
+              Al activar la función, comenzas a mostrarte como prestador de
+              todos tus servicios
+              {requiresBranch ? " en todas tus sucursales" : ""}. Podés editarlo
+              desde acá una vez activado.
             </div>
           )
         ) : (requiresService || requiresBranch) && (

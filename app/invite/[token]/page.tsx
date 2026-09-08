@@ -28,7 +28,7 @@ export default async function InvitePage({ params }: { params: { token: string }
   const { data, error } = await getInvitationInfo(params.token);
 
   return (
-    <>
+    <div id="top">
       <HeaderPublicBlack />
 
       <main className={styles.authBg}>
@@ -93,6 +93,6 @@ export default async function InvitePage({ params }: { params: { token: string }
       </main>
 
       <Footer />
-    </>
+    </div>
   );
 }

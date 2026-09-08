@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function RecoverPassword() {
   return (
-    <>
+    <div id="top">
       <HeaderPublicBlack />
 
       <main className={styles.authBg}>
@@ -51,6 +51,6 @@ export default function RecoverPassword() {
 
         </div>
       </main>
-    </>
+    </div>
   );
 }

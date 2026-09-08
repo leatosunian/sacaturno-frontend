@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function Login() {
   return (
-    <>
+    <div id="top">
       <HeaderPublicBlack />
 
       <main className={styles.authBg}>
@@ -59,6 +59,6 @@ export default function Login() {
       </main>
 
       <Footer />
-    </>
+    </div>
   );
 }

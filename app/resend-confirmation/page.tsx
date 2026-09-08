@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function ResendConfirmation() {
   return (
-    <>
+    <div id="top">
       <HeaderPublic />
 
       <main className={styles.authBg}>
@@ -59,6 +59,6 @@ export default function ResendConfirmation() {
       </main>
 
       <Footer />
-    </>
+    </div>
   );
 }

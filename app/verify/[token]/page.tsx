@@ -30,13 +30,13 @@ const verifyUser = async (token: string) => {
 const UserVerification: React.FC<propsComponent> = async ({ params }) => {
   const verification = await verifyUser(params.token);
   return (
-    <>
+    <div id="top">
       <HeaderPublicBlack />
       <main className={styles.authBgScreen} style={{ minHeight: "100vh" }}>
         <UserVerificationComponent userData={verification} />
       </main>
       <Footer />
-    </>
+    </div>
   );
 };
 

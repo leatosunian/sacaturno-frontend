@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function Register() {
   return (
-    <>
+    <div id="top">
       <HeaderPublic />
 
       <main className={styles.authBg}>
@@ -57,6 +57,6 @@ export default function Register() {
       </main>
 
       <Footer />
-    </>
+    </div>
   );
 }

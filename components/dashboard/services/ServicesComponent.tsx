@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import axiosReq from "@/config/axios";
 import { useRouter } from "next/navigation";
 import UpgradePlanModal from "./UpgradePlanModal";
-import { LuSearchX, LuChevronRight, LuClock, LuUsers, LuPencil, LuTriangleAlert } from "react-icons/lu";
+import { LuSearchX, LuChevronRight, LuUsers, LuPencil, LuTriangleAlert } from "react-icons/lu";
 import { TbPlaylistAdd } from "react-icons/tb";
 import Link from "next/link";
 import CreateServiceModal from "./CreateServiceModal";
@@ -283,7 +283,7 @@ const ServicesComponent = ({
 
       {/* Services card */}
       <div className="gap-0 bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden  flex flex-col w-full max-w-4xl">
-        <div className="flex items-center justify-between px-6 py-4 2xl:px-8 2xl:py-5 border-b border-gray-100">
+        <div className="flex items-center justify-between p-4 md:px-6 md:py-4 2xl:px-8 2xl:py-5 border-b border-gray-100">
           <div className="flex items-center gap-2">
             <h2 className="text-sm 2xl:text-base font-semibold text-gray-800">
               Servicios
@@ -305,27 +305,18 @@ const ServicesComponent = ({
               </span>
             )} */}
           </div>
-          {canAddService ? (
-            <button
-              onClick={() => setCreateServiceModal(true)}
-              className="flex items-center gap-1.5 bg-primary hover:bg-orange-500 text-white text-[11px] 2xl:text-xs font-semibold px-3 2xl:px-4 py-1.5 2xl:py-2 rounded-lg transition-all duration-300 ease-in-out cursor-pointer"
-            >
-              <TbPlaylistAdd size={16} />
-              Nuevo servicio
-            </button>
-          ) : (
-            <button
-              onClick={() => setUpgradePlanModal(true)}
-              className="flex items-center gap-1.5 bg-gray-100 hover:bg-orange-50 text-gray-400 hover:text-orange-600 border border-gray-200 hover:border-orange-300 text-xs 2xl:text-sm font-semibold px-3 2xl:px-4 py-1.5 2xl:py-2 rounded-lg transition-all duration-300 ease-in-out cursor-pointer"
-              title="Requiere un plan pago"
-            >
-              <LuLock size={13} />
-              Nuevo servicio
-            </button>
+          {/* La acción de crear vive en la card fantasma de la grilla, así que
+              acá sólo queda el conteo: llena el hueco sin duplicar el CTA. */}
+          {(services?.length ?? 0) > 0 && (
+            <span className="text-[11px] 2xl:text-xs font-medium text-gray-400">
+              {services!.length === 1
+                ? "1 servicio"
+                : `${services!.length} servicios`}
+            </span>
           )}
         </div>
 
-        <div className="p-6 2xl:p-8">
+        <div className="p-4 md:p-6 2xl:p-8">
           {/* Loading */}
           {loading && (
             <div className="flex items-center justify-center h-48">
@@ -391,18 +382,43 @@ const ServicesComponent = ({
                     <div
                       key={service._id}
                       onClick={() => !isTemp && setEditService(service)}
-                      className={`flex flex-col h-full gap-2 p-4 rounded-xl border border-gray-100 transition-all duration-200 ease-in-out ${
+                      className={`relative flex flex-col h-full gap-2 p-4 pl-5 rounded-xl border border-gray-100 transition-all duration-200 ease-in-out ${
                         isTemp
                           ? "opacity-60"
-                          : "cursor-pointer group hover:border-orange-200 hover:bg-orange-50/50 hover:shadow-sm"
+                          : "cursor-pointer group hover:border-orange-200 hover:bg-orange-50/40 hover:shadow-sm"
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <span className="text-sm 2xl:text-base font-semibold text-gray-800 min-w-0 break-words">
+                      {/* Riel de color: ancla la card y marca el bloque sin
+                          teñirle el fondo entero. */}
+                      <span
+                        aria-hidden
+                        className="absolute left-0 top-4 bottom-4 w-[3px] bg-primary"
+                      />
+
+                      {/* Precio y duración en una sola línea: si la duración se
+                          apila debajo, la columna derecha mide dos líneas y la
+                          descripción arranca con un hueco al lado del título. */}
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-sm 2xl:text-base font-semibold text-gray-800 min-w-0 break-words leading-snug">
                           {service.name}
                         </span>
-                        <span className="text-base 2xl:text-lg font-bold text-gray-800 shrink-0 leading-tight">
-                          $ {service.price?.toLocaleString("es-AR")}
+                        <span className="flex items-center gap-1.5 shrink-0">
+                          {/* El punto va en su propio span: dentro del texto, el
+                              espacio del carácter no empata con el gap del flex
+                              y queda pegado al número. */}
+                          {duration && (
+                            <>
+                              <span className="text-[11px] text-gray-400">
+                                {duration}
+                              </span>
+                              <span aria-hidden className="text-[11px] text-gray-400">
+                                ·
+                              </span>
+                            </>
+                          )}
+                          <span className="text-base 2xl:text-lg font-semibold text-gray-800 leading-tight tabular-nums">
+                            $ {service.price?.toLocaleString("es-AR")}
+                          </span>
                         </span>
                       </div>
 
@@ -412,14 +428,8 @@ const ServicesComponent = ({
                         {service.description}
                       </p>
 
-                      <div className="flex items-end justify-between gap-2">
+                      <div className="flex items-end justify-between gap-2 pt-2.5 border-t border-gray-100">
                         <div className="flex flex-wrap items-center gap-1.5 min-w-0">
-                          {duration && (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                              <LuClock size={11} />
-                              {duration}
-                            </span>
-                          )}
                           {hasDeposit && (
                             <span className="inline-flex items-center text-[11px] font-semibold text-orange-600 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-full">
                               Seña ${service.depositAmount!.toLocaleString("es-AR")}
@@ -442,15 +452,38 @@ const ServicesComponent = ({
                           )}
                         </div>
                         {!isTemp && (
-                          <LuPencil
-                            size={14}
-                            className="shrink-0 text-gray-300 group-hover:text-orange-600 transition-colors duration-200"
-                          />
+                          <span className="inline-flex items-center gap-1 shrink-0 text-[11px] font-semibold text-gray-400 group-hover:text-primary transition-colors duration-200">
+                            <LuPencil size={12} />
+                            Editar
+                          </span>
                         )}
                       </div>
                     </div>
                   );
                 })}
+
+                {/* Card fantasma: ocupa el hueco que dejaba la grilla impar y
+                    hace de acción principal ahora que el header sólo cuenta. */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    canAddService
+                      ? setCreateServiceModal(true)
+                      : setUpgradePlanModal(true)
+                  }
+                  title={canAddService ? undefined : "Requiere un plan pago"}
+                  className="group flex flex-col items-center justify-center gap-1.5 h-full min-h-[124px] p-4 rounded-xl border border-dashed border-gray-200 bg-gray-50/60 hover:border-orange-300 hover:bg-orange-50/50 transition-all duration-200 ease-in-out cursor-pointer"
+                >
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-primary group-hover:bg-orange-200 transition-colors duration-200">
+                    {canAddService ? <TbPlaylistAdd size={17} /> : <LuLock size={14} />}
+                  </span>
+                  <span className="text-xs 2xl:text-sm font-semibold text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
+                    Nuevo servicio
+                  </span>
+                  <span className="text-[11px] text-gray-400">
+                    {canAddService ? "Sumalo a tu catálogo" : "Requiere un plan pago"}
+                  </span>
+                </button>
               </div>
             </>
           )}

@@ -67,7 +67,7 @@ const SearchBusiness: React.FC = () => {
   };
 
   return (
-    <>
+    <div id="top">
       <HeaderPublicBlack />
       <main className={styles.authBg}>
         <div className="relative z-[2] flex flex-col items-center gap-[18px] max-[1535px]:gap-3 w-full max-w-[460px]">
@@ -178,7 +178,7 @@ const SearchBusiness: React.FC = () => {
         </div>
       </main>
       <Footer />
-    </>
+    </div>
   );
 };
 

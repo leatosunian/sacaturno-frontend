@@ -10,6 +10,7 @@ import {
   LuArrowRight,
   LuCheck,
   LuClock,
+  LuExternalLink,
 } from "react-icons/lu";
 import { IconType } from "react-icons";
 import { cn } from "@/lib/utils";
@@ -51,7 +52,8 @@ const steps: Step[] = [
         text: "sacaturno.com.ar/tu-negocio, lo copiás y compartís con tus clientes",
       },
     ],
-    tip: "Sin una empresa creada no vas a poder cargar servicios ni turnos. Es lo único que necesitás para arrancar.",
+    note: "Sin una empresa creada no vas a poder cargar servicios ni turnos. Es lo único que necesitás para arrancar.",
+    tip: "Ahí mismo definís tu política de cancelación: hasta cuándo un cliente puede cancelar su turno por su cuenta.",
   },
   {
     number: 2,
@@ -80,7 +82,7 @@ const steps: Step[] = [
     bullets: [
       {
         strong: "Automatizar agenda",
-        text: "armás una plantilla semanal de turnos y el sistema los crea automáticamente durante el tiempo que vos definas (ej. 3 semanas hacia adelante y se vuelven a generar 5 dias antes del último turno disponible)",
+        text: "armás una plantilla semanal de turnos y el sistema los crea automáticamente durante el tiempo que vos definas (ej. a partir de hoy, crear 2 semanas de tu plantilla de turnos y que se vuelva a generar 5 dias antes del último turno disponible)",
       },
       {
         strong: "Turnos",
@@ -88,7 +90,7 @@ const steps: Step[] = [
       },
     ],
     note: "Podés combinar ambas: automatizá tu semana base y ajustá las excepciones a mano.",
-    tip: "Ahí mismo definís tu política de cancelación: hasta cuándo un cliente puede cancelar su turno por su cuenta.",
+    tip: 'Si un día no trabajás, podés eliminar los turnos de ese día desde "Turnos", sin tocar la plantilla.',
   },
   {
     number: 4,
@@ -278,10 +280,12 @@ const GuideDialog: React.FC<Props> = ({ onClose, openGuideDialog, isFirstLogin }
               {/* Esta guía es el resumen; el manual completo vive en /admin/ayuda */}
               <Link
                 href="/admin/ayuda"
-                onClick={handleClose}
-                className="self-start text-xs font-semibold text-primary [@media(hover:hover)]:hover:text-orange-500 underline underline-offset-2 transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="self-start inline-flex items-center gap-1.5 text-xs font-semibold text-primary [@media(hover:hover)]:hover:text-orange-500 underline underline-offset-2 transition-colors"
               >
                 Ver el manual completo, con capturas paso a paso
+                <LuExternalLink size={13} className="shrink-0 no-underline" />
               </Link>
             </div>
 

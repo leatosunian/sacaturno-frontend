@@ -17,7 +17,7 @@ interface Props {
 
 const SetRecoverPassword: React.FC<Props> = async ({ params }) => {
   return (
-    <>
+    <div id="top">
       <HeaderPublicBlack />
 
       <main className={styles.authBg}>
@@ -55,7 +55,7 @@ const SetRecoverPassword: React.FC<Props> = async ({ params }) => {
 
         </div>
       </main>
-    </>
+    </div>
   );
 };
 

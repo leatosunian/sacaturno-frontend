@@ -4,7 +4,7 @@ import HeaderPublicBlack from "@/components/home/HeaderPublic"
 
 export default function DepositPendingPage() {
   return (
-    <>
+    <div id="top">
       <HeaderPublicBlack />
       <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-4 text-center">
         <Clock className="text-yellow-500" size={72} />
@@ -19,6 +19,6 @@ export default function DepositPendingPage() {
           Volver al inicio
         </Link>
       </div>
-    </>
+    </div>
   )
 }

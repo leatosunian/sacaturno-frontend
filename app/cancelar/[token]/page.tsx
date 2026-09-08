@@ -121,7 +121,7 @@ export default function CancelAppointmentPage() {
     : "";
 
   return (
-    <>
+    <div id="top">
       <HeaderPublicBlack />
       <main className={styles.authBgScreen}>
         <div className="relative z-[2] flex flex-col items-center w-full max-w-[460px] px-4">
@@ -351,6 +351,6 @@ export default function CancelAppointmentPage() {
         </div>
       </main>
       <Footer />
-    </>
+    </div>
   );
 }
