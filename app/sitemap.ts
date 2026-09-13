@@ -1,11 +1,13 @@
 import { MetadataRoute } from "next";
 import axiosReq from "@/config/axios";
+import { COMPARISONS } from "@/lib/comparisons";
 
 const staticUrls = [
   "/",
   "/public/search",
   "/faq/privacidad",
   "/faq/terminos",
+  ...COMPARISONS.map((c) => `/comparar/${c.slug}`),
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
