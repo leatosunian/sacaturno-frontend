@@ -45,7 +45,9 @@ const SHOTS = [
   {
     src: "servicios-lista.webp",
     full: "servicios.webp",
-    band: band(267, 0, 1078),
+    // Más ancho desde el rediseño de servicios: con 1078 se corta el borde
+    // inferior del panel.
+    band: band(267, 0, 1140),
   },
   {
     src: "agenda-turnos.webp",
