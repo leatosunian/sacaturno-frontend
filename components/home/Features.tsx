@@ -188,6 +188,10 @@ const PILLARS = [
     shot: "/home/servicios.webp",
     mobile: <ServiciosMock />,
     alt: "Servicios con seña configurada",
+    link: {
+      href: "/senas-sin-comision",
+      label: "Sin comisión por seña: mirá cuánto ahorrás",
+    },
   },
   {
     icon: (
@@ -587,6 +591,18 @@ export default function Features() {
                           {pillar.description}
                         </p>
                       </button>
+
+                      {on && pillar.link && (
+                        <div className="px-5 pb-4 -mt-2 short:px-4 short:pb-3">
+                          <Link
+                            href={pillar.link.href}
+                            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange-600 transition-colors duration-300 hover:text-[#d92f04]"
+                          >
+                            {pillar.link.label}
+                            <Arrow className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
+                      )}
 
                       {on && (
                         <div className="px-3 pb-3 lg:hidden">

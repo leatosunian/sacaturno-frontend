@@ -260,26 +260,30 @@ const PricingSection = () => {
                 whileInView="show"
                 viewport={{ once: true, amount: 0.3 }}
               >
-                {card.features.map((item) => (
-                  <motion.div
-                    key={item}
-                    variants={featureItem}
-                    className="flex items-center gap-2"
-                  >
-                    <span
-                      className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${
-                        isPro ? "bg-white/25" : "bg-orange-50"
-                      }`}
+                {card.features.map((item) => {
+                  const isCapacityItem =
+                    item.includes("empleados") || item.includes("sucursales");
+                  return (
+                    <motion.div
+                      key={item}
+                      variants={featureItem}
+                      className="flex items-center gap-2"
                     >
-                      <FaCheck color={isPro ? "white" : "#dd4924"} size={8} />
-                    </span>
-                    <span
-                      className={`text-xs whitespace-nowrap ${isPro ? "text-orange-50" : "text-gray-600"}`}
-                    >
-                      {item}
-                    </span>
-                  </motion.div>
-                ))}
+                      <span
+                        className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${
+                          isPro ? "bg-white/25" : "bg-orange-50"
+                        }`}
+                      >
+                        <FaCheck color={isPro ? "white" : "#dd4924"} size={8} />
+                      </span>
+                      <span
+                        className={`text-xs whitespace-nowrap ${isCapacityItem ? "font-semibold" : ""} ${isPro ? "text-orange-50" : "text-gray-600"}`}
+                      >
+                        {item}
+                      </span>
+                    </motion.div>
+                  );
+                })}
               </motion.div>
 
               <div className="mt-7">

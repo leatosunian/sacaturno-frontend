@@ -32,6 +32,9 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "SacaTurno" }],
   creator: "SacaTurno",
+  verification: {
+    google: "vak7ot_GPw6t-5UyFMLr_AiMdFLf5JY2FmGtPHQv7HI",
+  },
   openGraph: {
     type: "website",
     locale: "es_AR",

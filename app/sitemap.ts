@@ -7,6 +7,7 @@ const staticUrls = [
   "/public/search",
   "/faq/privacidad",
   "/faq/terminos",
+  "/senas-sin-comision",
   ...COMPARISONS.map((c) => `/comparar/${c.slug}`),
 ];
 

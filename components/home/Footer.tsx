@@ -18,7 +18,6 @@ const COLUMNS = [
     title: "Nuestro servicio",
     links: [
       { label: "Preguntas frecuentes", href: "/#faq" },
-      { label: "SacaTurno vs Turnito", href: "/comparar/turnito" },
       { label: "Términos y condiciones", href: "/faq/terminos" },
       { label: "Política de privacidad", href: "/faq/privacidad" },
     ],

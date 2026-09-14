@@ -14,8 +14,8 @@ export interface IPlanLimits {
 export const PLAN_LIMITS: Record<SubscriptionType, IPlanLimits> = {
   SC_FREE: { maxEmployees: 0, maxBranches: 0, depositsEnabled: true, reminderWindows: ["24h"] },
   SC_BASIC: { maxEmployees: 0, maxBranches: 0, depositsEnabled: true, reminderWindows: ["24h"] },
-  SC_PRO: { maxEmployees: 6, maxBranches: 3, depositsEnabled: true, reminderWindows: ["24h", "5h"] },
-  SC_FULL: { maxEmployees: 10, maxBranches: 5, depositsEnabled: true, reminderWindows: ["24h", "5h", "1h"] },
+  SC_PRO: { maxEmployees: 10, maxBranches: 3, depositsEnabled: true, reminderWindows: ["24h", "5h"] },
+  SC_FULL: { maxEmployees: 20, maxBranches: 5, depositsEnabled: true, reminderWindows: ["24h", "5h", "1h"] },
   SC_EXPIRED: { maxEmployees: 0, maxBranches: 0, depositsEnabled: false, reminderWindows: [] },
 };
 
@@ -67,7 +67,7 @@ export const PAID_PLAN_CARDS: IPlanFeatureCard[] = [
       "Servicios ilimitados",
       "Turnos ilimitados",
       "Señas con Mercado Pago",
-      "Recordatorio por email 24hs antes",
+      "Recordatorio por email",
     ],
   },
   {
@@ -79,7 +79,7 @@ export const PAID_PLAN_CARDS: IPlanFeatureCard[] = [
       "Turnos ilimitados",
       "Señas con Mercado Pago",
       "Recordatorios frecuentes",
-      "Hasta 6 empleados",
+      "Hasta 10 empleados",
       "Hasta 3 sucursales",
     ],
   },
@@ -92,7 +92,7 @@ export const PAID_PLAN_CARDS: IPlanFeatureCard[] = [
       "Turnos ilimitados",
       "Señas con Mercado Pago",
       "Recordatorios frecuentes",
-      "Hasta 10 empleados",
+      "Hasta 20 empleados",
       "Hasta 5 sucursales",
     ],
   },

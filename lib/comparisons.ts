@@ -57,12 +57,6 @@ export const COMPARISONS: Comparison[] = [
         advantage: "us",
       },
       {
-        feature: "A dónde entra la plata",
-        us: "Directo a tu cuenta de Mercado Pago",
-        them: "Se cobra a través de la plataforma",
-        advantage: "us",
-      },
-      {
         feature: "Precio para tener 0% de comisión",
         us: "Desde $9.990 por mes",
         them: "$42.000 por mes (plan Pro)",
@@ -134,7 +128,7 @@ export const COMPARISONS: Comparison[] = [
       points: [
         "Si cobrás seña, sin vueltas. La plata entra directo a tu cuenta de Mercado Pago y no retenemos nada, en ningún plan.",
         "Si querés saber cuánto pagás por mes y que no dependa de cuánto factures. El abono es fijo.",
-        "Si tenés varias sucursales o un equipo. Hasta 10 empleados y 5 sucursales en el plan Full.",
+        "Si tenés varias sucursales o un equipo. Hasta 20 empleados y 5 sucursales en el plan Full.",
       ],
     },
     faq: [
