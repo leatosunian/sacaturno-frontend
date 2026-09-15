@@ -2,7 +2,8 @@ import { LuChevronRight } from "react-icons/lu";
 import { formatDate } from "./format";
 import { getCategoryLabel } from "@/lib/businessCategories";
 import { PLAN_SHORT_LABELS } from "@/lib/planLimits";
-import BusinessPlanEditor, { PLAN_BADGE_STYLES, normalizePlan } from "./BusinessPlanEditor";
+import BusinessPlanEditor from "./BusinessPlanEditor";
+import { PLAN_BADGE_STYLES, normalizePlan } from "./planBadge";
 
 interface BusinessRow {
   _id: string;

@@ -13,7 +13,10 @@ axiosReq.interceptors.response.use(
   async (error) => {
     const status = error?.response?.status;
     if (status === 401 && typeof window !== "undefined") {
-      if (!window.location.pathname.startsWith("/login")) {
+      // Backstage tiene su propia sesión: un 401 ahí (ej. credenciales
+      // incorrectas) no debe cerrar ni redirigir la sesión del panel.
+      const { pathname } = window.location;
+      if (!pathname.startsWith("/login") && !pathname.startsWith("/backstage")) {
         try { await fetch("/api/logout"); } catch {}
         window.location.href = "/login";
       }
