@@ -3,6 +3,7 @@ import { IBusiness } from "@/interfaces/business.interface";
 import { IoIosAlert } from "react-icons/io";
 import { LuCalendarClock } from "react-icons/lu";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import ListBookAppointment from "@/components/home/bookAppointments/ListBookAppointment";
 import Footer from "@/components/home/Footer";
 import HeaderPublic from "@/components/home/HeaderPublic";
@@ -10,6 +11,14 @@ import MercadoPagoResultModal from "@/components/payments/MercadoPagoResultModal
 import { composeBranchAddress, resolveContactPhone } from "@/lib/utils";
 import { resolveImageUrl } from "@/lib/images";
 import { buildSocialMetadata } from "@/lib/seo";
+
+// Un slug con extensión de archivo nunca es un negocio: es un asset que ya no
+// existe (una og:image renombrada, un favicon viejo). Sin este corte la ruta
+// dinámica lo atiende igual, el fetch al backend falla y Next responde su error
+// boundary con status 200 y content-type text/html. Para un scraper eso no es
+// un 404: baja 14 KB de HTML creyendo que descargó la imagen y el preview del
+// link queda sin miniatura.
+const ASSET_LIKE_SLUG = /\.[a-z0-9]{2,5}$/i;
 
 interface propsComponent {
   params: {
@@ -36,6 +45,8 @@ export async function generateMetadata({
   params,
 }: propsComponent): Promise<Metadata> {
   const slug = params.slug.toLowerCase();
+  if (ASSET_LIKE_SLUG.test(slug)) notFound();
+
   const businessFetch = await axiosReq.get(`/business/getbyslug/${slug}`);
   const businessData: IBusiness = businessFetch.data;
 
@@ -94,6 +105,8 @@ const getAppointments = async (ID: string) => {
 };
 
 const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
+  if (ASSET_LIKE_SLUG.test(params.slug)) notFound();
+
   const data = await getAppointments(params.slug);
   const bookingsEnabled = data.businessData.bookingsEnabled !== false;
 
