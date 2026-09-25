@@ -5,6 +5,7 @@ import { FaCheck, FaMinus } from "react-icons/fa6";
 import HeaderPublic from "@/components/home/HeaderPublic";
 import Footer from "@/components/home/Footer";
 import { COMPARISONS, getComparison } from "@/lib/comparisons";
+import { buildSocialMetadata } from "@/lib/seo";
 
 interface propsComponent {
   params: {
@@ -41,19 +42,12 @@ export async function generateMetadata({
       "cobrar seña turnos",
     ],
     alternates: { canonical: url },
-    openGraph: {
+    ...buildSocialMetadata({
       title: comparison.metaTitle,
       description: comparison.metaDescription,
       url,
-      images: [
-        {
-          url: "/og-sacaturno.png",
-          width: 1200,
-          height: 630,
-          alt: comparison.metaTitle,
-        },
-      ],
-    },
+      imageAlt: comparison.metaTitle,
+    }),
   };
 }
 

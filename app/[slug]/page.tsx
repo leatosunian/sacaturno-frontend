@@ -9,6 +9,7 @@ import HeaderPublic from "@/components/home/HeaderPublic";
 import MercadoPagoResultModal from "@/components/payments/MercadoPagoResultModal";
 import { composeBranchAddress, resolveContactPhone } from "@/lib/utils";
 import { resolveImageUrl } from "@/lib/images";
+import { buildSocialMetadata } from "@/lib/seo";
 
 interface propsComponent {
   params: {
@@ -60,17 +61,12 @@ export async function generateMetadata({
     alternates: {
       canonical: `https://sacaturno.com.ar/${slug}`,
     },
-    openGraph: {
+    ...buildSocialMetadata({
       title,
       description,
       url: `https://sacaturno.com.ar/${slug}`,
-      type: "website",
-    },
-    twitter: {
-      card: "summary",
-      title,
-      description,
-    },
+      imageAlt: `${businessData.name} — Reservá tu turno online`,
+    }),
   };
 }
 

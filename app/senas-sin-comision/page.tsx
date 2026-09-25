@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { buildSocialMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { FaCheck, FaMinus } from "react-icons/fa6";
 import HeaderPublic from "@/components/home/HeaderPublic";
@@ -21,12 +22,11 @@ export const metadata: Metadata = {
     "app de turnos sin porcentaje",
   ],
   alternates: { canonical: PAGE_URL },
-  openGraph: {
+  ...buildSocialMetadata({
     title: TITLE,
     description: DESCRIPTION,
     url: PAGE_URL,
-    images: [{ url: "/og-sacaturno.png", width: 1200, height: 630, alt: TITLE }],
-  },
+  }),
 };
 
 const DEPOSIT = "$2.000";

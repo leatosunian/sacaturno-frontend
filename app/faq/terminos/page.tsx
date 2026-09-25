@@ -3,18 +3,19 @@ import Footer from "@/components/home/Footer";
 import stylesHome from "@/app/css-modules/HomeWhite.module.css";
 import Link from "next/link";
 import { Metadata } from "next";
+import { buildSocialMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Términos y condiciones",
   description:
     "Leé los términos y condiciones del servicio de SacaTurno, la aplicación de gestión de turnos online para negocios argentinos.",
   alternates: { canonical: "https://sacaturno.com.ar/faq/terminos" },
-  openGraph: {
+  ...buildSocialMetadata({
     title: "Términos y condiciones | SacaTurno",
     description:
       "Leé los términos y condiciones del servicio de SacaTurno.",
     url: "https://sacaturno.com.ar/faq/terminos",
-  },
+  }),
 };
 
 const Terminos = () => {
