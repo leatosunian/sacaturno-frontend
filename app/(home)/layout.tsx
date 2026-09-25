@@ -14,7 +14,7 @@ const structuredData = {
       url: "https://sacaturno.com.ar",
       logo: {
         "@type": "ImageObject",
-        url: "https://sacaturno.com.ar/icon.png",
+        url: "https://sacaturno.com.ar/logo-square.png",
       },
       description:
         "SacaTurno es la app de turnos online para negocios argentinos. Automatizá tus reservas y organizá tu agenda.",
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     url: "https://sacaturno.com.ar",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-sacaturno.png",
         width: 1200,
         height: 630,
         alt: "SacaTurno — Tu app de turnos online",

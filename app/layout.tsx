@@ -45,7 +45,7 @@ export const metadata: Metadata = {
       "Gestioná tu agenda, recibí reservas automáticas y ahorrá tiempo desde el primer día.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-sacaturno.png",
         width: 1200,
         height: 630,
         alt: "SacaTurno — Tu app de turnos online",
@@ -57,11 +57,7 @@ export const metadata: Metadata = {
     title: "SacaTurno | Tu app de turnos online",
     description:
       "Gestioná tu agenda, recibí reservas automáticas y ahorrá tiempo desde el primer día.",
-    images: ["/og-image.png"],
-  },
-  icons: {
-    icon: "/icon.png",
-    apple: "/apple-icon.png",
+    images: ["/og-sacaturno.png"],
   },
 };
 

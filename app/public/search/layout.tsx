@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     url: "https://sacaturno.com.ar/public/search",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-sacaturno.png",
         width: 1200,
         height: 630,
         alt: "SacaTurno — Buscar turnos online",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     title: "Buscar negocios con turnos online | SacaTurno",
     description:
       "Buscá peluquerías, consultorios, estudios y más. Reservá tu turno online al instante.",
-    images: ["/og-image.png"],
+    images: ["/og-sacaturno.png"],
   },
 };
 

@@ -47,7 +47,7 @@ export async function generateMetadata({
       url,
       images: [
         {
-          url: "/og-image.png",
+          url: "/og-sacaturno.png",
           width: 1200,
           height: 630,
           alt: comparison.metaTitle,

@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     url: PAGE_URL,
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: TITLE }],
+    images: [{ url: "/og-sacaturno.png", width: 1200, height: 630, alt: TITLE }],
   },
 };
 
