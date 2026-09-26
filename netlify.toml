@@ -1,2 +1,9 @@
 [build.environment]
   NPM_FLAGS = "--legacy-peer-deps --force"
+
+# El minificador de Netlify elimina <head> y las comillas de los atributos.
+# Es HTML5 valido, pero el scraper de WhatsApp busca los meta dentro de <head>
+# y sin esa etiqueta no encuentra ninguno: el link se comparte sin imagen ni
+# descripcion. Next ya minifica sus propios assets, asi que no perdemos nada.
+[build.processing]
+  skip_processing = true
