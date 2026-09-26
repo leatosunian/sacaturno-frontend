@@ -3,18 +3,18 @@ import Footer from "@/components/home/Footer";
 import stylesHome from "@/app/css-modules/HomeWhite.module.css";
 import Link from "next/link";
 import { Metadata } from "next";
+import { buildSocial } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Política de privacidad",
   description:
     "Conocé cómo SacaTurno protege y utiliza tu información personal. Política de privacidad de la aplicación de turnos online.",
-  alternates: { canonical: "https://sacaturno.com.ar/faq/privacidad" },
-  openGraph: {
-    title: "Política de privacidad",
+  ...buildSocial({
+    title: "Política de privacidad | SacaTurno",
     description:
       "Conocé cómo SacaTurno protege y utiliza tu información personal.",
-    url: "https://sacaturno.com.ar/faq/privacidad",
-  },
+    path: "/faq/privacidad",
+  }),
 };
 
 const Privacidad = () => {

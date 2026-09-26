@@ -7,13 +7,41 @@ import ListBookAppointment from "@/components/home/bookAppointments/ListBookAppo
 import Footer from "@/components/home/Footer";
 import HeaderPublic from "@/components/home/HeaderPublic";
 import MercadoPagoResultModal from "@/components/payments/MercadoPagoResultModal";
+import { notFound } from "next/navigation";
 import { composeBranchAddress, resolveContactPhone } from "@/lib/utils";
 import { resolveImageUrl } from "@/lib/images";
+import { buildSocial } from "@/lib/seo";
 
 interface propsComponent {
   params: {
     slug: string;
   };
+}
+
+// Esta ruta vive en la raiz, asi que se come cualquier path de un solo
+// segmento. Sin este guard, un asset inexistente (/og-image.png) no da 404:
+// el fetch al backend falla, Next renderiza el error boundary y lo devuelve
+// con status 200 y content-type text/html. Un scraper pide una imagen, recibe
+// 200 OK con 14 KB de HTML y no reintenta; Google lo cuenta como duplicado.
+const FILE_EXTENSION = /\.[a-z0-9]{2,5}$/i;
+
+// Archivos que Next sirve desde la raiz por convencion: no son slugs, pero
+// tampoco los tiene que atender esta ruta.
+const NEXT_ROOT_FILES = new Set([
+  "favicon.ico",
+  "icon.png",
+  "apple-icon.png",
+  "opengraph-image.png",
+  "twitter-image.png",
+  "manifest.json",
+  "manifest.webmanifest",
+  "robots.txt",
+  "sitemap.xml",
+]);
+
+function isAssetRequest(slug: string): boolean {
+  const name = slug.toLowerCase();
+  return !NEXT_ROOT_FILES.has(name) && FILE_EXTENSION.test(name);
 }
 
 interface AddressBranch {
@@ -35,6 +63,11 @@ export async function generateMetadata({
   params,
 }: propsComponent): Promise<Metadata> {
   const slug = params.slug.toLowerCase();
+  // notFound() acá tira 500 en Next 13.4.8: el 404 real lo emite el componente.
+  if (isAssetRequest(slug)) {
+    return { title: "Archivo no encontrado", robots: { index: false, follow: false } };
+  }
+
   const businessFetch = await axiosReq.get(`/business/getbyslug/${slug}`);
   const businessData: IBusiness = businessFetch.data;
 
@@ -57,20 +90,12 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: {
-      canonical: `https://sacaturno.com.ar/${slug}`,
-    },
-    openGraph: {
+    ...buildSocial({
       title,
       description,
-      url: `https://sacaturno.com.ar/${slug}`,
-      type: "website",
-    },
-    twitter: {
-      card: "summary",
-      title,
-      description,
-    },
+      path: `/${slug}`,
+      imageAlt: `${businessData.name} — Reservá tu turno con SacaTurno`,
+    }),
   };
 }
 
@@ -98,6 +123,8 @@ const getAppointments = async (ID: string) => {
 };
 
 const BookAppointment: React.FC<propsComponent> = async ({ params }) => {
+  if (isAssetRequest(params.slug)) notFound();
+
   const data = await getAppointments(params.slug);
   const bookingsEnabled = data.businessData.bookingsEnabled !== false;
 

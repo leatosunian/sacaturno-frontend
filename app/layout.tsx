@@ -11,11 +11,12 @@ import {
 } from "react-icons/io5";
 import RouteChangeLoader from "@/components/ui/RouteChangeLoader";
 import type { Metadata } from "next";
+import { SITE_URL, buildSocial } from "@/lib/seo";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://sacaturno.com.ar"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Tu app de turnos online",
     template: "%s | SacaTurno",
@@ -35,30 +36,13 @@ export const metadata: Metadata = {
   verification: {
     google: "vak7ot_GPw6t-5UyFMLr_AiMdFLf5JY2FmGtPHQv7HI",
   },
-  openGraph: {
-    type: "website",
-    locale: "es_AR",
-    url: "https://sacaturno.com.ar",
-    siteName: "SacaTurno",
+  ...buildSocial({
     title: "SacaTurno | Tu app de turnos online",
     description:
       "Gestioná tu agenda, recibí reservas automáticas y ahorrá tiempo desde el primer día.",
-    images: [
-      {
-        url: "/og-sacaturno.png",
-        width: 1200,
-        height: 630,
-        alt: "SacaTurno — Tu app de turnos online",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "SacaTurno | Tu app de turnos online",
-    description:
-      "Gestioná tu agenda, recibí reservas automáticas y ahorrá tiempo desde el primer día.",
-    images: ["/og-sacaturno.png"],
-  },
+    imageAlt: "SacaTurno — Tu app de turnos online",
+    canonical: false,
+  }),
 };
 
 export default function RootLayout({

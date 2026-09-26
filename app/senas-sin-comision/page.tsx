@@ -3,8 +3,9 @@ import Link from "next/link";
 import { FaCheck, FaMinus } from "react-icons/fa6";
 import HeaderPublic from "@/components/home/HeaderPublic";
 import Footer from "@/components/home/Footer";
+import { buildSocial } from "@/lib/seo";
 
-const PAGE_URL = "https://sacaturno.com.ar/senas-sin-comision";
+const PAGE_PATH = "/senas-sin-comision";
 
 const TITLE = "SacaTurno no cobra comisión sobre tus señas";
 const DESCRIPTION =
@@ -20,13 +21,11 @@ export const metadata: Metadata = {
     "sistema de turnos con seña mercado pago",
     "app de turnos sin porcentaje",
   ],
-  alternates: { canonical: PAGE_URL },
-  openGraph: {
+  ...buildSocial({
     title: TITLE,
     description: DESCRIPTION,
-    url: PAGE_URL,
-    images: [{ url: "/og-sacaturno.png", width: 1200, height: 630, alt: TITLE }],
-  },
+    path: PAGE_PATH,
+  }),
 };
 
 const DEPOSIT = "$2.000";

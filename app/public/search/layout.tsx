@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { buildSocial } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Buscar negocios con turnos online",
@@ -11,30 +12,13 @@ export const metadata: Metadata = {
     "consultorio turno online",
     "turno sin llamadas",
   ],
-  alternates: {
-    canonical: "https://sacaturno.com.ar/public/search",
-  },
-  openGraph: {
+  ...buildSocial({
     title: "Buscar negocios con turnos online | SacaTurno",
     description:
       "Buscá peluquerías, consultorios, estudios y más. Reservá tu turno online al instante.",
-    url: "https://sacaturno.com.ar/public/search",
-    images: [
-      {
-        url: "/og-sacaturno.png",
-        width: 1200,
-        height: 630,
-        alt: "SacaTurno — Buscar turnos online",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Buscar negocios con turnos online | SacaTurno",
-    description:
-      "Buscá peluquerías, consultorios, estudios y más. Reservá tu turno online al instante.",
-    images: ["/og-sacaturno.png"],
-  },
+    path: "/public/search",
+    imageAlt: "SacaTurno — Buscar turnos online",
+  }),
 };
 
 export default function Layout({

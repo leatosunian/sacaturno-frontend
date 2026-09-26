@@ -5,6 +5,7 @@ import { FaCheck, FaMinus } from "react-icons/fa6";
 import HeaderPublic from "@/components/home/HeaderPublic";
 import Footer from "@/components/home/Footer";
 import { COMPARISONS, getComparison } from "@/lib/comparisons";
+import { buildSocial } from "@/lib/seo";
 
 interface propsComponent {
   params: {
@@ -28,8 +29,6 @@ export async function generateMetadata({
     };
   }
 
-  const url = `https://sacaturno.com.ar/comparar/${comparison.slug}`;
-
   return {
     title: comparison.metaTitle,
     description: comparison.metaDescription,
@@ -40,20 +39,11 @@ export async function generateMetadata({
       "sistema de turnos argentina",
       "cobrar seña turnos",
     ],
-    alternates: { canonical: url },
-    openGraph: {
+    ...buildSocial({
       title: comparison.metaTitle,
       description: comparison.metaDescription,
-      url,
-      images: [
-        {
-          url: "/og-sacaturno.png",
-          width: 1200,
-          height: 630,
-          alt: comparison.metaTitle,
-        },
-      ],
-    },
+      path: `/comparar/${comparison.slug}`,
+    }),
   };
 }
 

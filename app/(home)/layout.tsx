@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import { AuthProvider } from "../context/authContext";
+import { buildSocial } from "@/lib/seo";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
@@ -58,23 +59,13 @@ export const metadata: Metadata = {
     "gestión de agenda",
     "sacaturno",
   ],
-  alternates: {
-    canonical: "https://sacaturno.com.ar",
-  },
-  openGraph: {
+  ...buildSocial({
     title: "SacaTurno | Tu app de turnos online",
     description:
       "Automatizá tus reservas, organizá tu agenda y dejá que tus clientes reserven solos, las 24 hs. Empezá gratis hoy.",
-    url: "https://sacaturno.com.ar",
-    images: [
-      {
-        url: "/og-sacaturno.png",
-        width: 1200,
-        height: 630,
-        alt: "SacaTurno — Tu app de turnos online",
-      },
-    ],
-  },
+    path: "/",
+    imageAlt: "SacaTurno — Tu app de turnos online",
+  }),
 };
 
 export default function RootLayout({
