@@ -1,9 +1,17 @@
 [build.environment]
   NPM_FLAGS = "--legacy-peer-deps --force"
 
-# El minificador de Netlify elimina <head> y las comillas de los atributos.
-# Es HTML5 valido, pero el scraper de WhatsApp busca los meta dentro de <head>
-# y sin esa etiqueta no encuentra ninguno: el link se comparte sin imagen ni
-# descripcion. Next ya minifica sus propios assets, asi que no perdemos nada.
-[build.processing]
-  skip_processing = true
+# NO habilitar el plugin "Minify HTML" (netlify-plugin-minify-html) en la UI.
+#
+# Ese plugin corre sobre las paginas estaticas del deploy y les saca las
+# comillas de los atributos: og:image queda como
+#   <meta property=og:image content=https://sacaturno.com.ar/og-sacaturno.png>
+# El scraper de WhatsApp ignora los atributos sin comillas, asi que el link se
+# comparte sin miniatura. og:title y og:description sobreviven solo porque sus
+# valores tienen espacios y el minificador se ve obligado a comillarlos.
+#
+# Verificado en produccion: las paginas estaticas salian minificadas y sin
+# preview, las SSR (/[slug]) salian intactas y con imagen.
+#
+# El plugin se instala desde la UI y no deja rastro en el repo, de ahi este
+# comentario.
